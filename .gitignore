@@ -1,0 +1,21 @@
+# Compiler files
+cache/
+out/
+
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
+
+# Dotenv file
+.env
+node_modules
+.DS_Store
+
+#Hardhat files
+cache_hardhat/
+artifacts/
+src/types
+
+#Hardhat plugin files
+typechain-types/
