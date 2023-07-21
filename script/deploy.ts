@@ -216,8 +216,6 @@ const deployChainContracts = async (
       );
       deployParams.addresses[CONTRACTS.Controller] = controller.address;
     } else {
-      console.log(isAppChain, "bjbfksnk");
-
       const nonMintableToken: Contract = await getOrDeploy(
         CONTRACTS.NonMintableToken,
         "src/universalTokens/appChainToken/NonMintableToken.sol",

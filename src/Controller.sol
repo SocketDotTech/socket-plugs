@@ -31,6 +31,11 @@ contract Controller is IHub, Gauge, Ownable2Step {
     // connector => receiver => amount
     mapping(address => mapping(address => uint256)) public pendingMints;
 
+    // connector => amount
+    mapping(address => uint256) public totalPendingMints;
+
+    uint256 public totalSupply;
+
     error ConnectorUnavailable();
     error LengthMismatch();
 
@@ -72,6 +77,8 @@ contract Controller is IHub, Gauge, Ownable2Step {
             revert ConnectorUnavailable();
 
         _consumeFullLimit(burnAmount_, _burnLimitParams[connector_]); // reverts on limit hit
+
+        totalSupply -= burnAmount_;
         token__.burn(msg.sender, burnAmount_);
 
         uint256 unlockAmount = exchangeRate__.getUnlockAmount(
@@ -97,7 +104,10 @@ contract Controller is IHub, Gauge, Ownable2Step {
         );
 
         pendingMints[connector_][receiver_] = pendingAmount;
-        token__.safeTransfer(receiver_, consumedAmount);
+        totalPendingMints[connector_] -= consumedAmount;
+        totalSupply += consumedAmount;
+
+        token__.mint(receiver_, consumedAmount);
     }
 
     // receive inbound assuming connector called
@@ -121,7 +131,10 @@ contract Controller is IHub, Gauge, Ownable2Step {
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
             pendingMints[msg.sender][receiver] += pendingAmount;
+            totalPendingMints[msg.sender] += pendingAmount;
         }
+
+        totalSupply += consumedAmount;
         token__.mint(receiver, consumedAmount);
     }
 }
