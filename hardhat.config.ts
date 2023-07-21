@@ -16,7 +16,7 @@ import { resolve } from "path";
 import fs from "fs";
 
 import { ChainKey, chainKeyToSlug } from "@socket.tech/dl-core";
-import { getJsonRpcUrl } from "./script/deploy/helpers/networks";
+import { getJsonRpcUrl } from "./script/helpers/networks";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });

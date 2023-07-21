@@ -8,10 +8,10 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, DeploymentMode } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import addresses from "../../../deployments/dev_addresses.json";
+import addresses from "../../deployments/dev_addresses.json";
 import { Common, DeploymentAddresses, NonAppChainAddresses } from "./types";
 
-export const deploymentsPath = path.join(__dirname, `/../../../deployments/`);
+export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
 
 export const deployedAddressPath = (mode: DeploymentMode) =>
   deploymentsPath + `${mode}_addresses.json`;
