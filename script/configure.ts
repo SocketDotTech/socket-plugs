@@ -43,10 +43,6 @@ export const main = async () => {
           process.env.PRIVATE_KEY as string,
           providerInstance
         );
-        console.log(
-          socketSigner.address,
-          "socketSigner.addresssocketSigner.addresssocketSigner.addresssocketSigner.address"
-        );
 
         let siblingSlugs: ChainSlug[] = Object.keys(
           addr.connectors!
@@ -110,8 +106,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
-    ? CORE_CONTRACTS.OptimisticSwitchboard
-    : CORE_CONTRACTS.NativeSwitchboard;
+      ? CORE_CONTRACTS.OptimisticSwitchboard
+      : CORE_CONTRACTS.NativeSwitchboard;
 const connect = async (
   addr: Common,
   addresses: DeploymentAddresses,
@@ -159,13 +155,13 @@ const connect = async (
           await getInstance(CONTRACTS.ConnectorPlug, chainAddr[integration]!)
         ).connect(socketSigner);
 
-        // let tx = await connectorContract.functions["connect"](
-        //   siblingConnectorPlug,
-        //   switchboard,
-        //   { ...overrides[chain] }
-        // );
-        // console.log(chain, tx.hash);
-        // await tx.wait();
+        let tx = await connectorContract.functions["connect"](
+          siblingConnectorPlug,
+          switchboard,
+          { ...overrides[chain] }
+        );
+        console.log(chain, tx.hash);
+        await tx.wait();
       }
     }
   } catch (error) {
