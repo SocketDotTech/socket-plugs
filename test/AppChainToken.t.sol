@@ -2,12 +2,12 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "../src/universalTokens/appChainToken/MintableToken.sol";
-import "../src/universalTokens/appChainToken/ConnectorPlug.sol";
-import "../src/universalTokens/appChainToken/Controller.sol";
-import "../src/universalTokens/appChainToken/ExchangeRate.sol";
-import "../src/universalTokens/appChainToken/NonMintableToken.sol";
-import "../src/universalTokens/appChainToken/Vault.sol";
+import "../src/MintableToken.sol";
+import "../src/ConnectorPlug.sol";
+import "../src/Controller.sol";
+import "../src/ExchangeRate.sol";
+import "../src/NonMintableToken.sol";
+import "../src/Vault.sol";
 // import "../src/mocks/MockSocket.sol";
 import "../src/interfaces/ISocket.sol";
 
