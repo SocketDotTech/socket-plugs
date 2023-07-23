@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
-import { getProviderFromChainName } from "./helpers/networks";
+import { getProviderFromChainName } from "../helpers/networks";
 import {
   ChainSlug,
   ChainSlugToKey,
@@ -18,21 +18,21 @@ import {
   tokenName,
   tokenSymbol,
   totalSupply,
-} from "./helpers/constants";
+} from "../helpers/constants";
 import {
   DeployParams,
   createObj,
   getAllAddresses,
   getOrDeploy,
   storeAddresses,
-} from "./helpers/utils";
+} from "../helpers/utils";
 import {
   CONTRACTS,
   DeploymentAddresses,
   Common,
   AppChainAddresses,
   NonAppChainAddresses,
-} from "./helpers/types";
+} from "../helpers/types";
 
 export interface ReturnObj {
   allDeployed: boolean;
