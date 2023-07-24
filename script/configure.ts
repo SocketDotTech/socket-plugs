@@ -106,8 +106,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
-      ? CORE_CONTRACTS.OptimisticSwitchboard
-      : CORE_CONTRACTS.NativeSwitchboard;
+    ? CORE_CONTRACTS.OptimisticSwitchboard
+    : CORE_CONTRACTS.NativeSwitchboard;
 const connect = async (
   addr: Common,
   addresses: DeploymentAddresses,
