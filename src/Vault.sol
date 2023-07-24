@@ -111,4 +111,16 @@ contract Vault is Gauge, IHub, Ownable2Step {
         }
         token__.safeTransfer(receiver, consumedAmount);
     }
+
+    function getCurrentLockLimit(
+        address connector_
+    ) external view returns (uint256) {
+        return _getCurrentLimit(_lockLimitParams[connector_]);
+    }
+
+    function getCurrentUnlockLimit(
+        address connector_
+    ) external view returns (uint256) {
+        return _getCurrentLimit(_unlockLimitParams[connector_]);
+    }
 }

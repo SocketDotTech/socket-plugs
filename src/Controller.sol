@@ -137,4 +137,16 @@ contract Controller is IHub, Gauge, Ownable2Step {
         totalSupply += consumedAmount;
         token__.mint(receiver, consumedAmount);
     }
+
+    function getCurrentMintLimit(
+        address connector_
+    ) external view returns (uint256) {
+        return _getCurrentLimit(_mintLimitParams[connector_]);
+    }
+
+    function getCurrentBurnLimit(
+        address connector_
+    ) external view returns (uint256) {
+        return _getCurrentLimit(_burnLimitParams[connector_]);
+    }
 }
