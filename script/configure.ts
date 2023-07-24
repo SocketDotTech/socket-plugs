@@ -1,5 +1,5 @@
 import fs from "fs";
-import { Contract, Wallet } from "ethers";
+import { BigNumber, Contract, Wallet } from "ethers";
 
 import {
   ChainSlug,
@@ -21,7 +21,7 @@ import {
 } from "./helpers/constants";
 import { CONTRACTS, Common, DeploymentAddresses } from "./helpers/types";
 
-type UpdateLimitParams = [boolean, string, string | number, string | number];
+type UpdateLimitParams = [boolean, string, string | number | BigNumber, string | number | BigNumber];
 
 export const main = async () => {
   try {
