@@ -33,6 +33,29 @@ contract Vault is Gauge, IHub, Ownable2Step {
     error ConnectorUnavailable();
     error LengthMismatch();
 
+    event LimitParamsUpdated(UpdateLimitParams[] updates);
+    event TokensDeposited(
+        address connector,
+        address receiver,
+        uint256 depositAmount,
+        uint256 gasLimit
+    );
+    event PendingTokensTransferred(
+        address connector,
+        address receiver,
+        uint256 consumedAmount
+    );
+    event TokensPending(
+        address connector,
+        address receiver,
+        uint256 pendingAmount
+    );
+    event TokensUnlocked(
+        address connector,
+        address receiver,
+        uint256 consumedAmount
+    );
+
     constructor(address token_, uint32 appChainSlug_) {
         token__ = ERC20(token_);
         _appChainSlug = appChainSlug_;
@@ -54,6 +77,8 @@ contract Vault is Gauge, IHub, Ownable2Step {
                     .ratePerSecond = updates_[i].ratePerSecond;
             }
         }
+
+        emit LimitParamsUpdated(updates_);
     }
 
     function depositToAppChain(
@@ -73,6 +98,8 @@ contract Vault is Gauge, IHub, Ownable2Step {
             gasLimit_,
             abi.encode(receiver_, amount_)
         );
+
+        emit TokensDeposited(connector_, receiver_, amount_, gasLimit_);
     }
 
     function unlockPendingFor(address receiver_, address connector_) external {
@@ -89,6 +116,8 @@ contract Vault is Gauge, IHub, Ownable2Step {
         totalPendingUnlocks[connector_] -= consumedAmount;
 
         token__.safeTransfer(receiver_, consumedAmount);
+
+        emit PendingTokensTransferred(connector_, receiver_, consumedAmount);
     }
 
     // receive inbound assuming connector called
@@ -108,8 +137,11 @@ contract Vault is Gauge, IHub, Ownable2Step {
             // add instead of overwrite to handle case where already pending amount is left
             pendingUnlocks[msg.sender][receiver] += pendingAmount;
             totalPendingUnlocks[msg.sender] += consumedAmount;
+            emit TokensPending(msg.sender, receiver, pendingAmount);
         }
         token__.safeTransfer(receiver, consumedAmount);
+
+        emit TokensUnlocked(msg.sender, receiver, consumedAmount);
     }
 
     function getCurrentLockLimit(
