@@ -1,7 +1,7 @@
 {
   "420": {
-    "isAppChain": false,
     "Moon": {
+      "isAppChain": false,
       "NonMintableToken": "0x1274ef754e40f951b2b26236959e73562E268a47",
       "Vault": "0xb459E00AedAB8c1DC36e9145cAd1726032BAaaA1",
       "connectors": {
@@ -13,8 +13,9 @@
     }
   },
   "421613": {
-    "isAppChain": false,
     "Moon": {
+      "isAppChain": false,
+
       "NonMintableToken": "0x072f0b7652028136051BE2A76D9bE720de4E9634",
       "Vault": "0x470cec6578DB37170CC019a07f197A0E483C0BCC",
       "connectors": {
@@ -25,19 +26,20 @@
       }
     },
     "USDC": {
-      "NonMintableToken": "0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63",
-      "Vault": "0x5e3B5284cdC321F6D7C7eC93c5713ecE3D6824B7",
+      "isAppChain": false,
+      "NonMintableToken": "0x2D9092fD7730d090ED2f1525044B7e3E442F3736",
+      "Vault": "0x327AC6d5E210E983360a4f2a55B9f3B04c5e1182",
       "connectors": {
         "11155112": {
-          "FAST": "0xD582EAE74e66279aa8Fabe5455837165b7eD4290",
-          "OPTIMISTIC": "0x7B8181348BE417BAb9595562d54aB82D32F30B56"
+          "FAST": "0xe4C6DaE9125392b959063e74Df1517bb7A01fE5a",
+          "OPTIMISTIC": "0x98A6cFb2E4F7c37E5752CeAB12C3D8E5F0e549E6"
         }
       }
     }
   },
   "11155112": {
-    "isAppChain": true,
     "Moon": {
+      "isAppChain": true,
       "MintableToken": "0x0B76913F1BB58798C19b3028a6EAb8B30d0CA2EF",
       "ExchangeRate": "0xB0c304D5e3236e78AaA7f0F994b106b798cA1d27",
       "Controller": "0x732fFbCD83733A9E7F8EE1b94366C3c3DfA46092",
@@ -53,13 +55,14 @@
       }
     },
     "USDC": {
+      "isAppChain": true,
       "MintableToken": "0x52623B37Ff81c53567D6D16fd94638734cCDCf27",
       "ExchangeRate": "0x6E6BC965FA8897b7531322461A65f016E8Be1c30",
       "Controller": "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
       "connectors": {
         "421613": {
-          "FAST": "0x6F1912DC9631E8aFC89e7D95Afd7e467845FF6F2",
-          "OPTIMISTIC": "0x818C8977Eed2Dd55A591672e18c9446090057881"
+          "FAST": "0xd84fabe06806270Fb2dDFC2255102206e3B36865",
+          "OPTIMISTIC": "0xBc3Ff3923b36F1590C16363b09c4759654d7B6d4"
         }
       }
     }

@@ -63,6 +63,46 @@
   ],
   "421613": [
     [
+      "0x98A6cFb2E4F7c37E5752CeAB12C3D8E5F0e549E6",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x327AC6d5E210E983360a4f2a55B9f3B04c5e1182",
+        "0x5a90a285ab72393B2c47168374895a5C8101012c",
+        11155112
+      ]
+    ],
+    [
+      "0xe4C6DaE9125392b959063e74Df1517bb7A01fE5a",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x327AC6d5E210E983360a4f2a55B9f3B04c5e1182",
+        "0x5a90a285ab72393B2c47168374895a5C8101012c",
+        11155112
+      ]
+    ],
+    [
+      "0x327AC6d5E210E983360a4f2a55B9f3B04c5e1182",
+      "Vault",
+      "src/universalTokens/appChainToken/Vault.sol",
+      ["0x2D9092fD7730d090ED2f1525044B7e3E442F3736", 421613]
+    ],
+    [
+      "0x2D9092fD7730d090ED2f1525044B7e3E442F3736",
+      "NonMintableToken",
+      "src/universalTokens/appChainToken/NonMintableToken.sol",
+      [
+        "Moon",
+        "MOON",
+        18,
+        {
+          "type": "BigNumber",
+          "hex": "0x033b2e3c9fd0803ce8000000"
+        }
+      ]
+    ],
+    [
       "0x7B8181348BE417BAb9595562d54aB82D32F30B56",
       "ConnectorPlug",
       "src/universalTokens/appChainToken/ConnectorPlug.sol",
@@ -130,6 +170,26 @@
     ]
   ],
   "11155112": [
+    [
+      "0xBc3Ff3923b36F1590C16363b09c4759654d7B6d4",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        421613
+      ]
+    ],
+    [
+      "0xd84fabe06806270Fb2dDFC2255102206e3B36865",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        421613
+      ]
+    ],
     [
       "0x05501406bCC171b543db0A2C547b7cB68D9D69E3",
       "ConnectorPlug",
