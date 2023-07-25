@@ -1,13 +1,13 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
-import { utils } from "ethers";
 import {
   ChainSlug,
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
 import { Tokens } from "./types";
+import { BigNumber } from "ethers";
 
 if (!process.env.SOCKET_OWNER_ADDRESS)
   throw Error("Socket owner address not present");
@@ -39,13 +39,15 @@ export const integrationTypes = [
 ];
 
 export const tokenToBridge: Tokens = Tokens.Moon;
+const parseToWei = (num: number, decimals: number): BigNumber => BigNumber.from(num).mul(BigNumber.from(Math.pow(10, decimals).toString()));
 
 export const tokenName = (tokenToBridge) => tokenToBridge === Tokens.Moon ? "Moon" : "USD coin";
 export const tokenSymbol = (tokenToBridge) => tokenToBridge === Tokens.Moon ? "MOON" : "USDC";
-export const tokenDecimals = 18;
-export const totalSupply = utils.parseUnits("1000000000", "ether");
+export const tokenDecimals = (tokenToBridge) => tokenToBridge === Tokens.Moon ? 18 : 6;
+export const totalSupply = parseToWei(1000000000, tokenDecimals(tokenToBridge));
 
-export const FAST_MAX_LIMIT = utils.parseUnits("3600", "ether");
-export const FAST_RATE = utils.parseUnits("1", "ether");
-export const SLOW_MAX_LIMIT = utils.parseUnits("500", "ether");
-export const SLOW_RATE = utils.parseUnits("2", "ether");
+export const FAST_MAX_LIMIT = parseToWei(3600, tokenDecimals(tokenToBridge));
+export const SLOW_MAX_LIMIT = parseToWei(500, tokenDecimals(tokenToBridge));
+
+export const FAST_RATE = parseToWei(1, tokenDecimals(tokenToBridge));
+export const SLOW_RATE = parseToWei(2, tokenDecimals(tokenToBridge));

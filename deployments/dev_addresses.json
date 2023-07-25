@@ -2,12 +2,12 @@
   "420": {
     "USDC": {
       "isAppChain": false,
-      "NonMintableToken": "0x8f7810D21d67C8c3FD33698FF0371762607680Ee",
-      "Vault": "0xd3FC9839c01e7828d1E5AB0F0c8A2199331f76F0",
+      "NonMintableToken": "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7",
+      "Vault": "0x63Ef8c60f9E2ae811767C94cB264472a9801e7AD",
       "connectors": {
         "11155112": {
-          "FAST": "0x00b89E63a08DcCDEC9F1ce217ED6A1084A637e16",
-          "OPTIMISTIC": "0xDE5A785FBDbFD8D596e0E417F85A9590e5B53BCD"
+          "FAST": "0x7B6aE3769ee906b63d7ad2f147F003BA962C25C4",
+          "OPTIMISTIC": "0x7F18F3A18C02d906b7e29EEED0E1d0092AF25677"
         }
       }
     },
@@ -26,12 +26,12 @@
   "421613": {
     "USDC": {
       "isAppChain": false,
-      "NonMintableToken": "0x4C231DE292a765dD076BdD4198121ED93Bd53A5c",
-      "Vault": "0x67FA225a3c5aC20ebcF7bf7B5E5855C14610424f",
+      "NonMintableToken": "0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E",
+      "Vault": "0xc340c69cB45A77a830d30156CD1251B3b2c0FBDA",
       "connectors": {
         "11155112": {
-          "FAST": "0xB91269A06Db40c70eb32D8bCB8337773461A0946",
-          "OPTIMISTIC": "0x4aBF3d234887e15BBa93C89f2eC757b41e53313E"
+          "FAST": "0xE27477731797f827bD30522e4b130eDdc7ce7696",
+          "OPTIMISTIC": "0xf4687d503F3F4358FAa529e8EE841728EA59332B"
         }
       }
     },
@@ -55,12 +55,12 @@
       "Controller": "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
       "connectors": {
         "420": {
-          "FAST": "0xB71Cd027d4977991EB1F8eA16e5fC7ee750B20Ce",
-          "OPTIMISTIC": "0x4EeA1b973a87CD49C830a43a8F4D8DC0570E144E"
+          "FAST": "0x43B908dD7300026841c69c3250b3A3D66c0ff5f8",
+          "OPTIMISTIC": "0x1C205913D4d6742C47CdC44e779F8cbF89aaa0fd"
         },
         "421613": {
-          "FAST": "0xf48EE36DF69FDE9d15e73395df0B39d9B015E064",
-          "OPTIMISTIC": "0x0b44253e328AEb01BEEC818c88BDbe0eF67f64e4"
+          "FAST": "0xaFb0eF92Dee5b928E0cAe8b950557c4675B7FEa6",
+          "OPTIMISTIC": "0x2fdfDc2CC59E2248457f965B71E2e27BD072d093"
         }
       }
     },

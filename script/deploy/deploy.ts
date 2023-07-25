@@ -196,7 +196,7 @@ const deployChainContracts = async (
       const mintableToken: Contract = await getOrDeploy(
         CONTRACTS.MintableToken,
         "src/MintableToken.sol",
-        [tokenName(tokenToBridge), tokenSymbol(tokenToBridge), tokenDecimals],
+        [tokenName(tokenToBridge), tokenSymbol(tokenToBridge), tokenDecimals(tokenToBridge)],
         deployParams
       );
       deployParams.addresses[CONTRACTS.MintableToken] = mintableToken.address;
@@ -220,7 +220,7 @@ const deployChainContracts = async (
       const nonMintableToken: Contract = await getOrDeploy(
         CONTRACTS.NonMintableToken,
         "src/NonMintableToken.sol",
-        [tokenName(tokenToBridge), tokenSymbol(tokenToBridge), tokenDecimals, totalSupply],
+        [tokenName(tokenToBridge), tokenSymbol(tokenToBridge), tokenDecimals(tokenToBridge), totalSupply],
         deployParams
       );
       deployParams.addresses[CONTRACTS.NonMintableToken] =

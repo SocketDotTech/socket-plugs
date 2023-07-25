@@ -1,6 +1,46 @@
 {
   "420": [
     [
+      "0x7F18F3A18C02d906b7e29EEED0E1d0092AF25677",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x63Ef8c60f9E2ae811767C94cB264472a9801e7AD",
+        "0xD97B9F7fF00E252C0abAa6ce0E13B5F6d9185202",
+        11155112
+      ]
+    ],
+    [
+      "0x7B6aE3769ee906b63d7ad2f147F003BA962C25C4",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x63Ef8c60f9E2ae811767C94cB264472a9801e7AD",
+        "0xD97B9F7fF00E252C0abAa6ce0E13B5F6d9185202",
+        11155112
+      ]
+    ],
+    [
+      "0x63Ef8c60f9E2ae811767C94cB264472a9801e7AD",
+      "Vault",
+      "src/Vault.sol",
+      [
+        "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7",
+        420
+      ]
+    ],
+    [
+      "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7",
+      "NonMintableToken",
+      "src/NonMintableToken.sol",
+      [
+        "USD coin",
+        "USDC",
+        6,
+        1000000000000000
+      ]
+    ],
+    [
       "0x1CAC564E411e3EbC326A75796e1D86A3E2c66f82",
       "ConnectorPlug",
       "src/universalTokens/appChainToken/ConnectorPlug.sol",
@@ -174,6 +214,46 @@
     ]
   ],
   "421613": [
+    [
+      "0xf4687d503F3F4358FAa529e8EE841728EA59332B",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0xc340c69cB45A77a830d30156CD1251B3b2c0FBDA",
+        "0x5a90a285ab72393B2c47168374895a5C8101012c",
+        11155112
+      ]
+    ],
+    [
+      "0xE27477731797f827bD30522e4b130eDdc7ce7696",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0xc340c69cB45A77a830d30156CD1251B3b2c0FBDA",
+        "0x5a90a285ab72393B2c47168374895a5C8101012c",
+        11155112
+      ]
+    ],
+    [
+      "0xc340c69cB45A77a830d30156CD1251B3b2c0FBDA",
+      "Vault",
+      "src/Vault.sol",
+      [
+        "0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E",
+        421613
+      ]
+    ],
+    [
+      "0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E",
+      "NonMintableToken",
+      "src/NonMintableToken.sol",
+      [
+        "USD coin",
+        "USDC",
+        6,
+        1000000000000000
+      ]
+    ],
     [
       "0x3138B783921a684d882C963193b253F2f65C6014",
       "ConnectorPlug",
@@ -420,6 +500,46 @@
     ]
   ],
   "11155112": [
+    [
+      "0x1C205913D4d6742C47CdC44e779F8cbF89aaa0fd",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        420
+      ]
+    ],
+    [
+      "0x43B908dD7300026841c69c3250b3A3D66c0ff5f8",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        420
+      ]
+    ],
+    [
+      "0x2fdfDc2CC59E2248457f965B71E2e27BD072d093",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        421613
+      ]
+    ],
+    [
+      "0xaFb0eF92Dee5b928E0cAe8b950557c4675B7FEa6",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        421613
+      ]
+    ],
     [
       "0x6060B4B6Dd1C5EC18D74D0860db6F43260f99eb2",
       "ConnectorPlug",
