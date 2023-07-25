@@ -21,7 +21,12 @@ import {
 } from "./helpers/constants";
 import { CONTRACTS, Common, DeploymentAddresses } from "./helpers/types";
 
-type UpdateLimitParams = [boolean, string, string | number | BigNumber, string | number | BigNumber];
+type UpdateLimitParams = [
+  boolean,
+  string,
+  string | number | BigNumber,
+  string | number | BigNumber
+];
 
 export const main = async () => {
   try {

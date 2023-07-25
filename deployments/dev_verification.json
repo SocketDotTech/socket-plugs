@@ -24,10 +24,7 @@
       "0xb459E00AedAB8c1DC36e9145cAd1726032BAaaA1",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0x1274ef754e40f951b2b26236959e73562E268a47",
-        420
-      ]
+      ["0x1274ef754e40f951b2b26236959e73562E268a47", 420]
     ],
     [
       "0x1274ef754e40f951b2b26236959e73562E268a47",
@@ -69,10 +66,7 @@
       "0x470cec6578DB37170CC019a07f197A0E483C0BCC",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0x072f0b7652028136051BE2A76D9bE720de4E9634",
-        421613
-      ]
+      ["0x072f0b7652028136051BE2A76D9bE720de4E9634", 421613]
     ],
     [
       "0x072f0b7652028136051BE2A76D9bE720de4E9634",
@@ -149,11 +143,7 @@
       "0x0B76913F1BB58798C19b3028a6EAb8B30d0CA2EF",
       "MintableToken",
       "src/universalTokens/appChainToken/MintableToken.sol",
-      [
-        "Moon",
-        "MOON",
-        18
-      ]
+      ["Moon", "MOON", 18]
     ]
   ]
 }
