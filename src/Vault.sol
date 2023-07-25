@@ -36,24 +36,26 @@ contract Vault is Gauge, IHub, Ownable2Step {
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensDeposited(
         address connector,
+        address depositor,
         address receiver,
-        uint256 depositAmount,
-        uint256 gasLimit
+        uint256 depositAmount
     );
     event PendingTokensTransferred(
         address connector,
         address receiver,
-        uint256 consumedAmount
+        uint256 unlockedAmount,
+        uint256 pendingAmount
     );
     event TokensPending(
         address connector,
         address receiver,
-        uint256 pendingAmount
+        uint256 pendingAmount,
+        uint256 totalPendingAmount
     );
     event TokensUnlocked(
         address connector,
         address receiver,
-        uint256 consumedAmount
+        uint256 unlockedAmount
     );
 
     constructor(address token_, uint32 appChainSlug_) {
@@ -99,7 +101,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
             abi.encode(receiver_, amount_)
         );
 
-        emit TokensDeposited(connector_, receiver_, amount_, gasLimit_);
+        emit TokensDeposited(connector_, msg.sender, receiver_, amount_);
     }
 
     function unlockPendingFor(address receiver_, address connector_) external {
@@ -117,7 +119,12 @@ contract Vault is Gauge, IHub, Ownable2Step {
 
         token__.safeTransfer(receiver_, consumedAmount);
 
-        emit PendingTokensTransferred(connector_, receiver_, consumedAmount);
+        emit PendingTokensTransferred(
+            connector_,
+            receiver_,
+            consumedAmount,
+            pendingAmount
+        );
     }
 
     // receive inbound assuming connector called
@@ -137,7 +144,12 @@ contract Vault is Gauge, IHub, Ownable2Step {
             // add instead of overwrite to handle case where already pending amount is left
             pendingUnlocks[msg.sender][receiver] += pendingAmount;
             totalPendingUnlocks[msg.sender] += consumedAmount;
-            emit TokensPending(msg.sender, receiver, pendingAmount);
+            emit TokensPending(
+                msg.sender,
+                receiver,
+                pendingAmount,
+                pendingUnlocks[msg.sender][receiver]
+            );
         }
         token__.safeTransfer(receiver, consumedAmount);
 

@@ -43,25 +43,23 @@ contract Controller is IHub, Gauge, Ownable2Step {
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensWithdrawn(
         address connector,
+        address withdrawer,
         address receiver,
-        uint256 burnAmount,
-        uint256 gasLimit
+        uint256 burnAmount
     );
     event PendingTokensMinted(
         address connector,
         address receiver,
-        uint256 consumedAmount
+        uint256 mintAmount,
+        uint256 pendingAmount
     );
     event TokensPending(
         address connecter,
         address receiver,
-        uint256 pendingAmount
+        uint256 pendingAmount,
+        uint256 totalPendingAmount
     );
-    event TokensMinted(
-        address connecter,
-        address receiver,
-        uint256 consumedAmount
-    );
+    event TokensMinted(address connecter, address receiver, uint256 mintAmount);
 
     constructor(address token_, address exchangeRate_) {
         token__ = IMintableERC20(token_);
@@ -119,7 +117,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
             abi.encode(receiver_, unlockAmount)
         );
 
-        emit TokensWithdrawn(connector_, receiver_, burnAmount_, gasLimit_);
+        emit TokensWithdrawn(connector_, msg.sender, receiver_, burnAmount_);
     }
 
     function mintPendingFor(address receiver_, address connector_) external {
@@ -138,7 +136,12 @@ contract Controller is IHub, Gauge, Ownable2Step {
 
         token__.mint(receiver_, consumedAmount);
 
-        emit PendingTokensMinted(connector_, receiver_, consumedAmount);
+        emit PendingTokensMinted(
+            connector_,
+            receiver_,
+            consumedAmount,
+            pendingAmount
+        );
     }
 
     // receive inbound assuming connector called
@@ -163,7 +166,12 @@ contract Controller is IHub, Gauge, Ownable2Step {
             // add instead of overwrite to handle case where already pending amount is left
             pendingMints[msg.sender][receiver] += pendingAmount;
             totalPendingMints[msg.sender] += pendingAmount;
-            emit TokensPending(msg.sender, receiver, pendingAmount);
+            emit TokensPending(
+                msg.sender,
+                receiver,
+                pendingAmount,
+                pendingMints[msg.sender][receiver]
+            );
         }
 
         totalSupply += consumedAmount;
