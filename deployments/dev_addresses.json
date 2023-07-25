@@ -1,39 +1,66 @@
 {
   "420": {
     "isAppChain": false,
-    "NonMintableToken": "0x1274ef754e40f951b2b26236959e73562E268a47",
-    "Vault": "0xb459E00AedAB8c1DC36e9145cAd1726032BAaaA1",
-    "connectors": {
-      "11155112": {
-        "FAST": "0xBd55940e8AF721a693Dc7d2395e9827c742ab1FC",
-        "OPTIMISTIC": "0xE136312E85CFD80F0506Ea721e6eFF8F3c140Ba8"
+    "Moon": {
+      "NonMintableToken": "0x1274ef754e40f951b2b26236959e73562E268a47",
+      "Vault": "0xb459E00AedAB8c1DC36e9145cAd1726032BAaaA1",
+      "connectors": {
+        "11155112": {
+          "FAST": "0x06A80CBe09F2dc26A8CDA4620790F8244150E4Bd",
+          "OPTIMISTIC": "0x2684491bE32d6d7E09842CB8e8f8d4Af61170506"
+        }
       }
     }
   },
   "421613": {
     "isAppChain": false,
-    "NonMintableToken": "0x072f0b7652028136051BE2A76D9bE720de4E9634",
-    "Vault": "0x470cec6578DB37170CC019a07f197A0E483C0BCC",
-    "connectors": {
-      "11155112": {
-        "FAST": "0x38Fb9aa745E2FD6c3fcf322cB51003d488346ccC",
-        "OPTIMISTIC": "0x41f12A56c4Fae3BaC3BA30eb02Ae537Cb1A5011b"
+    "Moon": {
+      "NonMintableToken": "0x072f0b7652028136051BE2A76D9bE720de4E9634",
+      "Vault": "0x470cec6578DB37170CC019a07f197A0E483C0BCC",
+      "connectors": {
+        "11155112": {
+          "FAST": "0x38Fb9aa745E2FD6c3fcf322cB51003d488346ccC",
+          "OPTIMISTIC": "0x41f12A56c4Fae3BaC3BA30eb02Ae537Cb1A5011b"
+        }
+      }
+    },
+    "USDC": {
+      "NonMintableToken": "0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63",
+      "Vault": "0x5e3B5284cdC321F6D7C7eC93c5713ecE3D6824B7",
+      "connectors": {
+        "11155112": {
+          "FAST": "0xD582EAE74e66279aa8Fabe5455837165b7eD4290",
+          "OPTIMISTIC": "0x7B8181348BE417BAb9595562d54aB82D32F30B56"
+        }
       }
     }
   },
   "11155112": {
     "isAppChain": true,
-    "MintableToken": "0x0B76913F1BB58798C19b3028a6EAb8B30d0CA2EF",
-    "ExchangeRate": "0xB0c304D5e3236e78AaA7f0F994b106b798cA1d27",
-    "Controller": "0x732fFbCD83733A9E7F8EE1b94366C3c3DfA46092",
-    "connectors": {
-      "420": {
-        "FAST": "0xF304b4b23d0514Bf8174B7dFc59B64391d61B7b9",
-        "OPTIMISTIC": "0x10d9DA6AE85eff6D582A91829f78bde2a3EC2dCC"
-      },
-      "421613": {
-        "FAST": "0xAA5dA5d0B503366c1972a69272B1623B6299D674",
-        "OPTIMISTIC": "0x7057caCb12022Ba47AC515978602A884339086D5"
+    "Moon": {
+      "MintableToken": "0x0B76913F1BB58798C19b3028a6EAb8B30d0CA2EF",
+      "ExchangeRate": "0xB0c304D5e3236e78AaA7f0F994b106b798cA1d27",
+      "Controller": "0x732fFbCD83733A9E7F8EE1b94366C3c3DfA46092",
+      "connectors": {
+        "420": {
+          "FAST": "0xF304b4b23d0514Bf8174B7dFc59B64391d61B7b9",
+          "OPTIMISTIC": "0x10d9DA6AE85eff6D582A91829f78bde2a3EC2dCC"
+        },
+        "421613": {
+          "FAST": "0xAA5dA5d0B503366c1972a69272B1623B6299D674",
+          "OPTIMISTIC": "0x7057caCb12022Ba47AC515978602A884339086D5"
+        }
+      }
+    },
+    "USDC": {
+      "MintableToken": "0x52623B37Ff81c53567D6D16fd94638734cCDCf27",
+      "ExchangeRate": "0x6E6BC965FA8897b7531322461A65f016E8Be1c30",
+      "Controller": "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+      "connectors": {
+        "421613": {
+          "FAST": "0x6F1912DC9631E8aFC89e7D95Afd7e467845FF6F2",
+          "OPTIMISTIC": "0x818C8977Eed2Dd55A591672e18c9446090057881"
+        }
       }
     }
   }

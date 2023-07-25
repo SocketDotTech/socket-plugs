@@ -1,6 +1,26 @@
 {
   "420": [
     [
+      "0x2684491bE32d6d7E09842CB8e8f8d4Af61170506",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0xb459E00AedAB8c1DC36e9145cAd1726032BAaaA1",
+        "0xD97B9F7fF00E252C0abAa6ce0E13B5F6d9185202",
+        11155112
+      ]
+    ],
+    [
+      "0x06A80CBe09F2dc26A8CDA4620790F8244150E4Bd",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0xb459E00AedAB8c1DC36e9145cAd1726032BAaaA1",
+        "0xD97B9F7fF00E252C0abAa6ce0E13B5F6d9185202",
+        11155112
+      ]
+    ],
+    [
       "0xE136312E85CFD80F0506Ea721e6eFF8F3c140Ba8",
       "ConnectorPlug",
       "src/universalTokens/appChainToken/ConnectorPlug.sol",
@@ -43,6 +63,32 @@
   ],
   "421613": [
     [
+      "0x7B8181348BE417BAb9595562d54aB82D32F30B56",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x5e3B5284cdC321F6D7C7eC93c5713ecE3D6824B7",
+        "0x5a90a285ab72393B2c47168374895a5C8101012c",
+        11155112
+      ]
+    ],
+    [
+      "0xD582EAE74e66279aa8Fabe5455837165b7eD4290",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x5e3B5284cdC321F6D7C7eC93c5713ecE3D6824B7",
+        "0x5a90a285ab72393B2c47168374895a5C8101012c",
+        11155112
+      ]
+    ],
+    [
+      "0x5e3B5284cdC321F6D7C7eC93c5713ecE3D6824B7",
+      "Vault",
+      "src/universalTokens/appChainToken/Vault.sol",
+      ["0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63", 421613]
+    ],
+    [
       "0x41f12A56c4Fae3BaC3BA30eb02Ae537Cb1A5011b",
       "ConnectorPlug",
       "src/universalTokens/appChainToken/ConnectorPlug.sol",
@@ -84,6 +130,61 @@
     ]
   ],
   "11155112": [
+    [
+      "0x05501406bCC171b543db0A2C547b7cB68D9D69E3",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        420
+      ]
+    ],
+    [
+      "0xB42BBBd8f725186BBC74AFF6A5e0f15F1c786db2",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        420
+      ]
+    ],
+    [
+      "0x818C8977Eed2Dd55A591672e18c9446090057881",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        421613
+      ]
+    ],
+    [
+      "0x6F1912DC9631E8aFC89e7D95Afd7e467845FF6F2",
+      "ConnectorPlug",
+      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      [
+        "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+        "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
+        421613
+      ]
+    ],
+    [
+      "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+      "Controller",
+      "src/universalTokens/appChainToken/Controller.sol",
+      [
+        "0x52623B37Ff81c53567D6D16fd94638734cCDCf27",
+        "0x6E6BC965FA8897b7531322461A65f016E8Be1c30"
+      ]
+    ],
+    [
+      "0x6E6BC965FA8897b7531322461A65f016E8Be1c30",
+      "ExchangeRate",
+      "src/universalTokens/appChainToken/ExchangeRate.sol",
+      []
+    ],
     [
       "0x10d9DA6AE85eff6D582A91829f78bde2a3EC2dCC",
       "ConnectorPlug",
