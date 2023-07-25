@@ -45,7 +45,7 @@ export const tokenSymbol = (tokenToBridge) => tokenToBridge === Tokens.Moon ? "M
 export const tokenDecimals = 18;
 export const totalSupply = utils.parseUnits("1000000000", "ether");
 
-export const FAST_MAX_LIMIT = utils.parseUnits("1000", "ether");
+export const FAST_MAX_LIMIT = utils.parseUnits("3600", "ether");
 export const FAST_RATE = utils.parseUnits("1", "ether");
 export const SLOW_MAX_LIMIT = utils.parseUnits("500", "ether");
 export const SLOW_RATE = utils.parseUnits("2", "ether");
