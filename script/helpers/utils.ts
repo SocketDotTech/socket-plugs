@@ -10,6 +10,7 @@ import { ChainSlug, DeploymentMode } from "@socket.tech/dl-core";
 import { overrides } from "./networks";
 import addresses from "../../deployments/dev_addresses.json";
 import { Common, DeploymentAddresses, NonAppChainAddresses } from "./types";
+import { tokenToBridge } from "./constants";
 
 export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
 
@@ -135,7 +136,8 @@ export const storeAddresses = async (
     deploymentAddresses = JSON.parse(deploymentAddressesString);
   }
 
-  deploymentAddresses[chainSlug] = addresses;
+  deploymentAddresses = createObj(deploymentAddresses, [chainSlug.toString(), tokenToBridge], addresses);
+  // deploymentAddresses[chainSlug][tokenToBridge] = addresses;
   fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
 };
 
@@ -153,7 +155,7 @@ export const storeAllAddresses = async (
 
 export const getAllAddresses = (mode: DeploymentMode): DeploymentAddresses => {
   if (!addresses) throw new Error("addresses not found");
-  return addresses;
+  return addresses as DeploymentAddresses;
 };
 
 export const storeVerificationParams = async (
@@ -188,10 +190,10 @@ export const storeVerificationParams = async (
 };
 
 export const createObj = function (
-  obj: Common,
+  obj: any,
   keys: string[],
   value: any
-): Common {
+): any {
   if (keys.length === 1) {
     obj[keys[0]] = value;
   } else {

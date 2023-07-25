@@ -1,17 +1,17 @@
 import fs from "fs";
-import { Contract, Wallet } from "ethers";
+import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getProviderFromChainSlug, overrides } from "../helpers/networks";
 import { deployedAddressPath, getInstance } from "../helpers/utils";
-import { mode } from "../helpers/constants";
+import { mode, tokenToBridge } from "../helpers/constants";
 import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 
 const srcChain = ChainSlug.AEVO_TESTNET;
-const dstChain = ChainSlug.OPTIMISM_GOERLI;
-const amount = 1 // utils.parseUnits("1", "ether");
+const dstChain = ChainSlug.ARBITRUM_GOERLI;
 const gasLimit = 1000000;
+let amount = utils.parseUnits("10", "ether");
 
 export const main = async () => {
   try {
@@ -23,7 +23,7 @@ export const main = async () => {
     );
 
     if (!addresses[srcChain] || !addresses[dstChain]) return;
-    let addr: Common = addresses[srcChain]!;
+    let addr: Common = addresses[srcChain][tokenToBridge]!;
 
     const providerInstance = getProviderFromChainSlug(srcChain);
     const socketSigner: Wallet = new Wallet(
@@ -31,17 +31,37 @@ export const main = async () => {
       providerInstance
     );
 
-    if (!addr.Controller || !addr.MintableToken || !addr.connectors?.[dstChain]?.FAST) return;
+    if (
+      !addr.Controller ||
+      !addr.MintableToken ||
+      !addr.connectors?.[dstChain]?.FAST
+    )
+      return;
 
-    const controller: Contract = (await getInstance(CONTRACTS.Controller, addr.Controller!)).connect(socketSigner);
-    const token: Contract = (await getInstance(CONTRACTS.MintableToken, addr.MintableToken!)).connect(socketSigner);
+    const controller: Contract = (
+      await getInstance(CONTRACTS.Controller, addr.Controller!)
+    ).connect(socketSigner);
+    const token: Contract = (
+      await getInstance(CONTRACTS.MintableToken, addr.MintableToken!)
+    ).connect(socketSigner);
 
     // approve
-    const approveTx = await token.approve(controller.address, amount);
-    console.log(approveTx.hash);
-    await approveTx.wait();
+    const balance: BigNumber = await token.balanceOf(socketSigner.address);
+    if (balance.lt(amount)) throw new Error("Not enough balance");
+
+    const currentApproval: BigNumber = await token.allowance(socketSigner.address, controller.address);
+    if (currentApproval.lt(amount)) {
+      const approveTx = await token.approve(controller.address, amount);
+      console.log(approveTx.hash);
+      await approveTx.wait();
+    }
 
     // deposit
+    const limit: BigNumber = await controller.getCurrentBurnLimit(addr.connectors?.[dstChain]?.FAST!);
+    if (limit.lt(amount)) amount = limit;
+
+    console.log(`withdrawing ${amount} from app chain to ${dstChain}`);
+
     const socket: Contract = getSocket(srcChain, socketSigner);
     const value = await socket.getMinFees(
       gasLimit,

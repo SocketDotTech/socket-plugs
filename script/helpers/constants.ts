@@ -7,6 +7,7 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
+import { Tokens } from "./types";
 
 if (!process.env.SOCKET_OWNER_ADDRESS)
   throw Error("Socket owner address not present");
@@ -37,12 +38,14 @@ export const integrationTypes = [
   IntegrationTypes.optimistic,
 ];
 
-export const tokenName = "Moon";
-export const tokenSymbol = "MOON";
+export const tokenToBridge: Tokens = Tokens.Moon;
+
+export const tokenName = (tokenToBridge) => tokenToBridge === Tokens.Moon ? "Moon" : "USD coin";
+export const tokenSymbol = (tokenToBridge) => tokenToBridge === Tokens.Moon ? "MOON" : "USDC";
 export const tokenDecimals = 18;
 export const totalSupply = utils.parseUnits("1000000000", "ether");
 
-export const FAST_MAX_LIMIT = utils.parseUnits("100", "ether");
-export const FAST_RATE = 1;
+export const FAST_MAX_LIMIT = utils.parseUnits("1000", "ether");
+export const FAST_RATE = utils.parseUnits("1", "ether");
 export const SLOW_MAX_LIMIT = utils.parseUnits("500", "ether");
-export const SLOW_RATE = 2;
+export const SLOW_RATE = utils.parseUnits("2", "ether");

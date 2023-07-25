@@ -17,6 +17,7 @@ import {
   tokenDecimals,
   tokenName,
   tokenSymbol,
+  tokenToBridge,
   totalSupply,
 } from "../helpers/constants";
 import {
@@ -63,8 +64,8 @@ export const main = async () => {
           providerInstance
         );
 
-        let chainAddresses: Common = addresses[chain]
-          ? (addresses[chain] as Common)
+        let chainAddresses: Common = addresses[chain]?.[tokenToBridge]
+          ? (addresses[chain]?.[tokenToBridge] as Common)
           : ({} as Common);
 
         const siblings = isAppChain(chain)
@@ -87,7 +88,7 @@ export const main = async () => {
       })
     );
   } catch (error) {
-    console.log("Error in deploying setup contracts", error);
+    console.log("Error in deploying contracts", error);
   }
 };
 
@@ -121,7 +122,7 @@ const deploy = async (
     console.log(deployUtils.addresses);
     console.log("Contracts deployed!");
   } catch (error) {
-    console.log("Error in deploying setup contracts", error);
+    console.log(`Error in deploying setup contracts for ${deployUtils.currentChainSlug}`, error);
   }
 
   await storeAddresses(
@@ -194,15 +195,15 @@ const deployChainContracts = async (
     if (isAppChain) {
       const mintableToken: Contract = await getOrDeploy(
         CONTRACTS.MintableToken,
-        "src/universalTokens/appChainToken/MintableToken.sol",
-        [tokenName, tokenSymbol, tokenDecimals],
+        "src/MintableToken.sol",
+        [tokenName(tokenToBridge), tokenSymbol(tokenToBridge), tokenDecimals],
         deployParams
       );
       deployParams.addresses[CONTRACTS.MintableToken] = mintableToken.address;
 
       const exchangeRate: Contract = await getOrDeploy(
         CONTRACTS.ExchangeRate,
-        "src/universalTokens/appChainToken/ExchangeRate.sol",
+        "src/ExchangeRate.sol",
         [],
         deployParams
       );
@@ -210,7 +211,7 @@ const deployChainContracts = async (
 
       const controller: Contract = await getOrDeploy(
         CONTRACTS.Controller,
-        "src/universalTokens/appChainToken/Controller.sol",
+        "src/Controller.sol",
         [mintableToken.address, exchangeRate.address],
         deployParams
       );
@@ -218,8 +219,8 @@ const deployChainContracts = async (
     } else {
       const nonMintableToken: Contract = await getOrDeploy(
         CONTRACTS.NonMintableToken,
-        "src/universalTokens/appChainToken/NonMintableToken.sol",
-        [tokenName, tokenSymbol, tokenDecimals, totalSupply],
+        "src/NonMintableToken.sol",
+        [tokenName(tokenToBridge), tokenSymbol(tokenToBridge), tokenDecimals, totalSupply],
         deployParams
       );
       deployParams.addresses[CONTRACTS.NonMintableToken] =
@@ -228,7 +229,7 @@ const deployChainContracts = async (
 
       const vault: Contract = await getOrDeploy(
         CONTRACTS.Vault,
-        "src/universalTokens/appChainToken/Vault.sol",
+        "src/Vault.sol",
         [nonMintableToken.address, deployParams.currentChainSlug],
         deployParams
       );
@@ -237,7 +238,7 @@ const deployChainContracts = async (
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
   } catch (error) {
-    console.log("Error in deploying setup contracts", error);
+    console.log("Error in deploying chain contracts", error);
   }
 
   return deployParams;
