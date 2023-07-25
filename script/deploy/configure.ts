@@ -7,10 +7,9 @@ import {
   CORE_CONTRACTS,
   getAddresses,
 } from "@socket.tech/dl-core";
-import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 
-import { getProviderFromChainSlug, overrides } from "./helpers/networks";
-import { deployedAddressPath, getInstance } from "./helpers/utils";
+import { getProviderFromChainSlug, overrides } from "../helpers/networks";
+import { deployedAddressPath, getInstance } from "../helpers/utils";
 import {
   FAST_MAX_LIMIT,
   FAST_RATE,
@@ -18,8 +17,9 @@ import {
   SLOW_RATE,
   chains,
   mode,
-} from "./helpers/constants";
-import { CONTRACTS, Common, DeploymentAddresses } from "./helpers/types";
+} from "../helpers/constants";
+import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
+import { getSocket } from "../bridge/utils";
 
 type UpdateLimitParams = [boolean, string, string | number, string | number];
 
@@ -127,12 +127,7 @@ const connect = async (
         chainAddr
       ) as unknown as IntegrationTypes[];
 
-      const socketContract: Contract = new Contract(
-        getAddresses(chain, mode).Socket,
-        socketABI,
-        socketSigner
-      );
-
+      const socketContract: Contract = getSocket(chain, socketSigner);
       for (let integration of integrationTypes) {
         const siblingConnectorPlug = siblingAddr?.[integration]!;
         const switchboard = getAddresses(chain, mode)?.[
