@@ -3,7 +3,7 @@ import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getProviderFromChainSlug, overrides } from "../helpers/networks";
 import { deployedAddressPath, getInstance } from "../helpers/utils";
-import { mode, tokenToBridge } from "../helpers/constants";
+import { mode, parseToWei, tokenDecimals, tokenToBridge } from "../helpers/constants";
 import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
@@ -11,7 +11,7 @@ import { getSocket } from "./utils";
 const srcChain = ChainSlug.ARBITRUM_GOERLI;
 const dstChain = ChainSlug.AEVO_TESTNET;
 const gasLimit = 1000000;
-let amount = utils.parseUnits("10", "ether");
+let amount = parseToWei(10, tokenDecimals(tokenToBridge));
 
 export const main = async () => {
   try {
@@ -49,17 +49,17 @@ export const main = async () => {
     const balance: BigNumber = await token.balanceOf(socketSigner.address);
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
+    const limit: BigNumber = await vault.getCurrentLockLimit(addr.connectors?.[dstChain]?.FAST!);
+    if (limit.lt(amount)) throw new Error("Exceeding max limit")
+
     const currentApproval: BigNumber = await token.allowance(socketSigner.address, vault.address);
     if (currentApproval.lt(amount)) {
       const approveTx = await token.approve(vault.address, amount);
-      console.log(approveTx.hash);
+      console.log("Tokens approved: ", approveTx.hash);
       await approveTx.wait();
     }
 
     // deposit
-    const limit: BigNumber = await vault.getCurrentLockLimit(addr.connectors?.[dstChain]?.FAST!);
-    if (limit.lt(amount)) amount = limit;
-
     console.log(`depositing ${amount} to app chain from ${srcChain}`);
 
     const socket: Contract = getSocket(srcChain, socketSigner);
@@ -79,10 +79,9 @@ export const main = async () => {
       addr.connectors?.[dstChain]?.FAST!,
       { ...overrides[srcChain], value }
     );
-    console.log(depositTx.hash);
+    console.log("Tokens deposited: ", depositTx.hash);
+    console.log(`Track message here: https://6il289myzb.execute-api.us-east-1.amazonaws.com/dev/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`)
     await depositTx.wait();
-
-    console.log(`Sent bridge tx from ${srcChain} to ${dstChain}`);
   } catch (error) {
     console.log("Error while sending transaction", error);
   }

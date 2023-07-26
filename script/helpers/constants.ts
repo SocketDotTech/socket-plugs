@@ -38,8 +38,9 @@ export const integrationTypes = [
   IntegrationTypes.optimistic,
 ];
 
+export const parseToWei = (num: number, decimals: number): BigNumber => BigNumber.from(num).mul(BigNumber.from(Math.pow(10, decimals).toString()));
+
 export const tokenToBridge: Tokens = Tokens.Moon;
-const parseToWei = (num: number, decimals: number): BigNumber => BigNumber.from(num).mul(BigNumber.from(Math.pow(10, decimals).toString()));
 
 export const tokenName = (tokenToBridge) => tokenToBridge === Tokens.Moon ? "Moon" : "USD coin";
 export const tokenSymbol = (tokenToBridge) => tokenToBridge === Tokens.Moon ? "MOON" : "USDC";
