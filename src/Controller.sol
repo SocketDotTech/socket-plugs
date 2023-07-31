@@ -39,6 +39,28 @@ contract Controller is IHub, Gauge, Ownable2Step {
     error ConnectorUnavailable();
     error LengthMismatch();
 
+    event ExchangeRateUpdated(address exchangeRate);
+    event LimitParamsUpdated(UpdateLimitParams[] updates);
+    event TokensWithdrawn(
+        address connector,
+        address withdrawer,
+        address receiver,
+        uint256 burnAmount
+    );
+    event PendingTokensMinted(
+        address connector,
+        address receiver,
+        uint256 mintAmount,
+        uint256 pendingAmount
+    );
+    event TokensPending(
+        address connecter,
+        address receiver,
+        uint256 pendingAmount,
+        uint256 totalPendingAmount
+    );
+    event TokensMinted(address connecter, address receiver, uint256 mintAmount);
+
     constructor(address token_, address exchangeRate_) {
         token__ = IMintableERC20(token_);
         exchangeRate__ = IExchangeRate(exchangeRate_);
@@ -46,6 +68,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
 
     function updateExchangeRate(address exchangeRate_) external onlyOwner {
         exchangeRate__ = IExchangeRate(exchangeRate_);
+        emit ExchangeRateUpdated(exchangeRate_);
     }
 
     function updateLimitParams(
@@ -64,6 +87,8 @@ contract Controller is IHub, Gauge, Ownable2Step {
                     .ratePerSecond = updates_[i].ratePerSecond;
             }
         }
+
+        emit LimitParamsUpdated(updates_);
     }
 
     // do we throttle burn amount or unlock amount? burn for now
@@ -91,6 +116,8 @@ contract Controller is IHub, Gauge, Ownable2Step {
             gasLimit_,
             abi.encode(receiver_, unlockAmount)
         );
+
+        emit TokensWithdrawn(connector_, msg.sender, receiver_, burnAmount_);
     }
 
     function mintPendingFor(address receiver_, address connector_) external {
@@ -108,6 +135,13 @@ contract Controller is IHub, Gauge, Ownable2Step {
         totalSupply += consumedAmount;
 
         token__.mint(receiver_, consumedAmount);
+
+        emit PendingTokensMinted(
+            connector_,
+            receiver_,
+            consumedAmount,
+            pendingAmount
+        );
     }
 
     // receive inbound assuming connector called
@@ -132,10 +166,18 @@ contract Controller is IHub, Gauge, Ownable2Step {
             // add instead of overwrite to handle case where already pending amount is left
             pendingMints[msg.sender][receiver] += pendingAmount;
             totalPendingMints[msg.sender] += pendingAmount;
+            emit TokensPending(
+                msg.sender,
+                receiver,
+                pendingAmount,
+                pendingMints[msg.sender][receiver]
+            );
         }
 
         totalSupply += consumedAmount;
         token__.mint(receiver, consumedAmount);
+
+        emit TokensMinted(msg.sender, receiver, consumedAmount);
     }
 
     function getCurrentMintLimit(

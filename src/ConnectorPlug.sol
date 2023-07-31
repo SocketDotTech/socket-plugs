@@ -25,6 +25,8 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
     error NotHub();
     error NotSocket();
 
+    event ConnectorPlugDisconnected(address siblingPlug);
+
     constructor(address hub_, address socket_, uint32 siblingChainSlug_) {
         hub__ = IHub(hub_);
         socket__ = ISocket(socket_);
@@ -66,5 +68,14 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
         );
     }
 
-    // @todo: disconnect
+    function disconnect(address siblingPlug_) external onlyOwner {
+        socket__.connect(
+            siblingChainSlug,
+            siblingPlug_,
+            address(0),
+            address(0)
+        );
+
+        emit ConnectorPlugDisconnected(siblingPlug_);
+    }
 }

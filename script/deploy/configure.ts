@@ -1,5 +1,5 @@
 import fs from "fs";
-import { Contract, Wallet } from "ethers";
+import { BigNumber, Contract, Wallet } from "ethers";
 
 import {
   ChainSlug,
@@ -21,7 +21,12 @@ import {
 import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
 import { getSocket } from "../bridge/utils";
 
-type UpdateLimitParams = [boolean, string, string | number, string | number];
+type UpdateLimitParams = [
+  boolean,
+  string,
+  string | number | BigNumber,
+  string | number | BigNumber
+];
 
 export const main = async () => {
   try {
@@ -106,8 +111,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
-      ? CORE_CONTRACTS.OptimisticSwitchboard
-      : CORE_CONTRACTS.NativeSwitchboard;
+    ? CORE_CONTRACTS.OptimisticSwitchboard
+    : CORE_CONTRACTS.NativeSwitchboard;
 const connect = async (
   addr: Common,
   addresses: DeploymentAddresses,

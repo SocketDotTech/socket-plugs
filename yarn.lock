@@ -2555,12 +2555,7 @@ prettier-plugin-solidity@^1.0.0-beta.13:
     semver "^7.3.8"
     solidity-comments-extractor "^0.0.7"
 
-prettier@1.12.1:
-  version "1.12.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.12.1.tgz#c1ad20e803e7749faf905a409d2367e06bbe7325"
-  integrity sha512-0pNl3XiDYDs4gikLFUt/EjdpQx9tDzexMJDs/Xfh3IrhNEd6mYJh0XipH7B1gxQVtT5ESJH7qpGXgNxRNDbTRA==
-
-prettier@^2.3.1:
+prettier@^2.3.1, prettier@^2.6.1:
   version "2.8.8"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.8.8.tgz#e8c5d7e98a4305ffe3de2e1fc4aca1a71c28b1da"
   integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
