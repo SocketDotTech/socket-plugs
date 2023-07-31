@@ -1,12 +1,13 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
-import { utils } from "ethers";
 import {
   ChainSlug,
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
+import { Tokens } from "./types";
+import { BigNumber, utils } from "ethers";
 
 if (!process.env.SOCKET_OWNER_ADDRESS)
   throw Error("Socket owner address not present");
@@ -37,12 +38,27 @@ export const integrationTypes = [
   IntegrationTypes.optimistic,
 ];
 
-export const tokenName = "Moon";
-export const tokenSymbol = "MOON";
-export const tokenDecimals = 18;
-export const totalSupply = utils.parseUnits("1000000000", "ether");
+export const tokenToBridge: Tokens = Tokens.Moon;
 
-export const FAST_MAX_LIMIT = utils.parseUnits("100", "ether");
-export const FAST_RATE = 1;
-export const SLOW_MAX_LIMIT = utils.parseUnits("500", "ether");
-export const SLOW_RATE = 2;
+export const tokenName = {
+  [Tokens.Moon]: "Moon",
+  [Tokens.USDC]: "USD coin"
+}
+
+export const tokenSymbol = {
+  [Tokens.Moon]: "MOON",
+  [Tokens.USDC]: "USDC"
+}
+
+export const tokenDecimals = {
+  [Tokens.Moon]: 18,
+  [Tokens.USDC]: 6
+}
+
+export const totalSupply = utils.parseUnits("1000000000", tokenDecimals[tokenToBridge]);
+
+export const FAST_MAX_LIMIT = utils.parseUnits("3600", tokenDecimals[tokenToBridge]);
+export const SLOW_MAX_LIMIT = utils.parseUnits("500", tokenDecimals[tokenToBridge]);
+
+export const FAST_RATE = utils.parseUnits("1", tokenDecimals[tokenToBridge]);
+export const SLOW_RATE = utils.parseUnits("2", tokenDecimals[tokenToBridge]);

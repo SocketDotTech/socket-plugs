@@ -17,6 +17,7 @@ import {
   SLOW_RATE,
   chains,
   mode,
+  tokenToBridge,
 } from "../helpers/constants";
 import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
 import { getSocket } from "../bridge/utils";
@@ -39,8 +40,13 @@ export const main = async () => {
 
     await Promise.all(
       chains.map(async (chain) => {
-        if (!addresses[chain] || !addresses[chain]?.connectors) return;
-        let addr: Common = addresses[chain]!;
+        if (
+          !addresses[chain] ||
+          !addresses[chain]?.[tokenToBridge] ||
+          !addresses[chain]?.[tokenToBridge]?.connectors
+        )
+          return;
+        let addr: Common = addresses[chain]?.[tokenToBridge]!;
 
         const providerInstance = getProviderFromChainSlug(chain);
 
@@ -111,8 +117,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
-    ? CORE_CONTRACTS.OptimisticSwitchboard
-    : CORE_CONTRACTS.NativeSwitchboard;
+      ? CORE_CONTRACTS.OptimisticSwitchboard
+      : CORE_CONTRACTS.NativeSwitchboard;
 const connect = async (
   addr: Common,
   addresses: DeploymentAddresses,
@@ -125,9 +131,9 @@ const connect = async (
 
     for (let sibling of siblingSlugs) {
       const chainAddr = addr.connectors?.[sibling]!;
-      if (!addresses[sibling]?.connectors?.[chain]) continue;
+      if (!addresses[sibling]?.[tokenToBridge]?.connectors?.[chain]) continue;
 
-      const siblingAddr = addresses[sibling]?.connectors?.[chain];
+      const siblingAddr = addresses[sibling]?.[tokenToBridge]?.connectors?.[chain];
       const integrationTypes: IntegrationTypes[] = Object.keys(
         chainAddr
       ) as unknown as IntegrationTypes[];
@@ -139,7 +145,7 @@ const connect = async (
           switchboardName(integration)
         ];
 
-        if (!addresses[sibling]?.connectors?.[chain]) continue;
+        if (!addresses[sibling]?.[tokenToBridge]?.connectors?.[chain]) continue;
 
         let config = await socketContract.getPlugConfig(
           chainAddr[integration],

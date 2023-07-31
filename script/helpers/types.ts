@@ -1,5 +1,10 @@
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
+export enum Tokens {
+  Moon = "MOON",
+  USDC = "USDC",
+}
+
 export enum CONTRACTS {
   MintableToken = "MintableToken",
   NonMintableToken = "NonMintableToken",
@@ -10,7 +15,11 @@ export enum CONTRACTS {
 }
 
 export type DeploymentAddresses = {
-  [chainSlug in ChainSlug]?: Common;
+  [chainSlug in ChainSlug]?: TokenChainAddresses;
+};
+
+export type TokenChainAddresses = {
+  [token in Tokens]?: Common;
 };
 
 export interface Common extends AppChainAddresses, NonAppChainAddresses {
