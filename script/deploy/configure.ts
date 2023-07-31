@@ -117,8 +117,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
-      ? CORE_CONTRACTS.OptimisticSwitchboard
-      : CORE_CONTRACTS.NativeSwitchboard;
+    ? CORE_CONTRACTS.OptimisticSwitchboard
+    : CORE_CONTRACTS.NativeSwitchboard;
 const connect = async (
   addr: Common,
   addresses: DeploymentAddresses,
@@ -133,7 +133,8 @@ const connect = async (
       const chainAddr = addr.connectors?.[sibling]!;
       if (!addresses[sibling]?.[tokenToBridge]?.connectors?.[chain]) continue;
 
-      const siblingAddr = addresses[sibling]?.[tokenToBridge]?.connectors?.[chain];
+      const siblingAddr =
+        addresses[sibling]?.[tokenToBridge]?.connectors?.[chain];
       const integrationTypes: IntegrationTypes[] = Object.keys(
         chainAddr
       ) as unknown as IntegrationTypes[];

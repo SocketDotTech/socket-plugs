@@ -42,23 +42,32 @@ export const tokenToBridge: Tokens = Tokens.Moon;
 
 export const tokenName = {
   [Tokens.Moon]: "Moon",
-  [Tokens.USDC]: "USD coin"
-}
+  [Tokens.USDC]: "USD coin",
+};
 
 export const tokenSymbol = {
   [Tokens.Moon]: "MOON",
-  [Tokens.USDC]: "USDC"
-}
+  [Tokens.USDC]: "USDC",
+};
 
 export const tokenDecimals = {
   [Tokens.Moon]: 18,
-  [Tokens.USDC]: 6
-}
+  [Tokens.USDC]: 6,
+};
 
-export const totalSupply = utils.parseUnits("1000000000", tokenDecimals[tokenToBridge]);
+export const totalSupply = utils.parseUnits(
+  "1000000000",
+  tokenDecimals[tokenToBridge]
+);
 
-export const FAST_MAX_LIMIT = utils.parseUnits("3600", tokenDecimals[tokenToBridge]);
-export const SLOW_MAX_LIMIT = utils.parseUnits("500", tokenDecimals[tokenToBridge]);
+export const FAST_MAX_LIMIT = utils.parseUnits(
+  "3600",
+  tokenDecimals[tokenToBridge]
+);
+export const SLOW_MAX_LIMIT = utils.parseUnits(
+  "500",
+  tokenDecimals[tokenToBridge]
+);
 
 export const FAST_RATE = utils.parseUnits("1", tokenDecimals[tokenToBridge]);
 export const SLOW_RATE = utils.parseUnits("2", tokenDecimals[tokenToBridge]);

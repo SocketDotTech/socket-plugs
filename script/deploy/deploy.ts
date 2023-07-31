@@ -122,7 +122,10 @@ const deploy = async (
     console.log(deployUtils.addresses);
     console.log("Contracts deployed!");
   } catch (error) {
-    console.log(`Error in deploying setup contracts for ${deployUtils.currentChainSlug}`, error);
+    console.log(
+      `Error in deploying setup contracts for ${deployUtils.currentChainSlug}`,
+      error
+    );
   }
 
   await storeAddresses(
@@ -196,7 +199,11 @@ const deployChainContracts = async (
       const mintableToken: Contract = await getOrDeploy(
         CONTRACTS.MintableToken,
         "src/MintableToken.sol",
-        [tokenName[tokenToBridge], tokenSymbol[tokenToBridge], tokenDecimals[tokenToBridge]],
+        [
+          tokenName[tokenToBridge],
+          tokenSymbol[tokenToBridge],
+          tokenDecimals[tokenToBridge],
+        ],
         deployParams
       );
       deployParams.addresses[CONTRACTS.MintableToken] = mintableToken.address;
@@ -220,7 +227,12 @@ const deployChainContracts = async (
       const nonMintableToken: Contract = await getOrDeploy(
         CONTRACTS.NonMintableToken,
         "src/NonMintableToken.sol",
-        [tokenName[tokenToBridge], tokenSymbol[tokenToBridge], tokenDecimals[tokenToBridge], totalSupply],
+        [
+          tokenName[tokenToBridge],
+          tokenSymbol[tokenToBridge],
+          tokenDecimals[tokenToBridge],
+          totalSupply,
+        ],
         deployParams
       );
       deployParams.addresses[CONTRACTS.NonMintableToken] =

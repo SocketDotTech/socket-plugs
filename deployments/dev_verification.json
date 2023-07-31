@@ -24,21 +24,13 @@
       "0x63Ef8c60f9E2ae811767C94cB264472a9801e7AD",
       "Vault",
       "src/Vault.sol",
-      [
-        "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7",
-        420
-      ]
+      ["0xa23C9E4e3c65729059F12a0463F8c938e0A464d7", 420]
     ],
     [
       "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7",
       "NonMintableToken",
       "src/NonMintableToken.sol",
-      [
-        "USD coin",
-        "USDC",
-        6,
-        1000000000000000
-      ]
+      ["USD coin", "USDC", 6, 1000000000000000]
     ],
     [
       "0x1CAC564E411e3EbC326A75796e1D86A3E2c66f82",
@@ -64,10 +56,7 @@
       "0x2069cc361e9d5d81CFF8d5e5092386d043bC2A5a",
       "Vault",
       "src/Vault.sol",
-      [
-        "0xe1911a407F7625C352CDD676306c986F588dE0A2",
-        420
-      ]
+      ["0xe1911a407F7625C352CDD676306c986F588dE0A2", 420]
     ],
     [
       "0xe1911a407F7625C352CDD676306c986F588dE0A2",
@@ -107,10 +96,7 @@
       "0xd3FC9839c01e7828d1E5AB0F0c8A2199331f76F0",
       "Vault",
       "src/Vault.sol",
-      [
-        "0x8f7810D21d67C8c3FD33698FF0371762607680Ee",
-        420
-      ]
+      ["0x8f7810D21d67C8c3FD33698FF0371762607680Ee", 420]
     ],
     [
       "0x8f7810D21d67C8c3FD33698FF0371762607680Ee",
@@ -130,10 +116,7 @@
       "0x8ac4792631250F975CFa27247ebD87BD19c31eaD",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0x46Cc7224091AB1480294DA871B6E6A34afdD897d",
-        420
-      ]
+      ["0x46Cc7224091AB1480294DA871B6E6A34afdD897d", 420]
     ],
     [
       "0x46Cc7224091AB1480294DA871B6E6A34afdD897d",
@@ -193,10 +176,7 @@
       "0xb459E00AedAB8c1DC36e9145cAd1726032BAaaA1",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0x1274ef754e40f951b2b26236959e73562E268a47",
-        420
-      ]
+      ["0x1274ef754e40f951b2b26236959e73562E268a47", 420]
     ],
     [
       "0x1274ef754e40f951b2b26236959e73562E268a47",
@@ -238,21 +218,13 @@
       "0xc340c69cB45A77a830d30156CD1251B3b2c0FBDA",
       "Vault",
       "src/Vault.sol",
-      [
-        "0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E",
-        421613
-      ]
+      ["0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E", 421613]
     ],
     [
       "0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E",
       "NonMintableToken",
       "src/NonMintableToken.sol",
-      [
-        "USD coin",
-        "USDC",
-        6,
-        1000000000000000
-      ]
+      ["USD coin", "USDC", 6, 1000000000000000]
     ],
     [
       "0x3138B783921a684d882C963193b253F2f65C6014",
@@ -278,10 +250,7 @@
       "0x9E22C6350d8bE9BD69f946d126a4908A8E0e9Ddb",
       "Vault",
       "src/Vault.sol",
-      [
-        "0x0740B18267B4A2fAD6584F9D8904cc5D4CceFbCC",
-        421613
-      ]
+      ["0x0740B18267B4A2fAD6584F9D8904cc5D4CceFbCC", 421613]
     ],
     [
       "0x0740B18267B4A2fAD6584F9D8904cc5D4CceFbCC",
@@ -321,10 +290,7 @@
       "0x67FA225a3c5aC20ebcF7bf7B5E5855C14610424f",
       "Vault",
       "src/Vault.sol",
-      [
-        "0x4C231DE292a765dD076BdD4198121ED93Bd53A5c",
-        421613
-      ]
+      ["0x4C231DE292a765dD076BdD4198121ED93Bd53A5c", 421613]
     ],
     [
       "0x4C231DE292a765dD076BdD4198121ED93Bd53A5c",
@@ -364,10 +330,7 @@
       "0x0c8855525418eaD999F7C8911a1aa729c89C28Ca",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0x1feb979731512310ECd2796ADAa5dc28d95d7FEf",
-        421613
-      ]
+      ["0x1feb979731512310ECd2796ADAa5dc28d95d7FEf", 421613]
     ],
     [
       "0x1feb979731512310ECd2796ADAa5dc28d95d7FEf",
@@ -407,10 +370,7 @@
       "0x327AC6d5E210E983360a4f2a55B9f3B04c5e1182",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0x2D9092fD7730d090ED2f1525044B7e3E442F3736",
-        421613
-      ]
+      ["0x2D9092fD7730d090ED2f1525044B7e3E442F3736", 421613]
     ],
     [
       "0x2D9092fD7730d090ED2f1525044B7e3E442F3736",
@@ -450,10 +410,7 @@
       "0x5e3B5284cdC321F6D7C7eC93c5713ecE3D6824B7",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63",
-        421613
-      ]
+      ["0xfd064A18f3BF249cf1f87FC203E90D8f650f2d63", 421613]
     ],
     [
       "0x41f12A56c4Fae3BaC3BA30eb02Ae537Cb1A5011b",
@@ -479,10 +436,7 @@
       "0x470cec6578DB37170CC019a07f197A0E483C0BCC",
       "Vault",
       "src/universalTokens/appChainToken/Vault.sol",
-      [
-        "0x072f0b7652028136051BE2A76D9bE720de4E9634",
-        421613
-      ]
+      ["0x072f0b7652028136051BE2A76D9bE720de4E9634", 421613]
     ],
     [
       "0x072f0b7652028136051BE2A76D9bE720de4E9634",
@@ -599,11 +553,7 @@
       "0x6a74C25f380EcE8B3a9BcBd6ECe7765f18b59d93",
       "MintableToken",
       "src/MintableToken.sol",
-      [
-        "Moon",
-        "MOON",
-        18
-      ]
+      ["Moon", "MOON", 18]
     ],
     [
       "0x4EeA1b973a87CD49C830a43a8F4D8DC0570E144E",
@@ -764,11 +714,7 @@
       "0xEa0814C572cDD329380ddf345463E3fb7E342a93",
       "MintableToken",
       "src/universalTokens/appChainToken/MintableToken.sol",
-      [
-        "Moon",
-        "MOON",
-        18
-      ]
+      ["Moon", "MOON", 18]
     ],
     [
       "0xBc3Ff3923b36F1590C16363b09c4759654d7B6d4",
@@ -904,11 +850,7 @@
       "0x0B76913F1BB58798C19b3028a6EAb8B30d0CA2EF",
       "MintableToken",
       "src/universalTokens/appChainToken/MintableToken.sol",
-      [
-        "Moon",
-        "MOON",
-        18
-      ]
+      ["Moon", "MOON", 18]
     ]
   ]
 }
