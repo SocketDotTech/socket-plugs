@@ -3,7 +3,7 @@ import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getProviderFromChainSlug, overrides } from "../helpers/networks";
 import { deployedAddressPath, getInstance } from "../helpers/utils";
-import { mode, parseToWei, tokenDecimals, tokenToBridge } from "../helpers/constants";
+import { mode, tokenDecimals, tokenToBridge } from "../helpers/constants";
 import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
@@ -11,7 +11,7 @@ import { getSocket } from "./utils";
 const srcChain = ChainSlug.ARBITRUM_GOERLI;
 const dstChain = ChainSlug.AEVO_TESTNET;
 const gasLimit = 1000000;
-let amount = parseToWei(10, tokenDecimals(tokenToBridge));
+let amount = utils.parseUnits("10", tokenDecimals[tokenToBridge]);
 
 export const main = async () => {
   try {
