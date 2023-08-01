@@ -20,7 +20,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
     }
 
     // connector => totalLockedAmount
-    mapping(address => uint256) public totalLockedAmounts;
+    mapping(address => uint256) public connectorLockedAmounts;
 
     // connector => mintLimitParams
     mapping(address => LimitParams) _mintLimitParams;
@@ -32,9 +32,9 @@ contract Controller is IHub, Gauge, Ownable2Step {
     mapping(address => mapping(address => uint256)) public pendingMints;
 
     // connector => amount
-    mapping(address => uint256) public totalPendingMints;
+    mapping(address => uint256) public connectorPendingMints;
 
-    uint256 public totalSupply;
+    uint256 public totalMinted;
 
     error ConnectorUnavailable();
     error LengthMismatch();
@@ -103,14 +103,14 @@ contract Controller is IHub, Gauge, Ownable2Step {
 
         _consumeFullLimit(burnAmount_, _burnLimitParams[connector_]); // reverts on limit hit
 
-        totalSupply -= burnAmount_;
+        totalMinted -= burnAmount_;
         token__.burn(msg.sender, burnAmount_);
 
         uint256 unlockAmount = exchangeRate__.getUnlockAmount(
             burnAmount_,
-            totalLockedAmounts[connector_]
+            connectorLockedAmounts[connector_]
         );
-        totalLockedAmounts[connector_] -= unlockAmount; // underflow revert expected
+        connectorLockedAmounts[connector_] -= unlockAmount; // underflow revert expected
 
         IConnector(connector_).outbound{value: msg.value}(
             gasLimit_,
@@ -131,8 +131,8 @@ contract Controller is IHub, Gauge, Ownable2Step {
         );
 
         pendingMints[connector_][receiver_] = pendingAmount;
-        totalPendingMints[connector_] -= consumedAmount;
-        totalSupply += consumedAmount;
+        connectorPendingMints[connector_] -= consumedAmount;
+        totalMinted += consumedAmount;
 
         token__.mint(receiver_, consumedAmount);
 
@@ -152,10 +152,10 @@ contract Controller is IHub, Gauge, Ownable2Step {
             (address, uint256)
         );
 
-        totalLockedAmounts[msg.sender] += lockAmount;
+        connectorLockedAmounts[msg.sender] += lockAmount;
         uint256 mintAmount = exchangeRate__.getMintAmount(
             lockAmount,
-            totalLockedAmounts[msg.sender]
+            connectorLockedAmounts[msg.sender]
         );
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             mintAmount,
@@ -165,7 +165,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
             pendingMints[msg.sender][receiver] += pendingAmount;
-            totalPendingMints[msg.sender] += pendingAmount;
+            connectorPendingMints[msg.sender] += pendingAmount;
             emit TokensPending(
                 msg.sender,
                 receiver,
@@ -174,7 +174,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
             );
         }
 
-        totalSupply += consumedAmount;
+        totalMinted += consumedAmount;
         token__.mint(receiver, consumedAmount);
 
         emit TokensMinted(msg.sender, receiver, consumedAmount);
@@ -190,5 +190,17 @@ contract Controller is IHub, Gauge, Ownable2Step {
         address connector_
     ) external view returns (uint256) {
         return _getCurrentLimit(_burnLimitParams[connector_]);
+    }
+
+    function getMintLimitParams(
+        address connector_
+    ) external view returns (LimitParams memory) {
+        return _mintLimitParams[connector_];
+    }
+
+    function getBurnLimitParams(
+        address connector_
+    ) external view returns (LimitParams memory) {
+        return _burnLimitParams[connector_];
     }
 }

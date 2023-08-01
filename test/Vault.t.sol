@@ -26,15 +26,8 @@ contract TestVault is Test {
         skip(100);
 
         vm.startPrank(_admin);
-        _token = new NonMintableToken(
-            "Moon",
-            "MOON",
-            18,
-            1_000_000_000 ether
-        );
-        _vault = new Vault(
-            address(_token)
-        );
+        _token = new NonMintableToken("Moon", "MOON", 18, 1_000_000_000 ether);
+        _vault = new Vault(address(_token));
         vm.stopPrank();
     }
 
@@ -60,14 +53,33 @@ contract TestVault is Test {
     function testUpdateLimitParams() external {
         _setLimits();
 
-        Vault.LimitParams memory lockLimitParams = _vault.getLockLimitParams(_connector);
-        Vault.LimitParams memory unlockLimitParams = _vault.getUnlockLimitParams(_connector);
+        Vault.LimitParams memory lockLimitParams = _vault.getLockLimitParams(
+            _connector
+        );
+        Vault.LimitParams memory unlockLimitParams = _vault
+            .getUnlockLimitParams(_connector);
 
-        assertEq(lockLimitParams.maxLimit, _lockMaxLimit, "lock max limit not updated");
-        assertEq(lockLimitParams.ratePerSecond, _lockRate, "lock rate not updated");
+        assertEq(
+            lockLimitParams.maxLimit,
+            _lockMaxLimit,
+            "lock max limit not updated"
+        );
+        assertEq(
+            lockLimitParams.ratePerSecond,
+            _lockRate,
+            "lock rate not updated"
+        );
 
-        assertEq(unlockLimitParams.maxLimit, _unlockMaxLimit, "unlock max limit not updated");
-        assertEq(unlockLimitParams.ratePerSecond, _unlockRate, "unlock rate not updated");
+        assertEq(
+            unlockLimitParams.maxLimit,
+            _unlockMaxLimit,
+            "unlock max limit not updated"
+        );
+        assertEq(
+            unlockLimitParams.ratePerSecond,
+            _unlockRate,
+            "unlock rate not updated"
+        );
     }
 
     function testUpdateLimitParamsRaju() external {
@@ -96,13 +108,21 @@ contract TestVault is Test {
         deal(_raju, _fees);
         vm.prank(_raju);
         vm.expectRevert(Vault.ConnectorUnavailable.selector);
-        _vault.depositToAppChain{value: _fees}(_raju, depositAmount, _msgGasLimit, _wrongConnector);
+        _vault.depositToAppChain{value: _fees}(
+            _raju,
+            depositAmount,
+            _msgGasLimit,
+            _wrongConnector
+        );
     }
 
     function testDepositLimitHit() external {
         uint256 depositAmount = 201 ether;
         _setLimits();
-        assertTrue(depositAmount > _vault.getCurrentLockLimit(_connector), "deposit amount within limit");
+        assertTrue(
+            depositAmount > _vault.getCurrentLockLimit(_connector),
+            "deposit amount within limit"
+        );
 
         vm.prank(_admin);
         _token.transfer(_raju, depositAmount);
@@ -111,7 +131,12 @@ contract TestVault is Test {
         vm.startPrank(_raju);
         _token.approve(address(_vault), depositAmount);
         vm.expectRevert(Gauge.AmountOutsideLimit.selector);
-        _vault.depositToAppChain{value: _fees}(_raju, depositAmount, _msgGasLimit, _connector);
+        _vault.depositToAppChain{value: _fees}(
+            _raju,
+            depositAmount,
+            _msgGasLimit,
+            _connector
+        );
         vm.stopPrank();
     }
 
@@ -126,29 +151,55 @@ contract TestVault is Test {
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 lockLimitBefore = _vault.getCurrentLockLimit(_connector);
 
-        assertTrue(depositAmount <= _vault.getCurrentLockLimit(_connector), "too big deposit");
+        assertTrue(
+            depositAmount <= _vault.getCurrentLockLimit(_connector),
+            "too big deposit"
+        );
 
         vm.startPrank(_raju);
         _token.approve(address(_vault), depositAmount);
         vm.mockCall(
             _connector,
-            abi.encodeCall(IConnector.outbound,(_msgGasLimit, abi.encode(_raju, depositAmount))),
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, depositAmount))
+            ),
             bytes("0")
         );
         vm.expectCall(
             _connector,
-            abi.encodeCall(IConnector.outbound, (_msgGasLimit, abi.encode(_raju, depositAmount)))
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, depositAmount))
+            )
         );
-        _vault.depositToAppChain{value: _fees}(_raju, depositAmount, _msgGasLimit, _connector);
+        _vault.depositToAppChain{value: _fees}(
+            _raju,
+            depositAmount,
+            _msgGasLimit,
+            _connector
+        );
         vm.stopPrank();
 
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 lockLimitAfter = _vault.getCurrentLockLimit(_connector);
 
-        assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "raju balance sus");
-        assertEq(vaultBalAfter, vaultBalBefore + depositAmount, "vault balance sus");
-        assertEq(lockLimitAfter, lockLimitBefore - depositAmount, "lock limit sus");
+        assertEq(
+            rajuBalAfter,
+            rajuBalBefore - depositAmount,
+            "raju balance sus"
+        );
+        assertEq(
+            vaultBalAfter,
+            vaultBalBefore + depositAmount,
+            "vault balance sus"
+        );
+        assertEq(
+            lockLimitAfter,
+            lockLimitBefore - depositAmount,
+            "lock limit sus"
+        );
     }
 
     function testPartLockLimitReplenish() external {
@@ -161,21 +212,36 @@ contract TestVault is Test {
         _token.approve(address(_vault), usedLimit);
         vm.mockCall(
             _connector,
-            abi.encodeCall(IConnector.outbound,(_msgGasLimit, abi.encode(_raju, usedLimit))),
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, usedLimit))
+            ),
             bytes("0")
         );
-        _vault.depositToAppChain{value: _fees}(_raju, usedLimit, _msgGasLimit, _connector);
+        _vault.depositToAppChain{value: _fees}(
+            _raju,
+            usedLimit,
+            _msgGasLimit,
+            _connector
+        );
         vm.stopPrank();
 
         uint256 lockLimitBefore = _vault.getCurrentLockLimit(_connector);
 
         assertTrue(lockLimitBefore < _lockMaxLimit, "full limit avail");
-        assertTrue(lockLimitBefore + time * _lockRate < _lockMaxLimit, "too much time");
+        assertTrue(
+            lockLimitBefore + time * _lockRate < _lockMaxLimit,
+            "too much time"
+        );
 
         skip(time);
 
         uint256 lockLimitAfter = _vault.getCurrentLockLimit(_connector);
-        assertEq(lockLimitAfter, lockLimitBefore + time * _lockRate, "lock limit sus");
+        assertEq(
+            lockLimitAfter,
+            lockLimitBefore + time * _lockRate,
+            "lock limit sus"
+        );
     }
 
     function testFullLockLimitReplenish() external {
@@ -188,16 +254,27 @@ contract TestVault is Test {
         _token.approve(address(_vault), usedLimit);
         vm.mockCall(
             _connector,
-            abi.encodeCall(IConnector.outbound,(_msgGasLimit, abi.encode(_raju, usedLimit))),
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, usedLimit))
+            ),
             bytes("0")
         );
-        _vault.depositToAppChain{value: _fees}(_raju, usedLimit, _msgGasLimit, _connector);
+        _vault.depositToAppChain{value: _fees}(
+            _raju,
+            usedLimit,
+            _msgGasLimit,
+            _connector
+        );
         vm.stopPrank();
 
         uint256 lockLimitBefore = _vault.getCurrentLockLimit(_connector);
 
         assertTrue(lockLimitBefore < _lockMaxLimit, "full limit avail");
-        assertTrue(lockLimitBefore + time * _lockRate > _lockMaxLimit, "not enough time");
+        assertTrue(
+            lockLimitBefore + time * _lockRate > _lockMaxLimit,
+            "not enough time"
+        );
 
         skip(time);
 
@@ -212,21 +289,39 @@ contract TestVault is Test {
 
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
-        uint256 pendingUnlocksBefore = _vault.pendingUnlocks(_wrongConnector, _raju);
-        uint256 totalPendingUnlocksBefore = _vault.totalPendingUnlocks(_wrongConnector);
+        uint256 pendingUnlocksBefore = _vault.pendingUnlocks(
+            _wrongConnector,
+            _raju
+        );
+        uint256 connectorPendingUnlocksBefore = _vault.connectorPendingUnlocks(
+            _wrongConnector
+        );
 
         vm.prank(_wrongConnector);
         _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
 
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
-        uint256 pendingUnlocksAfter = _vault.pendingUnlocks(_wrongConnector, _raju);
-        uint256 totalPendingUnlocksAfter = _vault.totalPendingUnlocks(_wrongConnector);
+        uint256 pendingUnlocksAfter = _vault.pendingUnlocks(
+            _wrongConnector,
+            _raju
+        );
+        uint256 connectorPendingUnlocksAfter = _vault.connectorPendingUnlocks(
+            _wrongConnector
+        );
 
         assertEq(vaultBalAfter, vaultBalBefore, "vault balance sus");
         assertEq(rajuBalAfter, rajuBalBefore, "raju balance sus");
-        assertEq(pendingUnlocksAfter, pendingUnlocksBefore + withdrawAmount, "pending unlocks sus");
-        assertEq(totalPendingUnlocksAfter, totalPendingUnlocksBefore + withdrawAmount, "total pending amount sus");
+        assertEq(
+            pendingUnlocksAfter,
+            pendingUnlocksBefore + withdrawAmount,
+            "pending unlocks sus"
+        );
+        assertEq(
+            connectorPendingUnlocksAfter,
+            connectorPendingUnlocksBefore + withdrawAmount,
+            "total pending amount sus"
+        );
     }
 
     function testFullConsumeInboundReceive() external {
@@ -237,7 +332,9 @@ contract TestVault is Test {
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksBefore = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksBefore = _vault.connectorPendingUnlocks(
+            _connector
+        );
         uint256 unlockLimitBefore = _vault.getCurrentUnlockLimit(_connector);
 
         assertTrue(withdrawAmount <= unlockLimitBefore, "limit hit");
@@ -248,14 +345,36 @@ contract TestVault is Test {
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksAfter = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksAfter = _vault.connectorPendingUnlocks(
+            _connector
+        );
         uint256 unlockLimitAfter = _vault.getCurrentUnlockLimit(_connector);
 
-        assertEq(vaultBalAfter, vaultBalBefore - withdrawAmount, "vault balance sus");
-        assertEq(rajuBalAfter, rajuBalBefore + withdrawAmount, "raju balance sus");
-        assertEq(pendingUnlocksAfter, pendingUnlocksBefore, "pending unlocks sus");
-        assertEq(totalPendingUnlocksAfter, totalPendingUnlocksBefore, "total pending amount sus");
-        assertEq(unlockLimitAfter, unlockLimitBefore - withdrawAmount, "unlock limit sus");
+        assertEq(
+            vaultBalAfter,
+            vaultBalBefore - withdrawAmount,
+            "vault balance sus"
+        );
+        assertEq(
+            rajuBalAfter,
+            rajuBalBefore + withdrawAmount,
+            "raju balance sus"
+        );
+        assertEq(
+            pendingUnlocksAfter,
+            pendingUnlocksBefore,
+            "pending unlocks sus"
+        );
+        assertEq(
+            connectorPendingUnlocksAfter,
+            connectorPendingUnlocksBefore,
+            "total pending amount sus"
+        );
+        assertEq(
+            unlockLimitAfter,
+            unlockLimitBefore - withdrawAmount,
+            "unlock limit sus"
+        );
     }
 
     function testPartConsumeInboundReceive() external {
@@ -266,7 +385,9 @@ contract TestVault is Test {
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksBefore = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksBefore = _vault.connectorPendingUnlocks(
+            _connector
+        );
         uint256 unlockLimitBefore = _vault.getCurrentUnlockLimit(_connector);
 
         assertTrue(unlockLimitBefore > 0, "no unlock limit available");
@@ -278,13 +399,31 @@ contract TestVault is Test {
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksAfter = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksAfter = _vault.connectorPendingUnlocks(
+            _connector
+        );
         uint256 unlockLimitAfter = _vault.getCurrentUnlockLimit(_connector);
 
-        assertEq(vaultBalAfter, vaultBalBefore - unlockLimitBefore, "vault balance sus");
-        assertEq(rajuBalAfter, rajuBalBefore + unlockLimitBefore, "raju balance sus");
-        assertEq(pendingUnlocksAfter, pendingUnlocksBefore + withdrawAmount - unlockLimitBefore, "pending unlocks sus");
-        assertEq(totalPendingUnlocksAfter, totalPendingUnlocksBefore + withdrawAmount - unlockLimitBefore, "total pending amount sus");
+        assertEq(
+            vaultBalAfter,
+            vaultBalBefore - unlockLimitBefore,
+            "vault balance sus"
+        );
+        assertEq(
+            rajuBalAfter,
+            rajuBalBefore + unlockLimitBefore,
+            "raju balance sus"
+        );
+        assertEq(
+            pendingUnlocksAfter,
+            pendingUnlocksBefore + withdrawAmount - unlockLimitBefore,
+            "pending unlocks sus"
+        );
+        assertEq(
+            connectorPendingUnlocksAfter,
+            connectorPendingUnlocksBefore + withdrawAmount - unlockLimitBefore,
+            "total pending amount sus"
+        );
         assertEq(unlockLimitAfter, 0, "unlock limit sus");
     }
 
@@ -299,12 +438,19 @@ contract TestVault is Test {
         uint256 unlockLimitBefore = _vault.getCurrentUnlockLimit(_connector);
 
         assertTrue(unlockLimitBefore < _unlockMaxLimit, "full limit avail");
-        assertTrue(unlockLimitBefore + time * _unlockRate < _unlockMaxLimit, "too much time");
+        assertTrue(
+            unlockLimitBefore + time * _unlockRate < _unlockMaxLimit,
+            "too much time"
+        );
 
         skip(time);
 
         uint256 unlockLimitAfter = _vault.getCurrentUnlockLimit(_connector);
-        assertEq(unlockLimitAfter, unlockLimitBefore + time * _unlockRate, "unlock limit sus");
+        assertEq(
+            unlockLimitAfter,
+            unlockLimitBefore + time * _unlockRate,
+            "unlock limit sus"
+        );
     }
 
     function testFullUnlockLimitReplenish() external {
@@ -318,7 +464,10 @@ contract TestVault is Test {
         uint256 unlockLimitBefore = _vault.getCurrentUnlockLimit(_connector);
 
         assertTrue(unlockLimitBefore < _unlockMaxLimit, "full limit avail");
-        assertTrue(unlockLimitBefore + time * _unlockRate > _unlockMaxLimit, "not enough time");
+        assertTrue(
+            unlockLimitBefore + time * _unlockRate > _unlockMaxLimit,
+            "not enough time"
+        );
 
         skip(time);
 
@@ -335,10 +484,12 @@ contract TestVault is Test {
         _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
 
         uint256 pendingUnlocks = _vault.pendingUnlocks(_wrongConnector, _raju);
-        uint256 totalPendingUnlocks = _vault.totalPendingUnlocks(_wrongConnector);
+        uint256 connectorPendingUnlocks = _vault.connectorPendingUnlocks(
+            _wrongConnector
+        );
 
         assertEq(pendingUnlocks, withdrawAmount);
-        assertEq(totalPendingUnlocks, withdrawAmount);
+        assertEq(connectorPendingUnlocks, withdrawAmount);
 
         vm.expectRevert(Vault.ConnectorUnavailable.selector);
         _vault.unlockPendingFor(_raju, _wrongConnector);
@@ -356,13 +507,30 @@ contract TestVault is Test {
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksBefore = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksBefore = _vault.connectorPendingUnlocks(
+            _connector
+        );
 
-        assertEq(vaultBalBefore, withdrawAmount - _unlockMaxLimit, "vault bal before sus");
+        assertEq(
+            vaultBalBefore,
+            withdrawAmount - _unlockMaxLimit,
+            "vault bal before sus"
+        );
         assertEq(rajuBalBefore, _unlockMaxLimit, "raju bal before sus");
-        assertEq(pendingUnlocksBefore, withdrawAmount - _unlockMaxLimit, "pending unlock before sus");
-        assertEq(totalPendingUnlocksBefore, withdrawAmount - _unlockMaxLimit, "total pending unlock before sus");
-        assertTrue(time * _unlockRate > withdrawAmount - _unlockMaxLimit, "not enough time");
+        assertEq(
+            pendingUnlocksBefore,
+            withdrawAmount - _unlockMaxLimit,
+            "pending unlock before sus"
+        );
+        assertEq(
+            connectorPendingUnlocksBefore,
+            withdrawAmount - _unlockMaxLimit,
+            "total pending unlock before sus"
+        );
+        assertTrue(
+            time * _unlockRate > withdrawAmount - _unlockMaxLimit,
+            "not enough time"
+        );
 
         skip(time);
         _vault.unlockPendingFor(_raju, _connector);
@@ -370,12 +538,18 @@ contract TestVault is Test {
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksAfter = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksAfter = _vault.connectorPendingUnlocks(
+            _connector
+        );
 
         assertEq(vaultBalAfter, 0, "vault bal after sus");
         assertEq(rajuBalAfter, withdrawAmount, "raju bal after sus");
         assertEq(pendingUnlocksAfter, 0, "pending unlock after sus");
-        assertEq(totalPendingUnlocksAfter, 0, "total pending unlock after sus");
+        assertEq(
+            connectorPendingUnlocksAfter,
+            0,
+            "total pending unlock after sus"
+        );
     }
 
     function testPartConsumeUnlockPending() external {
@@ -390,16 +564,33 @@ contract TestVault is Test {
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksBefore = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksBefore = _vault.connectorPendingUnlocks(
+            _connector
+        );
         uint256 newUnlock = time * _unlockRate;
 
-        assertEq(vaultBalBefore, withdrawAmount - _unlockMaxLimit, "vault bal before sus");
+        assertEq(
+            vaultBalBefore,
+            withdrawAmount - _unlockMaxLimit,
+            "vault bal before sus"
+        );
         assertEq(rajuBalBefore, _unlockMaxLimit, "raju bal before sus");
-        assertEq(pendingUnlocksBefore, withdrawAmount - _unlockMaxLimit, "pending unlock before sus");
-        assertEq(totalPendingUnlocksBefore, withdrawAmount - _unlockMaxLimit, "total pending unlock before sus");
+        assertEq(
+            pendingUnlocksBefore,
+            withdrawAmount - _unlockMaxLimit,
+            "pending unlock before sus"
+        );
+        assertEq(
+            connectorPendingUnlocksBefore,
+            withdrawAmount - _unlockMaxLimit,
+            "total pending unlock before sus"
+        );
         assertTrue(withdrawAmount - _unlockMaxLimit > 0, "what to unlock?");
 
-        assertTrue(newUnlock < withdrawAmount - _unlockMaxLimit, "too much time");
+        assertTrue(
+            newUnlock < withdrawAmount - _unlockMaxLimit,
+            "too much time"
+        );
 
         skip(time);
         _vault.unlockPendingFor(_raju, _connector);
@@ -407,11 +598,29 @@ contract TestVault is Test {
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _vault.pendingUnlocks(_connector, _raju);
-        uint256 totalPendingUnlocksAfter = _vault.totalPendingUnlocks(_connector);
+        uint256 connectorPendingUnlocksAfter = _vault.connectorPendingUnlocks(
+            _connector
+        );
 
-        assertEq(vaultBalAfter, withdrawAmount - _unlockMaxLimit - newUnlock, "vault bal after sus");
-        assertEq(rajuBalAfter, _unlockMaxLimit + newUnlock, "raju bal after sus");
-        assertEq(pendingUnlocksAfter, withdrawAmount - _unlockMaxLimit - newUnlock, "pending unlock after sus");
-        assertEq(totalPendingUnlocksAfter, withdrawAmount - _unlockMaxLimit - newUnlock, "total pending unlock after sus");
+        assertEq(
+            vaultBalAfter,
+            withdrawAmount - _unlockMaxLimit - newUnlock,
+            "vault bal after sus"
+        );
+        assertEq(
+            rajuBalAfter,
+            _unlockMaxLimit + newUnlock,
+            "raju bal after sus"
+        );
+        assertEq(
+            pendingUnlocksAfter,
+            withdrawAmount - _unlockMaxLimit - newUnlock,
+            "pending unlock after sus"
+        );
+        assertEq(
+            connectorPendingUnlocksAfter,
+            withdrawAmount - _unlockMaxLimit - newUnlock,
+            "total pending unlock after sus"
+        );
     }
 }

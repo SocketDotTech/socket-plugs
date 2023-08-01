@@ -21,7 +21,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
     mapping(address => mapping(address => uint256)) public pendingUnlocks;
 
     // connector => amount
-    mapping(address => uint256) public totalPendingUnlocks;
+    mapping(address => uint256) public connectorPendingUnlocks;
 
     // connector => lockLimitParams
     mapping(address => LimitParams) _lockLimitParams;
@@ -113,7 +113,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
         );
 
         pendingUnlocks[connector_][receiver_] = pendingAmount;
-        totalPendingUnlocks[connector_] -= consumedAmount;
+        connectorPendingUnlocks[connector_] -= consumedAmount;
 
         token__.safeTransfer(receiver_, consumedAmount);
 
@@ -141,7 +141,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
             pendingUnlocks[msg.sender][receiver] += pendingAmount;
-            totalPendingUnlocks[msg.sender] += pendingAmount;
+            connectorPendingUnlocks[msg.sender] += pendingAmount;
             emit TokensPending(
                 msg.sender,
                 receiver,
