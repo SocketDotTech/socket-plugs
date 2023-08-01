@@ -8,86 +8,7 @@ import "../src/Controller.sol";
 import "../src/ExchangeRate.sol";
 import "../src/NonMintableToken.sol";
 import "../src/Vault.sol";
-// import "../src/mocks/MockSocket.sol";
-import "../src/interfaces/ISocket.sol";
-
-contract MockSocket is ISocket {
-    uint32 _localSlug;
-
-    struct PlugConfig {
-        address siblingPlug;
-        address inboundSwitchboard;
-        address outboundSwitchboard;
-    }
-    //  localSlug => localPlug => siblingSlug => config(inboundSwitchboard, outboundSwitchboard, siblingPlug)
-    mapping(uint32 => mapping(address => mapping(uint32 => PlugConfig)))
-        public plugConfigs;
-
-    error WrongSiblingPlug();
-
-    function chainSlug() external view override returns (uint32) {
-        return _localSlug;
-    }
-
-    function setLocalSlug(uint32 localSlug_) external {
-        _localSlug = localSlug_;
-    }
-
-    function connect(
-        uint32 siblingChainSlug_,
-        address siblingPlug_,
-        address inboundSwitchboard_,
-        address outboundSwitchboard_
-    ) external override {
-        PlugConfig storage plugConfig = plugConfigs[_localSlug][msg.sender][
-            siblingChainSlug_
-        ];
-
-        plugConfig.siblingPlug = siblingPlug_;
-        plugConfig.inboundSwitchboard = inboundSwitchboard_;
-        plugConfig.outboundSwitchboard = outboundSwitchboard_;
-    }
-
-    function outbound(
-        uint32 siblingChainSlug_,
-        uint256 minMsgGasLimit_,
-        bytes32,
-        bytes32,
-        bytes calldata payload_
-    ) external payable override returns (bytes32) {
-        PlugConfig memory srcPlugConfig = plugConfigs[_localSlug][msg.sender][
-            siblingChainSlug_
-        ];
-
-        PlugConfig memory dstPlugConfig = plugConfigs[siblingChainSlug_][
-            srcPlugConfig.siblingPlug
-        ][_localSlug];
-
-        if (dstPlugConfig.siblingPlug != msg.sender) revert WrongSiblingPlug();
-        IPlug(srcPlugConfig.siblingPlug).inbound{gas: minMsgGasLimit_}(
-            _localSlug,
-            payload_
-        );
-
-        return bytes32(0);
-    }
-
-    // ignore ISocket function
-    function execute(
-        ISocket.ExecutionDetails calldata executionDetails_,
-        ISocket.MessageDetails calldata messageDetails_
-    ) external payable override {}
-
-    // ignore ISocket function
-    function getMinFees(
-        uint256 minMsgGasLimit_,
-        uint256 payloadSize_,
-        bytes32 executionParams_,
-        bytes32 transmissionParams_,
-        uint32 siblingChainSlug_,
-        address plug_
-    ) external view override returns (uint256 totalFees) {}
-}
+import "./mocks/MockSocket.sol";
 
 contract TestAppChainToken is Test {
     struct NonAppChainContext {
@@ -113,17 +34,11 @@ contract TestAppChainToken is Test {
         ConnectorPlug slowOptConnector;
     }
 
-    struct UpdateLimitParams {
-        bool isLock;
-        address connector;
-        uint256 maxLimit;
-        uint256 ratePerSecond;
-    }
-
     uint256 _c;
     MockSocket _socket;
     address _admin;
     address _raju;
+    address _ramu;
 
     AppChainContext _appChainCtx;
     NonAppChainContext _arbitrumCtx;
@@ -133,10 +48,13 @@ contract TestAppChainToken is Test {
     uint256 public constant FAST_RATE = 1;
     uint256 public constant SLOW_MAX_LIMIT = 500;
     uint256 public constant SLOW_RATE = 2;
+    uint256 public constant MSG_GAS_LIMIT = 200_000;
 
     function setUp() external {
+        skip(SLOW_MAX_LIMIT);
         _admin = address(uint160(_c++));
         _raju = address(uint160(_c++));
+        _ramu = address(uint160(_c++));
 
         _appChainCtx.chainSlug = uint32(_c++);
         _appChainCtx.fastSwitchboard = address(uint160(_c++));
@@ -152,17 +70,27 @@ contract TestAppChainToken is Test {
 
         _socket = new MockSocket();
 
+        vm.startPrank(_admin);
         _deployNonAppChainContracts(_arbitrumCtx);
         _deployNonAppChainContracts(_optimismCtx);
         _deployAppChainContracts();
 
-        _connectNonAppChainPlugs(_arbitrumCtx);
-        _connectNonAppChainPlugs(_optimismCtx);
+        _connectNonAppChainPlugs(
+            _arbitrumCtx,
+            address(_appChainCtx.fastArbConnector),
+            address(_appChainCtx.slowArbConnector)
+        );
+        _connectNonAppChainPlugs(
+            _optimismCtx,
+            address(_appChainCtx.fastOptConnector),
+            address(_appChainCtx.slowOptConnector)
+        );
         _connectAppChainPlugs();
 
         _setNonAppChainLimits(_arbitrumCtx);
         _setNonAppChainLimits(_optimismCtx);
         _setAppChainLimits();
+        vm.stopPrank();
     }
 
     function _deployNonAppChainContracts(
@@ -174,10 +102,7 @@ contract TestAppChainToken is Test {
             18,
             1_000_000_000 ether
         );
-        nonAppChainCtx_.vault = new Vault(
-            address(nonAppChainCtx_.token),
-            _appChainCtx.chainSlug
-        );
+        nonAppChainCtx_.vault = new Vault(address(nonAppChainCtx_.token));
         nonAppChainCtx_.slowConnector = new ConnectorPlug(
             address(nonAppChainCtx_.vault),
             address(_socket),
@@ -220,20 +145,23 @@ contract TestAppChainToken is Test {
     }
 
     function _connectNonAppChainPlugs(
-        NonAppChainContext storage nonAppChainCtx_
+        NonAppChainContext storage nonAppChainCtx_,
+        address dstFastConnector,
+        address dstSlowConnector
     ) internal {
         _socket.setLocalSlug(nonAppChainCtx_.chainSlug);
         nonAppChainCtx_.fastConnector.connect(
-            address(_appChainCtx.fastArbConnector),
+            dstFastConnector,
             nonAppChainCtx_.fastSwitchboard
         );
         nonAppChainCtx_.slowConnector.connect(
-            address(_appChainCtx.slowArbConnector),
+            dstSlowConnector,
             nonAppChainCtx_.slowSwitchboard
         );
     }
 
     function _connectAppChainPlugs() internal {
+        _socket.setLocalSlug(_appChainCtx.chainSlug);
         _appChainCtx.fastArbConnector.connect(
             address(_arbitrumCtx.fastConnector),
             _appChainCtx.fastSwitchboard
@@ -337,7 +265,52 @@ contract TestAppChainToken is Test {
         _appChainCtx.controller.updateLimitParams(u);
     }
 
-    function test() external {
-        console.log("setup done");
+    function _deposit(NonAppChainContext storage ctx_) internal {
+        uint256 depositAmount = 44;
+        vm.prank(_admin);
+        ctx_.token.transfer(_raju, depositAmount);
+
+        uint256 rajuBalBefore = ctx_.token.balanceOf(_raju);
+        uint256 ramuBalBefore = _appChainCtx.token.balanceOf(_ramu);
+        uint256 vaultBalBefore = ctx_.token.balanceOf(address(ctx_.vault));
+        uint256 tokenSupplyBefore = _appChainCtx.token.totalSupply();
+
+        assertTrue(rajuBalBefore >= depositAmount, "Raju got no balance");
+
+        vm.startPrank(_raju);
+        ctx_.token.approve(address(ctx_.vault), depositAmount);
+        _socket.setLocalSlug(ctx_.chainSlug);
+        ctx_.vault.depositToAppChain(
+            _ramu,
+            depositAmount,
+            MSG_GAS_LIMIT,
+            address(ctx_.fastConnector)
+        );
+
+        uint256 rajuBalAfter = ctx_.token.balanceOf(_raju);
+        uint256 ramuBalAfter = _appChainCtx.token.balanceOf(_ramu);
+        uint256 vaultBalAfter = ctx_.token.balanceOf(address(ctx_.vault));
+        uint256 tokenSupplyAfter = _appChainCtx.token.totalSupply();
+
+        assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
+        assertEq(ramuBalAfter, ramuBalBefore + depositAmount, "Ramu bal sus");
+        assertEq(
+            vaultBalAfter,
+            vaultBalBefore + depositAmount,
+            "Vault bal sus"
+        );
+        assertEq(
+            tokenSupplyAfter,
+            tokenSupplyBefore + depositAmount,
+            "token supply sus"
+        );
+    }
+
+    function testArbitrumDeposit() external {
+        _deposit(_arbitrumCtx);
+    }
+
+    function testOptimismDeposit() external {
+        _deposit(_optimismCtx);
     }
 }

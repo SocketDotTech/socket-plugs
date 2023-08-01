@@ -49,10 +49,15 @@ export const main = async () => {
     const balance: BigNumber = await token.balanceOf(socketSigner.address);
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
-    const limit: BigNumber = await controller.getCurrentBurnLimit(addr.connectors?.[dstChain]?.FAST!);
-    if (limit.lt(amount)) throw new Error("Exceeding max limit")
+    const limit: BigNumber = await controller.getCurrentBurnLimit(
+      addr.connectors?.[dstChain]?.FAST!
+    );
+    if (limit.lt(amount)) throw new Error("Exceeding max limit");
 
-    const currentApproval: BigNumber = await token.allowance(socketSigner.address, controller.address);
+    const currentApproval: BigNumber = await token.allowance(
+      socketSigner.address,
+      controller.address
+    );
     if (currentApproval.lt(amount)) {
       const approveTx = await token.approve(controller.address, amount);
       console.log("Tokens approved: ", approveTx.hash);
@@ -80,7 +85,9 @@ export const main = async () => {
       { ...overrides[srcChain], value }
     );
     console.log("Tokens burnt", withdrawTx.hash);
-    console.log(`Track message here: https://6il289myzb.execute-api.us-east-1.amazonaws.com/dev/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${withdrawTx.hash}`)
+    console.log(
+      `Track message here: https://6il289myzb.execute-api.us-east-1.amazonaws.com/dev/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${withdrawTx.hash}`
+    );
     await withdrawTx.wait();
   } catch (error) {
     console.log("Error while sending transaction", error);

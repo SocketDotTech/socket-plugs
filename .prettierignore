@@ -22,3 +22,4 @@ remappings.txt
 yarn.lock
 .github/*
 .prettierrc
+.git/*

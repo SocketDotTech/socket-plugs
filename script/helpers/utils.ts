@@ -136,7 +136,11 @@ export const storeAddresses = async (
     deploymentAddresses = JSON.parse(deploymentAddressesString);
   }
 
-  deploymentAddresses = createObj(deploymentAddresses, [chainSlug.toString(), tokenToBridge], addresses);
+  deploymentAddresses = createObj(
+    deploymentAddresses,
+    [chainSlug.toString(), tokenToBridge],
+    addresses
+  );
   // deploymentAddresses[chainSlug][tokenToBridge] = addresses;
   fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
 };
@@ -189,11 +193,7 @@ export const storeVerificationParams = async (
   );
 };
 
-export const createObj = function (
-  obj: any,
-  keys: string[],
-  value: any
-): any {
+export const createObj = function (obj: any, keys: string[], value: any): any {
   if (keys.length === 1) {
     obj[keys[0]] = value;
   } else {

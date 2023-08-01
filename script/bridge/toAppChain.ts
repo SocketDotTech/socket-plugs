@@ -49,10 +49,15 @@ export const main = async () => {
     const balance: BigNumber = await token.balanceOf(socketSigner.address);
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
-    const limit: BigNumber = await vault.getCurrentLockLimit(addr.connectors?.[dstChain]?.FAST!);
-    if (limit.lt(amount)) throw new Error("Exceeding max limit")
+    const limit: BigNumber = await vault.getCurrentLockLimit(
+      addr.connectors?.[dstChain]?.FAST!
+    );
+    if (limit.lt(amount)) throw new Error("Exceeding max limit");
 
-    const currentApproval: BigNumber = await token.allowance(socketSigner.address, vault.address);
+    const currentApproval: BigNumber = await token.allowance(
+      socketSigner.address,
+      vault.address
+    );
     if (currentApproval.lt(amount)) {
       const approveTx = await token.approve(vault.address, amount);
       console.log("Tokens approved: ", approveTx.hash);
@@ -80,7 +85,9 @@ export const main = async () => {
       { ...overrides[srcChain], value }
     );
     console.log("Tokens deposited: ", depositTx.hash);
-    console.log(`Track message here: https://6il289myzb.execute-api.us-east-1.amazonaws.com/dev/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`)
+    console.log(
+      `Track message here: https://6il289myzb.execute-api.us-east-1.amazonaws.com/dev/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`
+    );
     await depositTx.wait();
   } catch (error) {
     console.log("Error while sending transaction", error);

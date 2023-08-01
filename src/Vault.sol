@@ -9,7 +9,6 @@ import {IConnector, IHub} from "./ConnectorPlug.sol";
 contract Vault is Gauge, IHub, Ownable2Step {
     using SafeTransferLib for ERC20;
     ERC20 public token__;
-    uint32 immutable _appChainSlug;
 
     struct UpdateLimitParams {
         bool isLock;
@@ -58,9 +57,8 @@ contract Vault is Gauge, IHub, Ownable2Step {
         uint256 unlockedAmount
     );
 
-    constructor(address token_, uint32 appChainSlug_) {
+    constructor(address token_) {
         token__ = ERC20(token_);
-        _appChainSlug = appChainSlug_;
     }
 
     function updateLimitParams(
@@ -166,5 +164,17 @@ contract Vault is Gauge, IHub, Ownable2Step {
         address connector_
     ) external view returns (uint256) {
         return _getCurrentLimit(_unlockLimitParams[connector_]);
+    }
+
+    function getLockLimitParams(
+        address connector_
+    ) external view returns (LimitParams memory) {
+        return _lockLimitParams[connector_];
+    }
+
+    function getUnlockLimitParams(
+        address connector_
+    ) external view returns (LimitParams memory) {
+        return _unlockLimitParams[connector_];
     }
 }
