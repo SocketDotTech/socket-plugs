@@ -143,7 +143,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
             pendingUnlocks[msg.sender][receiver] += pendingAmount;
-            totalPendingUnlocks[msg.sender] += consumedAmount;
+            totalPendingUnlocks[msg.sender] += pendingAmount;
             emit TokensPending(
                 msg.sender,
                 receiver,
