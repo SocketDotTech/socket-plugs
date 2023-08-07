@@ -145,8 +145,10 @@ contract Controller is IHub, Gauge, Ownable2Step {
     }
 
     // receive inbound assuming connector called
-    // if connector is not configured (malicious), its mint amount will forever stay in pending
     function receiveInbound(bytes memory payload_) external override {
+        if (_mintLimitParams[msg.sender].maxLimit == 0)
+            revert ConnectorUnavailable();
+
         (address receiver, uint256 lockAmount) = abi.decode(
             payload_,
             (address, uint256)

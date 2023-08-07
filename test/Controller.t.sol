@@ -304,53 +304,11 @@ contract TestController is Test {
     function testReceiveInboundConnectorUnavail() external {
         _setLimits();
         uint256 depositAmount = 2 ether;
+        deal(address(_token), address(_controller), depositAmount, true);
 
-        uint256 totalMintedBefore = _controller.totalMinted();
-        uint256 rajuBalBefore = _token.balanceOf(_raju);
-        uint256 pendingMintsBefore = _controller.pendingMints(
-            _wrongConnector,
-            _raju
-        );
-        uint256 connectorPendingMintsBefore = _controller.connectorPendingMints(
-            _wrongConnector
-        );
-        uint256 connectorLockedBefore = _controller.connectorLockedAmounts(
-            _wrongConnector
-        );
-
+        vm.expectRevert(Controller.ConnectorUnavailable.selector);
         vm.prank(_wrongConnector);
         _controller.receiveInbound(abi.encode(_raju, depositAmount));
-
-        uint256 totalMintedAfter = _controller.totalMinted();
-        uint256 rajuBalAfter = _token.balanceOf(_raju);
-        uint256 pendingMintsAfter = _controller.pendingMints(
-            _wrongConnector,
-            _raju
-        );
-        uint256 connectorPendingMintsAfter = _controller.connectorPendingMints(
-            _wrongConnector
-        );
-        uint256 connectorLockedAfter = _controller.connectorLockedAmounts(
-            _wrongConnector
-        );
-
-        assertEq(totalMintedAfter, totalMintedBefore, "total minted sus");
-        assertEq(rajuBalAfter, rajuBalBefore, "raju balance sus");
-        assertEq(
-            pendingMintsAfter,
-            pendingMintsBefore + depositAmount,
-            "pending mints sus"
-        );
-        assertEq(
-            connectorPendingMintsAfter,
-            connectorPendingMintsBefore + depositAmount,
-            "total pending amount sus"
-        );
-        assertEq(
-            connectorLockedAfter,
-            connectorLockedBefore + depositAmount,
-            "connector locked amount sus"
-        );
     }
 
     function testFullConsumeInboundReceive() external {
@@ -532,17 +490,6 @@ contract TestController is Test {
         _setLimits();
         uint256 depositAmount = 2 ether;
         deal(address(_token), address(_controller), depositAmount, true);
-
-        vm.prank(_wrongConnector);
-        _controller.receiveInbound(abi.encode(_raju, depositAmount));
-
-        uint256 pendingMints = _controller.pendingMints(_wrongConnector, _raju);
-        uint256 connectorPendingMints = _controller.connectorPendingMints(
-            _wrongConnector
-        );
-
-        assertEq(pendingMints, depositAmount);
-        assertEq(connectorPendingMints, depositAmount);
 
         vm.expectRevert(Controller.ConnectorUnavailable.selector);
         _controller.mintPendingFor(_raju, _wrongConnector);
