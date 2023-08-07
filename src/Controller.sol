@@ -9,7 +9,7 @@ import {IMintableERC20} from "./MintableToken.sol";
 
 contract Controller is IHub, Gauge, Ownable2Step {
     using SafeTransferLib for IMintableERC20;
-    IMintableERC20 public token__;
+    IMintableERC20 public immutable token__;
     IExchangeRate public exchangeRate__;
 
     struct UpdateLimitParams {
