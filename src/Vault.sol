@@ -84,7 +84,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
     function depositToAppChain(
         address receiver_,
         uint256 amount_,
-        uint256 gasLimit_,
+        uint256 msgGasLimit_,
         address connector_
     ) external payable {
         if (_lockLimitParams[connector_].maxLimit == 0)
@@ -95,7 +95,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
         IConnector(connector_).outbound{value: msg.value}(
-            gasLimit_,
+            msgGasLimit_,
             abi.encode(receiver_, amount_)
         );
 
@@ -152,6 +152,13 @@ contract Vault is Gauge, IHub, Ownable2Step {
         token__.safeTransfer(receiver, consumedAmount);
 
         emit TokensUnlocked(msg.sender, receiver, consumedAmount);
+    }
+
+    function getMinFees(
+        address connector_,
+        uint256 msgGasLimit_
+    ) external view returns (uint256 totalFees) {
+        return IConnector(connector_).getMinFees(msgGasLimit_);
     }
 
     function getCurrentLockLimit(
