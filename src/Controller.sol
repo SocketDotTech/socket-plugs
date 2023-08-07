@@ -37,7 +37,6 @@ contract Controller is IHub, Gauge, Ownable2Step {
     uint256 public totalMinted;
 
     error ConnectorUnavailable();
-    error LengthMismatch();
 
     event ExchangeRateUpdated(address exchangeRate);
     event LimitParamsUpdated(UpdateLimitParams[] updates);

@@ -30,7 +30,6 @@ contract Vault is Gauge, IHub, Ownable2Step {
     mapping(address => LimitParams) _unlockLimitParams;
 
     error ConnectorUnavailable();
-    error LengthMismatch();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensDeposited(
