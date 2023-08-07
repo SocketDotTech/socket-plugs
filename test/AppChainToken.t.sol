@@ -49,9 +49,9 @@ contract TestAppChainToken is Test {
     uint256 public constant SLOW_MAX_LIMIT = 500;
     uint256 public constant SLOW_RATE = 2;
     uint256 public constant MSG_GAS_LIMIT = 200_000;
+    uint256 public constant BOOTSTRAP_TIME = 250;
 
     function setUp() external {
-        skip(SLOW_MAX_LIMIT);
         _admin = address(uint160(_c++));
         _raju = address(uint160(_c++));
         _ramu = address(uint160(_c++));
@@ -209,6 +209,7 @@ contract TestAppChainToken is Test {
             SLOW_RATE
         );
         nonAppChainCtx_.vault.updateLimitParams(u);
+        skip(BOOTSTRAP_TIME);
     }
 
     function _setAppChainLimits() internal {
@@ -263,6 +264,7 @@ contract TestAppChainToken is Test {
             SLOW_RATE
         );
         _appChainCtx.controller.updateLimitParams(u);
+        skip(BOOTSTRAP_TIME);
     }
 
     function _deposit(NonAppChainContext storage ctx_) internal {

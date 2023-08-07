@@ -19,12 +19,11 @@ contract TestVault is Test {
     uint256 constant _unlockRate = 1 ether;
     uint256 constant _fees = 0.001 ether;
     uint256 constant _msgGasLimit = 200_000;
+    uint256 constant _bootstrapTime = 100;
     ERC20 _token;
     Vault _vault;
 
     function setUp() external {
-        skip(100);
-
         vm.startPrank(_admin);
         _token = new NonMintableToken("Moon", "MOON", 18, 1_000_000_000 ether);
         _vault = new Vault(address(_token));
@@ -48,6 +47,7 @@ contract TestVault is Test {
 
         vm.prank(_admin);
         _vault.updateLimitParams(u);
+        skip(_bootstrapTime);
     }
 
     function testUpdateLimitParams() external {
