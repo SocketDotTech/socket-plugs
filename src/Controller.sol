@@ -76,11 +76,13 @@ contract Controller is IHub, Gauge, Ownable2Step {
     ) external onlyOwner {
         for (uint256 i; i < updates_.length; i++) {
             if (updates_[i].isMint) {
+                _consumePartLimit(0, _mintLimitParams[updates_[i].connector]); // to keep current limit in sync
                 _mintLimitParams[updates_[i].connector].maxLimit = updates_[i]
                     .maxLimit;
                 _mintLimitParams[updates_[i].connector]
                     .ratePerSecond = updates_[i].ratePerSecond;
             } else {
+                _consumePartLimit(0, _burnLimitParams[updates_[i].connector]); // to keep current limit in sync
                 _burnLimitParams[updates_[i].connector].maxLimit = updates_[i]
                     .maxLimit;
                 _burnLimitParams[updates_[i].connector]

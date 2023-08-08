@@ -20,12 +20,11 @@ contract TestController is Test {
     uint256 constant _mintRate = 1 ether;
     uint256 constant _fees = 0.001 ether;
     uint256 constant _msgGasLimit = 200_000;
+    uint256 constant _bootstrapTime = 100;
     ERC20 _token;
     Controller _controller;
 
     function setUp() external {
-        skip(100);
-
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
         _controller = new Controller(
@@ -53,6 +52,7 @@ contract TestController is Test {
 
         vm.prank(_admin);
         _controller.updateLimitParams(u);
+        skip(_bootstrapTime);
     }
 
     function testUpdateLimitParams() external {

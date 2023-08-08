@@ -66,11 +66,13 @@ contract Vault is Gauge, IHub, Ownable2Step {
     ) external onlyOwner {
         for (uint256 i; i < updates_.length; i++) {
             if (updates_[i].isLock) {
+                _consumePartLimit(0, _lockLimitParams[updates_[i].connector]); // to keep current limit in sync
                 _lockLimitParams[updates_[i].connector].maxLimit = updates_[i]
                     .maxLimit;
                 _lockLimitParams[updates_[i].connector]
                     .ratePerSecond = updates_[i].ratePerSecond;
             } else {
+                _consumePartLimit(0, _unlockLimitParams[updates_[i].connector]); // to keep current limit in sync
                 _unlockLimitParams[updates_[i].connector].maxLimit = updates_[i]
                     .maxLimit;
                 _unlockLimitParams[updates_[i].connector]
