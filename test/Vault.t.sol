@@ -287,41 +287,9 @@ contract TestVault is Test {
         uint256 withdrawAmount = 2 ether;
         deal(address(_token), address(_vault), withdrawAmount);
 
-        uint256 vaultBalBefore = _token.balanceOf(address(_vault));
-        uint256 rajuBalBefore = _token.balanceOf(_raju);
-        uint256 pendingUnlocksBefore = _vault.pendingUnlocks(
-            _wrongConnector,
-            _raju
-        );
-        uint256 connectorPendingUnlocksBefore = _vault.connectorPendingUnlocks(
-            _wrongConnector
-        );
-
+        vm.expectRevert(Vault.ConnectorUnavailable.selector);
         vm.prank(_wrongConnector);
         _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
-
-        uint256 vaultBalAfter = _token.balanceOf(address(_vault));
-        uint256 rajuBalAfter = _token.balanceOf(_raju);
-        uint256 pendingUnlocksAfter = _vault.pendingUnlocks(
-            _wrongConnector,
-            _raju
-        );
-        uint256 connectorPendingUnlocksAfter = _vault.connectorPendingUnlocks(
-            _wrongConnector
-        );
-
-        assertEq(vaultBalAfter, vaultBalBefore, "vault balance sus");
-        assertEq(rajuBalAfter, rajuBalBefore, "raju balance sus");
-        assertEq(
-            pendingUnlocksAfter,
-            pendingUnlocksBefore + withdrawAmount,
-            "pending unlocks sus"
-        );
-        assertEq(
-            connectorPendingUnlocksAfter,
-            connectorPendingUnlocksBefore + withdrawAmount,
-            "total pending amount sus"
-        );
     }
 
     function testFullConsumeInboundReceive() external {
@@ -479,17 +447,6 @@ contract TestVault is Test {
         _setLimits();
         uint256 withdrawAmount = 2 ether;
         deal(address(_token), address(_vault), withdrawAmount);
-
-        vm.prank(_wrongConnector);
-        _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
-
-        uint256 pendingUnlocks = _vault.pendingUnlocks(_wrongConnector, _raju);
-        uint256 connectorPendingUnlocks = _vault.connectorPendingUnlocks(
-            _wrongConnector
-        );
-
-        assertEq(pendingUnlocks, withdrawAmount);
-        assertEq(connectorPendingUnlocks, withdrawAmount);
 
         vm.expectRevert(Vault.ConnectorUnavailable.selector);
         _vault.unlockPendingFor(_raju, _wrongConnector);

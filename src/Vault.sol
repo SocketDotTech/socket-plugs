@@ -128,8 +128,10 @@ contract Vault is Gauge, IHub, Ownable2Step {
     }
 
     // receive inbound assuming connector called
-    // if connector is not configured (malicious), its unlock amount will forever stay in pending
     function receiveInbound(bytes memory payload_) external override {
+        if (_unlockLimitParams[msg.sender].maxLimit == 0)
+            revert ConnectorUnavailable();
+
         (address receiver, uint256 unlockAmount) = abi.decode(
             payload_,
             (address, uint256)
