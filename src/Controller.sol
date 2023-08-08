@@ -95,7 +95,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
     function withdrawFromAppChain(
         address receiver_,
         uint256 burnAmount_,
-        uint256 gasLimit_,
+        uint256 msgGasLimit_,
         address connector_
     ) external payable {
         if (_burnLimitParams[connector_].maxLimit == 0)
@@ -113,7 +113,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
         connectorLockedAmounts[connector_] -= unlockAmount; // underflow revert expected
 
         IConnector(connector_).outbound{value: msg.value}(
-            gasLimit_,
+            msgGasLimit_,
             abi.encode(receiver_, unlockAmount)
         );
 
@@ -178,6 +178,13 @@ contract Controller is IHub, Gauge, Ownable2Step {
         token__.mint(receiver, consumedAmount);
 
         emit TokensMinted(msg.sender, receiver, consumedAmount);
+    }
+
+    function getMinFees(
+        address connector_,
+        uint256 msgGasLimit_
+    ) external view returns (uint256 totalFees) {
+        return IConnector(connector_).getMinFees(msgGasLimit_);
     }
 
     function getCurrentMintLimit(

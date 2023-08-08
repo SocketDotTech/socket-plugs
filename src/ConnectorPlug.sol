@@ -10,11 +10,15 @@ interface IHub {
 
 interface IConnector {
     function outbound(
-        uint256 gasLimit_,
+        uint256 msgGasLimit_,
         bytes memory payload_
     ) external payable;
 
-    function siblingChainSlug() external returns (uint32);
+    function siblingChainSlug() external view returns (uint32);
+
+    function getMinFees(
+        uint256 msgGasLimit_
+    ) external view returns (uint256 totalFees);
 }
 
 contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
@@ -34,14 +38,14 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
     }
 
     function outbound(
-        uint256 gasLimit_,
+        uint256 msgGasLimit_,
         bytes memory payload_
     ) external payable override {
         if (msg.sender != address(hub__)) revert NotHub();
 
         socket__.outbound{value: msg.value}(
             siblingChainSlug,
-            gasLimit_,
+            msgGasLimit_,
             bytes32(0),
             bytes32(0),
             payload_
@@ -54,6 +58,20 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
         hub__.receiveInbound(payload_);
+    }
+
+    function getMinFees(
+        uint256 msgGasLimit_
+    ) external view override returns (uint256 totalFees) {
+        return
+            socket__.getMinFees(
+                msgGasLimit_,
+                64,
+                bytes32(0),
+                bytes32(0),
+                siblingChainSlug,
+                address(this)
+            );
     }
 
     function connect(
