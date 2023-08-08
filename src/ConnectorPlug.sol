@@ -22,8 +22,8 @@ interface IConnector {
 }
 
 contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
-    IHub public hub__;
-    ISocket public socket__;
+    IHub public immutable hub__;
+    ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
 
     error NotHub();

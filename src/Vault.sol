@@ -8,7 +8,7 @@ import {IConnector, IHub} from "./ConnectorPlug.sol";
 // @todo: separate our connecter plugs
 contract Vault is Gauge, IHub, Ownable2Step {
     using SafeTransferLib for ERC20;
-    ERC20 public token__;
+    ERC20 public immutable token__;
 
     struct UpdateLimitParams {
         bool isLock;
@@ -30,7 +30,6 @@ contract Vault is Gauge, IHub, Ownable2Step {
     mapping(address => LimitParams) _unlockLimitParams;
 
     error ConnectorUnavailable();
-    error LengthMismatch();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensDeposited(
