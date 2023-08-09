@@ -25,14 +25,18 @@ console.log(
 console.log(`Owner address configured to ${socketOwner}`);
 console.log("========================================================");
 
-export const chains: Array<ChainSlug> = [
+export const chains: Array<ChainSlug> = mode === DeploymentMode.DEV ? [
   ChainSlug.ARBITRUM_GOERLI,
   ChainSlug.OPTIMISM_GOERLI,
   ChainSlug.AEVO_TESTNET,
+] : [
+  ChainSlug.ARBITRUM,
+  ChainSlug.OPTIMISM,
+  ChainSlug.AEVO
 ];
 
 export const isAppChain = (chain: ChainSlug) =>
-  chain === ChainSlug.AEVO_TESTNET;
+  (chain === ChainSlug.AEVO || chain === ChainSlug.AEVO_TESTNET);
 export const integrationTypes = [
   IntegrationTypes.fast,
   IntegrationTypes.optimistic,

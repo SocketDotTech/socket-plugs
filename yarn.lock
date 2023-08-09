@@ -737,10 +737,10 @@
     "@sentry/types" "5.30.0"
     tslib "^1.9.3"
 
-"@socket.tech/dl-core@2.4.0-test.3":
-  version "2.4.0-test.3"
-  resolved "https://registry.yarnpkg.com/@socket.tech/dl-core/-/dl-core-2.4.0-test.3.tgz#6fd23a6659409f8ea30f95dc7b0789abb17f474a"
-  integrity sha512-v8mBsNXzRPiZK8VZ1TrMFv08BaQZMNXGM2C9yTm5KjV6ezDQlENMq6PWLhE6s3/JV3e7RNRmOfV6rCeJIS/MDA==
+"@socket.tech/dl-core@2.4.0-test.7":
+  version "2.4.0-test.7"
+  resolved "https://registry.yarnpkg.com/@socket.tech/dl-core/-/dl-core-2.4.0-test.7.tgz#b178baa293d1dee0a34af7483547d1f23f1df774"
+  integrity sha512-cKLWxaENdMDd2F/MuncZ4ZSeExhdUDAVWffpO+T2h5OxPxqwXYQRGUhxB3h0ehgZ6hYdmIXc1ZY6lEOp9Nlweg==
   dependencies:
     axios "^1.3.6"
     yargs "^17.7.1"

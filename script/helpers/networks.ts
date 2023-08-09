@@ -39,6 +39,21 @@ export const overrides: {
     gasLimit,
     gasPrice,
   },
+  [ChainSlug.OPTIMISM]: {
+    type,
+    gasLimit: 2_000_000,
+    gasPrice,
+  },
+  [ChainSlug.ARBITRUM]: {
+    type,
+    gasLimit: 20_000_000,
+    gasPrice,
+  },
+  [ChainSlug.AEVO]: {
+    type: 1,
+    // gasLimit,
+    gasPrice: 100_000_000,
+  },
 };
 
 export function getJsonRpcUrl(chain: ChainKey): string {
@@ -94,6 +109,10 @@ export function getJsonRpcUrl(chain: ChainKey): string {
 
     case ChainKey.AEVO_TESTNET:
       jsonRpcUrl = process.env.AEVO_TESTNET_RPC as string;
+      break;
+
+    case ChainKey.AEVO:
+      jsonRpcUrl = process.env.AEVO_RPC as string;
       break;
 
     case ChainKey.HARDHAT:
