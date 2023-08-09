@@ -3,22 +3,20 @@
     "USDC": {
       "isAppChain": false,
       "NonMintableToken": "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7",
-      "Vault": "0x63Ef8c60f9E2ae811767C94cB264472a9801e7AD",
+      "Vault": "0x4F04f8Ae9Fc3A9539d00e5e69c3b262b31220d00",
       "connectors": {
         "11155112": {
-          "FAST": "0x7B6aE3769ee906b63d7ad2f147F003BA962C25C4",
-          "OPTIMISTIC": "0x7F18F3A18C02d906b7e29EEED0E1d0092AF25677"
+          "FAST": "0xc2BD14Fe818C6Fc47246Bee79F0D91AFbebb43e2"
         }
       }
     },
     "MOON": {
       "isAppChain": false,
-      "NonMintableToken": "0xe1911a407F7625C352CDD676306c986F588dE0A2",
-      "Vault": "0x2069cc361e9d5d81CFF8d5e5092386d043bC2A5a",
+      "NonMintableToken": "0xf848907549f27cC5424Ee0B0F8FE5238113632AF",
+      "Vault": "0x1b74Ac5DaCa01D82A3d2E7688ea30E50Fe6Ff35E",
       "connectors": {
         "11155112": {
-          "FAST": "0xB4eB7D8e8d9f54fcd473468b6429A36c63be17A7",
-          "OPTIMISTIC": "0x1CAC564E411e3EbC326A75796e1D86A3E2c66f82"
+          "FAST": "0x6fEddE12105F47eAcde493Ee294d207bFE68dcE5"
         }
       }
     }
@@ -27,22 +25,20 @@
     "USDC": {
       "isAppChain": false,
       "NonMintableToken": "0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E",
-      "Vault": "0xc340c69cB45A77a830d30156CD1251B3b2c0FBDA",
+      "Vault": "0xFFB09850fAb52765b5E48eAC1AA3fFAD620C8fcE",
       "connectors": {
         "11155112": {
-          "FAST": "0xE27477731797f827bD30522e4b130eDdc7ce7696",
-          "OPTIMISTIC": "0xf4687d503F3F4358FAa529e8EE841728EA59332B"
+          "FAST": "0x7e54F4c0aCafec318aF1f5d1dCD373CdACc32622"
         }
       }
     },
     "MOON": {
       "isAppChain": false,
-      "NonMintableToken": "0x0740B18267B4A2fAD6584F9D8904cc5D4CceFbCC",
-      "Vault": "0x9E22C6350d8bE9BD69f946d126a4908A8E0e9Ddb",
+      "NonMintableToken": "0xb1800573eD7828359555279711D8A27928940416",
+      "Vault": "0x1bcEC7D79b274F01DB2a70D11f4e2907C04E64DF",
       "connectors": {
         "11155112": {
-          "FAST": "0x13433f45Bf8129dd452608Bde7E436642899e901",
-          "OPTIMISTIC": "0x3138B783921a684d882C963193b253F2f65C6014"
+          "FAST": "0x3639bA9D2eCBA74d92Ea400f9E0AA9BA0F79Cc34"
         }
       }
     }
@@ -50,33 +46,29 @@
   "11155112": {
     "USDC": {
       "isAppChain": true,
-      "MintableToken": "0x52623B37Ff81c53567D6D16fd94638734cCDCf27",
-      "ExchangeRate": "0x6E6BC965FA8897b7531322461A65f016E8Be1c30",
-      "Controller": "0x501fCBa3e6F92b2D1d89038FeD56EdacaaF5f7c2",
+      "MintableToken": "0x4D435C00E09034ec2113F63088CCD0be0a0fd06e",
+      "ExchangeRate": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+      "Controller": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
       "connectors": {
         "420": {
-          "FAST": "0x43B908dD7300026841c69c3250b3A3D66c0ff5f8",
-          "OPTIMISTIC": "0x1C205913D4d6742C47CdC44e779F8cbF89aaa0fd"
+          "FAST": "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
         },
         "421613": {
-          "FAST": "0xaFb0eF92Dee5b928E0cAe8b950557c4675B7FEa6",
-          "OPTIMISTIC": "0x2fdfDc2CC59E2248457f965B71E2e27BD072d093"
+          "FAST": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41"
         }
       }
     },
     "MOON": {
       "isAppChain": true,
-      "MintableToken": "0x6a74C25f380EcE8B3a9BcBd6ECe7765f18b59d93",
-      "ExchangeRate": "0xe54f19dCD6f855296F57BC26a899f278E369464e",
-      "Controller": "0xd1A95C43eE2765b26dEC1AC2E9eE155a6dCd4307",
+      "MintableToken": "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
+      "ExchangeRate": "0xbDf50eAe568ECef74796ed6022a0d453e8432410",
+      "Controller": "0x8f9EaEe5c5df888aBA3c1Ab19689a0660d042c6d",
       "connectors": {
         "420": {
-          "FAST": "0x6a66313eF8DA86BF008dF2845e63D9AB08af2D63",
-          "OPTIMISTIC": "0x6060B4B6Dd1C5EC18D74D0860db6F43260f99eb2"
+          "FAST": "0xaa3d9fA3aB930aE635b001d00C612aa5b14d750e"
         },
         "421613": {
-          "FAST": "0xa64AAEe263b08C9f30097686C1CD3aBE5d2890A6",
-          "OPTIMISTIC": "0xa8d41FB404A582605891761c02fA7403d262477B"
+          "FAST": "0x57D1Aeafb6a2b7Bd4954e47a556622161A8c0A65"
         }
       }
     }

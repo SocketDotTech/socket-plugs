@@ -27,7 +27,7 @@ export const main = async () => {
 
     const providerInstance = getProviderFromChainSlug(srcChain);
     const socketSigner: Wallet = new Wallet(
-      process.env.PRIVATE_KEY as string,
+      process.env.SOCKET_SIGNER_KEY as string,
       providerInstance
     );
 
