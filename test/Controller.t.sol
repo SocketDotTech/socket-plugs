@@ -11,7 +11,7 @@ contract TestController is Test {
     uint256 _c;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
-    address immutable _connector = address(uint160(_c++));
+    // address immutable _connector = address(uint160(_c++));
     address immutable _wrongConnector = address(uint160(_c++));
 
     uint256 constant _burnMaxLimit = 200 ether;
@@ -21,12 +21,17 @@ contract TestController is Test {
     uint256 constant _fees = 0.001 ether;
     uint256 constant _msgGasLimit = 200_000;
     uint256 constant _bootstrapTime = 100;
+    uint32 constant _defaultSiblingChainSlug = 420;
     ERC20 _token;
     Controller _controller;
+    ConnectorPlug _connectorObj;
+    address _connector;
 
     function setUp() external {
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
+        _connectorObj = new ConnectorPlug(address(1), address(1), 420);
+        _connector = address(_connectorObj);
         _controller = new Controller(
             address(_token),
             address(new ExchangeRate())
@@ -150,7 +155,7 @@ contract TestController is Test {
 
         uint256 withdrawAmount = 10 ether;
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, withdrawAmount));
+        _controller.receiveInbound(_defaultSiblingChainSlug,abi.encode(_raju, withdrawAmount));
         deal(_raju, _fees);
 
         uint256 rajuBalBefore = _token.balanceOf(_raju);
@@ -225,7 +230,7 @@ contract TestController is Test {
         uint256 time = 10;
         deal(_raju, _fees);
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, usedLimit));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, usedLimit));
         vm.startPrank(_raju);
         _token.approve(address(_controller), usedLimit);
         vm.mockCall(
@@ -268,7 +273,7 @@ contract TestController is Test {
         uint256 time = 100;
         deal(_raju, _fees);
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, usedLimit));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, usedLimit));
         vm.startPrank(_raju);
         _token.approve(address(_controller), usedLimit);
         vm.mockCall(
@@ -308,7 +313,7 @@ contract TestController is Test {
 
         vm.expectRevert(Controller.ConnectorUnavailable.selector);
         vm.prank(_wrongConnector);
-        _controller.receiveInbound(abi.encode(_raju, depositAmount));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, depositAmount));
     }
 
     function testFullConsumeInboundReceive() external {
@@ -333,7 +338,7 @@ contract TestController is Test {
         assertTrue(depositAmount <= mintLimitBefore, "limit hit");
 
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, depositAmount));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, depositAmount));
 
         uint256 totalMintedAfter = _controller.totalMinted();
         uint256 rajuBalAfter = _token.balanceOf(_raju);
@@ -397,7 +402,7 @@ contract TestController is Test {
         assertTrue(depositAmount > mintLimitBefore, "mint not partial");
 
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, depositAmount));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, depositAmount));
 
         uint256 totalMintedAfter = _controller.totalMinted();
         uint256 rajuBalAfter = _token.balanceOf(_raju);
@@ -444,7 +449,7 @@ contract TestController is Test {
         uint256 time = 10;
         deal(address(_token), address(_controller), usedLimit, true);
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, usedLimit));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, usedLimit));
 
         uint256 mintLimitBefore = _controller.getCurrentMintLimit(_connector);
 
@@ -470,7 +475,7 @@ contract TestController is Test {
         uint256 time = 100;
         deal(address(_token), address(_controller), usedLimit, true);
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, usedLimit));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, usedLimit));
 
         uint256 mintLimitBefore = _controller.getCurrentMintLimit(_connector);
 
@@ -501,7 +506,7 @@ contract TestController is Test {
         uint256 time = 200;
 
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, depositAmount));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, depositAmount));
 
         uint256 totalMintedBefore = _controller.totalMinted();
         uint256 rajuBalBefore = _token.balanceOf(_raju);
@@ -553,7 +558,7 @@ contract TestController is Test {
         deal(address(_token), address(_controller), depositAmount, true);
 
         vm.prank(_connector);
-        _controller.receiveInbound(abi.encode(_raju, depositAmount));
+        _controller.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, depositAmount));
 
         uint256 totalMintedBefore = _controller.totalMinted();
         uint256 rajuBalBefore = _token.balanceOf(_raju);

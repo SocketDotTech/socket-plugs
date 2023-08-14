@@ -36,7 +36,8 @@ contract Vault is Gauge, IHub, Ownable2Step {
         address connector,
         address depositor,
         address receiver,
-        uint256 depositAmount
+        uint256 depositAmount,
+        uint32 toChainSlug
     );
     event PendingTokensTransferred(
         address connector,
@@ -48,12 +49,14 @@ contract Vault is Gauge, IHub, Ownable2Step {
         address connector,
         address receiver,
         uint256 pendingAmount,
-        uint256 totalPendingAmount
+        uint256 totalPendingAmount,
+        uint32  fromChainSlug
     );
     event TokensUnlocked(
         address connector,
         address receiver,
-        uint256 unlockedAmount
+        uint256 unlockedAmount,
+        uint32  fromChainSlug
     );
 
     constructor(address token_) {
@@ -100,7 +103,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
             abi.encode(receiver_, amount_)
         );
 
-        emit TokensDeposited(connector_, msg.sender, receiver_, amount_);
+        emit TokensDeposited(connector_, msg.sender, receiver_, amount_, IConnector(connector_).siblingChainSlug());
     }
 
     function unlockPendingFor(address receiver_, address connector_) external {
@@ -127,7 +130,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
     }
 
     // receive inbound assuming connector called
-    function receiveInbound(bytes memory payload_) external override {
+    function receiveInbound(uint32 siblingChainSlug, bytes memory payload_) external override {
         if (_unlockLimitParams[msg.sender].maxLimit == 0)
             revert ConnectorUnavailable();
 
@@ -149,12 +152,13 @@ contract Vault is Gauge, IHub, Ownable2Step {
                 msg.sender,
                 receiver,
                 pendingAmount,
-                pendingUnlocks[msg.sender][receiver]
+                pendingUnlocks[msg.sender][receiver],
+                siblingChainSlug
             );
         }
         token__.safeTransfer(receiver, consumedAmount);
 
-        emit TokensUnlocked(msg.sender, receiver, consumedAmount);
+        emit TokensUnlocked(msg.sender, receiver, consumedAmount, siblingChainSlug);
     }
 
     function getMinFees(
