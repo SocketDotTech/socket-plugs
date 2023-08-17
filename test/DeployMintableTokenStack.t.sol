@@ -18,7 +18,7 @@ contract testDeployMintableTokenStack is Test {
 
     function setUp() external {
         vm.startPrank(_admin);
-        deployer = new DeployMintableTokenStack(_socketAddress);
+        deployer = new DeployMintableTokenStack(_socketAddress, 420);
         vm.stopPrank();
     }
 
