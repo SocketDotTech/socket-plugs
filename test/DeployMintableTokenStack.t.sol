@@ -32,38 +32,41 @@ contract testDeployMintableTokenStack is Test {
         connectors[0] = _connector;
         connectors[1] = _connector;
 
-
         uint32[] memory chains = new uint32[](2);
         chains[0] = 420;
         chains[1] = 421613;
 
+        address[] memory switchboards = new address[](2);
+        switchboards[0] = _switchBoard;
+        switchboards[1] = _switchBoard;
+
         vm.mockCall(
             _socketAddress,
             abi.encodeCall(
                 ISocket.connect,
-                (chains[0], _connector, _switchBoard,_switchBoard)
-            ),
-            bytes("0")
-        );
-        
-        vm.mockCall(
-            _socketAddress,
-            abi.encodeCall(
-                ISocket.connect,
-                (chains[1], _connector, _switchBoard,_switchBoard)
+                (chains[0], _connector, _switchBoard, _switchBoard)
             ),
             bytes("0")
         );
 
-        deployer.deploy(
-            "ANIMOJI TOKEN",
-            "ANIMOJI",
-            18,
-            chains,
-            _switchBoard,
-            connectors,
-            lockLimitParams
+        vm.mockCall(
+            _socketAddress,
+            abi.encodeCall(
+                ISocket.connect,
+                (chains[1], _connector, _switchBoard, _switchBoard)
+            ),
+            bytes("0")
         );
+
+        // deployer.deploy(
+        //     "ANIMOJI TOKEN",
+        //     "ANIMOJI",
+        //     chains,
+        //     18,
+        //     switchboards,
+        //     connectors,
+        //     lockLimitParams
+        // );
         vm.stopPrank();
     }
 }

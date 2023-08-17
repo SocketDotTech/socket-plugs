@@ -8,47 +8,59 @@ struct LimitParams {
     uint256 maxLimit;
     uint256 ratePerSecond;
 }
-
+struct Data {
+        string tokenName;
+        string tokenSymbol;
+        address owner;
+        uint32[] chains;
+        uint8 tokenDecimals;
+        address[] switchboard;
+        address[] siblingConnectors;
+        LimitParams[] limitParams;
+}
 
 contract DeployMintableTokenStack {
 
     event TokenDeployed(address token);
     event ExchangeRateDeployed(address exchangeRate);
-    event ControllerDeployed(address controller, address token, address exchangeRate);
+    event ControllerDeployed(address controller, address token);
     event ConnectorDeployedAndConnected(address connector, address controller, uint32 chain);
 
     address immutable public socket;
+    ExchangeRate immutable public exchangeRate;
    
     constructor(address _socket) {
         socket = _socket;
+        exchangeRate = new ExchangeRate();
+        emit ExchangeRateDeployed(address(exchangeRate));
     }
 
-    function deploy(string calldata tokenName, string calldata tokenSymbol, uint8 tokenDecimals, uint32[] calldata chains, address switchboard, address[] calldata siblingConnectors, LimitParams[] calldata limitParams) external {
+    function deploy(Data calldata data) external {
         
-        Controller.UpdateLimitParams[] memory updates = new Controller.UpdateLimitParams[](limitParams.length);
+        Controller.UpdateLimitParams[] memory updates = new Controller.UpdateLimitParams[](data.limitParams.length);
         
-        address token = address(new MintableToken(tokenName, tokenSymbol, tokenDecimals));
+        address token = address(new MintableToken(data.tokenName, data.tokenSymbol, data.tokenDecimals));
+        
         emit TokenDeployed(token);
-        
-        address exchangeRate = address(new ExchangeRate());
-        emit ExchangeRateDeployed(exchangeRate);
 
-        Controller controller = new Controller(token, exchangeRate);
-        emit ControllerDeployed(address(controller), token, exchangeRate);
+        Controller controller = new Controller(token, address(exchangeRate));
+        emit ControllerDeployed(address(controller), token);
 
-        for(uint8 i = 0; i < chains.length;) {
+        for(uint8 i = 0; i < data.chains.length;) {
 
-            ConnectorPlug connector = new ConnectorPlug(address(controller), socket, chains[i]);
-            connector.connect(siblingConnectors[i], switchboard);
-            emit ConnectorDeployedAndConnected(address(connector), address(controller), chains[i]);
+            ConnectorPlug connector = new ConnectorPlug(address(controller), socket, data.chains[i]);
+            connector.connect(data.siblingConnectors[i], data.switchboard[i]);
+            emit ConnectorDeployedAndConnected(address(connector), address(controller), data.chains[i]);
             
             // TODO: try to find out whether we can do better this in terms of gas savings
             updates[i] = Controller.UpdateLimitParams({
                 isMint: true,
                 connector: address(connector),
-                maxLimit: limitParams[i].maxLimit,
-                ratePerSecond: limitParams[i].ratePerSecond
+                maxLimit: data.limitParams[i].maxLimit,
+                ratePerSecond: data.limitParams[i].ratePerSecond
             });
+
+            connector.transferOwnership(data.owner);
             
             unchecked {
                 i++;
@@ -56,6 +68,10 @@ contract DeployMintableTokenStack {
         }
 
         controller.updateLimitParams(updates);
+
+        controller.transferOwnership(data.owner);
+        MintableToken(token).transferOwnership(data.owner);
+
      
     }
 
