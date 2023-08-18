@@ -50,9 +50,9 @@ export const overrides: {
     gasPrice,
   },
   [ChainSlug.AEVO]: {
-    type: 1,
-    gasLimit: 1_000_000,
-    gasPrice: 100_000_000,
+    type,
+    gasLimit,
+    gasPrice,
   },
 };
 

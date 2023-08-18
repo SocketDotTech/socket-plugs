@@ -41,7 +41,7 @@ export const integrationTypes = [
   // IntegrationTypes.optimistic,
 ];
 
-export const tokenToBridge: Tokens = Tokens.Moon;
+export const tokenToBridge: Tokens = Tokens.USDC;
 
 export const tokenName = {
   [Tokens.Moon]: "Moon",

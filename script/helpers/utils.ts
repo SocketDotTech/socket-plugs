@@ -8,7 +8,8 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, DeploymentMode } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import addresses from "../../deployments/dev_addresses.json";
+import devAddresses from "../../deployments/dev_addresses.json";
+import prodAddresses from "../../deployments/prod_addresses.json";
 import { Common, DeploymentAddresses, NonAppChainAddresses } from "./types";
 import { tokenToBridge } from "./constants";
 
@@ -158,8 +159,9 @@ export const storeAllAddresses = async (
 };
 
 export const getAllAddresses = (mode: DeploymentMode): DeploymentAddresses => {
-  if (!addresses) throw new Error("addresses not found");
-  return addresses as DeploymentAddresses;
+  if (mode == DeploymentMode.DEV && devAddresses) return devAddresses;
+  if (mode == DeploymentMode.PROD && prodAddresses) return prodAddresses;
+  throw new Error("addresses not found");
 };
 
 export const storeVerificationParams = async (
