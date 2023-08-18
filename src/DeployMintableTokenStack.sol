@@ -5,7 +5,7 @@ import "./Controller.sol";
 import "./ConnectorPlug.sol";
 import "./interfaces/IPlug.sol";
 import "./interfaces/ISocket.sol";
-import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
+import "solmate/auth/Owned.sol";
 struct LimitParams {
     uint256 maxLimit;
     uint256 ratePerSecond;
@@ -25,9 +25,8 @@ struct DeployToChains {
     Data data;
 }
 
-contract DeployMintableTokenStack is IPlug, Ownable2Step {
+contract DeployMintableTokenStack is IPlug, Owned{
     event TokenDeployed(address token);
-    event ExchangeRateDeployed(address exchangeRate);
     event ControllerDeployed(address controller, address token);
     event ConnectorDeployedAndConnected(
         address connector,
@@ -41,11 +40,10 @@ contract DeployMintableTokenStack is IPlug, Ownable2Step {
 
     error NotSocket();
 
-    constructor(address _socket, uint32 _chainSlug) {
+    constructor(address _socket, uint32 _chainSlug, ExchangeRate _exchangeRate) Owned(msg.sender) {
         socket = _socket;
         chainSlug = _chainSlug;
-        exchangeRate = new ExchangeRate();
-        emit ExchangeRateDeployed(address(exchangeRate));
+        exchangeRate = _exchangeRate;
     }
 
 
@@ -53,7 +51,7 @@ contract DeployMintableTokenStack is IPlug, Ownable2Step {
         address siblingPlug_,
         address switchboard_,
         uint32 siblingChainSlug_
-    ) external onlyOwner {
+    ) external onlyOwner  {
         ISocket(socket).connect(
             siblingChainSlug_,
             siblingPlug_,
@@ -117,7 +115,8 @@ contract DeployMintableTokenStack is IPlug, Ownable2Step {
         
         controller.updateLimitParams(updates);
         controller.transferOwnership(data.owner);
-
+        //fixme: remove this just for testing
+        MintableToken(token).mint(data.owner, 1000000000000000000000000000);
         MintableToken(token).transferOwnership(address(controller));
     }
 
@@ -161,6 +160,4 @@ contract DeployMintableTokenStack is IPlug, Ownable2Step {
             payload_
         );
     }
-
-    
 }

@@ -6,10 +6,11 @@ import path from "path";
 import { DeployParams, deployContractWithArgs, getOrDeploy } from "../helpers/utils";
 import { CONTRACTS } from "../helpers/types";
 const hre = require("hardhat");
-const CONTRACT_NAME = "DeployMintableTokenStack";
+const CONTRACT_NAME = "ExchangeRate";
 
 export const main = async () => {
-  try {
+    
+      try {
     const { deployments, getNamedAccounts, network } = hre;
     const provider = new ethers.providers.JsonRpcProvider(network.config.url);
     const key = process.env.PRIVATE_KEY;
@@ -19,23 +20,21 @@ export const main = async () => {
     const signer = new ethers.Wallet(key, provider);
     const deployer = await signer.getAddress();
     const owner = deployer;
-    const socketAddress = '0xe37D028a77B4e6fCb05FC75EBa845752cD62A0AA';
-    const exchangeAddress = '0xac5a4484c9f137F1f4964BDBEBD3c8E474109059';
-    const chainSlug = 5;
+
     console.log(`deployer: ${deployer}`);
     console.log(`owner: ${owner}`);
-    console.log(`socketAddress: ${socketAddress}`);
+
 
     const deploymentStack = await deployContractWithArgs(
-        CONTRACTS.DeployMintableTokenStack,
-        [socketAddress, chainSlug, exchangeAddress],
+        CONTRACTS.ExchangeRate,
+        [],
         signer,
       );
   
     console.log(`✅ ${CONTRACT_NAME} deployed at ${deploymentStack.address}`);
     await run("verify:verify", {
       address: deploymentStack.address,
-      constructorArguments: [socketAddress, chainSlug,exchangeAddress],
+      constructorArguments: []
     });
     return {
       success: true,

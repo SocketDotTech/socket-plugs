@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../src/DeployMintableTokenStack.sol";
+import "../src/ExchangeRate.sol";
 import "../src/interfaces/ISocket.sol";
 
 contract testDeployMintableTokenStack is Test {
@@ -11,6 +12,7 @@ contract testDeployMintableTokenStack is Test {
     address immutable _socketAddress = address(uint160(_c++));
     address immutable _switchBoard = address(uint160(_c++));
     address immutable _connector = address(uint160(_c++));
+    address immutable _exchangeRate = address(uint160(_c++));
 
     uint256 constant _lockMaxLimit = 200 ether;
     uint256 constant _lockRatePerSecond = 1 ether;
@@ -18,7 +20,7 @@ contract testDeployMintableTokenStack is Test {
 
     function setUp() external {
         vm.startPrank(_admin);
-        deployer = new DeployMintableTokenStack(_socketAddress, 420);
+        deployer = new DeployMintableTokenStack(_socketAddress, 420, ExchangeRate(_exchangeRate));
         vm.stopPrank();
     }
 
