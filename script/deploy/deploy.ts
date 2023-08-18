@@ -167,7 +167,7 @@ const deployConnectors = async (
       console.log(hub, socket, sibling);
       const connector: Contract = await getOrDeploy(
         CONTRACTS.ConnectorPlug,
-        "src/universalTokens/appChainToken/ConnectorPlug.sol",
+        "src/ConnectorPlug.sol",
         [hub, socket, sibling],
         deployParams
       );

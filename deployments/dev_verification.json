@@ -3,7 +3,7 @@
     [
       "0x6fEddE12105F47eAcde493Ee294d207bFE68dcE5",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0x1b74Ac5DaCa01D82A3d2E7688ea30E50Fe6Ff35E",
         "0xD97B9F7fF00E252C0abAa6ce0E13B5F6d9185202",
@@ -33,7 +33,7 @@
     [
       "0xc2BD14Fe818C6Fc47246Bee79F0D91AFbebb43e2",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0x4F04f8Ae9Fc3A9539d00e5e69c3b262b31220d00",
         "0xD97B9F7fF00E252C0abAa6ce0E13B5F6d9185202",
@@ -51,7 +51,7 @@
     [
       "0x3639bA9D2eCBA74d92Ea400f9E0AA9BA0F79Cc34",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0x1bcEC7D79b274F01DB2a70D11f4e2907C04E64DF",
         "0x5a90a285ab72393B2c47168374895a5C8101012c",
@@ -81,7 +81,7 @@
     [
       "0x7e54F4c0aCafec318aF1f5d1dCD373CdACc32622",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0xFFB09850fAb52765b5E48eAC1AA3fFAD620C8fcE",
         "0x5a90a285ab72393B2c47168374895a5C8101012c",
@@ -99,7 +99,7 @@
     [
       "0xaa3d9fA3aB930aE635b001d00C612aa5b14d750e",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0x8f9EaEe5c5df888aBA3c1Ab19689a0660d042c6d",
         "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
@@ -109,7 +109,7 @@
     [
       "0x57D1Aeafb6a2b7Bd4954e47a556622161A8c0A65",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0x8f9EaEe5c5df888aBA3c1Ab19689a0660d042c6d",
         "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
@@ -140,7 +140,7 @@
     [
       "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
         "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
@@ -150,7 +150,7 @@
     [
       "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
       "ConnectorPlug",
-      "src/universalTokens/appChainToken/ConnectorPlug.sol",
+      "src/ConnectorPlug.sol",
       [
         "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
         "0x66ffe416eB16D879EcE55B1d50C34789CB4Ab80a",
