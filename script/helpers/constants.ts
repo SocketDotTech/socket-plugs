@@ -64,7 +64,7 @@ export const totalSupply = utils.parseUnits(
 );
 
 export const FAST_MAX_LIMIT = utils.parseUnits(
-  "3600",
+  "100000",
   tokenDecimals[tokenToBridge]
 );
 export const SLOW_MAX_LIMIT = utils.parseUnits(
@@ -72,5 +72,8 @@ export const SLOW_MAX_LIMIT = utils.parseUnits(
   tokenDecimals[tokenToBridge]
 );
 
-export const FAST_RATE = utils.parseUnits("1", tokenDecimals[tokenToBridge]);
+export const FAST_RATE = utils.parseUnits(
+  "1.1574",
+  tokenDecimals[tokenToBridge]
+);
 export const SLOW_RATE = utils.parseUnits("2", tokenDecimals[tokenToBridge]);
