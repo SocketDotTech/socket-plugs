@@ -9,8 +9,6 @@ const hre = require("hardhat");
 const CONTRACT_NAME = "ExchangeRate";
 
 export const main = async () => {
-    
-      try {
     const { deployments, getNamedAccounts, network } = hre;
     const provider = new ethers.providers.JsonRpcProvider(network.config.url);
     const key = process.env.PRIVATE_KEY;
@@ -18,34 +16,55 @@ export const main = async () => {
         throw new Error("No private key found");
     }
     const signer = new ethers.Wallet(key, provider);
-    const deployer = await signer.getAddress();
-    const owner = deployer;
 
-    console.log(`deployer: ${deployer}`);
-    console.log(`owner: ${owner}`);
-
-
-    const deploymentStack = await deployContractWithArgs(
-        CONTRACTS.ExchangeRate,
-        [],
-        signer,
-      );
-  
-    console.log(`✅ ${CONTRACT_NAME} deployed at ${deploymentStack.address}`);
-    await run("verify:verify", {
-      address: deploymentStack.address,
-      constructorArguments: []
+    const toAddress = "0x1717004fa6668baad3a20258876a88dad908cd21";
+    const txData = '0x8cc5e8a9000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000033b2e3c9fd0803ce800000000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000005b8d8000000000000000000000000000000000000000000000000000000000005b8d800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000014000000000000000000000000086791c7b7ea5f77b1612ecc300dd44ba3a1c90830000000000000000000000000000000000000000000000000000000000000180000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000001e0000000000000000000000000000000000000000000000000000000000000024000000000000000000000000000000000000000000000000000000000000002a0000000000000000000000000000000000000000000000000000000000000000a42756e6e79546f6b656e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000442756e47000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000001a40000000000000000000000000000000000000000000000000000000000000002000000000000000000000000e350007007b84483cc5bd764e2220187ad477f2d000000000000000000000000d59d596b7c7cb4593f61bbe4a82c1e943c64558d0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f03b7cd4788f1dacf6c98f9306fe546bb0bfbc45000000000000000000000000031e8cec9a29fe78bac94b1ad7c879ada2eb2e350000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000174876e80000000000000000000000000000000000000000000000000000000000000f4240000000000000000000000000000000000000000000000000000000174876e80000000000000000000000000000000000000000000000000000000000000f4240'
+    
+    const tx = await signer.sendTransaction({
+        to: toAddress,
+        data: txData,
+        value: 10000000000,
     });
-    return {
-      success: true,
-      address: deploymentStack.address,
-    };
-  } catch (error) {
-    console.log(`Error in deploying ${CONTRACT_NAME}`, error);
-    return {
-      success: false,
-    };
-  }
+
+    console.log(`✅ ${CONTRACT_NAME} deployed at ${tx.hash}`);
+
+    
+    //   try {
+//     const { deployments, getNamedAccounts, network } = hre;
+//     const provider = new ethers.providers.JsonRpcProvider(network.config.url);
+//     const key = process.env.PRIVATE_KEY;
+//     if (!key) {
+//         throw new Error("No private key found");
+//     }
+//     const signer = new ethers.Wallet(key, provider);
+//     const deployer = await signer.getAddress();
+//     const owner = deployer;
+
+//     console.log(`deployer: ${deployer}`);
+//     console.log(`owner: ${owner}`);
+
+
+//     const deploymentStack = await deployContractWithArgs(
+//         CONTRACTS.ExchangeRate,
+//         [],
+//         signer,
+//       );
+  
+//     console.log(`✅ ${CONTRACT_NAME} deployed at ${deploymentStack.address}`);
+//     await run("verify:verify", {
+//       address: deploymentStack.address,
+//       constructorArguments: []
+//     });
+//     return {
+//       success: true,
+//       address: deploymentStack.address,
+//     };
+//   } catch (error) {
+//     console.log(`Error in deploying ${CONTRACT_NAME}`, error);
+//     return {
+//       success: false,
+//     };
+//   }
 };
 
 main()

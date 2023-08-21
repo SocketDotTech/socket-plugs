@@ -2,14 +2,14 @@ pragma solidity ^0.8.13;
 import "./MintableToken.sol";
 import "./ExchangeRate.sol";
 import "./ControllerV2.sol";
-import "./ConnectorPlug.sol";
+import "./ConnectorPlugV2.sol";
 import "./interfaces/IPlug.sol";
 import "./interfaces/ISocket.sol";
 import "solmate/auth/Owned.sol";
-import "solmate/utils/CREATE3.sol";
+import "./interfaces/ICREATE3Factory.sol";
 
 // TODO: discuss and remove 2step ownership
-// TODO: make sure create 3 is creating correct connection 
+// TODO: make sure create 3 is creating correct connection
 // TODO: check if someone cant deploy a token with the same name and symbol and do harmfull things
 // FIXME: add natspec
 // TODO: gas optimization left
@@ -47,17 +47,17 @@ contract DeployMintableTokenStack is IPlug, Owned {
     address public immutable socket;
     ExchangeRate public immutable exchangeRate;
     uint32 public immutable chainSlug;
-
-    error NotSocket();
-
+    ICREATE3Factory public immutable CREATE3;
     constructor(
         address _socket,
         uint32 _chainSlug,
-        ExchangeRate _exchangeRate
+        ExchangeRate _exchangeRate,
+        ICREATE3Factory _CREATE3
     ) Owned(msg.sender) {
         socket = _socket;
         chainSlug = _chainSlug;
         exchangeRate = _exchangeRate;
+        CREATE3 = _CREATE3;
     }
 
     function connect(
@@ -76,57 +76,45 @@ contract DeployMintableTokenStack is IPlug, Owned {
     function deploy(DeploymentInfo memory data, uint256 initialSupply) public {
         ControllerV2.UpdateLimitParams[]
             memory updates = new ControllerV2.UpdateLimitParams[](
-                data.limitParams.length
-        );
-        bytes32 salt = keccak256(
-            abi.encodePacked(
-                data.tokenName,
-                data.tokenSymbol,
-                data.tokenDecimals
-            )
-        );
+                data.limitParams.length * 2
+            );
+
         address token = CREATE3.deploy(
-            salt,
+            keccak256(
+                abi.encodePacked(
+                    data.tokenName,
+                    data.tokenSymbol,
+                    data.tokenDecimals,
+                    data.owner
+                )
+            ),
             abi.encodePacked(
                 type(MintableToken).creationCode,
-                abi.encode(data.tokenName, data.tokenSymbol, data.tokenDecimals)
-            ),
-            0
+                abi.encode(data.tokenName, data.tokenSymbol, data.tokenDecimals, address(this))
+            )
         );
         emit TokenDeployed(token, data.owner);
 
-        bytes32 controllerSalt = keccak256(
-            abi.encodePacked(token, address(exchangeRate))
-        );
         address controllerAddress = CREATE3.deploy(
-            controllerSalt,
+            keccak256(abi.encodePacked(token, address(exchangeRate), data.owner)),
             abi.encodePacked(
                 type(ControllerV2).creationCode,
-                abi.encode(token, address(exchangeRate))
-            ),
-            0
+                abi.encode(token, address(exchangeRate), address(this))
+            )
         );
         ControllerV2 controller = ControllerV2(controllerAddress);
         emit ControllerDeployed(controllerAddress, token);
 
         for (uint8 i = 0; i < data.chains.length; ) {
             if (data.chains[i] != chainSlug) {
-                bytes32 connectorSalt = keccak256(
+                address connectorAddress = CREATE3.deploy(
+                    keccak256(abi.encodePacked(controllerAddress, socket, i, data.owner)),
                     abi.encodePacked(
-                        controllerAddress,
-                        socket,
-                        i 
+                        type(ConnectorPlugV2).creationCode,
+                        abi.encode(controllerAddress, socket, data.chains[i], address(this))
                     )
                 );
-                address connectorAddress = CREATE3.deploy(
-                    connectorSalt,
-                    abi.encodePacked(
-                        type(ConnectorPlug).creationCode,
-                        abi.encode(controllerAddress, socket, data.chains[i])
-                    ),
-                    0
-                );
-                ConnectorPlug connector = ConnectorPlug(connectorAddress);
+                ConnectorPlugV2 connector = ConnectorPlugV2(connectorAddress);
                 connector.connect(
                     data.siblingConnectors[i],
                     data.switchboard[i]
@@ -138,8 +126,15 @@ contract DeployMintableTokenStack is IPlug, Owned {
                 );
 
                 // TODO: try to find out whether we can do better this in terms of gas savings
-                updates[i] = ControllerV2.UpdateLimitParams({
+                updates[ (2*i) ] = ControllerV2.UpdateLimitParams({
                     isMint: true,
+                    connector: connectorAddress,
+                    maxLimit: data.limitParams[i].maxLimit,
+                    ratePerSecond: data.limitParams[i].ratePerSecond
+                });
+                // TODO: ask arth if its needed
+                updates[ (2*i) + 1] = ControllerV2.UpdateLimitParams({
+                    isMint: false,
                     connector: connectorAddress,
                     maxLimit: data.limitParams[i].maxLimit,
                     ratePerSecond: data.limitParams[i].ratePerSecond
@@ -155,7 +150,6 @@ contract DeployMintableTokenStack is IPlug, Owned {
 
         controller.updateLimitParams(updates);
         controller.transferOwnership(data.owner);
-
         MintableToken(token).mint(data.owner, initialSupply);
         MintableToken(token).transferOwnership(controllerAddress);
     }
@@ -182,7 +176,7 @@ contract DeployMintableTokenStack is IPlug, Owned {
         uint32 /* siblingChainSlug_ */, // cannot be connected for any other slug, immutable variable
         bytes calldata payload_
     ) external payable override {
-        if (msg.sender != address(socket)) revert NotSocket();
+        if (msg.sender != address(socket)) revert();
         DeploymentInfo memory data = abi.decode(payload_, (DeploymentInfo));
         deploy(data, 0);
     }

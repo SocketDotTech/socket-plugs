@@ -5,6 +5,8 @@ import "solmate/tokens/ERC20.sol";
 import "../src/DeployMintableTokenStack.sol";
 import "../src/ExchangeRate.sol";
 import "../src/interfaces/ISocket.sol";
+import "../src/interfaces/ICREATE3Factory.sol";
+import "./mocks/Create3Factory.sol";
 
 contract testDeployMintableTokenStack is Test {
     uint256 _c;
@@ -20,7 +22,8 @@ contract testDeployMintableTokenStack is Test {
 
     function setUp() external {
         vm.startPrank(_admin);
-        deployer = new DeployMintableTokenStack(_socketAddress, 420, ExchangeRate(_exchangeRate));
+        CREATE3Factory create3Factory = new CREATE3Factory();
+        deployer = new DeployMintableTokenStack(_socketAddress, 420, ExchangeRate(_exchangeRate), ICREATE3Factory(create3Factory));
         vm.stopPrank();
     }
 
@@ -60,15 +63,55 @@ contract testDeployMintableTokenStack is Test {
             bytes("0")
         );
 
-        // deployer.deploy(
-        //     "ANIMOJI TOKEN",
-        //     "ANIMOJI",
-        //     chains,
-        //     18,
-        //     switchboards,
-        //     connectors,
-        //     lockLimitParams
+//         struct DeploymentInfo {
+//     string tokenName;
+//     string tokenSymbol;
+//     address owner;
+//     uint32[] chains;
+//     uint8 tokenDecimals;
+//     address[] switchboard;
+//     address[] siblingConnectors;
+//     LimitParams[] limitParams;
+// }
+// struct DeployToChains {
+//     uint256[] gasLimits;
+//     uint256 initialSupply;
+//     DeploymentInfo data;
+// }
+        DeployToChains memory deployToChains = DeployToChains(
+           {
+                gasLimits: new uint256[](2),
+                initialSupply: 10000,
+                data: DeploymentInfo(
+                     {
+                          tokenName: "TestToken",
+                          tokenSymbol: "TT",
+                          owner: 0xe8dD38E673A93ccFC2E3d7053efcCb5c93F49365,
+                          chains: chains,
+                          tokenDecimals: 18,
+                          switchboard: switchboards,
+                          siblingConnectors: connectors,
+                          limitParams: lockLimitParams
+                     }
+                )
+           }
+        );
+
+        // deployer.deployMultiChain(
+        //         deployToChains
         // );
+
+        deployer.deploy(DeploymentInfo(
+                     {
+                          tokenName: "TestToken",
+                          tokenSymbol: "TT",
+                          owner: 0xe8dD38E673A93ccFC2E3d7053efcCb5c93F49365,
+                          chains: chains,
+                          tokenDecimals: 18,
+                          switchboard: switchboards,
+                          siblingConnectors: connectors,
+                          limitParams: lockLimitParams
+                     }), 10000000000000000000000);
         vm.stopPrank();
     }
 }

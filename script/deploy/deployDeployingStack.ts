@@ -21,6 +21,7 @@ export const main = async () => {
     const owner = deployer;
     const socketAddress = '0xe37D028a77B4e6fCb05FC75EBa845752cD62A0AA';
     const exchangeAddress = '0xac5a4484c9f137F1f4964BDBEBD3c8E474109059';
+    const create3Address = '0xF2B6544589ab65E731883A0244cbEFe5735322c5';
     const chainSlug = 5;
     console.log(`deployer: ${deployer}`);
     console.log(`owner: ${owner}`);
@@ -28,14 +29,14 @@ export const main = async () => {
 
     const deploymentStack = await deployContractWithArgs(
         CONTRACTS.DeployMintableTokenStack,
-        [socketAddress, chainSlug, exchangeAddress],
+        [socketAddress, chainSlug, exchangeAddress, create3Address],
         signer,
       );
   
     console.log(`✅ ${CONTRACT_NAME} deployed at ${deploymentStack.address}`);
     await run("verify:verify", {
       address: deploymentStack.address,
-      constructorArguments: [socketAddress, chainSlug,exchangeAddress],
+      constructorArguments: [socketAddress, chainSlug,exchangeAddress, create3Address],
     });
     return {
       success: true,

@@ -116,7 +116,7 @@ contract TestAppChainToken is Test {
     }
 
     function _deployAppChainContracts() internal {
-        _appChainCtx.token = new MintableToken("Moon", "MOON", 18);
+        _appChainCtx.token = new MintableToken("Moon", "MOON", 18, address(this));
         _appChainCtx.exchangeRate = new ExchangeRate();
         _appChainCtx.controller = new Controller(
             address(_appChainCtx.token),

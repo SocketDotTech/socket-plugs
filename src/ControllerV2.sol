@@ -1,13 +1,13 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
-import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
+import "solmate/auth/Owned.sol";
 import {IExchangeRate} from "./ExchangeRate.sol";
 import {Gauge} from "./Gauge.sol";
 import {IConnector, IHub} from "./ConnectorPlug.sol";
 import {IMintableERC20} from "./MintableToken.sol";
 
-contract ControllerV2 is IHub, Gauge, Ownable2Step {
+contract ControllerV2 is IHub, Gauge, Owned {
     using SafeTransferLib for IMintableERC20;
     IMintableERC20 public immutable token__;
     IExchangeRate public exchangeRate__;
@@ -58,7 +58,7 @@ contract ControllerV2 is IHub, Gauge, Ownable2Step {
     );
     event TokensMinted(address connecter, address receiver, uint256 mintAmount);
 
-    constructor(address token_, address exchangeRate_) {
+    constructor(address token_, address exchangeRate_, address owner_) Owned(owner_) {
         token__ = IMintableERC20(token_);
         exchangeRate__ = IExchangeRate(exchangeRate_);
     }
