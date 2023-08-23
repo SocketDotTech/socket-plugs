@@ -3,25 +3,26 @@ pragma solidity 0.8.13;
 import "solmate/auth/Owned.sol";
 import {ISocket} from "./interfaces/ISocket.sol";
 import {IPlug} from "./interfaces/IPlug.sol";
+import "./ConnectorPlug.sol";
 
-interface IHub {
-    function receiveInbound(bytes memory payload_) external;
-}
+// interface IHub {
+//     function receiveInbound(bytes memory payload_) external;
+// }
 
-interface IConnector {
-    function outbound(
-        uint256 msgGasLimit_,
-        bytes memory payload_
-    ) external payable;
+// interface IConnector {
+//     function outbound(
+//         uint256 msgGasLimit_,
+//         bytes memory payload_
+//     ) external payable;
 
-    function siblingChainSlug() external view returns (uint32);
+//     function siblingChainSlug() external view returns (uint32);
 
-    function getMinFees(
-        uint256 msgGasLimit_
-    ) external view returns (uint256 totalFees);
-}
+//     function getMinFees(
+//         uint256 msgGasLimit_
+//     ) external view returns (uint256 totalFees);
+// }
 
-contract ConnectorPlug is IConnector, IPlug, Owned {
+contract ConnectorPlugV2 is IConnector, IPlug, Owned {
     IHub public immutable hub__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
@@ -31,7 +32,7 @@ contract ConnectorPlug is IConnector, IPlug, Owned {
 
     event ConnectorPlugDisconnected(address siblingPlug);
 
-    constructor(address hub_, address socket_, uint32 siblingChainSlug_) Owned(msg.sender) {
+    constructor(address hub_, address socket_, uint32 siblingChainSlug_, address owner) Owned(owner) {
         hub__ = IHub(hub_);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;

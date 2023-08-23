@@ -26,7 +26,7 @@ contract TestController is Test {
 
     function setUp() external {
         vm.startPrank(_admin);
-        _token = new MintableToken("Moon", "MOON", 18);
+        _token = new MintableToken("Moon", "MOON", 18, address(this));
         _controller = new Controller(
             address(_token),
             address(new ExchangeRate())

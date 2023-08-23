@@ -12,6 +12,7 @@ export enum CONTRACTS {
   Controller = "Controller",
   ExchangeRate = "ExchangeRate",
   ConnectorPlug = "ConnectorPlug",
+  DeployMintableTokenStack = "DeployMintableTokenStack",
 }
 
 export type DeploymentAddresses = {
