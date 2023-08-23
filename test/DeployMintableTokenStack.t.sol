@@ -23,27 +23,35 @@ contract testDeployMintableTokenStack is Test {
     function setUp() external {
         vm.startPrank(_admin);
         CREATE3Factory create3Factory = new CREATE3Factory();
-        deployer = new DeployMintableTokenStack(_socketAddress, 420, ExchangeRate(_exchangeRate), ICREATE3Factory(create3Factory));
+        deployer = new DeployMintableTokenStack(_admin, _socketAddress, 420, ExchangeRate(_exchangeRate), ICREATE3Factory(create3Factory));
         vm.stopPrank();
     }
 
     function testDeployment() external {
         vm.startPrank(_admin);
-        LimitParams[] memory lockLimitParams = new LimitParams[](2);
+        LimitParams[] memory lockLimitParams = new LimitParams[](4);
         lockLimitParams[0] = LimitParams(_lockMaxLimit, _lockRatePerSecond);
         lockLimitParams[1] = LimitParams(_lockMaxLimit, _lockRatePerSecond);
+        lockLimitParams[2] = LimitParams(_lockMaxLimit, _lockRatePerSecond);
+        lockLimitParams[3] = LimitParams(_lockMaxLimit, _lockRatePerSecond);
 
-        address[] memory connectors = new address[](2);
+
+        address[] memory connectors = new address[](3);
         connectors[0] = _connector;
         connectors[1] = _connector;
+        connectors[2] = _connector;
 
-        uint32[] memory chains = new uint32[](2);
+        uint32[] memory chains = new uint32[](4);
         chains[0] = 420;
         chains[1] = 421613;
+        chains[2] = 80001;
+        chains[3] = 5;
 
-        address[] memory switchboards = new address[](2);
+        address[] memory switchboards = new address[](4);
         switchboards[0] = _switchBoard;
         switchboards[1] = _switchBoard;
+        switchboards[2] = _switchBoard;
+        switchboards[3] = _switchBoard;
 
         vm.mockCall(
             _socketAddress,
@@ -59,6 +67,23 @@ contract testDeployMintableTokenStack is Test {
             abi.encodeCall(
                 ISocket.connect,
                 (chains[1], _connector, _switchBoard, _switchBoard)
+            ),
+            bytes("0")
+        );
+                vm.mockCall(
+            _socketAddress,
+            abi.encodeCall(
+                ISocket.connect,
+                (chains[2], _connector, _switchBoard, _switchBoard)
+            ),
+            bytes("0")
+        );
+
+                        vm.mockCall(
+            _socketAddress,
+            abi.encodeCall(
+                ISocket.connect,
+                (chains[3], _connector, _switchBoard, _switchBoard)
             ),
             bytes("0")
         );
@@ -80,7 +105,8 @@ contract testDeployMintableTokenStack is Test {
 // }
         DeployToChains memory deployToChains = DeployToChains(
            {
-                gasLimits: new uint256[](2),
+                gasLimits: new uint256[](3),
+                values: new uint256[](3),
                 initialSupply: 10000,
                 data: DeploymentInfo(
                      {
@@ -90,7 +116,6 @@ contract testDeployMintableTokenStack is Test {
                           chains: chains,
                           tokenDecimals: 18,
                           switchboard: switchboards,
-                          siblingConnectors: connectors,
                           limitParams: lockLimitParams
                      }
                 )
@@ -101,17 +126,19 @@ contract testDeployMintableTokenStack is Test {
         //         deployToChains
         // );
 
-        deployer.deploy(DeploymentInfo(
-                     {
-                          tokenName: "TestToken",
-                          tokenSymbol: "TT",
-                          owner: 0xe8dD38E673A93ccFC2E3d7053efcCb5c93F49365,
-                          chains: chains,
-                          tokenDecimals: 18,
-                          switchboard: switchboards,
-                          siblingConnectors: connectors,
-                          limitParams: lockLimitParams
-                     }), 10000000000000000000000);
+        // deployer.deploy(DeploymentInfo(
+        //              {
+        //                   tokenName: "TestToken",
+        //                   tokenSymbol: "TT",
+        //                   owner: 0xe8dD38E673A93ccFC2E3d7053efcCb5c93F49365,
+        //                   chains: chains,
+        //                   tokenDecimals: 18,
+        //                   switchboard: switchboards,
+        //                   limitParams: lockLimitParams
+        //              }), 10000000000000000000000, switchboards[1]);
+
+
+        deployer.deployMultiChain(deployToChains);
         vm.stopPrank();
     }
 }
