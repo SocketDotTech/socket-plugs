@@ -60,7 +60,7 @@ export const main = async () => {
         const providerInstance = await getProviderFromChainName(network);
 
         const signer: Wallet = new Wallet(
-          process.env.PRIVATE_KEY as string,
+          process.env.SOCKET_SIGNER_KEY as string,
           providerInstance
         );
 
@@ -167,7 +167,7 @@ const deployConnectors = async (
       console.log(hub, socket, sibling);
       const connector: Contract = await getOrDeploy(
         CONTRACTS.ConnectorPlug,
-        "src/universalTokens/appChainToken/ConnectorPlug.sol",
+        "src/ConnectorPlug.sol",
         [hub, socket, sibling],
         deployParams
       );
@@ -242,7 +242,7 @@ const deployChainContracts = async (
       const vault: Contract = await getOrDeploy(
         CONTRACTS.Vault,
         "src/Vault.sol",
-        [nonMintableToken.address, deployParams.currentChainSlug],
+        [nonMintableToken.address],
         deployParams
       );
       deployParams.addresses[CONTRACTS.Vault] = vault.address;

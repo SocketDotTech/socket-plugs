@@ -1,3 +1,4 @@
+import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
@@ -23,9 +24,9 @@ dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
 const isProduction = process.env.NODE_ENV === "production";
 
 // Ensure that we have all the environment variables we need.
-if (!process.env.PRIVATE_KEY) throw new Error("No private key found");
+if (!process.env.SOCKET_SIGNER_KEY) throw new Error("No private key found");
 const privateKey: HardhatNetworkAccountUserConfig = process.env
-  .PRIVATE_KEY as unknown as HardhatNetworkAccountUserConfig;
+  .SOCKET_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
 
 function getChainConfig(chain: keyof typeof chainKeyToSlug): NetworkUserConfig {
   return {
@@ -52,6 +53,7 @@ if (isProduction) {
     [ChainKey.ARBITRUM]: getChainConfig(ChainKey.ARBITRUM),
     [ChainKey.AVALANCHE]: getChainConfig(ChainKey.AVALANCHE),
     [ChainKey.BSC]: getChainConfig(ChainKey.BSC),
+    [ChainKey.AEVO]: getChainConfig(ChainKey.AEVO),
     [ChainKey.GOERLI]: getChainConfig(ChainKey.GOERLI),
     [ChainKey.MAINNET]: getChainConfig(ChainKey.MAINNET),
     [ChainKey.OPTIMISM]: getChainConfig(ChainKey.OPTIMISM),
@@ -82,6 +84,7 @@ const config: HardhatUserConfig = {
       optimisticTestnet: process.env.OPTIMISM_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
+      aevo: process.env.AEVO_API_KEY || "",
       aevoTestnet: process.env.AEVO_API_KEY || "",
     },
     customChains: [
@@ -107,6 +110,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "",
           browserURL: "https://explorer-testnet.aevo.xyz/",
+        },
+      },
+      {
+        network: "aevo",
+        chainId: chainKeyToSlug[ChainKey.AEVO],
+        urls: {
+          apiURL: "",
+          browserURL: "https://explorer.aevo.xyz//",
         },
       },
     ],

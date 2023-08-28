@@ -28,7 +28,7 @@ export const main = async () => {
 
     for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {
       const chain = chains[chainIndex];
-
+      if (chain == ChainKey.AEVO || chain == ChainKey.AEVO_TESTNET) continue;
       hre.changeNetwork(ChainSlugToKey[chain]);
       const chainParams: VerifyArgs[] = verificationParams[chain];
       if (chainParams.length) {
