@@ -29,7 +29,7 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
     error NotHub();
     error NotSocket();
 
-    event ConnectorPlugDisconnected(address siblingPlug);
+    event ConnectorPlugDisconnected();
 
     constructor(address hub_, address socket_, uint32 siblingChainSlug_) {
         hub__ = IHub(hub_);
@@ -86,14 +86,22 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
         );
     }
 
-    function disconnect(address siblingPlug_) external onlyOwner {
+    function disconnect() external onlyOwner {
+        (
+            ,
+            address inboundSwitchboard,
+            address outboundSwitchboard,
+            ,
+
+        ) = socket__.getPlugConfig(address(this), siblingChainSlug);
+
         socket__.connect(
             siblingChainSlug,
-            siblingPlug_,
             address(0),
-            address(0)
+            inboundSwitchboard,
+            outboundSwitchboard
         );
 
-        emit ConnectorPlugDisconnected(siblingPlug_);
+        emit ConnectorPlugDisconnected();
     }
 }

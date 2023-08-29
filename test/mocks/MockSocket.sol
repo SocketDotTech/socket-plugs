@@ -79,4 +79,19 @@ contract MockSocket is ISocket {
         uint32 siblingChainSlug_,
         address plug_
     ) external view override returns (uint256 totalFees) {}
+
+    function getPlugConfig(
+        address plugAddress_,
+        uint32 siblingChainSlug_
+    )
+        external
+        view
+        returns (
+            address siblingPlug,
+            address inboundSwitchboard__,
+            address outboundSwitchboard__,
+            address capacitor__,
+            address decapacitor__
+        )
+    {}
 }
