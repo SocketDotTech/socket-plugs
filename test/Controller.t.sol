@@ -3,7 +3,6 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../src/MintableToken.sol";
-import "../src/ConnectorPlug.sol";
 import "../src/Controller.sol";
 import "../src/ExchangeRate.sol";
 
@@ -182,6 +181,7 @@ contract TestController is Test {
                 (_msgGasLimit, abi.encode(_raju, withdrawAmount))
             )
         );
+
         _controller.withdrawFromAppChain{value: _fees}(
             _raju,
             withdrawAmount,

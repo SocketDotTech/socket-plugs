@@ -51,6 +51,8 @@ contract TestAppChainToken is Test {
     uint256 public constant MSG_GAS_LIMIT = 200_000;
     uint256 public constant BOOTSTRAP_TIME = 250;
 
+    error PlugDisconnected();
+
     function setUp() external {
         _admin = address(uint160(_c++));
         _raju = address(uint160(_c++));
@@ -314,5 +316,25 @@ contract TestAppChainToken is Test {
 
     function testOptimismDeposit() external {
         _deposit(_optimismCtx);
+    }
+
+    function testDisconnect() external {
+        hoax(_admin);
+        _optimismCtx.fastConnector.disconnect();
+
+        uint256 depositAmount = 100;
+        vm.prank(_admin);
+        _optimismCtx.token.transfer(_raju, depositAmount);
+
+        vm.startPrank(_raju);
+        _optimismCtx.token.approve(address(_optimismCtx.vault), depositAmount);
+
+        vm.expectRevert(PlugDisconnected.selector);
+        _optimismCtx.vault.depositToAppChain(
+            _ramu,
+            depositAmount,
+            MSG_GAS_LIMIT,
+            address(_optimismCtx.fastConnector)
+        );
     }
 }
