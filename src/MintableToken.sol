@@ -8,6 +8,7 @@ abstract contract IMintableERC20 is ERC20 {
     function burn(address burner_, uint256 amount_) external virtual;
 }
 
+// this is a mock token used in tests, other projects' token to be used here
 contract MintableToken is IMintableERC20 {
     constructor(
         string memory name_,

@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 import "solmate/tokens/ERC20.sol";
 
 contract NonMintableToken is ERC20 {
+    // this is a mock token used in tests, other projects' token to be used here
     constructor(
         string memory name_,
         string memory symbol_,

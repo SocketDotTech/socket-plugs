@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {ISocket} from "./interfaces/ISocket.sol";
 import {IPlug} from "./interfaces/IPlug.sol";
+import {RescueFundsLib} from "./RescueFundsLib.sol";
 
 interface IHub {
     function receiveInbound(bytes memory payload_) external;
@@ -103,5 +104,19 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
         );
 
         emit ConnectorPlugDisconnected();
+    }
+
+    /**
+     * @notice Rescues funds from the contract if they are locked by mistake.
+     * @param token_ The address of the token contract.
+     * @param rescueTo_ The address where rescued tokens need to be sent.
+     * @param amount_ The amount of tokens to be rescued.
+     */
+    function rescueFunds(
+        address token_,
+        address rescueTo_,
+        uint256 amount_
+    ) external onlyOwner {
+        RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }

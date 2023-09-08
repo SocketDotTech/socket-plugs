@@ -4,6 +4,7 @@ import "solmate/utils/SafeTransferLib.sol";
 import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {Gauge} from "./Gauge.sol";
 import {IConnector, IHub} from "./ConnectorPlug.sol";
+import {RescueFundsLib} from "./RescueFundsLib.sol";
 
 // @todo: separate our connecter plugs
 contract Vault is Gauge, IHub, Ownable2Step {
@@ -186,5 +187,19 @@ contract Vault is Gauge, IHub, Ownable2Step {
         address connector_
     ) external view returns (LimitParams memory) {
         return _unlockLimitParams[connector_];
+    }
+
+    /**
+     * @notice Rescues funds from the contract if they are locked by mistake.
+     * @param token_ The address of the token contract.
+     * @param rescueTo_ The address where rescued tokens need to be sent.
+     * @param amount_ The amount of tokens to be rescued.
+     */
+    function rescueFunds(
+        address token_,
+        address rescueTo_,
+        uint256 amount_
+    ) external onlyOwner {
+        RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }
