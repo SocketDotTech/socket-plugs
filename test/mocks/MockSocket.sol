@@ -16,6 +16,7 @@ contract MockSocket is ISocket {
         public plugConfigs;
 
     error WrongSiblingPlug();
+    error PlugDisconnected();
 
     function chainSlug() external view override returns (uint32) {
         return _localSlug;
@@ -51,6 +52,8 @@ contract MockSocket is ISocket {
             siblingChainSlug_
         ];
 
+        if (srcPlugConfig.siblingPlug == address(0)) revert PlugDisconnected();
+
         PlugConfig memory dstPlugConfig = plugConfigs[siblingChainSlug_][
             srcPlugConfig.siblingPlug
         ][_localSlug];
@@ -79,4 +82,31 @@ contract MockSocket is ISocket {
         uint32 siblingChainSlug_,
         address plug_
     ) external view override returns (uint256 totalFees) {}
+
+    function getPlugConfig(
+        address plugAddress_,
+        uint32 siblingChainSlug_
+    )
+        external
+        view
+        returns (
+            address siblingPlug,
+            address inboundSwitchboard__,
+            address outboundSwitchboard__,
+            address capacitor__,
+            address decapacitor__
+        )
+    {
+        PlugConfig memory srcPlugConfig = plugConfigs[_localSlug][plugAddress_][
+            siblingChainSlug_
+        ];
+
+        return (
+            srcPlugConfig.siblingPlug,
+            address(srcPlugConfig.inboundSwitchboard),
+            address(srcPlugConfig.outboundSwitchboard),
+            address(0),
+            address(0)
+        );
+    }
 }

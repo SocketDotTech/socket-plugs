@@ -165,4 +165,23 @@ interface ISocket {
      * @return chainSlug current chain slug
      */
     function chainSlug() external view returns (uint32 chainSlug);
+
+    /**
+     * @notice returns the config for given `plugAddress_` and `siblingChainSlug_`
+     * @param siblingChainSlug_ the sibling chain slug
+     * @param plugAddress_ address of plug present at current chain
+     */
+    function getPlugConfig(
+        address plugAddress_,
+        uint32 siblingChainSlug_
+    )
+        external
+        view
+        returns (
+            address siblingPlug,
+            address inboundSwitchboard__,
+            address outboundSwitchboard__,
+            address capacitor__,
+            address decapacitor__
+        );
 }
