@@ -16,13 +16,13 @@ contract CrossChainToken is IMintableERC20 {
         uint8 decimals_
     ) ERC20(name_, symbol_, decimals_) {}
 
-    // function mint(address receiver_, uint256 amount_) external override {
-    //     _mint(receiver_, amount_);
-    // }
+    function mint(address receiver_, uint256 amount_) external override {
+        _mint(receiver_, amount_);
+    }
 
-    // function burn(address burner_, uint256 amount_) external override {
-    //     _burn(burner_, amount_);
-    // }
+    function burn(address burner_, uint256 amount_) external override {
+        _burn(burner_, amount_);
+    }
 
-    
+
 }
