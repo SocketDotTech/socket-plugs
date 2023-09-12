@@ -8,19 +8,21 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, DeploymentMode } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import devAddresses from "../../deployments/dev_addresses.json";
-import prodAddresses from "../../deployments/prod_addresses.json";
-import { Common, DeploymentAddresses, NonAppChainAddresses } from "./types";
-import { tokenToBridge } from "./constants";
+import {
+  Common,
+  DeploymentAddresses,
+  NonAppChainAddresses,
+  Project,
+} from "./types";
+import { mode, project, tokenToBridge } from "./constants";
 
 export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
 
-export const deployedAddressPath = (mode: DeploymentMode) =>
-  deploymentsPath + `${mode}_addresses.json`;
+export const deployedAddressPath = () =>
+  deploymentsPath + `${mode}_${project}_addresses.json`;
 
 export interface DeployParams {
   addresses: Common;
-  mode: DeploymentMode;
   signer: Wallet;
   currentChainSlug: number;
 }
@@ -43,13 +45,12 @@ export const getOrDeploy = async (
     );
 
     console.log(
-      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${deployUtils.mode} at address ${contract.address}`
+      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${mode}, ${project} at address ${contract.address}`
     );
 
     await storeVerificationParams(
       [contract.address, contractName, path, args],
-      deployUtils.currentChainSlug,
-      deployUtils.mode
+      deployUtils.currentChainSlug
     );
   } else {
     contract = await getInstance(
@@ -57,7 +58,7 @@ export const getOrDeploy = async (
       deployUtils.addresses[contractName]
     );
     console.log(
-      `${contractName} found on ${deployUtils.currentChainSlug} for ${deployUtils.mode} at address ${contract.address}`
+      `${contractName} found on ${deployUtils.currentChainSlug} for ${mode}, ${project} at address ${contract.address}`
     );
   }
 
@@ -122,14 +123,13 @@ export const getChainSlug = async (): Promise<number> => {
 
 export const storeAddresses = async (
   addresses: Common,
-  chainSlug: ChainSlug,
-  mode: DeploymentMode
+  chainSlug: ChainSlug
 ) => {
   if (!fs.existsSync(deploymentsPath)) {
     await fs.promises.mkdir(deploymentsPath, { recursive: true });
   }
 
-  const addressesPath = deploymentsPath + `${mode}_addresses.json`;
+  const addressesPath = deploymentsPath + `${mode}_${project}_addresses.json`;
   const outputExists = fs.existsSync(addressesPath);
   let deploymentAddresses: DeploymentAddresses = {};
   if (outputExists) {
@@ -146,33 +146,38 @@ export const storeAddresses = async (
   fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
 };
 
-export const storeAllAddresses = async (
-  addresses: DeploymentAddresses,
-  mode: DeploymentMode
-) => {
+export const storeAllAddresses = async (addresses: DeploymentAddresses) => {
   if (!fs.existsSync(deploymentsPath)) {
     await fs.promises.mkdir(deploymentsPath, { recursive: true });
   }
 
-  const addressesPath = deploymentsPath + `${mode}_addresses.json`;
+  const addressesPath = deploymentsPath + `${mode}_${project}_addresses.json`;
   fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
 };
 
-export const getAllAddresses = (mode: DeploymentMode): DeploymentAddresses => {
-  if (mode == DeploymentMode.DEV && devAddresses) return devAddresses;
-  if (mode == DeploymentMode.PROD && prodAddresses) return prodAddresses;
-  throw new Error("addresses not found");
+let addresses: DeploymentAddresses;
+export const getAllAddresses = async (): Promise<DeploymentAddresses> => {
+  if (!addresses)
+    try {
+      addresses = await import(
+        `../../deployments/${mode}_${project}_addresses.json`
+      );
+    } catch (e) {
+      console.log("addresses not found", e);
+      throw new Error("addresses not found");
+    }
+  return addresses;
 };
 
 export const storeVerificationParams = async (
   verificationDetail: any[],
-  chainSlug: ChainSlug,
-  mode: DeploymentMode
+  chainSlug: ChainSlug
 ) => {
   if (!fs.existsSync(deploymentsPath)) {
     await fs.promises.mkdir(deploymentsPath);
   }
-  const verificationPath = deploymentsPath + `${mode}_verification.json`;
+  const verificationPath =
+    deploymentsPath + `${mode}_${project}_verification.json`;
   const outputExists = fs.existsSync(verificationPath);
   let verificationDetails: object = {};
   if (outputExists) {

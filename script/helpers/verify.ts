@@ -2,7 +2,7 @@ import hre from "hardhat";
 import fs from "fs";
 
 import { deploymentsPath, verify } from "./utils";
-import { mode } from "./constants";
+import { mode, project } from "./constants";
 import { ChainKey, ChainSlugToKey } from "@socket.tech/dl-core";
 
 export type VerifyParams = {
@@ -15,7 +15,7 @@ type VerifyArgs = [string, string, string, any[]];
  */
 export const main = async () => {
   try {
-    const path = deploymentsPath + `${mode}_verification.json`;
+    const path = deploymentsPath + `${mode}_${project}_verification.json`;
     if (!fs.existsSync(path)) {
       throw new Error("addresses.json not found");
     }

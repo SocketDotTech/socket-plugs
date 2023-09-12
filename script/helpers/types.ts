@@ -5,6 +5,11 @@ export enum Tokens {
   USDC = "USDC",
 }
 
+export enum Project {
+  AEVO = "aevo",
+  LYRA = "lyra",
+}
+
 export enum CONTRACTS {
   MintableToken = "MintableToken",
   NonMintableToken = "NonMintableToken",

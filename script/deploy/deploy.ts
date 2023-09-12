@@ -3,23 +3,8 @@ dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
 import { getProviderFromChainName } from "../helpers/networks";
-import {
-  ChainSlug,
-  ChainSlugToKey,
-  DeploymentMode,
-  getAddresses,
-} from "@socket.tech/dl-core";
-import {
-  chains,
-  integrationTypes,
-  isAppChain,
-  mode,
-  tokenDecimals,
-  tokenName,
-  tokenSymbol,
-  tokenToBridge,
-  totalSupply,
-} from "../helpers/constants";
+import { ChainSlug, ChainSlugToKey, getAddresses } from "@socket.tech/dl-core";
+import { integrationTypes, mode, projectConstants } from "../helpers/constants";
 import {
   DeployParams,
   createObj,
@@ -47,7 +32,7 @@ export const main = async () => {
   try {
     let addresses: DeploymentAddresses;
     try {
-      addresses = getAllAddresses(mode);
+      addresses = await getAllAddresses();
     } catch (error) {
       addresses = {} as DeploymentAddresses;
     }
@@ -64,8 +49,10 @@ export const main = async () => {
           providerInstance
         );
 
-        let chainAddresses: Common = addresses[chain]?.[tokenToBridge]
-          ? (addresses[chain]?.[tokenToBridge] as Common)
+        let chainAddresses: Common = addresses[chain]?.[
+          projectConstants.tokenToBridge
+        ]
+          ? (addresses[chain]?.[projectConstants.tokenToBridge] as Common)
           : ({} as Common);
 
         const siblings = isAppChain(chain)
@@ -77,7 +64,6 @@ export const main = async () => {
             isAppChain(chain),
             signer,
             chain,
-            mode,
             siblings,
             chainAddresses
           );
@@ -99,7 +85,6 @@ const deploy = async (
   isAppChain: boolean,
   socketSigner: Wallet,
   chainSlug: number,
-  currentMode: DeploymentMode,
   siblings: number[],
   deployedAddresses: Common
 ): Promise<ReturnObj> => {
@@ -107,14 +92,18 @@ const deploy = async (
 
   let deployUtils: DeployParams = {
     addresses: deployedAddresses,
-    mode: currentMode,
     signer: socketSigner,
     currentChainSlug: chainSlug,
   };
 
   try {
     deployUtils.addresses["isAppChain"] = isAppChain;
-    deployUtils = await deployChainContracts(isAppChain, deployUtils);
+    if (isAppChain) {
+      deployUtils = await deployAppChainContracts(deployUtils);
+    } else {
+      deployUtils = await deployNonAppChainContracts(deployUtils);
+    }
+
     for (let sibling of siblings) {
       deployUtils = await deployConnectors(isAppChain, sibling, deployUtils);
     }
@@ -128,11 +117,7 @@ const deploy = async (
     );
   }
 
-  await storeAddresses(
-    deployUtils.addresses,
-    deployUtils.currentChainSlug,
-    deployUtils.mode
-  );
+  await storeAddresses(deployUtils.addresses, deployUtils.currentChainSlug);
   return {
     allDeployed,
     deployedAddresses: deployUtils.addresses,
@@ -149,7 +134,7 @@ const deployConnectors = async (
 
     const socket: string = getAddresses(
       deployParams.currentChainSlug,
-      deployParams.mode
+      mode
     ).Socket;
     let hub: string;
     if (isAppChain) {
@@ -190,69 +175,49 @@ const deployConnectors = async (
   return deployParams;
 };
 
-const deployChainContracts = async (
-  isAppChain: boolean,
+const deployAppChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
-    if (isAppChain) {
-      const mintableToken: Contract = await getOrDeploy(
-        CONTRACTS.MintableToken,
-        "src/MintableToken.sol",
-        [
-          tokenName[tokenToBridge],
-          tokenSymbol[tokenToBridge],
-          tokenDecimals[tokenToBridge],
-        ],
-        deployParams
-      );
-      deployParams.addresses[CONTRACTS.MintableToken] = mintableToken.address;
+    const exchangeRate: Contract = await getOrDeploy(
+      CONTRACTS.ExchangeRate,
+      "src/ExchangeRate.sol",
+      [],
+      deployParams
+    );
+    deployParams.addresses[CONTRACTS.ExchangeRate] = exchangeRate.address;
 
-      const exchangeRate: Contract = await getOrDeploy(
-        CONTRACTS.ExchangeRate,
-        "src/ExchangeRate.sol",
-        [],
-        deployParams
-      );
-      deployParams.addresses[CONTRACTS.ExchangeRate] = exchangeRate.address;
-
-      const controller: Contract = await getOrDeploy(
-        CONTRACTS.Controller,
-        "src/Controller.sol",
-        [mintableToken.address, exchangeRate.address],
-        deployParams
-      );
-      deployParams.addresses[CONTRACTS.Controller] = controller.address;
-    } else {
-      const nonMintableToken: Contract = await getOrDeploy(
-        CONTRACTS.NonMintableToken,
-        "src/NonMintableToken.sol",
-        [
-          tokenName[tokenToBridge],
-          tokenSymbol[tokenToBridge],
-          tokenDecimals[tokenToBridge],
-          totalSupply,
-        ],
-        deployParams
-      );
-      deployParams.addresses[CONTRACTS.NonMintableToken] =
-        nonMintableToken.address;
-      console.log(deployParams.addresses);
-
-      const vault: Contract = await getOrDeploy(
-        CONTRACTS.Vault,
-        "src/Vault.sol",
-        [nonMintableToken.address],
-        deployParams
-      );
-      deployParams.addresses[CONTRACTS.Vault] = vault.address;
-    }
+    const controller: Contract = await getOrDeploy(
+      CONTRACTS.Controller,
+      "src/Controller.sol",
+      [deployParams.addresses[CONTRACTS.MintableToken], exchangeRate.address],
+      deployParams
+    );
+    deployParams.addresses[CONTRACTS.Controller] = controller.address;
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
   } catch (error) {
     console.log("Error in deploying chain contracts", error);
   }
+  return deployParams;
+};
 
+const deployNonAppChainContracts = async (
+  deployParams: DeployParams
+): Promise<DeployParams> => {
+  try {
+    const vault: Contract = await getOrDeploy(
+      CONTRACTS.Vault,
+      "src/Vault.sol",
+      [deployParams.addresses[CONTRACTS.NonMintableToken]],
+      deployParams
+    );
+    deployParams.addresses[CONTRACTS.Vault] = vault.address;
+    console.log(deployParams.addresses);
+    console.log("Chain Contracts deployed!");
+  } catch (error) {
+    console.log("Error in deploying chain contracts", error);
+  }
   return deployParams;
 };
 
