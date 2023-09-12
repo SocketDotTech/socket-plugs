@@ -109,4 +109,10 @@ contract MockSocket is ISocket {
             address(0)
         );
     }
+
+    function globalMessageCount() external view returns (uint64) {
+        return 0;
+    }
+
+    
 }

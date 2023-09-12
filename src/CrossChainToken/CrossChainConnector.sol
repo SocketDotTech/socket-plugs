@@ -13,13 +13,15 @@ interface IConnector {
     function outbound(
         uint256 msgGasLimit_,
         bytes memory payload_
-    ) external payable;
+    ) external payable returns (bytes32 messageId_);
 
     function siblingChainSlug() external view returns (uint32);
 
     function getMinFees(
         uint256 msgGasLimit_
     ) external view returns (uint256 totalFees);
+
+    function getMessageId() external view returns (bytes32);
 }
 
 contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
@@ -41,10 +43,10 @@ contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
     function outbound(
         uint256 msgGasLimit_,
         bytes memory payload_
-    ) external payable override {
+    ) external payable override returns (bytes32 messageId_) {
         if (msg.sender != address(hub__)) revert NotHub();
 
-        socket__.outbound{value: msg.value}(
+        return socket__.outbound{value: msg.value}(
             siblingChainSlug,
             msgGasLimit_,
             bytes32(0),
@@ -119,5 +121,15 @@ contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
         uint256 amount_
     ) external onlyOwner {
         RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
+    }
+
+    function getMessageId() external view returns (bytes32) {
+        
+        return
+            bytes32(
+                (uint256(siblingChainSlug) << 224) |
+                    (uint256(uint160(address(this))) << 64) |
+                    ISocket(socket__).globalMessageCount() + 1
+            );
     }
 }

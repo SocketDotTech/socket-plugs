@@ -29,6 +29,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
 
 
     error ConnectorUnavailable();
+    error MessageIdMisMatched();
 
     
     event LimitParamsUpdated(UpdateLimitParams[] updates);
@@ -102,12 +103,15 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
         _burn(msg.sender, sendingAmount_);
 
         // FIXME: generate messageId
-        bytes32 messageId = bytes32(0);
+        bytes32 messageId =  IConnector(destinationConnector_).getMessageId();
 
-        IConnector(destinationConnector_).outbound{value: msg.value}(
+        bytes32 returnedMessageId = IConnector(destinationConnector_).outbound{value: msg.value}(
             msgGasLimit_,
             abi.encode(receiver_, sendingAmount_, messageId)
         );
+
+        if (returnedMessageId != messageId)
+            revert MessageIdMisMatched();
 
         emit BridgeTokens(
             destinationConnector_,
@@ -205,5 +209,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
     ) external view returns (LimitParams memory) {
         return _sendingLimitParams[connector_];
     }
+
+
 
 }
