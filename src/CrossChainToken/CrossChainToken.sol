@@ -16,10 +16,10 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
     }
 
     // connector => mintLimitParams
-    mapping(address => LimitParams) _mintLimitParams;
+    mapping(address => LimitParams) _receivingLimitParams;
 
     // connector => burnLimitParams
-    mapping(address => LimitParams) _burnLimitParams;
+    mapping(address => LimitParams) _sendingLimitParams;
 
     // connector => receiver => identifier => amount
     mapping(address => mapping(address => mapping(bytes32 => uint256))) public pendingMints;
@@ -41,7 +41,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
         bytes32 identifier
     );
 
-    event PendingTokensMinted(
+    event PendingTokensBridged(
         address connector,
         address receiver,
         uint256 mintAmount,
@@ -55,7 +55,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
         uint256 totalPendingAmount,
         bytes32 identifier
     );
-    event TokensMinted(address connecter, address receiver, uint256 mintAmount, uint256 totalAmount, bytes32 identifier);
+    event TokensBridged(address connecter, address receiver, uint256 mintAmount, uint256 totalAmount, bytes32 identifier);
 
 
     constructor(
@@ -71,16 +71,16 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
     ) external onlyOwner {
         for (uint256 i; i < updates_.length; i++) {
             if (updates_[i].isMint) {
-                _consumePartLimit(0, _mintLimitParams[updates_[i].connector]); // to keep current limit in sync
-                _mintLimitParams[updates_[i].connector].maxLimit = updates_[i]
+                _consumePartLimit(0, _receivingLimitParams[updates_[i].connector]); // to keep current limit in sync
+                _receivingLimitParams[updates_[i].connector].maxLimit = updates_[i]
                     .maxLimit;
-                _mintLimitParams[updates_[i].connector]
+                _receivingLimitParams[updates_[i].connector]
                     .ratePerSecond = updates_[i].ratePerSecond;
             } else {
-                _consumePartLimit(0, _burnLimitParams[updates_[i].connector]); // to keep current limit in sync
-                _burnLimitParams[updates_[i].connector].maxLimit = updates_[i]
+                _consumePartLimit(0, _sendingLimitParams[updates_[i].connector]); // to keep current limit in sync
+                _sendingLimitParams[updates_[i].connector].maxLimit = updates_[i]
                     .maxLimit;
-                _burnLimitParams[updates_[i].connector]
+                _sendingLimitParams[updates_[i].connector]
                     .ratePerSecond = updates_[i].ratePerSecond;
             }
         }
@@ -94,10 +94,10 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
         uint256 msgGasLimit_,
         address destinationConnector_
     ) external payable {
-        if (_burnLimitParams[destinationConnector_].maxLimit == 0)
+        if (_sendingLimitParams[destinationConnector_].maxLimit == 0)
             revert ConnectorUnavailable();
 
-        _consumeFullLimit(sendingAmount_, _burnLimitParams[destinationConnector_]); // reverts on limit hit
+        _consumeFullLimit(sendingAmount_, _sendingLimitParams[destinationConnector_]); // reverts on limit hit
 
         _burn(msg.sender, sendingAmount_);
 
@@ -119,13 +119,13 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
     }
     
     function mintPendingFor(address receiver_, address connector_, bytes32 identifier) external {
-        if (_mintLimitParams[connector_].maxLimit == 0)
+        if (_receivingLimitParams[connector_].maxLimit == 0)
             revert ConnectorUnavailable();
 
         uint256 pendingMint = pendingMints[connector_][receiver_][identifier];
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             pendingMint,
-            _mintLimitParams[connector_]
+            _receivingLimitParams[connector_]
         );
 
         pendingMints[connector_][receiver_][identifier] = pendingAmount;
@@ -133,7 +133,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
 
         _mint(receiver_, consumedAmount);
 
-        emit PendingTokensMinted(
+        emit PendingTokensBridged(
             connector_,
             receiver_,
             consumedAmount,
@@ -144,7 +144,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
 
     // receive inbound assuming connector called
     function receiveInbound(bytes memory payload_) external override {
-        if (_mintLimitParams[msg.sender].maxLimit == 0)
+        if (_receivingLimitParams[msg.sender].maxLimit == 0)
             revert ConnectorUnavailable();
 
         (address receiver, uint256 mintAmount, bytes32 identifier) = abi.decode(
@@ -154,7 +154,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             mintAmount,
-            _mintLimitParams[msg.sender]
+            _receivingLimitParams[msg.sender]
         );
 
         if (pendingAmount > 0) {
@@ -172,7 +172,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
 
         _mint(receiver, consumedAmount);
 
-        emit TokensMinted(msg.sender, receiver, consumedAmount, mintAmount, identifier);
+        emit TokensBridged(msg.sender, receiver, consumedAmount, mintAmount, identifier);
     }
 
     function getMinFees(
@@ -185,25 +185,25 @@ contract CrossChainToken is ERC20, Gauge, Owned, IHub {
     function getCurrentReceivingLimit(
         address connector_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_mintLimitParams[connector_]);
+        return _getCurrentLimit(_receivingLimitParams[connector_]);
     }
 
     function getCurrentSendingLimit(
         address connector_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_burnLimitParams[connector_]);
+        return _getCurrentLimit(_sendingLimitParams[connector_]);
     }
 
-    function getMintLimitParams(
+    function getReceivingLimitParams(
         address connector_
     ) external view returns (LimitParams memory) {
-        return _mintLimitParams[connector_];
+        return _receivingLimitParams[connector_];
     }
 
-    function getBurnLimitParams(
+    function getSendingLimitParams(
         address connector_
     ) external view returns (LimitParams memory) {
-        return _burnLimitParams[connector_];
+        return _sendingLimitParams[connector_];
     }
 
 }

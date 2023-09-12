@@ -67,7 +67,7 @@ contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
         return
             socket__.getMinFees(
                 msgGasLimit_,
-                64,
+                96,
                 bytes32(0),
                 bytes32(0),
                 siblingChainSlug,
@@ -77,13 +77,14 @@ contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
 
     function connect(
         address siblingPlug_,
-        address switchboard_
+        address inboundSwitchboard_,
+        address outboundSwitchboard_
     ) external onlyOwner {
         socket__.connect(
             siblingChainSlug,
             siblingPlug_,
-            switchboard_,
-            switchboard_
+            inboundSwitchboard_,
+            outboundSwitchboard_
         );
     }
 
