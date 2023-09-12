@@ -5,14 +5,8 @@ import "solmate/auth/Owned.sol";
 import "../Gauge.sol";
 import "./CrossChainConnector.sol";
 
-abstract contract IMintableERC20 is ERC20 {
-    function mint(address receiver_, uint256 amount_) external virtual;
 
-    function burn(address burner_, uint256 amount_) external virtual;
-}
-
-
-contract CrossChainToken is IMintableERC20, Gauge, Owned, IHub {
+contract CrossChainToken is ERC20, Gauge, Owned, IHub {
 
     struct UpdateLimitParams {
         bool isMint;
@@ -71,13 +65,6 @@ contract CrossChainToken is IMintableERC20, Gauge, Owned, IHub {
         address owner_
     ) ERC20(name_, symbol_, decimals_) Owned(owner_) {}
 
-    function mint(address receiver_, uint256 amount_) external override {
-        _mint(receiver_, amount_);
-    }
-
-    function burn(address burner_, uint256 amount_) external override {
-        _burn(burner_, amount_);
-    }
 
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
