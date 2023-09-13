@@ -38,38 +38,6 @@ console.log(
 console.log(`Owner address configured to ${socketOwner}`);
 console.log("========================================================");
 
-// let projectConstants.chains: ChainSlug[];
-// const projectConstants: { chains?: ChainSlug[] } = {};
-// if (project == Project.AEVO) {
-//   if (mode === DeploymentMode.DEV) {
-//     projectConstants.chains = [
-//       ChainSlug.ARBITRUM_GOERLI,
-//       ChainSlug.OPTIMISM_GOERLI,
-//       ChainSlug.AEVO_TESTNET,
-//     ];
-//   } else if (mode == DeploymentMode.PROD) {
-//     projectConstants.chains = [
-//       ChainSlug.ARBITRUM,
-//       ChainSlug.OPTIMISM,
-//       ChainSlug.AEVO,
-//     ];
-//   } else {
-//     throw new Error("Wrong mode for aevo");
-//   }
-// } else if (project === Project.LYRA) {
-//   if (mode === DeploymentMode.DEV) {
-//     projectConstants.chains = [
-//       ChainSlug.ARBITRUM_GOERLI,
-//       ChainSlug.OPTIMISM_GOERLI,
-//       ChainSlug.LYRA_TESTNET,
-//     ];
-//   } else {
-//     throw new Error("Wrong mode for lyra");
-//   }
-// } else {
-//   throw new Error("Wrong project");
-// }
-
 export type ProjectConstants = {
   [key in Project]: {
     [key in DeploymentMode]?: {
@@ -137,17 +105,8 @@ const _projectConstants: ProjectConstants = {
   },
 };
 
-// export const chains: ChainSlug[] = projectConstants.chains;
-
 export const isAppChain = (chain: ChainSlug) =>
   projectConstants.appChain === chain;
-
-// export const integrationTypes = [
-//   IntegrationTypes.fast,
-//   // IntegrationTypes.optimistic,
-// ];
-
-// export const tokenToBridge: Tokens = Tokens.USDC;
 
 export const tokenName = {
   [Tokens.Moon]: "Moon",
@@ -163,27 +122,6 @@ export const tokenDecimals = {
   [Tokens.Moon]: 18,
   [Tokens.USDC]: 6,
 };
-
-// export const totalSupply = utils.parseUnits(
-//   "1000000000",
-//   tokenDecimals[tokenToBridge]
-// );
-
-// export const FAST_MAX_LIMIT = utils.parseUnits(
-//   "50000",
-//   tokenDecimals[tokenToBridge]
-// );
-// export const SLOW_MAX_LIMIT = utils.parseUnits(
-//   "500",
-//   tokenDecimals[tokenToBridge]
-// );
-
-// export const FAST_RATE = utils.parseUnits(
-//   "0.5787",
-//   // "50000",
-//   tokenDecimals[tokenToBridge]
-// );
-// export const SLOW_RATE = utils.parseUnits("2", tokenDecimals[tokenToBridge]);
 
 export const getProjetConstants = () => {
   const pc = _projectConstants[project][mode];

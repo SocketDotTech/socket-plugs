@@ -5,15 +5,10 @@ import { ContractFactory, Contract } from "ethers";
 import fs from "fs";
 import path from "path";
 import { Address } from "hardhat-deploy/dist/types";
-import { ChainSlug, DeploymentMode } from "@socket.tech/dl-core";
+import { ChainSlug } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import {
-  Common,
-  DeploymentAddresses,
-  NonAppChainAddresses,
-  Project,
-} from "./types";
+import { Common, DeploymentAddresses } from "./types";
 import { mode, project, projectConstants } from "./constants";
 
 export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
