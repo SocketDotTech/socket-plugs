@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
-import { getProviderFromChainName } from "../helpers/networks";
+import { getProviderFromChainSlug } from "../helpers/networks";
 import { ChainSlug, ChainSlugToKey, getAddresses } from "@socket.tech/dl-core";
 import {
   integrationTypes,
@@ -46,9 +46,7 @@ export const main = async () => {
       [projectConstants.appChain, ...projectConstants.nonAppChains].map(
         async (chain: ChainSlug) => {
           let allDeployed = false;
-          const network = ChainSlugToKey[chain];
-
-          const providerInstance = await getProviderFromChainName(network);
+          const providerInstance = getProviderFromChainSlug(chain);
 
           const signer: Wallet = new Wallet(
             process.env.SOCKET_SIGNER_KEY as string,

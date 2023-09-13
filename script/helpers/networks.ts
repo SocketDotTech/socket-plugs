@@ -1,7 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 import { BigNumberish, ethers } from "ethers";
 import { resolve } from "path";
-import { ChainKey, ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
+import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -13,10 +13,10 @@ export const gasPrice = undefined;
 export const type = 2;
 
 export const overrides: {
-  [chain in ChainSlug | number]?: {
-    type?: number | undefined;
-    gasLimit?: BigNumberish | undefined;
-    gasPrice?: BigNumberish | undefined;
+  [chain in ChainSlug]?: {
+    type: number | undefined;
+    gasLimit: BigNumberish | undefined;
+    gasPrice: BigNumberish | undefined;
   };
 } = {
   [ChainSlug.ARBITRUM_GOERLI]: {
@@ -54,83 +54,100 @@ export const overrides: {
     gasLimit,
     gasPrice: 100_000_000,
   },
+  [ChainSlug.LYRA_TESTNET]: {
+    type: 1,
+    gasLimit,
+    gasPrice: 100_000_000,
+  },
+  [ChainSlug.LYRA]: {
+    type: 1,
+    gasLimit,
+    gasPrice: 100_000_000,
+  },
 };
 
-export function getJsonRpcUrl(chain: ChainKey): string {
-  let jsonRpcUrl: string;
+export function getJsonRpcUrl(chain: ChainSlug): string {
   switch (chain) {
-    case ChainKey.ARBITRUM:
-      jsonRpcUrl = process.env.ARBITRUM_RPC as string;
-      break;
+    case ChainSlug.ARBITRUM:
+      if (!process.env.ARBITRUM_RPC)
+        throw new Error("ARBITRUM_RPC not configured");
+      return process.env.ARBITRUM_RPC;
 
-    case ChainKey.ARBITRUM_GOERLI:
-      jsonRpcUrl = process.env.ARB_GOERLI_RPC as string;
-      break;
+    case ChainSlug.ARBITRUM_GOERLI:
+      if (!process.env.ARB_GOERLI_RPC)
+        throw new Error("ARB_GOERLI_RPC not configured");
+      return process.env.ARB_GOERLI_RPC as string;
 
-    case ChainKey.OPTIMISM:
-      jsonRpcUrl = process.env.OPTIMISM_RPC as string;
-      break;
+    case ChainSlug.OPTIMISM:
+      if (!process.env.OPTIMISM_RPC)
+        throw new Error("OPTIMISM_RPC not configured");
+      return process.env.OPTIMISM_RPC as string;
 
-    case ChainKey.OPTIMISM_GOERLI:
-      jsonRpcUrl = process.env.OPTIMISM_GOERLI_RPC as string;
-      break;
+    case ChainSlug.OPTIMISM_GOERLI:
+      if (!process.env.OPTIMISM_GOERLI_RPC)
+        throw new Error("OPTIMISM_GOERLI_RPC not configured");
+      return process.env.OPTIMISM_GOERLI_RPC as string;
 
-    case ChainKey.POLYGON_MAINNET:
-      jsonRpcUrl = process.env.POLYGON_RPC as string;
-      break;
+    case ChainSlug.POLYGON_MAINNET:
+      if (!process.env.POLYGON_RPC)
+        throw new Error("POLYGON_RPC not configured");
+      return process.env.POLYGON_RPC as string;
 
-    case ChainKey.POLYGON_MUMBAI:
-      jsonRpcUrl = process.env.POLYGON_MUMBAI_RPC as string;
-      break;
+    case ChainSlug.POLYGON_MUMBAI:
+      if (!process.env.POLYGON_MUMBAI_RPC)
+        throw new Error("POLYGON_MUMBAI_RPC not configured");
+      return process.env.POLYGON_MUMBAI_RPC as string;
 
-    case ChainKey.AVALANCHE:
-      jsonRpcUrl = process.env.AVAX_RPC as string;
-      break;
+    case ChainSlug.BSC:
+      if (!process.env.BSC_RPC) throw new Error("BSC_RPC not configured");
+      return process.env.BSC_RPC as string;
 
-    case ChainKey.BSC:
-      jsonRpcUrl = process.env.BSC_RPC as string;
-      break;
+    case ChainSlug.BSC_TESTNET:
+      if (!process.env.BSC_TESTNET_RPC)
+        throw new Error("BSC_TESTNET_RPC not configured");
+      return process.env.BSC_TESTNET_RPC as string;
 
-    case ChainKey.BSC_TESTNET:
-      jsonRpcUrl = process.env.BSC_TESTNET_RPC as string;
-      break;
+    case ChainSlug.MAINNET:
+      if (!process.env.ETHEREUM_RPC)
+        throw new Error("ETHEREUM_RPC not configured");
+      return process.env.ETHEREUM_RPC as string;
 
-    case ChainKey.MAINNET:
-      jsonRpcUrl = process.env.ETHEREUM_RPC as string;
-      break;
+    case ChainSlug.GOERLI:
+      if (!process.env.GOERLI_RPC) throw new Error("GOERLI_RPC not configured");
+      return process.env.GOERLI_RPC as string;
 
-    case ChainKey.GOERLI:
-      jsonRpcUrl = process.env.GOERLI_RPC as string;
-      break;
+    case ChainSlug.SEPOLIA:
+      if (!process.env.SEPOLIA_RPC)
+        throw new Error("SEPOLIA_RPC not configured");
+      return process.env.SEPOLIA_RPC as string;
 
-    case ChainKey.SEPOLIA:
-      jsonRpcUrl = process.env.SEPOLIA_RPC as string;
-      break;
+    case ChainSlug.AEVO_TESTNET:
+      if (!process.env.AEVO_TESTNET_RPC)
+        throw new Error("AEVO_TESTNET_RPC not configured");
+      return process.env.AEVO_TESTNET_RPC as string;
 
-    case ChainKey.AEVO_TESTNET:
-      jsonRpcUrl = process.env.AEVO_TESTNET_RPC as string;
-      break;
+    case ChainSlug.AEVO:
+      if (!process.env.AEVO_RPC) throw new Error("AEVO_RPC not configured");
+      return process.env.AEVO_RPC as string;
 
-    case ChainKey.AEVO:
-      jsonRpcUrl = process.env.AEVO_RPC as string;
-      break;
+    case ChainSlug.LYRA_TESTNET:
+      if (!process.env.LYRA_TESTNET_RPC)
+        throw new Error("LYRA_TESTNET_RPC not configured");
+      return process.env.LYRA_TESTNET_RPC as string;
 
-    case ChainKey.HARDHAT:
-      jsonRpcUrl = "http://127.0.0.1:8545/";
-      break;
+    case ChainSlug.LYRA:
+      if (!process.env.LYRA_RPC) throw new Error("LYRA_RPC not configured");
+      return process.env.LYRA_RPC as string;
+
+    case ChainSlug.HARDHAT:
+      return "http://127.0.0.1:8545/";
 
     default:
-      throw new Error("JSON RPC URL not found!!");
+      throw new Error(`Chain RPC not supported ${chain}`);
   }
-
-  return jsonRpcUrl;
 }
 
-export const getProviderFromChainName = (chainKey: ChainKey) => {
-  const jsonRpcUrl = getJsonRpcUrl(chainKey);
-  return new ethers.providers.StaticJsonRpcProvider(jsonRpcUrl);
-};
-
 export const getProviderFromChainSlug = (chainSlug: ChainSlug) => {
-  return getProviderFromChainName(ChainSlugToKey[chainSlug]);
+  const jsonRpcUrl = getJsonRpcUrl(chainSlug);
+  return new ethers.providers.StaticJsonRpcProvider(jsonRpcUrl);
 };

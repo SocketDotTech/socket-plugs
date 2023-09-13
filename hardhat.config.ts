@@ -31,7 +31,7 @@ function getChainConfig(chain: keyof typeof chainKeyToSlug): NetworkUserConfig {
   return {
     accounts: [`0x${privateKey}`],
     chainId: chainKeyToSlug[chain],
-    url: getJsonRpcUrl(chain as ChainKey),
+    url: getJsonRpcUrl(chainKeyToSlug[chain]),
   };
 }
 
@@ -50,7 +50,6 @@ if (isProduction) {
     [ChainKey.OPTIMISM_GOERLI]: getChainConfig(ChainKey.OPTIMISM_GOERLI),
     [ChainKey.POLYGON_MAINNET]: getChainConfig(ChainKey.POLYGON_MAINNET),
     [ChainKey.ARBITRUM]: getChainConfig(ChainKey.ARBITRUM),
-    [ChainKey.AVALANCHE]: getChainConfig(ChainKey.AVALANCHE),
     [ChainKey.BSC]: getChainConfig(ChainKey.BSC),
     [ChainKey.AEVO]: getChainConfig(ChainKey.AEVO),
     [ChainKey.GOERLI]: getChainConfig(ChainKey.GOERLI),
@@ -60,6 +59,8 @@ if (isProduction) {
     [ChainKey.BSC_TESTNET]: getChainConfig(ChainKey.BSC_TESTNET),
     [ChainKey.SEPOLIA]: getChainConfig(ChainKey.SEPOLIA),
     [ChainKey.AEVO_TESTNET]: getChainConfig(ChainKey.AEVO_TESTNET),
+    [ChainKey.LYRA_TESTNET]: getChainConfig(ChainKey.LYRA_TESTNET),
+    [ChainKey.LYRA]: getChainConfig(ChainKey.LYRA),
   };
 }
 
@@ -73,7 +74,6 @@ const config: HardhatUserConfig = {
     apiKey: {
       arbitrumOne: process.env.ARBISCAN_API_KEY || "",
       arbitrumTestnet: process.env.ARBISCAN_API_KEY || "",
-      avalanche: process.env.SNOWTRACE_API_KEY || "",
       bsc: process.env.BSCSCAN_API_KEY || "",
       bscTestnet: process.env.BSCSCAN_API_KEY || "",
       goerli: process.env.ETHERSCAN_API_KEY || "",
@@ -83,8 +83,6 @@ const config: HardhatUserConfig = {
       optimisticTestnet: process.env.OPTIMISM_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
-      aevo: process.env.AEVO_API_KEY || "",
-      aevoTestnet: process.env.AEVO_API_KEY || "",
     },
     customChains: [
       {
@@ -117,6 +115,24 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "",
           browserURL: "https://explorer.aevo.xyz//",
+        },
+      },
+      {
+        network: "lyraTestnet",
+        chainId: chainKeyToSlug[ChainKey.LYRA_TESTNET],
+        urls: {
+          apiURL: "",
+          browserURL:
+            "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz",
+        },
+      },
+      {
+        network: "lyra",
+        chainId: chainKeyToSlug[ChainKey.LYRA],
+        urls: {
+          apiURL: "",
+          browserURL:
+            "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz", // TODO: change to prod
         },
       },
     ],
