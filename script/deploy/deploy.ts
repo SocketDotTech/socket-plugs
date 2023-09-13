@@ -4,7 +4,12 @@ dotenvConfig();
 import { Contract, Wallet } from "ethers";
 import { getProviderFromChainName } from "../helpers/networks";
 import { ChainSlug, ChainSlugToKey, getAddresses } from "@socket.tech/dl-core";
-import { integrationTypes, mode, projectConstants } from "../helpers/constants";
+import {
+  integrationTypes,
+  isAppChain,
+  mode,
+  projectConstants,
+} from "../helpers/constants";
 import {
   DeployParams,
   createObj,
@@ -38,40 +43,42 @@ export const main = async () => {
     }
 
     await Promise.all(
-      chains.map(async (chain: ChainSlug) => {
-        let allDeployed = false;
-        const network = ChainSlugToKey[chain];
+      [projectConstants.appChain, ...projectConstants.nonAppChains].map(
+        async (chain: ChainSlug) => {
+          let allDeployed = false;
+          const network = ChainSlugToKey[chain];
 
-        const providerInstance = await getProviderFromChainName(network);
+          const providerInstance = await getProviderFromChainName(network);
 
-        const signer: Wallet = new Wallet(
-          process.env.SOCKET_SIGNER_KEY as string,
-          providerInstance
-        );
-
-        let chainAddresses: Common = addresses[chain]?.[
-          projectConstants.tokenToBridge
-        ]
-          ? (addresses[chain]?.[projectConstants.tokenToBridge] as Common)
-          : ({} as Common);
-
-        const siblings = isAppChain(chain)
-          ? chains.filter((c) => c !== chain && !isAppChain(c))
-          : chains.filter((c) => c !== chain && isAppChain(c));
-
-        while (!allDeployed) {
-          const results: ReturnObj = await deploy(
-            isAppChain(chain),
-            signer,
-            chain,
-            siblings,
-            chainAddresses
+          const signer: Wallet = new Wallet(
+            process.env.SOCKET_SIGNER_KEY as string,
+            providerInstance
           );
 
-          allDeployed = results.allDeployed;
-          chainAddresses = results.deployedAddresses;
+          let chainAddresses: Common = addresses[chain]?.[
+            projectConstants.tokenToBridge
+          ]
+            ? (addresses[chain]?.[projectConstants.tokenToBridge] as Common)
+            : ({} as Common);
+
+          const siblings = isAppChain(chain)
+            ? projectConstants.nonAppChains
+            : [projectConstants.appChain];
+
+          while (!allDeployed) {
+            const results: ReturnObj = await deploy(
+              isAppChain(chain),
+              signer,
+              chain,
+              siblings,
+              chainAddresses
+            );
+
+            allDeployed = results.allDeployed;
+            chainAddresses = results.deployedAddresses;
+          }
         }
-      })
+      )
     );
   } catch (error) {
     console.log("Error in deploying contracts", error);

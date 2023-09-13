@@ -14,7 +14,7 @@ import {
   NonAppChainAddresses,
   Project,
 } from "./types";
-import { mode, project, tokenToBridge } from "./constants";
+import { mode, project, projectConstants } from "./constants";
 
 export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
 
@@ -139,7 +139,7 @@ export const storeAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    [chainSlug.toString(), tokenToBridge],
+    [chainSlug.toString(), projectConstants.tokenToBridge],
     addresses
   );
   // deploymentAddresses[chainSlug][tokenToBridge] = addresses;

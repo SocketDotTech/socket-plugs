@@ -139,11 +139,8 @@ const _projectConstants: ProjectConstants = {
 
 // export const chains: ChainSlug[] = projectConstants.chains;
 
-// export const isAppChain = (chain: ChainSlug) =>
-//   (project === Project.AEVO &&
-//     (chain === ChainSlug.AEVO || chain === ChainSlug.AEVO_TESTNET)) ||
-//   (project === Project.LYRA &&
-//     (chain === ChainSlug.LYRA || chain === ChainSlug.LYRA_TESTNET));
+export const isAppChain = (chain: ChainSlug) =>
+  projectConstants.appChain === chain;
 
 // export const integrationTypes = [
 //   IntegrationTypes.fast,
