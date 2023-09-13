@@ -76,68 +76,68 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
     case ChainSlug.ARBITRUM_GOERLI:
       if (!process.env.ARB_GOERLI_RPC)
         throw new Error("ARB_GOERLI_RPC not configured");
-      return process.env.ARB_GOERLI_RPC as string;
+      return process.env.ARB_GOERLI_RPC;
 
     case ChainSlug.OPTIMISM:
       if (!process.env.OPTIMISM_RPC)
         throw new Error("OPTIMISM_RPC not configured");
-      return process.env.OPTIMISM_RPC as string;
+      return process.env.OPTIMISM_RPC;
 
     case ChainSlug.OPTIMISM_GOERLI:
       if (!process.env.OPTIMISM_GOERLI_RPC)
         throw new Error("OPTIMISM_GOERLI_RPC not configured");
-      return process.env.OPTIMISM_GOERLI_RPC as string;
+      return process.env.OPTIMISM_GOERLI_RPC;
 
     case ChainSlug.POLYGON_MAINNET:
       if (!process.env.POLYGON_RPC)
         throw new Error("POLYGON_RPC not configured");
-      return process.env.POLYGON_RPC as string;
+      return process.env.POLYGON_RPC;
 
     case ChainSlug.POLYGON_MUMBAI:
       if (!process.env.POLYGON_MUMBAI_RPC)
         throw new Error("POLYGON_MUMBAI_RPC not configured");
-      return process.env.POLYGON_MUMBAI_RPC as string;
+      return process.env.POLYGON_MUMBAI_RPC;
 
     case ChainSlug.BSC:
       if (!process.env.BSC_RPC) throw new Error("BSC_RPC not configured");
-      return process.env.BSC_RPC as string;
+      return process.env.BSC_RPC;
 
     case ChainSlug.BSC_TESTNET:
       if (!process.env.BSC_TESTNET_RPC)
         throw new Error("BSC_TESTNET_RPC not configured");
-      return process.env.BSC_TESTNET_RPC as string;
+      return process.env.BSC_TESTNET_RPC;
 
     case ChainSlug.MAINNET:
       if (!process.env.ETHEREUM_RPC)
         throw new Error("ETHEREUM_RPC not configured");
-      return process.env.ETHEREUM_RPC as string;
+      return process.env.ETHEREUM_RPC;
 
     case ChainSlug.GOERLI:
       if (!process.env.GOERLI_RPC) throw new Error("GOERLI_RPC not configured");
-      return process.env.GOERLI_RPC as string;
+      return process.env.GOERLI_RPC;
 
     case ChainSlug.SEPOLIA:
       if (!process.env.SEPOLIA_RPC)
         throw new Error("SEPOLIA_RPC not configured");
-      return process.env.SEPOLIA_RPC as string;
+      return process.env.SEPOLIA_RPC;
 
     case ChainSlug.AEVO_TESTNET:
       if (!process.env.AEVO_TESTNET_RPC)
         throw new Error("AEVO_TESTNET_RPC not configured");
-      return process.env.AEVO_TESTNET_RPC as string;
+      return process.env.AEVO_TESTNET_RPC;
 
     case ChainSlug.AEVO:
       if (!process.env.AEVO_RPC) throw new Error("AEVO_RPC not configured");
-      return process.env.AEVO_RPC as string;
+      return process.env.AEVO_RPC;
 
     case ChainSlug.LYRA_TESTNET:
       if (!process.env.LYRA_TESTNET_RPC)
         throw new Error("LYRA_TESTNET_RPC not configured");
-      return process.env.LYRA_TESTNET_RPC as string;
+      return process.env.LYRA_TESTNET_RPC;
 
     case ChainSlug.LYRA:
       if (!process.env.LYRA_RPC) throw new Error("LYRA_RPC not configured");
-      return process.env.LYRA_RPC as string;
+      return process.env.LYRA_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";
