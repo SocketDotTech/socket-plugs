@@ -40,7 +40,8 @@ export const main = async () => {
         chain == ChainSlug.LYRA_TESTNET
       )
         continue;
-      hre.changeNetwork(ChainSlugToHardhatKey[chain]);
+      // hre.changeNetwork(ChainSlugToHardhatKey[chain]);
+      if (hre.network.name !== ChainSlugToHardhatKey[chain]) continue;
       const chainParams: VerifyArgs[] | undefined = verificationParams[chain];
       if (!chainParams) continue;
       if (chainParams.length) {

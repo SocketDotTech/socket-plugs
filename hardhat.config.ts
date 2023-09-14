@@ -20,14 +20,13 @@ import { getJsonRpcUrl } from "./script/helpers/networks";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
-const isProduction = process.env.NODE_ENV === "production";
 
 // Ensure that we have all the environment variables we need.
 if (!process.env.SOCKET_SIGNER_KEY) throw new Error("No private key found");
 const privateKey: HardhatNetworkAccountUserConfig = process.env
   .SOCKET_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
 
-function getChainConfig(chain: keyof typeof chainKeyToSlug): NetworkUserConfig {
+function getChainConfig(chain: ChainKey): NetworkUserConfig {
   return {
     accounts: [`0x${privateKey}`],
     chainId: chainKeyToSlug[chain],
@@ -44,25 +43,7 @@ function getRemappings() {
 }
 
 let liveNetworks = {};
-if (isProduction) {
-  liveNetworks = {
-    [ChainKey.ARBITRUM_GOERLI]: getChainConfig(ChainKey.ARBITRUM_GOERLI),
-    [ChainKey.OPTIMISM_GOERLI]: getChainConfig(ChainKey.OPTIMISM_GOERLI),
-    [ChainKey.POLYGON_MAINNET]: getChainConfig(ChainKey.POLYGON_MAINNET),
-    [ChainKey.ARBITRUM]: getChainConfig(ChainKey.ARBITRUM),
-    [ChainKey.BSC]: getChainConfig(ChainKey.BSC),
-    [ChainKey.AEVO]: getChainConfig(ChainKey.AEVO),
-    [ChainKey.GOERLI]: getChainConfig(ChainKey.GOERLI),
-    [ChainKey.MAINNET]: getChainConfig(ChainKey.MAINNET),
-    [ChainKey.OPTIMISM]: getChainConfig(ChainKey.OPTIMISM),
-    [ChainKey.POLYGON_MUMBAI]: getChainConfig(ChainKey.POLYGON_MUMBAI),
-    [ChainKey.BSC_TESTNET]: getChainConfig(ChainKey.BSC_TESTNET),
-    [ChainKey.SEPOLIA]: getChainConfig(ChainKey.SEPOLIA),
-    [ChainKey.AEVO_TESTNET]: getChainConfig(ChainKey.AEVO_TESTNET),
-    [ChainKey.LYRA_TESTNET]: getChainConfig(ChainKey.LYRA_TESTNET),
-    [ChainKey.LYRA]: getChainConfig(ChainKey.LYRA),
-  };
-}
+liveNetworks = {};
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
@@ -141,7 +122,21 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: chainKeyToSlug.hardhat,
     },
-    ...liveNetworks,
+    [ChainKey.ARBITRUM_GOERLI]: getChainConfig(ChainKey.ARBITRUM_GOERLI),
+    [ChainKey.OPTIMISM_GOERLI]: getChainConfig(ChainKey.OPTIMISM_GOERLI),
+    [ChainKey.POLYGON_MAINNET]: getChainConfig(ChainKey.POLYGON_MAINNET),
+    [ChainKey.ARBITRUM]: getChainConfig(ChainKey.ARBITRUM),
+    [ChainKey.BSC]: getChainConfig(ChainKey.BSC),
+    [ChainKey.AEVO]: getChainConfig(ChainKey.AEVO),
+    [ChainKey.GOERLI]: getChainConfig(ChainKey.GOERLI),
+    [ChainKey.MAINNET]: getChainConfig(ChainKey.MAINNET),
+    [ChainKey.OPTIMISM]: getChainConfig(ChainKey.OPTIMISM),
+    [ChainKey.POLYGON_MUMBAI]: getChainConfig(ChainKey.POLYGON_MUMBAI),
+    [ChainKey.BSC_TESTNET]: getChainConfig(ChainKey.BSC_TESTNET),
+    [ChainKey.SEPOLIA]: getChainConfig(ChainKey.SEPOLIA),
+    [ChainKey.AEVO_TESTNET]: getChainConfig(ChainKey.AEVO_TESTNET),
+    [ChainKey.LYRA_TESTNET]: getChainConfig(ChainKey.LYRA_TESTNET),
+    [ChainKey.LYRA]: getChainConfig(ChainKey.LYRA),
   },
   paths: {
     sources: "./src",
