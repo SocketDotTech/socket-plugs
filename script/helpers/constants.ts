@@ -86,8 +86,8 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          limit: "50000",
-          rate: "0.5787",
+          limit: "10000",
+          rate: "0.11574",
         },
       },
     },
@@ -97,8 +97,8 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          limit: "50000",
-          rate: "0.5787",
+          limit: "10000",
+          rate: "0.11574",
         },
       },
     },
@@ -123,12 +123,11 @@ export const tokenDecimals = {
   [Tokens.USDC]: 6,
 };
 
-export const getProjetConstants = () => {
+export const projectConstants = (() => {
   const pc = _projectConstants[project][mode];
   if (!pc) throw new Error("invalid mode for project");
   return pc;
-};
-export const projectConstants = getProjetConstants();
+})();
 
 export const getIntegrationTypeConsts = (it: IntegrationTypes) => {
   const pci = projectConstants.integrationTypes[it];
@@ -139,14 +138,14 @@ export const getIntegrationTypeConsts = (it: IntegrationTypes) => {
 export const getLimitBN = (it: IntegrationTypes): BigNumber => {
   return utils.parseUnits(
     getIntegrationTypeConsts(it).limit,
-    tokenDecimals[getProjetConstants().tokenToBridge]
+    tokenDecimals[projectConstants.tokenToBridge]
   );
 };
 
 export const getRateBN = (it: IntegrationTypes): BigNumber => {
   return utils.parseUnits(
     getIntegrationTypeConsts(it).rate,
-    tokenDecimals[getProjetConstants().tokenToBridge]
+    tokenDecimals[projectConstants.tokenToBridge]
   );
 };
 

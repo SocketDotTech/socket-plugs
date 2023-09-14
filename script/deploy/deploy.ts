@@ -192,6 +192,9 @@ const deployAppChainContracts = async (
     );
     deployParams.addresses[CONTRACTS.ExchangeRate] = exchangeRate.address;
 
+    if (!deployParams.addresses[CONTRACTS.MintableToken])
+      throw new Error("Token not found on app chain");
+
     const controller: Contract = await getOrDeploy(
       CONTRACTS.Controller,
       "src/Controller.sol",
@@ -211,6 +214,9 @@ const deployNonAppChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
+    if (!deployParams.addresses[CONTRACTS.NonMintableToken])
+      throw new Error("Token not found on chain");
+
     const vault: Contract = await getOrDeploy(
       CONTRACTS.Vault,
       "src/Vault.sol",
