@@ -8,7 +8,7 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import { Common, DeploymentAddresses } from "./types";
+import { TokenAddresses, ProjectAddresses } from "./types";
 import { mode, project, projectConstants } from "./constants";
 
 export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
@@ -17,7 +17,7 @@ export const deployedAddressPath = () =>
   deploymentsPath + `${mode}_${project}_addresses.json`;
 
 export interface DeployParams {
-  addresses: Common;
+  addresses: TokenAddresses;
   signer: Wallet;
   currentChainSlug: number;
 }
@@ -117,7 +117,7 @@ export const getChainSlug = async (): Promise<number> => {
 };
 
 export const storeAddresses = async (
-  addresses: Common,
+  addresses: TokenAddresses,
   chainSlug: ChainSlug
 ) => {
   if (!fs.existsSync(deploymentsPath)) {
@@ -126,7 +126,7 @@ export const storeAddresses = async (
 
   const addressesPath = deploymentsPath + `${mode}_${project}_addresses.json`;
   const outputExists = fs.existsSync(addressesPath);
-  let deploymentAddresses: DeploymentAddresses = {};
+  let deploymentAddresses: ProjectAddresses = {};
   if (outputExists) {
     const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
     deploymentAddresses = JSON.parse(deploymentAddressesString);
@@ -141,7 +141,7 @@ export const storeAddresses = async (
   fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
 };
 
-export const storeAllAddresses = async (addresses: DeploymentAddresses) => {
+export const storeAllAddresses = async (addresses: ProjectAddresses) => {
   if (!fs.existsSync(deploymentsPath)) {
     await fs.promises.mkdir(deploymentsPath, { recursive: true });
   }
@@ -150,8 +150,8 @@ export const storeAllAddresses = async (addresses: DeploymentAddresses) => {
   fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
 };
 
-let addresses: DeploymentAddresses;
-export const getAllAddresses = async (): Promise<DeploymentAddresses> => {
+let addresses: ProjectAddresses;
+export const getProjectAddresses = async (): Promise<ProjectAddresses> => {
   if (!addresses)
     try {
       addresses = await import(

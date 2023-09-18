@@ -1,10 +1,13 @@
-import fs from "fs";
-import { BigNumber, Contract, Wallet, utils } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
-import { getProviderFromChainSlug, overrides } from "../helpers/networks";
-import { deployedAddressPath, getInstance } from "../helpers/utils";
+import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { getProjectAddresses, getInstance } from "../helpers/utils";
 import { projectConstants, tokenDecimals } from "../helpers/constants";
-import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
+import {
+  CONTRACTS,
+  ChainAddresses,
+  NonAppChainAddresses,
+} from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 
@@ -18,43 +21,40 @@ let amount = utils.parseUnits(
 
 export const main = async () => {
   try {
-    if (!fs.existsSync(deployedAddressPath())) {
-      throw new Error("addresses.json not found");
-    }
-    let addresses: DeploymentAddresses = JSON.parse(
-      fs.readFileSync(deployedAddressPath(), "utf-8")
-    );
+    const addresses = await getProjectAddresses();
+    const srcAddresses: ChainAddresses | undefined = addresses[srcChain];
+    const dstAddresses: ChainAddresses | undefined = addresses[dstChain];
+    if (!srcAddresses || !dstAddresses)
+      throw new Error("chain addresses not found");
 
-    if (!addresses[srcChain] || !addresses[dstChain]) return;
-    let addr: Common = addresses[srcChain][projectConstants.tokenToBridge]!;
+    const addr: NonAppChainAddresses | undefined = srcAddresses[
+      projectConstants.tokenToBridge
+    ] as NonAppChainAddresses;
+    if (!addr) throw new Error("Token addresses not found");
 
-    const providerInstance = getProviderFromChainSlug(srcChain);
-    const socketSigner: Wallet = new Wallet(
-      process.env.SOCKET_SIGNER_KEY as string,
-      providerInstance
-    );
+    if (addr.isAppChain) throw new Error("src should not be app chain");
 
-    if (
-      !addr.Vault ||
-      !addr.NonMintableToken ||
-      !addr.connectors?.[dstChain]?.FAST
-    )
-      return;
+    const vaultAddr = addr.Vault;
+    const tokenAddr = addr.NonMintableToken;
+    const connectorAddr = addr.connectors?.[dstChain]?.FAST;
+
+    if (!vaultAddr || !tokenAddr || !connectorAddr)
+      throw new Error("Some contract addresses missing");
+
+    const socketSigner = getSignerFromChainSlug(srcChain);
 
     const vault: Contract = (
-      await getInstance(CONTRACTS.Vault, addr.Vault!)
+      await getInstance(CONTRACTS.Vault, vaultAddr)
     ).connect(socketSigner);
     const token: Contract = (
-      await getInstance(CONTRACTS.NonMintableToken, addr.NonMintableToken!)
+      await getInstance(CONTRACTS.NonMintableToken, tokenAddr)
     ).connect(socketSigner);
 
     // approve
     const balance: BigNumber = await token.balanceOf(socketSigner.address);
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
-    const limit: BigNumber = await vault.getCurrentLockLimit(
-      addr.connectors?.[dstChain]?.FAST!
-    );
+    const limit: BigNumber = await vault.getCurrentLockLimit(connectorAddr);
     if (limit.lt(amount)) throw new Error("Exceeding max limit");
 
     const currentApproval: BigNumber = await token.allowance(
@@ -77,14 +77,14 @@ export const main = async () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000",
       "0x0000000000000000000000000000000000000000000000000000000000000000",
       dstChain,
-      addr.connectors?.[dstChain]?.FAST!
+      connectorAddr
     );
 
     const depositTx = await vault.depositToAppChain(
       socketSigner.address,
       amount,
       gasLimit,
-      addr.connectors?.[dstChain]?.FAST!,
+      connectorAddr,
       { ...overrides[srcChain], value }
     );
     console.log("Tokens deposited: ", depositTx.hash);

@@ -2,8 +2,8 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
-import { getProviderFromChainSlug } from "../helpers/networks";
-import { ChainSlug, ChainSlugToKey, getAddresses } from "@socket.tech/dl-core";
+import { getSignerFromChainSlug } from "../helpers/networks";
+import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 import {
   integrationTypes,
   isAppChain,
@@ -13,21 +13,21 @@ import {
 import {
   DeployParams,
   createObj,
-  getAllAddresses,
+  getProjectAddresses,
   getOrDeploy,
   storeAddresses,
 } from "../helpers/utils";
 import {
   CONTRACTS,
-  DeploymentAddresses,
-  Common,
+  ProjectAddresses,
+  TokenAddresses,
   AppChainAddresses,
   NonAppChainAddresses,
 } from "../helpers/types";
 
 export interface ReturnObj {
   allDeployed: boolean;
-  deployedAddresses: Common;
+  deployedAddresses: TokenAddresses;
 }
 
 /**
@@ -35,29 +35,26 @@ export interface ReturnObj {
  */
 export const main = async () => {
   try {
-    let addresses: DeploymentAddresses;
+    let addresses: ProjectAddresses;
     try {
-      addresses = await getAllAddresses();
+      addresses = await getProjectAddresses();
     } catch (error) {
-      addresses = {} as DeploymentAddresses;
+      addresses = {} as ProjectAddresses;
     }
 
     await Promise.all(
       [projectConstants.appChain, ...projectConstants.nonAppChains].map(
         async (chain: ChainSlug) => {
           let allDeployed = false;
-          const providerInstance = getProviderFromChainSlug(chain);
+          const signer = getSignerFromChainSlug(chain);
 
-          const signer: Wallet = new Wallet(
-            process.env.SOCKET_SIGNER_KEY as string,
-            providerInstance
-          );
-
-          let chainAddresses: Common = addresses[chain]?.[
+          let chainAddresses: TokenAddresses = addresses[chain]?.[
             projectConstants.tokenToBridge
           ]
-            ? (addresses[chain]?.[projectConstants.tokenToBridge] as Common)
-            : ({} as Common);
+            ? (addresses[chain]?.[
+                projectConstants.tokenToBridge
+              ] as TokenAddresses)
+            : ({} as TokenAddresses);
 
           const siblings = isAppChain(chain)
             ? projectConstants.nonAppChains
@@ -91,7 +88,7 @@ const deploy = async (
   socketSigner: Wallet,
   chainSlug: number,
   siblings: number[],
-  deployedAddresses: Common
+  deployedAddresses: TokenAddresses
 ): Promise<ReturnObj> => {
   let allDeployed = false;
 
@@ -102,7 +99,7 @@ const deploy = async (
   };
 
   try {
-    deployUtils.addresses["isAppChain"] = isAppChain;
+    deployUtils.addresses.isAppChain = isAppChain;
     if (isAppChain) {
       deployUtils = await deployAppChainContracts(deployUtils);
     } else {
@@ -110,7 +107,7 @@ const deploy = async (
     }
 
     for (let sibling of siblings) {
-      deployUtils = await deployConnectors(isAppChain, sibling, deployUtils);
+      deployUtils = await deployConnectors(sibling, deployUtils);
     }
     allDeployed = true;
     console.log(deployUtils.addresses);
@@ -130,7 +127,6 @@ const deploy = async (
 };
 
 const deployConnectors = async (
-  isAppChain: boolean,
   sibling: ChainSlug,
   deployParams: DeployParams
 ): Promise<DeployParams> => {
@@ -142,15 +138,15 @@ const deployConnectors = async (
       mode
     ).Socket;
     let hub: string;
-    if (isAppChain) {
-      const addr: AppChainAddresses = deployParams.addresses;
-      if (!addr.Controller) throw new Error("Controller not found!");
-      hub = addr.Controller;
+    const addr: TokenAddresses = deployParams.addresses;
+    if (addr.isAppChain) {
+      const a = addr as AppChainAddresses;
+      if (!a.Controller) throw new Error("Controller not found!");
+      hub = a.Controller;
     } else {
-      const addr: NonAppChainAddresses = deployParams.addresses;
-      if (!deployParams.addresses) throw new Error("Addresses not found!");
-      if (!addr.Vault) throw new Error("Vault not found!");
-      hub = addr.Vault;
+      const a = addr as NonAppChainAddresses;
+      if (!a.Vault) throw new Error("Vault not found!");
+      hub = a.Vault;
     }
 
     for (let intType of integrationTypes) {

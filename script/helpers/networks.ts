@@ -1,7 +1,8 @@
 import { config as dotenvConfig } from "dotenv";
-import { BigNumberish, ethers } from "ethers";
+import { BigNumberish, Wallet, ethers } from "ethers";
 import { resolve } from "path";
 import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
+import { socketSignerKey } from "./constants";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -147,7 +148,13 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
   }
 }
 
-export const getProviderFromChainSlug = (chainSlug: ChainSlug) => {
+export const getProviderFromChainSlug = (
+  chainSlug: ChainSlug
+): ethers.providers.StaticJsonRpcProvider => {
   const jsonRpcUrl = getJsonRpcUrl(chainSlug);
   return new ethers.providers.StaticJsonRpcProvider(jsonRpcUrl);
+};
+
+export const getSignerFromChainSlug = (chainSlug: ChainSlug): Wallet => {
+  return new Wallet(socketSignerKey, getProviderFromChainSlug(chainSlug));
 };

@@ -13,6 +13,10 @@ if (!process.env.SOCKET_OWNER_ADDRESS)
   throw Error("Socket owner address not present");
 export const socketOwner = process.env.SOCKET_OWNER_ADDRESS;
 
+if (!process.env.SOCKET_SIGNER_KEY)
+  throw Error("Socket signer key not present");
+export const socketSignerKey = process.env.SOCKET_SIGNER_KEY;
+
 if (!process.env.DEPLOYMENT_MODE)
   throw new Error("DeploymentMode not mentioned");
 if (

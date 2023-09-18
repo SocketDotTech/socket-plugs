@@ -1,4 +1,3 @@
-import fs from "fs";
 import { BigNumber, Contract, Wallet } from "ethers";
 
 import {
@@ -8,15 +7,23 @@ import {
   getAddresses,
 } from "@socket.tech/dl-core";
 
-import { getProviderFromChainSlug, overrides } from "../helpers/networks";
-import { deployedAddressPath, getInstance } from "../helpers/utils";
+import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { getInstance, getProjectAddresses } from "../helpers/utils";
 import {
   projectConstants,
   mode,
   getLimitBN,
   getRateBN,
 } from "../helpers/constants";
-import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
+import {
+  CONTRACTS,
+  TokenAddresses,
+  ProjectAddresses,
+  NonAppChainAddresses,
+  AppChainAddresses,
+  Connectors,
+  ConnectorAddresses,
+} from "../helpers/types";
 import { getSocket } from "../bridge/utils";
 
 type UpdateLimitParams = [
@@ -28,34 +35,20 @@ type UpdateLimitParams = [
 
 export const main = async () => {
   try {
-    if (!fs.existsSync(deployedAddressPath())) {
-      throw new Error("addresses.json not found");
-    }
-    let addresses: DeploymentAddresses = JSON.parse(
-      fs.readFileSync(deployedAddressPath(), "utf-8")
-    );
+    const addresses = await getProjectAddresses();
 
     await Promise.all(
       [projectConstants.appChain, ...projectConstants.nonAppChains].map(
         async (chain) => {
-          if (
-            !addresses[chain] ||
-            !addresses[chain]?.[projectConstants.tokenToBridge] ||
-            !addresses[chain]?.[projectConstants.tokenToBridge]?.connectors
-          )
-            return;
-          let addr: Common =
-            addresses[chain]?.[projectConstants.tokenToBridge]!;
+          const addr: TokenAddresses | undefined =
+            addresses[chain]?.[projectConstants.tokenToBridge];
+          const connectors: Connectors | undefined = addr?.connectors;
+          if (!addr || !connectors) return;
 
-          const providerInstance = getProviderFromChainSlug(chain);
-
-          const socketSigner: Wallet = new Wallet(
-            process.env.SOCKET_SIGNER_KEY as string,
-            providerInstance
-          );
+          const socketSigner = getSignerFromChainSlug(chain);
 
           let siblingSlugs: ChainSlug[] = Object.keys(
-            addr.connectors!
+            connectors
           ) as unknown as ChainSlug[];
           console.log(`Configuring ${chain} for ${siblingSlugs}`);
 
@@ -63,38 +56,51 @@ export const main = async () => {
 
           const updateLimitParams: UpdateLimitParams[] = [];
           for (let sibling of siblingSlugs) {
+            const siblingConnectorAddresses: ConnectorAddresses | undefined =
+              connectors[sibling];
+            if (!siblingConnectorAddresses) continue;
+
             const integrationTypes: IntegrationTypes[] = Object.keys(
-              addr.connectors?.[sibling]!
+              siblingConnectorAddresses
             ) as unknown as IntegrationTypes[];
-            integrationTypes.map((it) => {
-              if (!addr.connectors?.[sibling]?.[it]) return;
+            for (let it of integrationTypes) {
+              const itConnectorAddress: string | undefined =
+                siblingConnectorAddresses[it];
+              if (!itConnectorAddress) continue;
 
               updateLimitParams.push([
                 true,
-                addr.connectors?.[sibling]?.[it]!,
+                itConnectorAddress,
                 getLimitBN(it),
                 getRateBN(it),
               ]);
 
               updateLimitParams.push([
                 false,
-                addr.connectors?.[sibling]?.[it]!,
+                itConnectorAddress,
                 getLimitBN(it),
                 getRateBN(it),
               ]);
-            });
+            }
           }
 
           if (!updateLimitParams.length) return;
 
           let contract: Contract;
           if (addr.isAppChain) {
-            contract = await getInstance(
-              CONTRACTS.Controller,
-              addr.Controller!
-            );
+            const a = addr as AppChainAddresses;
+            if (!a.Controller) {
+              console.log("Controller not found");
+              return;
+            }
+            contract = await getInstance(CONTRACTS.Controller, a.Controller);
           } else {
-            contract = await getInstance(CONTRACTS.Vault, addr.Vault!);
+            const a = addr as NonAppChainAddresses;
+            if (!a.Vault) {
+              console.log("Vault not found");
+              return;
+            }
+            contract = await getInstance(CONTRACTS.Vault, a.Vault);
           }
 
           contract = contract.connect(socketSigner);
@@ -121,8 +127,8 @@ const switchboardName = (it: IntegrationTypes) =>
     : CORE_CONTRACTS.NativeSwitchboard;
 
 const connect = async (
-  addr: Common,
-  addresses: DeploymentAddresses,
+  addr: TokenAddresses,
+  addresses: ProjectAddresses,
   chain: ChainSlug,
   siblingSlugs: ChainSlug[],
   socketSigner: Wallet
@@ -131,38 +137,30 @@ const connect = async (
     console.log("connecting plugs for ", chain, siblingSlugs);
 
     for (let sibling of siblingSlugs) {
-      const chainAddr = addr.connectors?.[sibling]!;
-      if (
-        !addresses[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-          chain
-        ]
-      )
-        continue;
-
-      const siblingAddr =
-        addresses[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
+      const localConnectorAddresses: ConnectorAddresses | undefined =
+        addr.connectors?.[sibling];
+      const siblingConnectorAddresses: ConnectorAddresses | undefined =
+        addresses?.[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
           chain
         ];
+      if (!localConnectorAddresses || !siblingConnectorAddresses) continue;
+
       const integrationTypes: IntegrationTypes[] = Object.keys(
-        chainAddr
+        localConnectorAddresses
       ) as unknown as IntegrationTypes[];
 
       const socketContract: Contract = getSocket(chain, socketSigner);
       for (let integration of integrationTypes) {
-        const siblingConnectorPlug = siblingAddr?.[integration]!;
-        const switchboard = getAddresses(chain, mode)?.[
+        const siblingConnectorPlug = siblingConnectorAddresses[integration];
+        const localConnectorPlug = localConnectorAddresses[integration];
+        if (!localConnectorPlug || !siblingConnectorPlug) continue;
+
+        const switchboard = getAddresses(chain, mode)[
           switchboardName(integration)
         ];
 
-        if (
-          !addresses[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-            chain
-          ]
-        )
-          continue;
-
         let config = await socketContract.getPlugConfig(
-          chainAddr[integration],
+          localConnectorPlug,
           sibling
         );
 
@@ -172,7 +170,7 @@ const connect = async (
         }
 
         const connectorContract = (
-          await getInstance(CONTRACTS.ConnectorPlug, chainAddr[integration]!)
+          await getInstance(CONTRACTS.ConnectorPlug, localConnectorPlug)
         ).connect(socketSigner);
 
         let tx = await connectorContract.functions["connect"](
