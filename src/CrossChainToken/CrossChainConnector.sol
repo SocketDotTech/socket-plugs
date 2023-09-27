@@ -5,7 +5,7 @@ import {ISocket} from "../interfaces/ISocket.sol";
 import {IPlug} from "../interfaces/IPlug.sol";
 import {RescueFundsLib} from "../RescueFundsLib.sol";
 
-interface IHub {
+interface ISocketReceiver {
     function receiveInbound(bytes memory payload_) external;
 }
 
@@ -25,17 +25,17 @@ interface IConnector {
 }
 
 contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
-    IHub public immutable hub__;
+    ISocketReceiver public immutable socketReceiver__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
 
-    error NotHub();
+    error NotSocketReceiver();
     error NotSocket();
 
     event ConnectorPlugDisconnected();
 
-    constructor(address hub_, address socket_, uint32 siblingChainSlug_) {
-        hub__ = IHub(hub_);
+    constructor(address socketReceiver, address socket_, uint32 siblingChainSlug_) {
+        socketReceiver__ = ISocketReceiver(socketReceiver);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;
     }
@@ -44,7 +44,7 @@ contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
         uint256 msgGasLimit_,
         bytes memory payload_
     ) external payable override returns (bytes32 messageId_) {
-        if (msg.sender != address(hub__)) revert NotHub();
+        if (msg.sender != address(socketReceiver__)) revert NotSocketReceiver();
 
         return socket__.outbound{value: msg.value}(
             siblingChainSlug,
@@ -60,7 +60,7 @@ contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
         bytes calldata payload_
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
-        hub__.receiveInbound(payload_);
+        socketReceiver__.receiveInbound(payload_);
     }
 
     function getMinFees(

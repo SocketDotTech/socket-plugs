@@ -6,7 +6,7 @@ import "../Gauge.sol";
 import "./CrossChainConnector.sol";
 
 
-contract CrossChainToken is ERC20, Gauge, Owned, IHub {
+contract CrossChainToken is ERC20, Gauge, Owned, ISocketReceiver {
 
     struct UpdateLimitParams {
         bool isMint;
