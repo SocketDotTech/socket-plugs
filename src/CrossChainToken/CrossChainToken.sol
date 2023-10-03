@@ -63,8 +63,11 @@ contract CrossChainToken is ERC20, Gauge, Owned, ISocketReceiver {
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
-        address owner_
-    ) ERC20(name_, symbol_, decimals_) Owned(owner_) {}
+        address owner_,
+        uint256 initialSupply_
+    ) ERC20(name_, symbol_, decimals_) Owned(owner_) {
+        _mint(owner_, initialSupply_);
+    }
 
 
     function updateLimitParams(

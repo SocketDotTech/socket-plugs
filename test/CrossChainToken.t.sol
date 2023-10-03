@@ -27,7 +27,8 @@ contract TestCrossChainToken is Test {
             "TestToken",
             "TT",
             18,
-            _admin
+            _admin,
+            100
         );
         _token = ERC20(address(_crossChainToken));
         vm.stopPrank();
