@@ -28,6 +28,7 @@ contract TestCrossChainToken is Test {
             "TT",
             18,
             _admin,
+             _admin,
             100
         );
         _token = ERC20(address(_crossChainToken));

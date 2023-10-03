@@ -86,6 +86,7 @@ contract DeployCrossChainTokenStack is IPlug, Owned {
             data.tokenSymbol,
             data.tokenDecimals,
             data.owner,
+            address(this),
             initialSupply
         );
 

@@ -63,10 +63,11 @@ contract CrossChainToken is ERC20, Gauge, Owned, ISocketReceiver {
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
+        address user_,
         address owner_,
         uint256 initialSupply_
     ) ERC20(name_, symbol_, decimals_) Owned(owner_) {
-        _mint(owner_, initialSupply_);
+        _mint(user_, initialSupply_);
     }
 
 
@@ -105,7 +106,6 @@ contract CrossChainToken is ERC20, Gauge, Owned, ISocketReceiver {
 
         _burn(msg.sender, sendingAmount_);
 
-        // FIXME: generate messageId
         bytes32 messageId =  IConnector(destinationConnector_).getMessageId();
 
         bytes32 returnedMessageId = IConnector(destinationConnector_).outbound{value: msg.value}(
