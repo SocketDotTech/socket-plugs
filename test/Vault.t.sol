@@ -10,7 +10,7 @@ contract TestVault is Test {
     uint256 _c;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
-    address immutable _connector = address(uint160(_c++));
+    // address immutable _connector = address(uint160(_c++));
     address immutable _wrongConnector = address(uint160(_c++));
 
     uint256 constant _lockMaxLimit = 200 ether;
@@ -20,12 +20,19 @@ contract TestVault is Test {
     uint256 constant _fees = 0.001 ether;
     uint256 constant _msgGasLimit = 200_000;
     uint256 constant _bootstrapTime = 100;
+    uint32 constant _defaultSiblingChainSlug = 420;
+    
     ERC20 _token;
     Vault _vault;
+    ConnectorPlug _connectorObj;
+    address _connector;
 
     function setUp() external {
         vm.startPrank(_admin);
         _token = new NonMintableToken("Moon", "MOON", 18, 1_000_000_000 ether);
+        _connectorObj = new ConnectorPlug(address(1), address(1), 420);
+        _connector = address(_connectorObj);
+
         _vault = new Vault(address(_token));
         vm.stopPrank();
     }
@@ -289,7 +296,7 @@ contract TestVault is Test {
 
         vm.expectRevert(Vault.ConnectorUnavailable.selector);
         vm.prank(_wrongConnector);
-        _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
+        _vault.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, withdrawAmount));
     }
 
     function testFullConsumeInboundReceive() external {
@@ -308,7 +315,7 @@ contract TestVault is Test {
         assertTrue(withdrawAmount <= unlockLimitBefore, "limit hit");
 
         vm.prank(_connector);
-        _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
+        _vault.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, withdrawAmount));
 
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
@@ -362,7 +369,7 @@ contract TestVault is Test {
         assertTrue(withdrawAmount > unlockLimitBefore, "unlock not partial");
 
         vm.prank(_connector);
-        _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
+        _vault.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, withdrawAmount));
 
         uint256 vaultBalAfter = _token.balanceOf(address(_vault));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
@@ -401,7 +408,7 @@ contract TestVault is Test {
         uint256 time = 10;
         deal(address(_token), address(_vault), usedLimit);
         vm.prank(_connector);
-        _vault.receiveInbound(abi.encode(_raju, usedLimit));
+        _vault.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, usedLimit));
 
         uint256 unlockLimitBefore = _vault.getCurrentUnlockLimit(_connector);
 
@@ -427,7 +434,7 @@ contract TestVault is Test {
         uint256 time = 100;
         deal(address(_token), address(_vault), usedLimit);
         vm.prank(_connector);
-        _vault.receiveInbound(abi.encode(_raju, usedLimit));
+        _vault.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, usedLimit));
 
         uint256 unlockLimitBefore = _vault.getCurrentUnlockLimit(_connector);
 
@@ -459,7 +466,7 @@ contract TestVault is Test {
         deal(address(_token), address(_vault), withdrawAmount);
 
         vm.prank(_connector);
-        _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
+        _vault.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, withdrawAmount));
 
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
@@ -516,7 +523,7 @@ contract TestVault is Test {
         deal(address(_token), address(_vault), withdrawAmount);
 
         vm.prank(_connector);
-        _vault.receiveInbound(abi.encode(_raju, withdrawAmount));
+        _vault.receiveInbound(_defaultSiblingChainSlug, abi.encode(_raju, withdrawAmount));
 
         uint256 vaultBalBefore = _token.balanceOf(address(_vault));
         uint256 rajuBalBefore = _token.balanceOf(_raju);

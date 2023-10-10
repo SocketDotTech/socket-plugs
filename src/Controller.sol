@@ -45,7 +45,8 @@ contract Controller is IHub, Gauge, Ownable2Step {
         address connector,
         address withdrawer,
         address receiver,
-        uint256 burnAmount
+        uint256 burnAmount,
+        uint32 toChainSlug
     );
     event PendingTokensMinted(
         address connector,
@@ -57,9 +58,10 @@ contract Controller is IHub, Gauge, Ownable2Step {
         address connecter,
         address receiver,
         uint256 pendingAmount,
-        uint256 totalPendingAmount
+        uint256 totalPendingAmount,
+        uint32 fromChainSlug
     );
-    event TokensMinted(address connecter, address receiver, uint256 mintAmount);
+    event TokensMinted(address connecter, address receiver, uint256 mintAmount, uint32 fromChainSlug);
 
     constructor(address token_, address exchangeRate_) {
         token__ = IMintableERC20(token_);
@@ -118,8 +120,8 @@ contract Controller is IHub, Gauge, Ownable2Step {
             msgGasLimit_,
             abi.encode(receiver_, unlockAmount)
         );
-
-        emit TokensWithdrawn(connector_, msg.sender, receiver_, burnAmount_);
+        uint32 siblingChainSlug = IConnector(connector_).siblingChainSlug();
+        emit TokensWithdrawn(connector_, msg.sender, receiver_, burnAmount_, siblingChainSlug);
     }
 
     function mintPendingFor(address receiver_, address connector_) external {
@@ -147,7 +149,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
     }
 
     // receive inbound assuming connector called
-    function receiveInbound(bytes memory payload_) external override {
+    function receiveInbound(uint32 siblingChainSlug, bytes memory payload_) external override {
         if (_mintLimitParams[msg.sender].maxLimit == 0)
             revert ConnectorUnavailable();
 
@@ -174,14 +176,15 @@ contract Controller is IHub, Gauge, Ownable2Step {
                 msg.sender,
                 receiver,
                 pendingAmount,
-                pendingMints[msg.sender][receiver]
+                pendingMints[msg.sender][receiver],
+                siblingChainSlug
             );
         }
 
         totalMinted += consumedAmount;
         token__.mint(receiver, consumedAmount);
 
-        emit TokensMinted(msg.sender, receiver, consumedAmount);
+        emit TokensMinted(msg.sender, receiver, consumedAmount, siblingChainSlug);
     }
 
     function getMinFees(

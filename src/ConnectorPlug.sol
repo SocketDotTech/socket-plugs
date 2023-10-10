@@ -6,7 +6,7 @@ import {IPlug} from "./interfaces/IPlug.sol";
 import {RescueFundsLib} from "./RescueFundsLib.sol";
 
 interface IHub {
-    function receiveInbound(bytes memory payload_) external;
+    function receiveInbound(uint32 siblingChainSlug, bytes memory payload_) external;
 }
 
 interface IConnector {
@@ -54,11 +54,11 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
     }
 
     function inbound(
-        uint32 /* siblingChainSlug_ */, // cannot be connected for any other slug, immutable variable
+        uint32 siblingChainSlug_, // cannot be connected for any other slug, immutable variable
         bytes calldata payload_
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
-        hub__.receiveInbound(payload_);
+        hub__.receiveInbound(siblingChainSlug_, payload_);
     }
 
     function getMinFees(
