@@ -2,11 +2,14 @@ import hre from "hardhat";
 import fs from "fs";
 
 import { deploymentsPath, verify } from "./utils";
-import { mode } from "./constants";
-import { ChainKey, ChainSlugToKey } from "@socket.tech/dl-core";
+import { mode, project } from "./constants";
+import {
+  ChainSlug,
+  ChainSlugToKey as ChainSlugToHardhatKey,
+} from "@socket.tech/dl-core";
 
 export type VerifyParams = {
-  [chain in ChainKey]?: VerifyArgs[];
+  [chain in ChainSlug]?: VerifyArgs[];
 };
 type VerifyArgs = [string, string, string, any[]];
 
@@ -15,7 +18,7 @@ type VerifyArgs = [string, string, string, any[]];
  */
 export const main = async () => {
   try {
-    const path = deploymentsPath + `${mode}_verification.json`;
+    const path = deploymentsPath + `${mode}_${project}_verification.json`;
     if (!fs.existsSync(path)) {
       throw new Error("addresses.json not found");
     }
@@ -23,14 +26,24 @@ export const main = async () => {
       fs.readFileSync(path, "utf-8")
     );
 
-    const chains = Object.keys(verificationParams);
+    const chains: ChainSlug[] = Object.keys(verificationParams).map((c) =>
+      Number(c)
+    );
     if (!chains) return;
 
     for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {
       const chain = chains[chainIndex];
-      if (chain == ChainKey.AEVO || chain == ChainKey.AEVO_TESTNET) continue;
-      hre.changeNetwork(ChainSlugToKey[chain]);
-      const chainParams: VerifyArgs[] = verificationParams[chain];
+      if (
+        chain == ChainSlug.AEVO ||
+        chain == ChainSlug.AEVO_TESTNET ||
+        chain == ChainSlug.LYRA ||
+        chain == ChainSlug.LYRA_TESTNET
+      )
+        continue;
+      // hre.changeNetwork(ChainSlugToHardhatKey[chain]);
+      if (hre.network.name !== ChainSlugToHardhatKey[chain]) continue;
+      const chainParams: VerifyArgs[] | undefined = verificationParams[chain];
+      if (!chainParams) continue;
       if (chainParams.length) {
         const len = chainParams.length;
         for (let index = 0; index < len!; index++)

@@ -5,6 +5,11 @@ export enum Tokens {
   USDC = "USDC",
 }
 
+export enum Project {
+  AEVO = "aevo",
+  LYRA = "lyra",
+}
+
 export enum CONTRACTS {
   MintableToken = "MintableToken",
   NonMintableToken = "NonMintableToken",
@@ -14,28 +19,29 @@ export enum CONTRACTS {
   ConnectorPlug = "ConnectorPlug",
 }
 
-export type DeploymentAddresses = {
-  [chainSlug in ChainSlug]?: TokenChainAddresses;
+export type ProjectAddresses = {
+  [chainSlug in ChainSlug]?: ChainAddresses;
 };
 
-export type TokenChainAddresses = {
-  [token in Tokens]?: Common;
+export type ChainAddresses = {
+  [token in Tokens]?: TokenAddresses;
 };
 
-export interface Common extends AppChainAddresses, NonAppChainAddresses {
-  isAppChain: boolean;
-  connectors?: Connectors;
-}
+export type TokenAddresses = AppChainAddresses | NonAppChainAddresses;
 
 export interface AppChainAddresses {
+  isAppChain: true;
   [CONTRACTS.MintableToken]?: string;
   [CONTRACTS.Controller]?: string;
   [CONTRACTS.ExchangeRate]?: string;
+  connectors?: Connectors;
 }
 
 export interface NonAppChainAddresses {
+  isAppChain: false;
   [CONTRACTS.NonMintableToken]?: string;
   [CONTRACTS.Vault]?: string;
+  connectors?: Connectors;
 }
 
 export type Connectors = {

@@ -19,3 +19,4 @@ src/types
 
 #Hardhat plugin files
 typechain-types/
+dist/

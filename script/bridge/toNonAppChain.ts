@@ -1,42 +1,45 @@
 import fs from "fs";
-import { BigNumber, Contract, Wallet, utils } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
-import { getProviderFromChainSlug, overrides } from "../helpers/networks";
-import { deployedAddressPath, getInstance } from "../helpers/utils";
-import { mode, tokenDecimals, tokenToBridge } from "../helpers/constants";
-import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
+import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { getProjectAddresses, getInstance } from "../helpers/utils";
+import { tokenDecimals, projectConstants } from "../helpers/constants";
+import { CONTRACTS, ChainAddresses, AppChainAddresses } from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 
 const srcChain = ChainSlug.AEVO_TESTNET;
 const dstChain = ChainSlug.ARBITRUM_GOERLI;
 const gasLimit = 1000000;
-let amount = utils.parseUnits("10", tokenDecimals[tokenToBridge]);
+let amount = utils.parseUnits(
+  "10",
+  tokenDecimals[projectConstants.tokenToBridge]
+);
 
 export const main = async () => {
   try {
-    if (!fs.existsSync(deployedAddressPath(mode))) {
-      throw new Error("addresses.json not found");
-    }
-    let addresses: DeploymentAddresses = JSON.parse(
-      fs.readFileSync(deployedAddressPath(mode), "utf-8")
-    );
+    const addresses = await getProjectAddresses();
 
-    if (!addresses[srcChain] || !addresses[dstChain]) return;
-    let addr: Common = addresses[srcChain][tokenToBridge]!;
+    const srcAddresses: ChainAddresses | undefined = addresses[srcChain];
+    const dstAddresses: ChainAddresses | undefined = addresses[dstChain];
+    if (!srcAddresses || !dstAddresses)
+      throw new Error("chain addresses not found");
 
-    const providerInstance = getProviderFromChainSlug(srcChain);
-    const socketSigner: Wallet = new Wallet(
-      process.env.SOCKET_SIGNER_KEY as string,
-      providerInstance
-    );
+    const addr: AppChainAddresses | undefined = srcAddresses[
+      projectConstants.tokenToBridge
+    ] as AppChainAddresses;
+    if (!addr) throw new Error("Token addresses not found");
 
-    if (
-      !addr.Controller ||
-      !addr.MintableToken ||
-      !addr.connectors?.[dstChain]?.FAST
-    )
-      return;
+    if (!addr.isAppChain) throw new Error("src should be app chain");
+
+    const controllerAddr = addr.Controller;
+    const tokenAddr = addr.MintableToken;
+    const connectorAddr = addr.connectors?.[dstChain]?.FAST;
+
+    if (!controllerAddr || !tokenAddr || !connectorAddr)
+      throw new Error("Some contract addresses missing");
+
+    const socketSigner = getSignerFromChainSlug(srcChain);
 
     const controller: Contract = (
       await getInstance(CONTRACTS.Controller, addr.Controller!)
