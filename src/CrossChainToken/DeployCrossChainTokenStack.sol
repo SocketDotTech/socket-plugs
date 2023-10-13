@@ -27,7 +27,6 @@ struct DeployToChains {
 
 contract DeployCrossChainTokenStack is IPlug, Owned {
     event TokenDeployed(address token, address owner);
-    event ControllerDeployed(address controller, address token);
     event ConnectorDeployedAndConnected(
         address connector,
         address controller,
@@ -62,7 +61,8 @@ contract DeployCrossChainTokenStack is IPlug, Owned {
     function deploy(
         DeploymentInfo memory data,
         uint256 initialSupply,
-        address switchboard
+        address switchboard,
+        address deployer
     ) public {
         CrossChainToken.UpdateLimitParams[]
             memory updates = new CrossChainToken.UpdateLimitParams[](
@@ -76,7 +76,7 @@ contract DeployCrossChainTokenStack is IPlug, Owned {
                     data.tokenSymbol,
                     data.tokenDecimals,
                     data.owner,
-                    msg.sender,
+                    deployer,
                     "token"
                 )
         );
@@ -95,13 +95,15 @@ contract DeployCrossChainTokenStack is IPlug, Owned {
 
         for (uint8 i = 0; i < data.chains.length; ) {
             if (data.chains[i] != chainSlug) {
+                // this salt enables us to deploy the same connector on source and destination chain  with same address
+                // they are same for connecting to each other
                 bytes32 connectorSalt = keccak256(
                     abi.encodePacked(
                         data.tokenName,
                         data.tokenSymbol,
                         data.tokenDecimals,
                         data.owner,
-                        msg.sender,
+                        deployer,
                         chainSlug < data.chains[i] ? chainSlug : data.chains[i],
                         chainSlug < data.chains[i] ? data.chains[i] : chainSlug,
                         "connector"
@@ -147,11 +149,11 @@ contract DeployCrossChainTokenStack is IPlug, Owned {
     function deployMultiChain(DeployToChains calldata data) external payable {
         for (uint8 i = 0; i < data.data.chains.length; ) {
             if (data.data.chains[i] == chainSlug) {
-                deploy(data.data, data.initialSupply, data.data.switchboard[i]);
+                deploy(data.data, data.initialSupply, data.data.switchboard[i], msg.sender);
             } else {
                 _outbound(
                     data.gasLimits[i],
-                    abi.encode(data.data, data.data.switchboard[i]),
+                    abi.encode(data.data, data.data.switchboard[i], msg.sender),
                     data.data.chains[i],
                     data.values[i]
                 );
@@ -168,11 +170,11 @@ contract DeployCrossChainTokenStack is IPlug, Owned {
         bytes calldata payload_
     ) external payable override {
         if (msg.sender != address(socket)) revert();
-        (DeploymentInfo memory data, address switchboard) = abi.decode(
+        (DeploymentInfo memory data, address switchboard, address deployer) = abi.decode(
             payload_,
             (DeploymentInfo, address)
         );
-        deploy(data, 0, switchboard);
+        deploy(data, 0, switchboard, deployer);
     }
 
     function _outbound(

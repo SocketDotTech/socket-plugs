@@ -97,18 +97,18 @@ contract CrossChainToken is ERC20, Gauge, Owned, ISocketReceiver {
         address receiver_,
         uint256 sendingAmount_,
         uint256 msgGasLimit_,
-        address destinationConnector_
+        address connector_
     ) external payable {
-        if (_sendingLimitParams[destinationConnector_].maxLimit == 0)
+        if (_sendingLimitParams[connector_].maxLimit == 0)
             revert ConnectorUnavailable();
 
-        _consumeFullLimit(sendingAmount_, _sendingLimitParams[destinationConnector_]); // reverts on limit hit
+        _consumeFullLimit(sendingAmount_, _sendingLimitParams[connector_]); // reverts on limit hit
 
         _burn(msg.sender, sendingAmount_);
 
-        bytes32 messageId =  IConnector(destinationConnector_).getMessageId();
+        bytes32 messageId =  IConnector(connector_).getMessageId();
 
-        bytes32 returnedMessageId = IConnector(destinationConnector_).outbound{value: msg.value}(
+        bytes32 returnedMessageId = IConnector(connector_).outbound{value: msg.value}(
             msgGasLimit_,
             abi.encode(receiver_, sendingAmount_, messageId)
         );
@@ -117,7 +117,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, ISocketReceiver {
             revert MessageIdMisMatched();
 
         emit BridgeTokens(
-            destinationConnector_,
+            connector_,
             msg.sender,
             receiver_,
             sendingAmount_,
@@ -165,7 +165,7 @@ contract CrossChainToken is ERC20, Gauge, Owned, ISocketReceiver {
         );
 
         if (pendingAmount > 0) {
-            pendingMints[msg.sender][receiver][identifier] += pendingAmount;
+            pendingMints[msg.sender][receiver][identifier] = pendingAmount;
             connectorPendingMints[msg.sender] += pendingAmount;
 
             emit TokensPending(

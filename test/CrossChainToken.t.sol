@@ -137,7 +137,7 @@ contract TestCrossChainToken is Test {
 
         assertTrue(
             sendingAmount <= _crossChainToken.getCurrentReceivingLimit(_connector),
-            "too big sending Limit"
+            "too big sending amount"
         );
 
         vm.startPrank(_raju);

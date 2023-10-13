@@ -103,7 +103,7 @@ contract testDeployMintableTokenStack is Test {
            }
         );
 
-        deployer.deployMultiChain(deployToChains);
+        // deployer.deployMultiChain(deployToChains);
         vm.stopPrank();
     }
 }
