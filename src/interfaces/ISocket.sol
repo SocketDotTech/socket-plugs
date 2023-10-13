@@ -184,4 +184,7 @@ interface ISocket {
             address capacitor__,
             address decapacitor__
         );
+    
+    function globalMessageCount() external view returns (uint64);
+
 }
