@@ -15,7 +15,7 @@ import type {
 import { resolve } from "path";
 import fs from "fs";
 
-import { ChainKey, chainKeyToSlug } from "@socket.tech/dl-core";
+import { HardhatChainName, hardhatChainNameToSlug } from "@socket.tech/dl-core";
 import { getJsonRpcUrl } from "./script/helpers/networks";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
@@ -26,11 +26,11 @@ if (!process.env.SOCKET_SIGNER_KEY) throw new Error("No private key found");
 const privateKey: HardhatNetworkAccountUserConfig = process.env
   .SOCKET_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
 
-function getChainConfig(chain: ChainKey): NetworkUserConfig {
+function getChainConfig(chain: HardhatChainName): NetworkUserConfig {
   return {
     accounts: [`0x${privateKey}`],
-    chainId: chainKeyToSlug[chain],
-    url: getJsonRpcUrl(chainKeyToSlug[chain]),
+    chainId: hardhatChainNameToSlug[chain],
+    url: getJsonRpcUrl(hardhatChainNameToSlug[chain]),
   };
 }
 
@@ -68,7 +68,7 @@ const config: HardhatUserConfig = {
     customChains: [
       {
         network: "optimisticTestnet",
-        chainId: chainKeyToSlug[ChainKey.OPTIMISM_GOERLI],
+        chainId: hardhatChainNameToSlug[HardhatChainName.OPTIMISM_GOERLI],
         urls: {
           apiURL: "https://api-goerli-optimistic.etherscan.io/api",
           browserURL: "https://goerli-optimism.etherscan.io/",
@@ -76,7 +76,7 @@ const config: HardhatUserConfig = {
       },
       {
         network: "arbitrumTestnet",
-        chainId: chainKeyToSlug[ChainKey.ARBITRUM_GOERLI],
+        chainId: hardhatChainNameToSlug[HardhatChainName.ARBITRUM_GOERLI],
         urls: {
           apiURL: "https://api-goerli.arbiscan.io/api",
           browserURL: "https://goerli.arbiscan.io/",
@@ -84,7 +84,7 @@ const config: HardhatUserConfig = {
       },
       {
         network: "aevoTestnet",
-        chainId: chainKeyToSlug[ChainKey.AEVO_TESTNET],
+        chainId: hardhatChainNameToSlug[HardhatChainName.AEVO_TESTNET],
         urls: {
           apiURL: "",
           browserURL: "https://explorer-testnet.aevo.xyz/",
@@ -92,7 +92,7 @@ const config: HardhatUserConfig = {
       },
       {
         network: "aevo",
-        chainId: chainKeyToSlug[ChainKey.AEVO],
+        chainId: hardhatChainNameToSlug[HardhatChainName.AEVO],
         urls: {
           apiURL: "",
           browserURL: "https://explorer.aevo.xyz//",
@@ -100,7 +100,7 @@ const config: HardhatUserConfig = {
       },
       {
         network: "lyraTestnet",
-        chainId: chainKeyToSlug[ChainKey.LYRA_TESTNET],
+        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA_TESTNET],
         urls: {
           apiURL: "",
           browserURL:
@@ -109,7 +109,7 @@ const config: HardhatUserConfig = {
       },
       {
         network: "lyra",
-        chainId: chainKeyToSlug[ChainKey.LYRA],
+        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA],
         urls: {
           apiURL: "",
           browserURL:
@@ -120,23 +120,23 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      chainId: chainKeyToSlug.hardhat,
+      chainId: hardhatChainNameToSlug.hardhat,
     },
-    [ChainKey.ARBITRUM_GOERLI]: getChainConfig(ChainKey.ARBITRUM_GOERLI),
-    [ChainKey.OPTIMISM_GOERLI]: getChainConfig(ChainKey.OPTIMISM_GOERLI),
-    [ChainKey.POLYGON_MAINNET]: getChainConfig(ChainKey.POLYGON_MAINNET),
-    [ChainKey.ARBITRUM]: getChainConfig(ChainKey.ARBITRUM),
-    [ChainKey.BSC]: getChainConfig(ChainKey.BSC),
-    [ChainKey.AEVO]: getChainConfig(ChainKey.AEVO),
-    [ChainKey.GOERLI]: getChainConfig(ChainKey.GOERLI),
-    [ChainKey.MAINNET]: getChainConfig(ChainKey.MAINNET),
-    [ChainKey.OPTIMISM]: getChainConfig(ChainKey.OPTIMISM),
-    [ChainKey.POLYGON_MUMBAI]: getChainConfig(ChainKey.POLYGON_MUMBAI),
-    [ChainKey.BSC_TESTNET]: getChainConfig(ChainKey.BSC_TESTNET),
-    [ChainKey.SEPOLIA]: getChainConfig(ChainKey.SEPOLIA),
-    [ChainKey.AEVO_TESTNET]: getChainConfig(ChainKey.AEVO_TESTNET),
-    [ChainKey.LYRA_TESTNET]: getChainConfig(ChainKey.LYRA_TESTNET),
-    [ChainKey.LYRA]: getChainConfig(ChainKey.LYRA),
+    [HardhatChainName.ARBITRUM_GOERLI]: getChainConfig(HardhatChainName.ARBITRUM_GOERLI),
+    [HardhatChainName.OPTIMISM_GOERLI]: getChainConfig(HardhatChainName.OPTIMISM_GOERLI),
+    [HardhatChainName.POLYGON_MAINNET]: getChainConfig(HardhatChainName.POLYGON_MAINNET),
+    [HardhatChainName.ARBITRUM]: getChainConfig(HardhatChainName.ARBITRUM),
+    [HardhatChainName.BSC]: getChainConfig(HardhatChainName.BSC),
+    [HardhatChainName.AEVO]: getChainConfig(HardhatChainName.AEVO),
+    [HardhatChainName.GOERLI]: getChainConfig(HardhatChainName.GOERLI),
+    [HardhatChainName.MAINNET]: getChainConfig(HardhatChainName.MAINNET),
+    [HardhatChainName.OPTIMISM]: getChainConfig(HardhatChainName.OPTIMISM),
+    [HardhatChainName.POLYGON_MUMBAI]: getChainConfig(HardhatChainName.POLYGON_MUMBAI),
+    [HardhatChainName.BSC_TESTNET]: getChainConfig(HardhatChainName.BSC_TESTNET),
+    [HardhatChainName.SEPOLIA]: getChainConfig(HardhatChainName.SEPOLIA),
+    [HardhatChainName.AEVO_TESTNET]: getChainConfig(HardhatChainName.AEVO_TESTNET),
+    [HardhatChainName.LYRA_TESTNET]: getChainConfig(HardhatChainName.LYRA_TESTNET),
+    [HardhatChainName.LYRA]: getChainConfig(HardhatChainName.LYRA),
   },
   paths: {
     sources: "./src",
