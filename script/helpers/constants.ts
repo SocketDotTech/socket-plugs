@@ -96,8 +96,8 @@ const _projectConstants: ProjectConstants = {
       },
     },
     [DeploymentMode.PROD]: {
-      appChain: ChainSlug.LYRA,
-      nonAppChains: [ChainSlug.ARBITRUM, ChainSlug.OPTIMISM],
+      appChain: ChainSlug.LYRA_TESTNET,
+      nonAppChains: [ChainSlug.ARBITRUM_GOERLI, ChainSlug.OPTIMISM_GOERLI],
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
