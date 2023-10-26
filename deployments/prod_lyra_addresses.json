@@ -2,11 +2,11 @@
   "420": {
     "USDC": {
       "isAppChain": false,
-      "NonMintableToken": "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7",
-      "Vault": "0x1bcEC7D79b274F01DB2a70D11f4e2907C04E64DF",
+      "NonMintableToken": "0x0f8BEaf58d4A237C88c9ed99D82003ab5c252c26",
+      "Vault": "0x3d74c019E9caCBc968cF31B0810044a030B3E903",
       "connectors": {
         "901": {
-          "FAST": "0x1F0F1FC746fcd4d59b6dBDDFf67a88cde70dAeE5"
+          "FAST": "0xfBf496B6DBda9d5e778e2563493BCb32F5A52B51"
         }
       }
     }
@@ -19,7 +19,7 @@
       "Controller": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
       "connectors": {
         "420": {
-          "FAST": "0xA7649aa944b7Dce781859C18913c2Dc8A97f03e4"
+          "FAST": "0x7050b6f947BA48508219Ac02EC152E9f198ADc5e"
         },
         "421613": {
           "FAST": "0xd286595d2e3D879596FAB51f83A702D10a6db27b"
