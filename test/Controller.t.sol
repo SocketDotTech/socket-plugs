@@ -56,11 +56,10 @@ contract TestController is Test {
         skip(_bootstrapTime);
     }
 
-        function _setConnectorPoolId() internal {
-        address[]
-            memory connectors = new address[](1);
+    function _setConnectorPoolId() internal {
+        address[] memory connectors = new address[](1);
         uint256[] memory poolIds = new uint256[](1);
-        connectors[0] =  _connector;
+        connectors[0] = _connector;
         poolIds[0] = _connectorPoolId;
         vm.prank(_admin);
         _controller.updateConnectorPoolId(connectors, poolIds);
@@ -160,7 +159,7 @@ contract TestController is Test {
 
     function testWithdraw() external {
         _setLimits();
-        _setConnectorPoolId();  
+        _setConnectorPoolId();
         uint256 withdrawAmount = 10 ether;
         vm.prank(_connector);
         _controller.receiveInbound(abi.encode(_raju, withdrawAmount));
@@ -235,6 +234,7 @@ contract TestController is Test {
 
     function testPartBurnLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
         uint256 usedLimit = 30 ether;
         uint256 time = 10;
         deal(_raju, _fees);
@@ -278,6 +278,7 @@ contract TestController is Test {
 
     function testFullBurnLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
         uint256 usedLimit = 30 ether;
         uint256 time = 100;
         deal(_raju, _fees);
@@ -456,6 +457,8 @@ contract TestController is Test {
 
     function testPartMintLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 usedLimit = 20 ether;
         uint256 time = 10;
         deal(address(_token), address(_controller), usedLimit, true);
@@ -482,6 +485,8 @@ contract TestController is Test {
 
     function testFullMintLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 usedLimit = 20 ether;
         uint256 time = 100;
         deal(address(_token), address(_controller), usedLimit, true);
@@ -504,6 +509,8 @@ contract TestController is Test {
 
     function testMintPendingConnectorUnavail() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 depositAmount = 2 ether;
         deal(address(_token), address(_controller), depositAmount, true);
 
@@ -513,6 +520,8 @@ contract TestController is Test {
 
     function testFullConsumeMintPending() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 depositAmount = 120 ether;
         uint256 time = 200;
 
@@ -564,6 +573,8 @@ contract TestController is Test {
 
     function testPartConsumeMintPending() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 depositAmount = 120 ether;
         uint256 time = 5;
         deal(address(_token), address(_controller), depositAmount, true);

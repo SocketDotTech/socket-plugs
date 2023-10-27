@@ -41,7 +41,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
     uint256 public totalMinted;
 
     error ConnectorUnavailable();
-
+    error InvalidPoolId();
     event ExchangeRateUpdated(address exchangeRate);
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     event LimitParamsUpdated(UpdateLimitParams[] updates);
@@ -75,13 +75,18 @@ contract Controller is IHub, Gauge, Ownable2Step {
         emit ExchangeRateUpdated(exchangeRate_);
     }
 
-    function updateConnectorPoolId(address[] calldata connectors, uint256[] calldata poolIds) external onlyOwner {
+    function updateConnectorPoolId(
+        address[] calldata connectors,
+        uint256[] calldata poolIds
+    ) external onlyOwner {
         uint256 length = connectors.length;
         for (uint256 i; i < length; i++) {
+            if (poolIds[i] == 0) revert InvalidPoolId();
             connectorPoolIds[connectors[i]] = poolIds[i];
             emit ConnectorPoolIdUpdated(connectors[i], poolIds[i]);
         }
     }
+
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
     ) external onlyOwner {
@@ -120,6 +125,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
         token__.burn(msg.sender, burnAmount_);
 
         uint256 connectorPoolId = connectorPoolIds[connector_];
+        if (connectorPoolId == 0) revert InvalidPoolId();
         uint256 unlockAmount = exchangeRate__.getUnlockAmount(
             burnAmount_,
             poolLockedAmounts[connectorPoolId]
@@ -168,6 +174,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
             (address, uint256)
         );
         uint256 connectorPoolId = connectorPoolIds[msg.sender];
+        if (connectorPoolId == 0) revert InvalidPoolId();
         poolLockedAmounts[connectorPoolId] += lockAmount;
 
         uint256 mintAmount = exchangeRate__.getMintAmount(
