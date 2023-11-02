@@ -7,4 +7,4 @@ Error codes for errors in this project -
 -  AmountOutsideLimit() - 0x47ebad20
 -  ZeroAddress() - 0xd92e233d
 -  InvalidTokenAddress() - 0x1eb00b06
-
+-  InvalidPoolId() - 0x0afa7ee8
