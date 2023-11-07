@@ -121,7 +121,7 @@ export const main = async () => {
 
 const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
-    ? CORE_CONTRACTS.FastSwitchboard
+    ? CORE_CONTRACTS.FastSwitchboard2
     : it === IntegrationTypes.optimistic
     ? CORE_CONTRACTS.OptimisticSwitchboard
     : CORE_CONTRACTS.NativeSwitchboard;
