@@ -15,7 +15,7 @@ import type {
 import { resolve } from "path";
 import fs from "fs";
 
-import { HardhatChainName, hardhatChainNameToSlug } from "@socket.tech/dl-core";
+import { ChainSlugToId, HardhatChainName, hardhatChainNameToSlug } from "@socket.tech/dl-core";
 import { getJsonRpcUrl } from "./script/helpers/networks";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
@@ -29,7 +29,7 @@ const privateKey: HardhatNetworkAccountUserConfig = process.env
 function getChainConfig(chain: HardhatChainName): NetworkUserConfig {
   return {
     accounts: [`0x${privateKey}`],
-    chainId: hardhatChainNameToSlug[chain],
+    chainId: ChainSlugToId[hardhatChainNameToSlug[chain]],
     url: getJsonRpcUrl(hardhatChainNameToSlug[chain]),
   };
 }
@@ -82,40 +82,6 @@ const config: HardhatUserConfig = {
           browserURL: "https://goerli.arbiscan.io/",
         },
       },
-      {
-        network: "aevoTestnet",
-        chainId: hardhatChainNameToSlug[HardhatChainName.AEVO_TESTNET],
-        urls: {
-          apiURL: "",
-          browserURL: "https://explorer-testnet.aevo.xyz/",
-        },
-      },
-      {
-        network: "aevo",
-        chainId: hardhatChainNameToSlug[HardhatChainName.AEVO],
-        urls: {
-          apiURL: "",
-          browserURL: "https://explorer.aevo.xyz//",
-        },
-      },
-      {
-        network: "lyraTestnet",
-        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA_TESTNET],
-        urls: {
-          apiURL: "",
-          browserURL:
-            "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz",
-        },
-      },
-      {
-        network: "lyra",
-        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA],
-        urls: {
-          apiURL: "",
-          browserURL:
-            "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz", // TODO: change to prod
-        },
-      },
     ],
   },
   networks: {
@@ -137,6 +103,7 @@ const config: HardhatUserConfig = {
     [HardhatChainName.AEVO_TESTNET]: getChainConfig(HardhatChainName.AEVO_TESTNET),
     [HardhatChainName.LYRA_TESTNET]: getChainConfig(HardhatChainName.LYRA_TESTNET),
     [HardhatChainName.LYRA]: getChainConfig(HardhatChainName.LYRA),
+    [HardhatChainName.SX_NETWORK_TESTNET]: getChainConfig(HardhatChainName.SX_NETWORK_TESTNET),
   },
   paths: {
     sources: "./src",

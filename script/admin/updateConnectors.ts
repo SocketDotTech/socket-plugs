@@ -13,10 +13,8 @@ import { deployedAddressPath, getInstance } from "../helpers/utils";
 import {
   projectConstants,
   mode,
-  getLimitBN,
-  getRateBN,
 } from "../helpers/constants";
-import { CONTRACTS, Common, DeploymentAddresses } from "../helpers/types";
+import { CONTRACTS, ProjectAddresses, TokenAddresses } from "../helpers/types";
 import { getSocket } from "../bridge/utils";
 
 export const main = async () => {
@@ -24,7 +22,7 @@ export const main = async () => {
     if (!fs.existsSync(deployedAddressPath())) {
       throw new Error("addresses.json not found");
     }
-    let addresses: DeploymentAddresses = JSON.parse(
+    let addresses: ProjectAddresses = JSON.parse(
       fs.readFileSync(deployedAddressPath(), "utf-8")
     );
 
@@ -37,7 +35,7 @@ export const main = async () => {
             !addresses[chain]?.[projectConstants.tokenToBridge]?.connectors
           )
             return;
-          let addr: Common =
+          let addr: TokenAddresses =
             addresses[chain]?.[projectConstants.tokenToBridge]!;
 
           const providerInstance = getProviderFromChainSlug(chain);
@@ -62,21 +60,21 @@ export const main = async () => {
 };
 
 const switchboardName = (it: IntegrationTypes) => {
-    switch (it) {
-        case IntegrationTypes.fast:
-            return CORE_CONTRACTS.FastSwitchboard2;  // comment this after migration
-            // return CORE_CONTRACTS.FastSwitchboard;
-        case IntegrationTypes.optimistic:
-            return CORE_CONTRACTS.OptimisticSwitchboard;
-        default:
-            return CORE_CONTRACTS.NativeSwitchboard;
-    }
+  switch (it) {
+    case IntegrationTypes.fast:
+      return CORE_CONTRACTS.FastSwitchboard2;  // comment this after migration
+    // return CORE_CONTRACTS.FastSwitchboard;
+    case IntegrationTypes.optimistic:
+      return CORE_CONTRACTS.OptimisticSwitchboard;
+    default:
+      return CORE_CONTRACTS.NativeSwitchboard;
+  }
 }
 
 
 const connect = async (
-  addr: Common,
-  addresses: DeploymentAddresses,
+  addr: TokenAddresses,
+  addresses: ProjectAddresses,
   chain: ChainSlug,
   siblingSlugs: ChainSlug[],
   socketSigner: Wallet
@@ -88,14 +86,14 @@ const connect = async (
       const chainAddr = addr.connectors?.[sibling]!;
       if (
         !addresses[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-          chain
+        chain
         ]
       )
         continue;
 
       const siblingAddr =
         addresses[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-          chain
+        chain
         ];
       const integrationTypes: IntegrationTypes[] = Object.keys(
         chainAddr
@@ -110,7 +108,7 @@ const connect = async (
 
         if (
           !addresses[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-            chain
+          chain
           ]
         )
           continue;
@@ -121,9 +119,9 @@ const connect = async (
         );
 
         if (
-            config[0].toLowerCase() === siblingConnectorPlug.toLowerCase() && 
-            config[1].toLowerCase() === switchboard.toLowerCase()
-            ) {
+          config[0].toLowerCase() === siblingConnectorPlug.toLowerCase() &&
+          config[1].toLowerCase() === switchboard.toLowerCase()
+        ) {
           console.log("already set, confirming ", { config });
           continue;
         }

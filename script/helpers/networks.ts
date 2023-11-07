@@ -18,6 +18,7 @@ export const overrides: {
     type: number | undefined;
     gasLimit: BigNumberish | undefined;
     gasPrice: BigNumberish | undefined;
+    value?: string;
   };
 } = {
   [ChainSlug.ARBITRUM_GOERLI]: {
@@ -64,6 +65,12 @@ export const overrides: {
     type: 1,
     gasLimit,
     gasPrice: 100_000_000,
+  },
+  [ChainSlug.SX_NETWORK_TESTNET]: {
+    type: 1,
+    gasLimit: 1_000_000_000,
+    gasPrice: 1_000_000_000,
+    value: "0x00"
   },
 };
 
@@ -139,6 +146,11 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
     case ChainSlug.LYRA:
       if (!process.env.LYRA_RPC) throw new Error("LYRA_RPC not configured");
       return process.env.LYRA_RPC;
+
+    case ChainSlug.SX_NETWORK_TESTNET:
+      if (!process.env.SX_NETWORK_TESTNET_RPC)
+        throw new Error("SX_NETWORK_TESTNET_RPC not configured");
+      return process.env.SX_NETWORK_TESTNET_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";
