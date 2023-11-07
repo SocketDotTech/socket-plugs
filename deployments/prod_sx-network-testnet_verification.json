@@ -1,0 +1,90 @@
+{
+  "80001": [
+    [
+      "0xE4F80b5e981729e10b552841B607d64ED0012b1A",
+      "ConnectorPlug",
+      "src/ConnectorPlug.sol",
+      [
+        "0x613efcCFa27110e2A4d12e0467599a2911Fd96dc",
+        "0x54FEAB3E649Ac262028996C6082F736182717abb",
+        647
+      ]
+    ],
+    [
+      "0x74e06A37986c8613072B1751dcB8C41Cf5A935C2",
+      "ConnectorPlug",
+      "src/ConnectorPlug.sol",
+      [
+        "0x613efcCFa27110e2A4d12e0467599a2911Fd96dc",
+        "0x54FEAB3E649Ac262028996C6082F736182717abb",
+        647
+      ]
+    ],
+    [
+      "0x613efcCFa27110e2A4d12e0467599a2911Fd96dc",
+      "Vault",
+      "src/Vault.sol",
+      [
+        "0xD9edcC943ed9729B08E52Bb1e110FE43d1930773"
+      ]
+    ],
+    [
+      "0xD9edcC943ed9729B08E52Bb1e110FE43d1930773",
+      "NonMintableToken",
+      "src/NonMintableToken.sol",
+      [
+        "USD coin",
+        "USDC",
+        6,
+        {
+          "type": "BigNumber",
+          "hex": "0x038d7ea4c68000"
+        }
+      ]
+    ]
+  ],
+  "11155111": [
+    [
+      "0x8f9EaEe5c5df888aBA3c1Ab19689a0660d042c6d",
+      "ConnectorPlug",
+      "src/ConnectorPlug.sol",
+      [
+        "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
+        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
+        647
+      ]
+    ],
+    [
+      "0xbDf50eAe568ECef74796ed6022a0d453e8432410",
+      "ConnectorPlug",
+      "src/ConnectorPlug.sol",
+      [
+        "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
+        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
+        647
+      ]
+    ],
+    [
+      "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
+      "Vault",
+      "src/Vault.sol",
+      [
+        "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
+      ]
+    ],
+    [
+      "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+      "NonMintableToken",
+      "src/NonMintableToken.sol",
+      [
+        "USD coin",
+        "USDC",
+        6,
+        {
+          "type": "BigNumber",
+          "hex": "0x038d7ea4c68000"
+        }
+      ]
+    ]
+  ]
+}

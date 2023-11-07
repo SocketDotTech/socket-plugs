@@ -1,7 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
-import { Contract, Wallet } from "ethers";
+import { Contract, Wallet, utils } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 import {
@@ -9,6 +9,9 @@ import {
   isAppChain,
   mode,
   projectConstants,
+  tokenDecimals,
+  tokenName,
+  tokenSymbol,
 } from "../helpers/constants";
 import {
   DeployParams,
@@ -52,8 +55,8 @@ export const main = async () => {
             projectConstants.tokenToBridge
           ]
             ? (addresses[chain]?.[
-                projectConstants.tokenToBridge
-              ] as TokenAddresses)
+              projectConstants.tokenToBridge
+            ] as TokenAddresses)
             : ({} as TokenAddresses);
 
           const siblings = isAppChain(chain)
@@ -103,12 +106,12 @@ const deploy = async (
     if (isAppChain) {
       deployUtils = await deployAppChainContracts(deployUtils);
     } else {
-      deployUtils = await deployNonAppChainContracts(deployUtils);
+      // deployUtils = await deployNonAppChainContracts(deployUtils);
     }
 
-    for (let sibling of siblings) {
-      deployUtils = await deployConnectors(sibling, deployUtils);
-    }
+    // for (let sibling of siblings) {
+    //   deployUtils = await deployConnectors(sibling, deployUtils);
+    // }
     allDeployed = true;
     console.log(deployUtils.addresses);
     console.log("Contracts deployed!");
