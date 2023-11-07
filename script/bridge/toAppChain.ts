@@ -11,8 +11,8 @@ import {
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 
-const srcChain = ChainSlug.ARBITRUM_GOERLI;
-const dstChain = ChainSlug.AEVO_TESTNET;
+const srcChain = ChainSlug.SEPOLIA;
+const dstChain = ChainSlug.SX_NETWORK_TESTNET;
 const gasLimit = 1000000;
 let amount = utils.parseUnits(
   "10",
