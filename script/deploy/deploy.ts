@@ -106,12 +106,12 @@ const deploy = async (
     if (isAppChain) {
       deployUtils = await deployAppChainContracts(deployUtils);
     } else {
-      // deployUtils = await deployNonAppChainContracts(deployUtils);
+      deployUtils = await deployNonAppChainContracts(deployUtils);
     }
 
-    // for (let sibling of siblings) {
-    //   deployUtils = await deployConnectors(sibling, deployUtils);
-    // }
+    for (let sibling of siblings) {
+      deployUtils = await deployConnectors(sibling, deployUtils);
+    }
     allDeployed = true;
     console.log(deployUtils.addresses);
     console.log("Contracts deployed!");

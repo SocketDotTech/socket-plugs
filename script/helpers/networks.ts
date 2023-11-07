@@ -15,10 +15,9 @@ export const type = 2;
 
 export const overrides: {
   [chain in ChainSlug]?: {
-    type: number | undefined;
+    type?: number | undefined;
     gasLimit: BigNumberish | undefined;
     gasPrice: BigNumberish | undefined;
-    value?: string;
   };
 } = {
   [ChainSlug.ARBITRUM_GOERLI]: {
@@ -67,10 +66,9 @@ export const overrides: {
     gasPrice: 100_000_000,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
-    type: 1,
-    gasLimit: 1_000_000_000,
-    gasPrice: 1_000_000_000,
-    value: "0x00"
+    // type: 1,
+    gasLimit: 10_000_000,
+    gasPrice: 20_000_000_000
   },
 };
 

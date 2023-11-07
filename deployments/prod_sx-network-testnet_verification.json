@@ -1,17 +1,44 @@
 {
-  "80001": [
+  "647": [
     [
-      "0xE4F80b5e981729e10b552841B607d64ED0012b1A",
+      "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
       "ConnectorPlug",
       "src/ConnectorPlug.sol",
       [
-        "0x613efcCFa27110e2A4d12e0467599a2911Fd96dc",
-        "0x54FEAB3E649Ac262028996C6082F736182717abb",
-        647
+        "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+        "0x834Ee253f0B926DCc1d03EbAeAfEc3a3D1eE4a86",
+        11155111
       ]
     ],
     [
-      "0x74e06A37986c8613072B1751dcB8C41Cf5A935C2",
+      "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+      "ConnectorPlug",
+      "src/ConnectorPlug.sol",
+      [
+        "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+        "0x834Ee253f0B926DCc1d03EbAeAfEc3a3D1eE4a86",
+        80001
+      ]
+    ],
+    [
+      "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+      "Controller",
+      "src/Controller.sol",
+      [
+        "0x5147891461a7C81075950f8eE6384e019e39ab98",
+        "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3"
+      ]
+    ],
+    [
+      "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
+      "ExchangeRate",
+      "src/ExchangeRate.sol",
+      []
+    ]
+  ],
+  "80001": [
+    [
+      "0x7ae16402d316686a149Ea49bDcB208AADCfBcFf8",
       "ConnectorPlug",
       "src/ConnectorPlug.sol",
       [
@@ -45,17 +72,7 @@
   ],
   "11155111": [
     [
-      "0x8f9EaEe5c5df888aBA3c1Ab19689a0660d042c6d",
-      "ConnectorPlug",
-      "src/ConnectorPlug.sol",
-      [
-        "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
-        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
-        647
-      ]
-    ],
-    [
-      "0xbDf50eAe568ECef74796ed6022a0d453e8432410",
+      "0x57D1Aeafb6a2b7Bd4954e47a556622161A8c0A65",
       "ConnectorPlug",
       "src/ConnectorPlug.sol",
       [
