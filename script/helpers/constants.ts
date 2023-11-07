@@ -77,8 +77,9 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          limit: "50000",
-          rate: "0.5787",
+          limit: "200000",
+          // rate: "200000",
+          rate: "2.3148",
         },
       },
     },
