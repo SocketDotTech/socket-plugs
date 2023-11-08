@@ -8,6 +8,7 @@ import {
 } from "@socket.tech/dl-core";
 import { Tokens, Project } from "./types";
 import { BigNumber, utils } from "ethers";
+import {encodePoolId} from "./utils";
 
 if (!process.env.SOCKET_OWNER_ADDRESS)
   throw Error("Socket owner address not present");
@@ -52,6 +53,7 @@ export type ProjectConstants = {
         [key in IntegrationTypes]?: {
           limit: string;
           rate: string;
+          poolCount:number;
         };
       };
     };
@@ -68,6 +70,7 @@ const _projectConstants: ProjectConstants = {
         [IntegrationTypes.fast]: {
           limit: "50000",
           rate: "0.5787",
+          poolCount:0
         },
       },
     },
@@ -79,6 +82,7 @@ const _projectConstants: ProjectConstants = {
         [IntegrationTypes.fast]: {
           limit: "50000",
           rate: "0.5787",
+          poolCount:0
         },
       },
     },
@@ -92,6 +96,7 @@ const _projectConstants: ProjectConstants = {
         [IntegrationTypes.fast]: {
           limit: "10000",
           rate: "0.11574",
+          poolCount:0
         },
       },
     },
@@ -103,6 +108,7 @@ const _projectConstants: ProjectConstants = {
         [IntegrationTypes.fast]: {
           limit: "10000",
           rate: "0.11574",
+          poolCount:0
         },
       },
     },
@@ -150,6 +156,13 @@ export const getRateBN = (it: IntegrationTypes): BigNumber => {
   return utils.parseUnits(
     getIntegrationTypeConsts(it).rate,
     tokenDecimals[projectConstants.tokenToBridge]
+  );
+};
+
+export const getPoolIdHex = (chainSlug:ChainSlug, it: IntegrationTypes): string => {
+  return encodePoolId(
+    chainSlug,
+    getIntegrationTypeConsts(it).poolCount
   );
 };
 

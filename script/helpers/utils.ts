@@ -209,3 +209,17 @@ export const createObj = function (obj: any, keys: string[], value: any): any {
   }
   return obj;
 };
+
+
+export function encodePoolId(
+  chainSlug: number,
+  poolCount: number
+) {
+  const encodedValue =
+    (BigInt(chainSlug) << BigInt(224)) |
+    BigInt(poolCount);
+
+  // Ensure the result is a 32-byte hex string (bytes32 in Solidity)
+  const resultHex = encodedValue.toString(16).padStart(64, "0");
+  return "0x" + resultHex;
+}

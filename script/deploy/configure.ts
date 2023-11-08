@@ -14,6 +14,7 @@ import {
   mode,
   getLimitBN,
   getRateBN,
+  getPoolIdHex,
 } from "../helpers/constants";
 import {
   CONTRACTS,
@@ -55,6 +56,9 @@ export const main = async () => {
           await connect(addr, addresses, chain, siblingSlugs, socketSigner);
 
           const updateLimitParams: UpdateLimitParams[] = [];
+          const connectorAddresses: string[] = [];
+          const connectorPoolIds: string[] = [];
+
           for (let sibling of siblingSlugs) {
             const siblingConnectorAddresses: ConnectorAddresses | undefined =
               connectors[sibling];
@@ -81,6 +85,11 @@ export const main = async () => {
                 getLimitBN(it),
                 getRateBN(it),
               ]);
+
+              if (chain === projectConstants.appChain) {
+                connectorAddresses.push(itConnectorAddress);
+                connectorPoolIds.push(getPoolIdHex(sibling, it));
+              }
             }
           }
 
@@ -111,6 +120,18 @@ export const main = async () => {
           await tx.wait();
 
           console.log(`Setting vault limits for ${chain} - COMPLETED`);
+
+          if (addr.isAppChain && connectorAddresses.length && connectorPoolIds.length) {
+            let tx = await contract.updateConnectorPoolId(connectorAddresses, connectorPoolIds, {
+              ...overrides[chain],
+            });
+            console.log(chain, tx.hash);
+            await tx.wait();
+  
+            console.log(`Setting pool Ids for ${chain} - COMPLETED`);
+          }
+          
+
         }
       )
     );
