@@ -5,11 +5,11 @@ import { ContractFactory, Contract } from "ethers";
 import fs from "fs";
 import path from "path";
 import { Address } from "hardhat-deploy/dist/types";
-import { ChainSlug } from "@socket.tech/dl-core";
+import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
 import { TokenAddresses, ProjectAddresses } from "./types";
-import { mode, project, projectConstants } from "./constants";
+import { getIntegrationTypeConsts, mode, project, projectConstants } from "./constants";
 
 export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
 
@@ -223,3 +223,10 @@ export function encodePoolId(
   const resultHex = encodedValue.toString(16).padStart(64, "0");
   return "0x" + resultHex;
 }
+
+export const getPoolIdHex = (chainSlug:ChainSlug, it: IntegrationTypes): string => { 
+  return encodePoolId(
+    chainSlug,
+    getIntegrationTypeConsts(it).poolCount
+  );
+};

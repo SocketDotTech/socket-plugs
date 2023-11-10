@@ -8,7 +8,6 @@ import {
 } from "@socket.tech/dl-core";
 import { Tokens, Project } from "./types";
 import { BigNumber, utils } from "ethers";
-import {encodePoolId} from "./utils";
 
 if (!process.env.SOCKET_OWNER_ADDRESS)
   throw Error("Socket owner address not present");
@@ -156,13 +155,6 @@ export const getRateBN = (it: IntegrationTypes): BigNumber => {
   return utils.parseUnits(
     getIntegrationTypeConsts(it).rate,
     tokenDecimals[projectConstants.tokenToBridge]
-  );
-};
-
-export const getPoolIdHex = (chainSlug:ChainSlug, it: IntegrationTypes): string => {
-  return encodePoolId(
-    chainSlug,
-    getIntegrationTypeConsts(it).poolCount
   );
 };
 

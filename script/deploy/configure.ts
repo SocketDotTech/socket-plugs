@@ -8,13 +8,12 @@ import {
 } from "@socket.tech/dl-core";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getInstance, getProjectAddresses } from "../helpers/utils";
+import { getInstance, getProjectAddresses, getPoolIdHex } from "../helpers/utils";
 import {
   projectConstants,
   mode,
   getLimitBN,
-  getRateBN,
-  getPoolIdHex,
+  getRateBN
 } from "../helpers/constants";
 import {
   CONTRACTS,
