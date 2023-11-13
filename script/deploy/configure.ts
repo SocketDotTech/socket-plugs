@@ -71,18 +71,20 @@ export const main = async () => {
                 siblingConnectorAddresses[it];
               if (!itConnectorAddress) continue;
 
+              // mint/lock/deposit limits
               updateLimitParams.push([
                 true,
                 itConnectorAddress,
-                getLimitBN(it),
-                getRateBN(it),
+                getLimitBN(it, true),
+                getRateBN(it, true),
               ]);
 
+              // burn/unlock/withdraw limits
               updateLimitParams.push([
                 false,
                 itConnectorAddress,
-                getLimitBN(it),
-                getRateBN(it),
+                getLimitBN(it, false),
+                getRateBN(it, false),
               ]);
 
               if (chain === projectConstants.appChain) {
@@ -126,10 +128,10 @@ export const main = async () => {
             });
             console.log(chain, tx.hash);
             await tx.wait();
-  
+
             console.log(`Setting pool Ids for ${chain} - COMPLETED`);
           }
-          
+
 
         }
       )
@@ -143,8 +145,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard2
     : it === IntegrationTypes.optimistic
-    ? CORE_CONTRACTS.OptimisticSwitchboard
-    : CORE_CONTRACTS.NativeSwitchboard;
+      ? CORE_CONTRACTS.OptimisticSwitchboard
+      : CORE_CONTRACTS.NativeSwitchboard;
 
 const connect = async (
   addr: TokenAddresses,
@@ -161,7 +163,7 @@ const connect = async (
         addr.connectors?.[sibling];
       const siblingConnectorAddresses: ConnectorAddresses | undefined =
         addresses?.[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-          chain
+        chain
         ];
       if (!localConnectorAddresses || !siblingConnectorAddresses) continue;
 
@@ -175,9 +177,11 @@ const connect = async (
         const localConnectorPlug = localConnectorAddresses[integration];
         if (!localConnectorPlug || !siblingConnectorPlug) continue;
 
-        const switchboard = getAddresses(chain, mode)[
-          switchboardName(integration)
-        ];
+        const switchboard = getAddresses(chain, mode).integrations[sibling][integration]?.switchboard;
+
+        if (!switchboard) {
+          console.log(`switchboard not found for ${chain}, ${sibling}, ${integration}`);
+        }
 
         let config = await socketContract.getPlugConfig(
           localConnectorPlug,

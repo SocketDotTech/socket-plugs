@@ -50,9 +50,11 @@ export type ProjectConstants = {
       tokenToBridge: Tokens;
       integrationTypes: {
         [key in IntegrationTypes]?: {
-          limit: string;
-          rate: string;
-          poolCount:number;
+          depositLimit: string;
+          depositRate: string;
+          withdrawLimit: string;
+          withdrawRate: string;
+          poolCount: number;
         };
       };
     };
@@ -67,9 +69,11 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          limit: "50000",
-          rate: "0.5787",
-          poolCount:0
+          depositLimit: "50000",
+          depositRate: "0.5787",
+          withdrawLimit: "50000",
+          withdrawRate: "0.5787",
+          poolCount: 0
         },
       },
     },
@@ -79,9 +83,11 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          limit: "50000",
-          rate: "0.5787",
-          poolCount:0
+          depositLimit: "50000",
+          depositRate: "0.5787",
+          withdrawLimit: "50000",
+          withdrawRate: "0.5787",
+          poolCount: 0
         },
       },
     },
@@ -93,21 +99,32 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          limit: "10000",
-          rate: "0.11574",
-          poolCount:0
+          depositLimit: "10000",
+          depositRate: "0.11574",
+          withdrawLimit: "10000",
+          withdrawRate: "0.11574",
+          poolCount: 0
         },
       },
     },
     [DeploymentMode.PROD]: {
       appChain: ChainSlug.LYRA_TESTNET,
-      nonAppChains: [ChainSlug.ARBITRUM_GOERLI, ChainSlug.OPTIMISM_GOERLI],
+      nonAppChains: [ChainSlug.SEPOLIA],
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
-        [IntegrationTypes.fast]: {
-          limit: "10000",
-          rate: "0.11574",
-          poolCount:0
+        [IntegrationTypes.fast2]: {
+          depositLimit: "0",
+          depositRate: "0",
+          withdrawLimit: "10000",
+          withdrawRate: "0.11574",
+          poolCount: 0
+        },
+        [IntegrationTypes.native]: {
+          depositLimit: "10000",
+          depositRate: "0.11574",
+          withdrawLimit: "0",
+          withdrawRate: "0",
+          poolCount: 0
         },
       },
     },
@@ -144,18 +161,32 @@ export const getIntegrationTypeConsts = (it: IntegrationTypes) => {
   return pci;
 };
 
-export const getLimitBN = (it: IntegrationTypes): BigNumber => {
-  return utils.parseUnits(
-    getIntegrationTypeConsts(it).limit,
-    tokenDecimals[projectConstants.tokenToBridge]
-  );
+export const getLimitBN = (it: IntegrationTypes, isDeposit: boolean): BigNumber => {
+  if (isDeposit) {
+    return utils.parseUnits(
+      getIntegrationTypeConsts(it).depositLimit,
+      tokenDecimals[projectConstants.tokenToBridge]
+    );
+  } else {
+    return utils.parseUnits(
+      getIntegrationTypeConsts(it).withdrawLimit,
+      tokenDecimals[projectConstants.tokenToBridge]
+    );
+  }
 };
 
-export const getRateBN = (it: IntegrationTypes): BigNumber => {
-  return utils.parseUnits(
-    getIntegrationTypeConsts(it).rate,
-    tokenDecimals[projectConstants.tokenToBridge]
-  );
+export const getRateBN = (it: IntegrationTypes, isDeposit: boolean): BigNumber => {
+  if (isDeposit) {
+    return utils.parseUnits(
+      getIntegrationTypeConsts(it).depositRate,
+      tokenDecimals[projectConstants.tokenToBridge]
+    );
+  } else {
+    return utils.parseUnits(
+      getIntegrationTypeConsts(it).withdrawRate,
+      tokenDecimals[projectConstants.tokenToBridge]
+    );
+  }
 };
 
 export const integrationTypes: IntegrationTypes = Object.keys(
