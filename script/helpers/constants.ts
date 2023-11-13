@@ -112,7 +112,7 @@ const _projectConstants: ProjectConstants = {
       nonAppChains: [ChainSlug.SEPOLIA],
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
-        [IntegrationTypes.fast2]: {
+        [IntegrationTypes.fast]: {
           depositLimit: "0",
           depositRate: "0",
           withdrawLimit: "10000",

@@ -7,7 +7,7 @@
       "Controller": "0xBD9f6198a220046E944D704b7ff2A68b778F4A44",
       "connectors": {
         "11155111": {
-          "FAST2": "0x03027410F25c527D5aEB3E6e56a6389611DCb2A9",
+          "FAST": "0x03027410F25c527D5aEB3E6e56a6389611DCb2A9",
           "NATIVE_BRIDGE": "0xA7f7e4fE8E4cdDCD9969Bd3fbcFF67000CD7DE47"
         }
       }
@@ -20,7 +20,7 @@
       "Vault": "0x040993fbF458b95871Cd2D73Ee2E09F4AF6d56bB",
       "connectors": {
         "901": {
-          "FAST2": "0xBE51D38547992293c89CC589105784ab60b004A9",
+          "FAST": "0xBE51D38547992293c89CC589105784ab60b004A9",
           "NATIVE_BRIDGE": "0x5800249621DA520aDFdCa16da20d8A5Fc0f814d8"
         }
       }
