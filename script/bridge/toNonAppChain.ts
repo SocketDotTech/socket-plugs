@@ -8,7 +8,7 @@ import { CONTRACTS, ChainAddresses, AppChainAddresses } from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 
-const srcChain = ChainSlug.SX_NETWORK_TESTNET;
+const srcChain = ChainSlug.LYRA_TESTNET;
 const dstChain = ChainSlug.SEPOLIA;
 const gasLimit = 1000000;
 let amount = utils.parseUnits(

@@ -8,7 +8,11 @@ import {
 } from "@socket.tech/dl-core";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getInstance, getProjectAddresses } from "../helpers/utils";
+import {
+  getInstance,
+  getProjectAddresses,
+  getPoolIdHex,
+} from "../helpers/utils";
 import {
   projectConstants,
   mode,
@@ -55,6 +59,9 @@ export const main = async () => {
           await connect(addr, addresses, chain, siblingSlugs, socketSigner);
 
           const updateLimitParams: UpdateLimitParams[] = [];
+          const connectorAddresses: string[] = [];
+          const connectorPoolIds: string[] = [];
+
           for (let sibling of siblingSlugs) {
             const siblingConnectorAddresses: ConnectorAddresses | undefined =
               connectors[sibling];
@@ -68,19 +75,26 @@ export const main = async () => {
                 siblingConnectorAddresses[it];
               if (!itConnectorAddress) continue;
 
+              // mint/lock/deposit limits
               updateLimitParams.push([
                 true,
                 itConnectorAddress,
-                getLimitBN(it),
-                getRateBN(it),
+                getLimitBN(it, true),
+                getRateBN(it, true),
               ]);
 
+              // burn/unlock/withdraw limits
               updateLimitParams.push([
                 false,
                 itConnectorAddress,
-                getLimitBN(it),
-                getRateBN(it),
+                getLimitBN(it, false),
+                getRateBN(it, false),
               ]);
+
+              if (chain === projectConstants.appChain) {
+                connectorAddresses.push(itConnectorAddress);
+                connectorPoolIds.push(getPoolIdHex(sibling, it));
+              }
             }
           }
 
@@ -111,6 +125,24 @@ export const main = async () => {
           await tx.wait();
 
           console.log(`Setting vault limits for ${chain} - COMPLETED`);
+
+          if (
+            addr.isAppChain &&
+            connectorAddresses.length &&
+            connectorPoolIds.length
+          ) {
+            let tx = await contract.updateConnectorPoolId(
+              connectorAddresses,
+              connectorPoolIds,
+              {
+                ...overrides[chain],
+              }
+            );
+            console.log(chain, tx.hash);
+            await tx.wait();
+
+            console.log(`Setting pool Ids for ${chain} - COMPLETED`);
+          }
         }
       )
     );
@@ -121,7 +153,7 @@ export const main = async () => {
 
 const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
-    ? CORE_CONTRACTS.FastSwitchboard2
+    ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
     ? CORE_CONTRACTS.OptimisticSwitchboard
     : CORE_CONTRACTS.NativeSwitchboard;
@@ -155,9 +187,15 @@ const connect = async (
         const localConnectorPlug = localConnectorAddresses[integration];
         if (!localConnectorPlug || !siblingConnectorPlug) continue;
 
-        const switchboard = getAddresses(chain, mode)[
-          switchboardName(integration)
-        ];
+        const switchboard = getAddresses(chain, mode).integrations[sibling][
+          integration
+        ]?.switchboard;
+
+        if (!switchboard) {
+          console.log(
+            `switchboard not found for ${chain}, ${sibling}, ${integration}`
+          );
+        }
 
         let config = await socketContract.getPlugConfig(
           localConnectorPlug,
