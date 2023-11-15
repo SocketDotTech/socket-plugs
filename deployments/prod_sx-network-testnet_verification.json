@@ -51,9 +51,7 @@
       "0x613efcCFa27110e2A4d12e0467599a2911Fd96dc",
       "Vault",
       "src/Vault.sol",
-      [
-        "0xD9edcC943ed9729B08E52Bb1e110FE43d1930773"
-      ]
+      ["0xD9edcC943ed9729B08E52Bb1e110FE43d1930773"]
     ],
     [
       "0xD9edcC943ed9729B08E52Bb1e110FE43d1930773",
@@ -85,9 +83,7 @@
       "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
       "Vault",
       "src/Vault.sol",
-      [
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
-      ]
+      ["0x565810cbfa3Cf1390963E5aFa2fB953795686339"]
     ],
     [
       "0x565810cbfa3Cf1390963E5aFa2fB953795686339",

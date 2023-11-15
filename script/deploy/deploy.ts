@@ -55,8 +55,8 @@ export const main = async () => {
             projectConstants.tokenToBridge
           ]
             ? (addresses[chain]?.[
-              projectConstants.tokenToBridge
-            ] as TokenAddresses)
+                projectConstants.tokenToBridge
+              ] as TokenAddresses)
             : ({} as TokenAddresses);
 
           const siblings = isAppChain(chain)

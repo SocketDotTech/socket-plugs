@@ -15,7 +15,11 @@ import type {
 import { resolve } from "path";
 import fs from "fs";
 
-import { ChainSlugToId, HardhatChainName, hardhatChainNameToSlug } from "@socket.tech/dl-core";
+import {
+  ChainSlugToId,
+  HardhatChainName,
+  hardhatChainNameToSlug,
+} from "@socket.tech/dl-core";
 import { getJsonRpcUrl } from "./script/helpers/networks";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
@@ -117,7 +121,9 @@ const config: HardhatUserConfig = {
       HardhatChainName.LYRA_TESTNET
     ),
     [HardhatChainName.LYRA]: getChainConfig(HardhatChainName.LYRA),
-    [HardhatChainName.SX_NETWORK_TESTNET]: getChainConfig(HardhatChainName.SX_NETWORK_TESTNET),
+    [HardhatChainName.SX_NETWORK_TESTNET]: getChainConfig(
+      HardhatChainName.SX_NETWORK_TESTNET
+    ),
   },
   paths: {
     sources: "./src",
