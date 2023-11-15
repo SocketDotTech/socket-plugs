@@ -42,10 +42,10 @@ export const main = async () => {
     const socketSigner = getSignerFromChainSlug(srcChain);
 
     const controller: Contract = (
-      await getInstance(CONTRACTS.Controller, addr.Controller!)
+      await getInstance(CONTRACTS.Controller, controllerAddr)
     ).connect(socketSigner);
     const token: Contract = (
-      await getInstance(CONTRACTS.MintableToken, addr.MintableToken!)
+      await getInstance(CONTRACTS.MintableToken, tokenAddr)
     ).connect(socketSigner);
 
     // approve
@@ -53,7 +53,7 @@ export const main = async () => {
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
     const limit: BigNumber = await controller.getCurrentBurnLimit(
-      addr.connectors?.[dstChain]?.FAST!
+      connectorAddr
     );
     if (limit.lt(amount)) throw new Error("Exceeding max limit");
 
@@ -77,14 +77,14 @@ export const main = async () => {
       "0x0000000000000000000000000000000000000000000000000000000000000000",
       "0x0000000000000000000000000000000000000000000000000000000000000000",
       dstChain,
-      addr.connectors?.[dstChain]?.FAST!
+      connectorAddr
     );
 
     const withdrawTx = await controller.withdrawFromAppChain(
       socketSigner.address,
       amount,
       gasLimit,
-      addr.connectors?.[dstChain]?.FAST!,
+      connectorAddr,
       { ...overrides[srcChain], value }
     );
     console.log("Tokens burnt", withdrawTx.hash);

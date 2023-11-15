@@ -129,6 +129,22 @@ const _projectConstants: ProjectConstants = {
       },
     },
   },
+  [Project.SX_NETWORK_TESTNET]: {
+    [DeploymentMode.PROD]: {
+      appChain: ChainSlug.SX_NETWORK_TESTNET,
+      nonAppChains: [ChainSlug.POLYGON_MUMBAI, ChainSlug.SEPOLIA],
+      tokenToBridge: Tokens.USDC,
+      integrationTypes: {
+        [IntegrationTypes.fast]: {
+          depositLimit: "10000",
+          depositRate: "0.11574",
+          withdrawLimit: "10000",
+          withdrawRate: "0.11574",
+          poolCount: 0,
+        },
+      },
+    },
+  },
 };
 
 export const isAppChain = (chain: ChainSlug) =>

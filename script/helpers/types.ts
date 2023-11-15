@@ -8,6 +8,7 @@ export enum Tokens {
 export enum Project {
   AEVO = "aevo",
   LYRA = "lyra",
+  SX_NETWORK_TESTNET = "sx-network-testnet",
 }
 
 export enum CONTRACTS {

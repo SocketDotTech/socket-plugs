@@ -1,7 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
-import { Contract, Wallet } from "ethers";
+import { Contract, Wallet, utils } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 import {
@@ -9,6 +9,9 @@ import {
   isAppChain,
   mode,
   projectConstants,
+  tokenDecimals,
+  tokenName,
+  tokenSymbol,
 } from "../helpers/constants";
 import {
   DeployParams,
