@@ -231,6 +231,27 @@ contract TestController is Test {
         vm.stopPrank();
     }
 
+    function testZeroAmountWithdraw() external {
+        _setLimits();
+        _setConnectorPoolId();
+
+        uint256 withdrawAmount = 0 ether;
+        uint256 dealAmount = 10 ether;
+        deal(address(_token), _raju, dealAmount);
+        deal(_raju, _fees);
+
+        vm.startPrank(_raju);
+        _token.approve(address(_controller), dealAmount);
+        vm.expectRevert(Controller.ZeroAmount.selector);
+        _controller.withdrawFromAppChain{value: _fees}(
+            _raju,
+            withdrawAmount,
+            _msgGasLimit,
+            _connector
+        );
+        vm.stopPrank();
+    }
+
     function testWithdrawPoolConnectors() external {
         _setLimits();
         _setConnectorPoolId();

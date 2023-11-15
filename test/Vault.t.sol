@@ -140,6 +140,26 @@ contract TestVault is Test {
         vm.stopPrank();
     }
 
+    function testZeroAmountDeposit() external {
+        _setLimits();
+
+        uint256 depositAmount = 0 ether;
+        uint256 dealAmount = 10 ether;
+        deal(address(_token), _raju, dealAmount);
+        deal(_raju, _fees);
+
+        vm.startPrank(_raju);
+        _token.approve(address(_vault), dealAmount);
+        vm.expectRevert(Vault.ZeroAmount.selector);
+        _vault.depositToAppChain{value: _fees}(
+            _raju,
+            depositAmount,
+            _msgGasLimit,
+            _connector
+        );
+        vm.stopPrank();
+    }
+
     function testDeposit() external {
         _setLimits();
 
