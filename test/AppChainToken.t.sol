@@ -92,6 +92,7 @@ contract TestAppChainToken is Test {
         _setNonAppChainLimits(_arbitrumCtx);
         _setNonAppChainLimits(_optimismCtx);
         _setAppChainLimits();
+        _setAppChainPoolIds();
         vm.stopPrank();
     }
 
@@ -266,6 +267,22 @@ contract TestAppChainToken is Test {
             SLOW_RATE
         );
         _appChainCtx.controller.updateLimitParams(u);
+        skip(BOOTSTRAP_TIME);
+    }
+
+    function _setAppChainPoolIds() internal {
+        address[] memory connectors = new address[](2);
+        uint256[] memory connectorPoolIds = new uint256[](2);
+        connectors[0] = address(_appChainCtx.fastArbConnector);
+        connectors[1] = address(_appChainCtx.fastOptConnector);
+
+        connectorPoolIds[0] = _c++;
+        connectorPoolIds[1] = _c++;
+
+        _appChainCtx.controller.updateConnectorPoolId(
+            connectors,
+            connectorPoolIds
+        );
         skip(BOOTSTRAP_TIME);
     }
 

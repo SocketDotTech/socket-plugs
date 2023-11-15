@@ -20,8 +20,11 @@ contract Controller is IHub, Gauge, Ownable2Step {
         uint256 ratePerSecond;
     }
 
-    // connector => totalLockedAmount
-    mapping(address => uint256) public connectorLockedAmounts;
+    // connectorPoolId => totalLockedAmount
+    mapping(uint256 => uint256) public poolLockedAmounts;
+
+    // connector => connectorPoolId
+    mapping(address => uint256) public connectorPoolIds;
 
     // connector => mintLimitParams
     mapping(address => LimitParams) _mintLimitParams;
@@ -38,8 +41,10 @@ contract Controller is IHub, Gauge, Ownable2Step {
     uint256 public totalMinted;
 
     error ConnectorUnavailable();
-
+    error InvalidPoolId();
+    error ZeroAmount();
     event ExchangeRateUpdated(address exchangeRate);
+    event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensWithdrawn(
         address connector,
@@ -71,6 +76,18 @@ contract Controller is IHub, Gauge, Ownable2Step {
         emit ExchangeRateUpdated(exchangeRate_);
     }
 
+    function updateConnectorPoolId(
+        address[] calldata connectors,
+        uint256[] calldata poolIds
+    ) external onlyOwner {
+        uint256 length = connectors.length;
+        for (uint256 i; i < length; i++) {
+            if (poolIds[i] == 0) revert InvalidPoolId();
+            connectorPoolIds[connectors[i]] = poolIds[i];
+            emit ConnectorPoolIdUpdated(connectors[i], poolIds[i]);
+        }
+    }
+
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
     ) external onlyOwner {
@@ -100,6 +117,8 @@ contract Controller is IHub, Gauge, Ownable2Step {
         uint256 msgGasLimit_,
         address connector_
     ) external payable {
+        if (burnAmount_ == 0) revert ZeroAmount();
+
         if (_burnLimitParams[connector_].maxLimit == 0)
             revert ConnectorUnavailable();
 
@@ -108,11 +127,13 @@ contract Controller is IHub, Gauge, Ownable2Step {
         totalMinted -= burnAmount_;
         token__.burn(msg.sender, burnAmount_);
 
+        uint256 connectorPoolId = connectorPoolIds[connector_];
+        if (connectorPoolId == 0) revert InvalidPoolId();
         uint256 unlockAmount = exchangeRate__.getUnlockAmount(
             burnAmount_,
-            connectorLockedAmounts[connector_]
+            poolLockedAmounts[connectorPoolId]
         );
-        connectorLockedAmounts[connector_] -= unlockAmount; // underflow revert expected
+        poolLockedAmounts[connectorPoolId] -= unlockAmount; // underflow revert expected
 
         IConnector(connector_).outbound{value: msg.value}(
             msgGasLimit_,
@@ -155,11 +176,13 @@ contract Controller is IHub, Gauge, Ownable2Step {
             payload_,
             (address, uint256)
         );
+        uint256 connectorPoolId = connectorPoolIds[msg.sender];
+        if (connectorPoolId == 0) revert InvalidPoolId();
+        poolLockedAmounts[connectorPoolId] += lockAmount;
 
-        connectorLockedAmounts[msg.sender] += lockAmount;
         uint256 mintAmount = exchangeRate__.getMintAmount(
             lockAmount,
-            connectorLockedAmounts[msg.sender]
+            poolLockedAmounts[connectorPoolId]
         );
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             mintAmount,

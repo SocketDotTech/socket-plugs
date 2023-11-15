@@ -5,13 +5,17 @@ import "solmate/tokens/ERC20.sol";
 import "../src/MintableToken.sol";
 import "../src/Controller.sol";
 import "../src/ExchangeRate.sol";
+import "forge-std/console.sol";
 
 contract TestController is Test {
-    uint256 _c;
+    uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
     address immutable _connector = address(uint160(_c++));
+    address immutable _connector2 = address(uint160(_c++));
     address immutable _wrongConnector = address(uint160(_c++));
+
+    uint256 immutable _connectorPoolId = _c++;
 
     uint256 constant _burnMaxLimit = 200 ether;
     uint256 constant _burnRate = 2 ether;
@@ -22,6 +26,9 @@ contract TestController is Test {
     uint256 constant _bootstrapTime = 100;
     ERC20 _token;
     Controller _controller;
+
+    error InvalidPoolId();
+    event ConnectorPoolIdUpdated(address connector, uint256 poolId);
 
     function setUp() external {
         vm.startPrank(_admin);
@@ -35,7 +42,7 @@ contract TestController is Test {
 
     function _setLimits() internal {
         Controller.UpdateLimitParams[]
-            memory u = new Controller.UpdateLimitParams[](2);
+            memory u = new Controller.UpdateLimitParams[](4);
         u[0] = Controller.UpdateLimitParams(
             true,
             _connector,
@@ -49,9 +56,37 @@ contract TestController is Test {
             _burnRate
         );
 
+        u[2] = Controller.UpdateLimitParams(
+            true,
+            _connector2,
+            _mintMaxLimit,
+            _mintRate
+        );
+        u[3] = Controller.UpdateLimitParams(
+            false,
+            _connector2,
+            _burnMaxLimit,
+            _burnRate
+        );
+
         vm.prank(_admin);
         _controller.updateLimitParams(u);
         skip(_bootstrapTime);
+    }
+
+    function _setConnectorPoolId() internal {
+        address[] memory connectors = new address[](2);
+        uint256[] memory poolIds = new uint256[](2);
+        connectors[0] = _connector;
+        connectors[1] = _connector2;
+        poolIds[0] = _connectorPoolId;
+        poolIds[1] = _connectorPoolId;
+        vm.prank(_admin);
+        vm.expectEmit(true, true, true, true);
+        emit ConnectorPoolIdUpdated(_connector, _connectorPoolId);
+        vm.expectEmit(true, true, true, true);
+        emit ConnectorPoolIdUpdated(_connector2, _connectorPoolId);
+        _controller.updateConnectorPoolId(connectors, poolIds);
     }
 
     function testUpdateLimitParams() external {
@@ -106,9 +141,20 @@ contract TestController is Test {
         _controller.updateLimitParams(u);
     }
 
+    function testSetInvalidPoolId() external {
+        address[] memory connectors = new address[](1);
+        uint256[] memory poolIds = new uint256[](1);
+        connectors[0] = _connector;
+        poolIds[0] = 0;
+        vm.prank(_admin);
+        vm.expectRevert(InvalidPoolId.selector);
+        _controller.updateConnectorPoolId(connectors, poolIds);
+    }
+
     function testWithdrawConnectorUnavail() external {
         uint256 withdrawAmount = 2 ether;
         _setLimits();
+        _setConnectorPoolId();
         deal(_raju, _fees);
         vm.prank(_raju);
         vm.expectRevert(Controller.ConnectorUnavailable.selector);
@@ -118,6 +164,48 @@ contract TestController is Test {
             _msgGasLimit,
             _wrongConnector
         );
+    }
+
+    function testInvalidPoolIdReceiveInbound() external {
+        uint256 withdrawAmount = 2 ether;
+        _setLimits();
+        vm.prank(_connector);
+        vm.expectRevert(InvalidPoolId.selector);
+        _controller.receiveInbound(abi.encode(_raju, withdrawAmount));
+    }
+
+    function testInvalidPoolIdWithdraw() external {
+        uint256 withdrawAmount = 2 ether;
+        _setLimits();
+
+        Controller.UpdateLimitParams[]
+            memory u = new Controller.UpdateLimitParams[](1);
+        u[0] = Controller.UpdateLimitParams(
+            false,
+            _wrongConnector,
+            _burnMaxLimit,
+            _burnRate
+        );
+
+        vm.prank(_admin);
+        _controller.updateLimitParams(u);
+        skip(_bootstrapTime);
+
+        _setConnectorPoolId();
+        vm.prank(_connector);
+        _controller.receiveInbound(abi.encode(_raju, withdrawAmount));
+        deal(_raju, _fees);
+
+        vm.startPrank(_raju);
+        _token.approve(address(_controller), withdrawAmount);
+        vm.expectRevert(InvalidPoolId.selector);
+        _controller.withdrawFromAppChain{value: _fees}(
+            _raju,
+            withdrawAmount,
+            _msgGasLimit,
+            _wrongConnector
+        );
+        vm.stopPrank();
     }
 
     function testWithdrawLimitHit() external {
@@ -144,9 +232,118 @@ contract TestController is Test {
         vm.stopPrank();
     }
 
+    function testZeroAmountWithdraw() external {
+        _setLimits();
+        _setConnectorPoolId();
+
+        uint256 withdrawAmount = 0 ether;
+        uint256 dealAmount = 10 ether;
+        deal(address(_token), _raju, dealAmount);
+        deal(_raju, _fees);
+
+        vm.startPrank(_raju);
+        _token.approve(address(_controller), dealAmount);
+        vm.expectRevert(Controller.ZeroAmount.selector);
+        _controller.withdrawFromAppChain{value: _fees}(
+            _raju,
+            withdrawAmount,
+            _msgGasLimit,
+            _connector
+        );
+        vm.stopPrank();
+    }
+
+    function testWithdrawPoolConnectors() external {
+        _setLimits();
+        _setConnectorPoolId();
+
+        uint256 totalAmount = 20 ether;
+        uint256 withdrawAmount = 5 ether;
+        uint256 withdrawAmount2 = 15 ether;
+        vm.prank(_connector);
+        _controller.receiveInbound(abi.encode(_raju, totalAmount));
+        deal(_raju, _fees * 2);
+
+        uint256 rajuBalBefore = _token.balanceOf(_raju);
+        uint256 poolLockedBefore = _controller.poolLockedAmounts(
+            _connectorPoolId
+        );
+
+        assertEq(poolLockedBefore, totalAmount, "pool locked sus");
+
+        vm.startPrank(_raju);
+        _token.approve(address(_controller), totalAmount);
+
+        vm.expectCall(
+            _connector,
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, withdrawAmount))
+            )
+        );
+
+        vm.mockCall(
+            _connector,
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, withdrawAmount))
+            ),
+            new bytes(0)
+        );
+
+        _controller.withdrawFromAppChain{value: _fees}(
+            _raju,
+            withdrawAmount,
+            _msgGasLimit,
+            _connector
+        );
+
+        vm.expectCall(
+            _connector2,
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, withdrawAmount2))
+            )
+        );
+
+        vm.mockCall(
+            _connector2,
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, abi.encode(_raju, withdrawAmount2))
+            ),
+            new bytes(0)
+        );
+
+        _controller.withdrawFromAppChain{value: _fees}(
+            _raju,
+            withdrawAmount2,
+            _msgGasLimit,
+            _connector2
+        );
+
+        vm.stopPrank();
+
+        uint256 rajuBalAfter = _token.balanceOf(_raju);
+        uint256 poolLockedAfter = _controller.poolLockedAmounts(
+            _connectorPoolId
+        );
+
+        assertEq(
+            rajuBalAfter,
+            rajuBalBefore - withdrawAmount - withdrawAmount2,
+            "raju balance sus"
+        );
+        assertEq(
+            poolLockedAfter,
+            poolLockedBefore - withdrawAmount - withdrawAmount2,
+            "connector locked sus"
+        );
+    }
+
     function testWithdraw() external {
         _setLimits();
-
+        _setConnectorPoolId();
         uint256 withdrawAmount = 10 ether;
         vm.prank(_connector);
         _controller.receiveInbound(abi.encode(_raju, withdrawAmount));
@@ -155,8 +352,8 @@ contract TestController is Test {
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 totalMintedBefore = _controller.totalMinted();
         uint256 burnLimitBefore = _controller.getCurrentBurnLimit(_connector);
-        uint256 connectorLockedBefore = _controller.connectorLockedAmounts(
-            _connector
+        uint256 poolLockedBefore = _controller.poolLockedAmounts(
+            _connectorPoolId
         );
 
         assertTrue(
@@ -193,8 +390,8 @@ contract TestController is Test {
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 totalMintedAfter = _controller.totalMinted();
         uint256 burnLimitAfter = _controller.getCurrentBurnLimit(_connector);
-        uint256 connectorLockedAfter = _controller.connectorLockedAmounts(
-            _connector
+        uint256 poolLockedAfter = _controller.poolLockedAmounts(
+            _connectorPoolId
         );
 
         assertEq(
@@ -213,14 +410,15 @@ contract TestController is Test {
             "burn limit sus"
         );
         assertEq(
-            connectorLockedAfter,
-            connectorLockedBefore - withdrawAmount,
+            poolLockedAfter,
+            poolLockedBefore - withdrawAmount,
             "connector locked sus"
         );
     }
 
     function testPartBurnLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
         uint256 usedLimit = 30 ether;
         uint256 time = 10;
         deal(_raju, _fees);
@@ -264,6 +462,7 @@ contract TestController is Test {
 
     function testFullBurnLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
         uint256 usedLimit = 30 ether;
         uint256 time = 100;
         deal(_raju, _fees);
@@ -313,6 +512,7 @@ contract TestController is Test {
 
     function testFullConsumeInboundReceive() external {
         _setLimits();
+        _setConnectorPoolId();
         uint256 depositAmount = 2 ether;
         deal(address(_token), address(_controller), depositAmount, true);
 
@@ -326,8 +526,8 @@ contract TestController is Test {
             _connector
         );
         uint256 mintLimitBefore = _controller.getCurrentMintLimit(_connector);
-        uint256 connectorLockedBefore = _controller.connectorLockedAmounts(
-            _connector
+        uint256 poolLockedBefore = _controller.poolLockedAmounts(
+            _connectorPoolId
         );
 
         assertTrue(depositAmount <= mintLimitBefore, "limit hit");
@@ -342,8 +542,8 @@ contract TestController is Test {
             _connector
         );
         uint256 mintLimitAfter = _controller.getCurrentMintLimit(_connector);
-        uint256 connectorLockedAfter = _controller.connectorLockedAmounts(
-            _connector
+        uint256 poolLockedAfter = _controller.poolLockedAmounts(
+            _connectorPoolId
         );
 
         assertEq(
@@ -368,14 +568,15 @@ contract TestController is Test {
             "mint limit sus"
         );
         assertEq(
-            connectorLockedAfter,
-            connectorLockedBefore + depositAmount,
+            poolLockedAfter,
+            poolLockedBefore + depositAmount,
             "connector locked amount sus"
         );
     }
 
     function testPartConsumeInboundReceive() external {
         _setLimits();
+        _setConnectorPoolId();
         uint256 depositAmount = 110 ether;
         deal(address(_token), address(_controller), depositAmount, true);
 
@@ -389,8 +590,8 @@ contract TestController is Test {
             _connector
         );
         uint256 mintLimitBefore = _controller.getCurrentMintLimit(_connector);
-        uint256 connectorLockedBefore = _controller.connectorLockedAmounts(
-            _connector
+        uint256 poolLockedBefore = _controller.poolLockedAmounts(
+            _connectorPoolId
         );
 
         assertTrue(mintLimitBefore > 0, "no mint limit available");
@@ -406,8 +607,8 @@ contract TestController is Test {
             _connector
         );
         uint256 mintLimitAfter = _controller.getCurrentMintLimit(_connector);
-        uint256 connectorLockedAfter = _controller.connectorLockedAmounts(
-            _connector
+        uint256 poolLockedAfter = _controller.poolLockedAmounts(
+            _connectorPoolId
         );
 
         assertEq(
@@ -432,14 +633,16 @@ contract TestController is Test {
         );
         assertEq(mintLimitAfter, 0, "mint limit sus");
         assertEq(
-            connectorLockedAfter,
-            connectorLockedBefore + depositAmount,
+            poolLockedAfter,
+            poolLockedBefore + depositAmount,
             "connector locked amount sus"
         );
     }
 
     function testPartMintLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 usedLimit = 20 ether;
         uint256 time = 10;
         deal(address(_token), address(_controller), usedLimit, true);
@@ -466,6 +669,8 @@ contract TestController is Test {
 
     function testFullMintLimitReplenish() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 usedLimit = 20 ether;
         uint256 time = 100;
         deal(address(_token), address(_controller), usedLimit, true);
@@ -488,6 +693,8 @@ contract TestController is Test {
 
     function testMintPendingConnectorUnavail() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 depositAmount = 2 ether;
         deal(address(_token), address(_controller), depositAmount, true);
 
@@ -497,6 +704,8 @@ contract TestController is Test {
 
     function testFullConsumeMintPending() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 depositAmount = 120 ether;
         uint256 time = 200;
 
@@ -548,6 +757,8 @@ contract TestController is Test {
 
     function testPartConsumeMintPending() external {
         _setLimits();
+        _setConnectorPoolId();
+
         uint256 depositAmount = 120 ether;
         uint256 time = 5;
         deal(address(_token), address(_controller), depositAmount, true);

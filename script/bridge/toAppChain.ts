@@ -11,8 +11,8 @@ import {
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 
-const srcChain = ChainSlug.ARBITRUM_GOERLI;
-const dstChain = ChainSlug.AEVO_TESTNET;
+const srcChain = ChainSlug.SEPOLIA;
+const dstChain = ChainSlug.LYRA_TESTNET;
 const gasLimit = 1000000;
 let amount = utils.parseUnits(
   "10",
@@ -36,7 +36,7 @@ export const main = async () => {
 
     const vaultAddr = addr.Vault;
     const tokenAddr = addr.NonMintableToken;
-    const connectorAddr = addr.connectors?.[dstChain]?.FAST;
+    const connectorAddr = addr.connectors?.[dstChain]?.NATIVE_BRIDGE;
 
     if (!vaultAddr || !tokenAddr || !connectorAddr)
       throw new Error("Some contract addresses missing");

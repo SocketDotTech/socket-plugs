@@ -14,9 +14,7 @@
       "0x1bcEC7D79b274F01DB2a70D11f4e2907C04E64DF",
       "Vault",
       "src/Vault.sol",
-      [
-        "0xa23C9E4e3c65729059F12a0463F8c938e0A464d7"
-      ]
+      ["0xa23C9E4e3c65729059F12a0463F8c938e0A464d7"]
     ]
   ],
   "901": [
@@ -71,9 +69,7 @@
       "0x1F0F1FC746fcd4d59b6dBDDFf67a88cde70dAeE5",
       "Vault",
       "src/Vault.sol",
-      [
-        "0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E"
-      ]
+      ["0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E"]
     ]
   ]
 }
