@@ -83,10 +83,10 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          depositLimit: "50000",
-          depositRate: "0.5787",
-          withdrawLimit: "50000",
-          withdrawRate: "0.5787",
+          depositLimit: "200000",
+          depositRate: "2.3148",
+          withdrawLimit: "200000",
+          withdrawRate: "2.3148",
           poolCount: 0
         },
       },
