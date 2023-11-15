@@ -61,9 +61,7 @@
       "0x040993fbF458b95871Cd2D73Ee2E09F4AF6d56bB",
       "Vault",
       "src/Vault.sol",
-      [
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
-      ]
+      ["0x565810cbfa3Cf1390963E5aFa2fB953795686339"]
     ]
   ]
 }

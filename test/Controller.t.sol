@@ -6,6 +6,7 @@ import "../src/MintableToken.sol";
 import "../src/Controller.sol";
 import "../src/ExchangeRate.sol";
 import "forge-std/console.sol";
+
 contract TestController is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
@@ -165,7 +166,7 @@ contract TestController is Test {
         );
     }
 
-   function testInvalidPoolIdReceiveInbound() external {
+    function testInvalidPoolIdReceiveInbound() external {
         uint256 withdrawAmount = 2 ether;
         _setLimits();
         vm.prank(_connector);

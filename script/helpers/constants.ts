@@ -73,7 +73,7 @@ const _projectConstants: ProjectConstants = {
           depositRate: "0.5787",
           withdrawLimit: "50000",
           withdrawRate: "0.5787",
-          poolCount: 0
+          poolCount: 0,
         },
       },
     },
@@ -87,7 +87,7 @@ const _projectConstants: ProjectConstants = {
           depositRate: "2.3148",
           withdrawLimit: "200000",
           withdrawRate: "2.3148",
-          poolCount: 0
+          poolCount: 0,
         },
       },
     },
@@ -103,7 +103,7 @@ const _projectConstants: ProjectConstants = {
           depositRate: "0.11574",
           withdrawLimit: "10000",
           withdrawRate: "0.11574",
-          poolCount: 0
+          poolCount: 0,
         },
       },
     },
@@ -117,14 +117,14 @@ const _projectConstants: ProjectConstants = {
           depositRate: "0",
           withdrawLimit: "10000",
           withdrawRate: "0.11574",
-          poolCount: 0
+          poolCount: 0,
         },
         [IntegrationTypes.native]: {
           depositLimit: "10000",
           depositRate: "0.11574",
           withdrawLimit: "0",
           withdrawRate: "0",
-          poolCount: 0
+          poolCount: 0,
         },
       },
     },
@@ -161,7 +161,10 @@ export const getIntegrationTypeConsts = (it: IntegrationTypes) => {
   return pci;
 };
 
-export const getLimitBN = (it: IntegrationTypes, isDeposit: boolean): BigNumber => {
+export const getLimitBN = (
+  it: IntegrationTypes,
+  isDeposit: boolean
+): BigNumber => {
   if (isDeposit) {
     return utils.parseUnits(
       getIntegrationTypeConsts(it).depositLimit,
@@ -175,7 +178,10 @@ export const getLimitBN = (it: IntegrationTypes, isDeposit: boolean): BigNumber 
   }
 };
 
-export const getRateBN = (it: IntegrationTypes, isDeposit: boolean): BigNumber => {
+export const getRateBN = (
+  it: IntegrationTypes,
+  isDeposit: boolean
+): BigNumber => {
   if (isDeposit) {
     return utils.parseUnits(
       getIntegrationTypeConsts(it).depositRate,

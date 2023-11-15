@@ -117,8 +117,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
         uint256 msgGasLimit_,
         address connector_
     ) external payable {
-        if (burnAmount_ == 0)
-            revert ZeroAmount();
+        if (burnAmount_ == 0) revert ZeroAmount();
 
         if (_burnLimitParams[connector_].maxLimit == 0)
             revert ConnectorUnavailable();

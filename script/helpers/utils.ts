@@ -9,7 +9,12 @@ import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
 import { TokenAddresses, ProjectAddresses } from "./types";
-import { getIntegrationTypeConsts, mode, project, projectConstants } from "./constants";
+import {
+  getIntegrationTypeConsts,
+  mode,
+  project,
+  projectConstants,
+} from "./constants";
 
 export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
 
@@ -210,23 +215,17 @@ export const createObj = function (obj: any, keys: string[], value: any): any {
   return obj;
 };
 
-
-export function encodePoolId(
-  chainSlug: number,
-  poolCount: number
-) {
-  const encodedValue =
-    (BigInt(chainSlug) << BigInt(224)) |
-    BigInt(poolCount);
+export function encodePoolId(chainSlug: number, poolCount: number) {
+  const encodedValue = (BigInt(chainSlug) << BigInt(224)) | BigInt(poolCount);
 
   // Ensure the result is a 32-byte hex string (bytes32 in Solidity)
   const resultHex = encodedValue.toString(16).padStart(64, "0");
   return "0x" + resultHex;
 }
 
-export const getPoolIdHex = (chainSlug:ChainSlug, it: IntegrationTypes): string => { 
-  return encodePoolId(
-    chainSlug,
-    getIntegrationTypeConsts(it).poolCount
-  );
+export const getPoolIdHex = (
+  chainSlug: ChainSlug,
+  it: IntegrationTypes
+): string => {
+  return encodePoolId(chainSlug, getIntegrationTypeConsts(it).poolCount);
 };

@@ -90,9 +90,7 @@ contract Vault is Gauge, IHub, Ownable2Step {
         uint256 msgGasLimit_,
         address connector_
     ) external payable {
-
-        if (amount_ == 0)
-            revert ZeroAmount();
+        if (amount_ == 0) revert ZeroAmount();
 
         if (_lockLimitParams[connector_].maxLimit == 0)
             revert ConnectorUnavailable();

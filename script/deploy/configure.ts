@@ -8,12 +8,16 @@ import {
 } from "@socket.tech/dl-core";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getInstance, getProjectAddresses, getPoolIdHex } from "../helpers/utils";
+import {
+  getInstance,
+  getProjectAddresses,
+  getPoolIdHex,
+} from "../helpers/utils";
 import {
   projectConstants,
   mode,
   getLimitBN,
-  getRateBN
+  getRateBN,
 } from "../helpers/constants";
 import {
   CONTRACTS,
@@ -122,17 +126,23 @@ export const main = async () => {
 
           console.log(`Setting vault limits for ${chain} - COMPLETED`);
 
-          if (addr.isAppChain && connectorAddresses.length && connectorPoolIds.length) {
-            let tx = await contract.updateConnectorPoolId(connectorAddresses, connectorPoolIds, {
-              ...overrides[chain],
-            });
+          if (
+            addr.isAppChain &&
+            connectorAddresses.length &&
+            connectorPoolIds.length
+          ) {
+            let tx = await contract.updateConnectorPoolId(
+              connectorAddresses,
+              connectorPoolIds,
+              {
+                ...overrides[chain],
+              }
+            );
             console.log(chain, tx.hash);
             await tx.wait();
 
             console.log(`Setting pool Ids for ${chain} - COMPLETED`);
           }
-
-
         }
       )
     );
@@ -145,8 +155,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
-      ? CORE_CONTRACTS.OptimisticSwitchboard
-      : CORE_CONTRACTS.NativeSwitchboard;
+    ? CORE_CONTRACTS.OptimisticSwitchboard
+    : CORE_CONTRACTS.NativeSwitchboard;
 
 const connect = async (
   addr: TokenAddresses,
@@ -163,7 +173,7 @@ const connect = async (
         addr.connectors?.[sibling];
       const siblingConnectorAddresses: ConnectorAddresses | undefined =
         addresses?.[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-        chain
+          chain
         ];
       if (!localConnectorAddresses || !siblingConnectorAddresses) continue;
 
@@ -177,10 +187,14 @@ const connect = async (
         const localConnectorPlug = localConnectorAddresses[integration];
         if (!localConnectorPlug || !siblingConnectorPlug) continue;
 
-        const switchboard = getAddresses(chain, mode).integrations[sibling][integration]?.switchboard;
+        const switchboard = getAddresses(chain, mode).integrations[sibling][
+          integration
+        ]?.switchboard;
 
         if (!switchboard) {
-          console.log(`switchboard not found for ${chain}, ${sibling}, ${integration}`);
+          console.log(
+            `switchboard not found for ${chain}, ${sibling}, ${integration}`
+          );
         }
 
         let config = await socketContract.getPlugConfig(
