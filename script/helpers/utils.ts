@@ -8,15 +8,18 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import { TokenAddresses, ProjectAddresses } from "./types";
 import {
   getIntegrationTypeConsts,
   mode,
   project,
   projectConstants,
 } from "./constants";
+import { ProjectAddresses, TokenAddresses } from "../../src";
 
-export const deploymentsPath = path.join(__dirname, `/../../deployments/`);
+export const deploymentsPath = path.join(
+  __dirname,
+  `/../../deployments/superbridge`
+);
 
 export const deployedAddressPath = () =>
   deploymentsPath + `${mode}_${project}_addresses.json`;
@@ -160,7 +163,7 @@ export const getProjectAddresses = async (): Promise<ProjectAddresses> => {
   if (!addresses)
     try {
       addresses = await import(
-        `../../deployments/${mode}_${project}_addresses.json`
+        `../../deployments/superbridge/${mode}_${project}_addresses.json`
       );
     } catch (e) {
       console.log("addresses not found", e);

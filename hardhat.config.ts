@@ -126,7 +126,7 @@ const config: HardhatUserConfig = {
     ),
   },
   paths: {
-    sources: "./src",
+    sources: "./contracts",
     cache: "./cache_hardhat",
     artifacts: "./artifacts",
     tests: "./test",

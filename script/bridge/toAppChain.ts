@@ -3,13 +3,13 @@ import { BigNumber, Contract, utils } from "ethers";
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
 import { projectConstants, tokenDecimals } from "../helpers/constants";
-import {
-  CONTRACTS,
-  ChainAddresses,
-  NonAppChainAddresses,
-} from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
+import {
+  SuperBridgeContracts,
+  ChainAddresses,
+  NonAppChainAddresses,
+} from "../../src";
 
 const srcChain = ChainSlug.SEPOLIA;
 const dstChain = ChainSlug.LYRA_TESTNET;
@@ -44,10 +44,10 @@ export const main = async () => {
     const socketSigner = getSignerFromChainSlug(srcChain);
 
     const vault: Contract = (
-      await getInstance(CONTRACTS.Vault, vaultAddr)
+      await getInstance(SuperBridgeContracts.Vault, vaultAddr)
     ).connect(socketSigner);
     const token: Contract = (
-      await getInstance(CONTRACTS.NonMintableToken, tokenAddr)
+      await getInstance(SuperBridgeContracts.NonMintableToken, tokenAddr)
     ).connect(socketSigner);
 
     // approve

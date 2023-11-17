@@ -6,8 +6,8 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Tokens, Project } from "./types";
 import { BigNumber, utils } from "ethers";
+import { Project, Tokens } from "../../src";
 
 if (!process.env.SOCKET_OWNER_ADDRESS)
   throw Error("Socket owner address not present");

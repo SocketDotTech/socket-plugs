@@ -21,12 +21,12 @@ import {
   storeAddresses,
 } from "../helpers/utils";
 import {
-  CONTRACTS,
+  AppChainAddresses,
+  SuperBridgeContracts,
+  NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
-  AppChainAddresses,
-  NonAppChainAddresses,
-} from "../helpers/types";
+} from "../../src";
 
 export interface ReturnObj {
   allDeployed: boolean;
@@ -155,7 +155,7 @@ const deployConnectors = async (
     for (let intType of integrationTypes) {
       console.log(hub, socket, sibling);
       const connector: Contract = await getOrDeploy(
-        CONTRACTS.ConnectorPlug,
+        SuperBridgeContracts.ConnectorPlug,
         "src/ConnectorPlug.sol",
         [hub, socket, sibling],
         deployParams
@@ -184,23 +184,28 @@ const deployAppChainContracts = async (
 ): Promise<DeployParams> => {
   try {
     const exchangeRate: Contract = await getOrDeploy(
-      CONTRACTS.ExchangeRate,
+      SuperBridgeContracts.ExchangeRate,
       "src/ExchangeRate.sol",
       [],
       deployParams
     );
-    deployParams.addresses[CONTRACTS.ExchangeRate] = exchangeRate.address;
+    deployParams.addresses[SuperBridgeContracts.ExchangeRate] =
+      exchangeRate.address;
 
-    if (!deployParams.addresses[CONTRACTS.MintableToken])
+    if (!deployParams.addresses[SuperBridgeContracts.MintableToken])
       throw new Error("Token not found on app chain");
 
     const controller: Contract = await getOrDeploy(
-      CONTRACTS.Controller,
+      SuperBridgeContracts.Controller,
       "src/Controller.sol",
-      [deployParams.addresses[CONTRACTS.MintableToken], exchangeRate.address],
+      [
+        deployParams.addresses[SuperBridgeContracts.MintableToken],
+        exchangeRate.address,
+      ],
       deployParams
     );
-    deployParams.addresses[CONTRACTS.Controller] = controller.address;
+    deployParams.addresses[SuperBridgeContracts.Controller] =
+      controller.address;
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
   } catch (error) {
@@ -213,16 +218,16 @@ const deployNonAppChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
-    if (!deployParams.addresses[CONTRACTS.NonMintableToken])
+    if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])
       throw new Error("Token not found on chain");
 
     const vault: Contract = await getOrDeploy(
-      CONTRACTS.Vault,
+      SuperBridgeContracts.Vault,
       "src/Vault.sol",
-      [deployParams.addresses[CONTRACTS.NonMintableToken]],
+      [deployParams.addresses[SuperBridgeContracts.NonMintableToken]],
       deployParams
     );
-    deployParams.addresses[CONTRACTS.Vault] = vault.address;
+    deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
   } catch (error) {

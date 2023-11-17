@@ -2,9 +2,9 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "../src/NonMintableToken.sol";
-import "../src/ConnectorPlug.sol";
-import "../src/Vault.sol";
+import "../contracts/superbridge/NonMintableToken.sol";
+import "../contracts/superbridge/ConnectorPlug.sol";
+import "../contracts/superbridge/Vault.sol";
 
 contract TestVault is Test {
     uint256 _c;
