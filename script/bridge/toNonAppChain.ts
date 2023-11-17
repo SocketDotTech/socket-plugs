@@ -4,9 +4,13 @@ import { BigNumber, Contract, utils } from "ethers";
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
 import { tokenDecimals, projectConstants } from "../helpers/constants";
-import { CONTRACTS, ChainAddresses, AppChainAddresses } from "../helpers/types";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
+import {
+  AppChainAddresses,
+  SuperBridgeContracts,
+  ChainAddresses,
+} from "../../src";
 
 const srcChain = ChainSlug.LYRA_TESTNET;
 const dstChain = ChainSlug.SEPOLIA;
@@ -42,10 +46,10 @@ export const main = async () => {
     const socketSigner = getSignerFromChainSlug(srcChain);
 
     const controller: Contract = (
-      await getInstance(CONTRACTS.Controller, controllerAddr)
+      await getInstance(SuperBridgeContracts.Controller, controllerAddr)
     ).connect(socketSigner);
     const token: Contract = (
-      await getInstance(CONTRACTS.MintableToken, tokenAddr)
+      await getInstance(SuperBridgeContracts.MintableToken, tokenAddr)
     ).connect(socketSigner);
 
     // approve

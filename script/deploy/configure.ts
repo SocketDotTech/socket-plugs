@@ -19,16 +19,16 @@ import {
   getLimitBN,
   getRateBN,
 } from "../helpers/constants";
-import {
-  CONTRACTS,
-  TokenAddresses,
-  ProjectAddresses,
-  NonAppChainAddresses,
-  AppChainAddresses,
-  Connectors,
-  ConnectorAddresses,
-} from "../helpers/types";
 import { getSocket } from "../bridge/utils";
+import {
+  AppChainAddresses,
+  SuperBridgeContracts,
+  ConnectorAddresses,
+  Connectors,
+  NonAppChainAddresses,
+  ProjectAddresses,
+  TokenAddresses,
+} from "../../src";
 
 type UpdateLimitParams = [
   boolean,
@@ -107,14 +107,17 @@ export const main = async () => {
               console.log("Controller not found");
               return;
             }
-            contract = await getInstance(CONTRACTS.Controller, a.Controller);
+            contract = await getInstance(
+              SuperBridgeContracts.Controller,
+              a.Controller
+            );
           } else {
             const a = addr as NonAppChainAddresses;
             if (!a.Vault) {
               console.log("Vault not found");
               return;
             }
-            contract = await getInstance(CONTRACTS.Vault, a.Vault);
+            contract = await getInstance(SuperBridgeContracts.Vault, a.Vault);
           }
 
           contract = contract.connect(socketSigner);
@@ -208,7 +211,10 @@ const connect = async (
         }
 
         const connectorContract = (
-          await getInstance(CONTRACTS.ConnectorPlug, localConnectorPlug)
+          await getInstance(
+            SuperBridgeContracts.ConnectorPlug,
+            localConnectorPlug
+          )
         ).connect(socketSigner);
 
         let tx = await connectorContract.functions["connect"](

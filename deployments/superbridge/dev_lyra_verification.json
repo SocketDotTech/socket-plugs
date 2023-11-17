@@ -3,7 +3,7 @@
     [
       "0x3639bA9D2eCBA74d92Ea400f9E0AA9BA0F79Cc34",
       "ConnectorPlug",
-      "src/ConnectorPlug.sol",
+      "contracts/superbridge/ConnectorPlug.sol",
       [
         "0x1bcEC7D79b274F01DB2a70D11f4e2907C04E64DF",
         "0xD97B9F7fF00E252C0abAa6ce0E13B5F6d9185202",
@@ -13,7 +13,7 @@
     [
       "0x1bcEC7D79b274F01DB2a70D11f4e2907C04E64DF",
       "Vault",
-      "src/Vault.sol",
+      "contracts/superbridge/Vault.sol",
       ["0xa23C9E4e3c65729059F12a0463F8c938e0A464d7"]
     ]
   ],
@@ -21,7 +21,7 @@
     [
       "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
       "ConnectorPlug",
-      "src/ConnectorPlug.sol",
+      "contracts/superbridge/ConnectorPlug.sol",
       [
         "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
         "0xa5b593aE839b3fe47983Fc28da602a6dEEfBBc9D",
@@ -31,7 +31,7 @@
     [
       "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
       "ConnectorPlug",
-      "src/ConnectorPlug.sol",
+      "contracts/superbridge/ConnectorPlug.sol",
       [
         "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
         "0xa5b593aE839b3fe47983Fc28da602a6dEEfBBc9D",
@@ -41,7 +41,7 @@
     [
       "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
       "Controller",
-      "src/Controller.sol",
+      "contracts/superbridge/Controller.sol",
       [
         "0xe80F2a02398BBf1ab2C9cc52caD1978159c215BD",
         "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf"
@@ -50,7 +50,7 @@
     [
       "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
       "ExchangeRate",
-      "src/ExchangeRate.sol",
+      "contracts/superbridge/ExchangeRate.sol",
       []
     ]
   ],
@@ -58,7 +58,7 @@
     [
       "0xD9edcC943ed9729B08E52Bb1e110FE43d1930773",
       "ConnectorPlug",
-      "src/ConnectorPlug.sol",
+      "contracts/superbridge/ConnectorPlug.sol",
       [
         "0x1F0F1FC746fcd4d59b6dBDDFf67a88cde70dAeE5",
         "0x5a90a285ab72393B2c47168374895a5C8101012c",
@@ -68,7 +68,7 @@
     [
       "0x1F0F1FC746fcd4d59b6dBDDFf67a88cde70dAeE5",
       "Vault",
-      "src/Vault.sol",
+      "contracts/superbridge/Vault.sol",
       ["0x010d1DB73263C6ECDD1C1C8711fD79BBb01E719E"]
     ]
   ]

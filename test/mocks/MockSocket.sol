@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
-import "../../src/interfaces/ISocket.sol";
-import "../../src/interfaces/IPlug.sol";
+import "../../contracts/interfaces/ISocket.sol";
+import "../../contracts/interfaces/IPlug.sol";
 
 contract MockSocket is ISocket {
     uint32 _localSlug;

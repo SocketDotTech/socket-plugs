@@ -1,8 +1,8 @@
 pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
-import {ISocket} from "./interfaces/ISocket.sol";
-import {IPlug} from "./interfaces/IPlug.sol";
+import {ISocket} from "../interfaces/ISocket.sol";
+import {IPlug} from "../interfaces/IPlug.sol";
 import {RescueFundsLib} from "./RescueFundsLib.sol";
 
 interface IHub {

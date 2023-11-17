@@ -1,4 +1,4 @@
-import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
+import { ChainSlug, IntegrationTypes } from "./core";
 
 export enum Tokens {
   Moon = "MOON",
@@ -11,7 +11,7 @@ export enum Project {
   SX_NETWORK_TESTNET = "sx-network-testnet",
 }
 
-export enum CONTRACTS {
+export enum SuperBridgeContracts {
   MintableToken = "MintableToken",
   NonMintableToken = "NonMintableToken",
   Vault = "Vault",
@@ -32,16 +32,16 @@ export type TokenAddresses = AppChainAddresses | NonAppChainAddresses;
 
 export interface AppChainAddresses {
   isAppChain: true;
-  [CONTRACTS.MintableToken]?: string;
-  [CONTRACTS.Controller]?: string;
-  [CONTRACTS.ExchangeRate]?: string;
+  [SuperBridgeContracts.MintableToken]?: string;
+  [SuperBridgeContracts.Controller]?: string;
+  [SuperBridgeContracts.ExchangeRate]?: string;
   connectors?: Connectors;
 }
 
 export interface NonAppChainAddresses {
   isAppChain: false;
-  [CONTRACTS.NonMintableToken]?: string;
-  [CONTRACTS.Vault]?: string;
+  [SuperBridgeContracts.NonMintableToken]?: string;
+  [SuperBridgeContracts.Vault]?: string;
   connectors?: Connectors;
 }
 
