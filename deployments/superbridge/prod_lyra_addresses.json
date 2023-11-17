@@ -1,0 +1,29 @@
+{
+  "1": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "Vault": "0x6D303CEE7959f814042D31E0624fB88Ec6fbcC1d",
+      "connectors": {
+        "957": {
+          "FAST": "0x200AF8FCdD5246D70B369A98143Ac8930A077B7A",
+          "NATIVE_BRIDGE": "0x22d8360eB04F46195c7B02A66658C375948d8A99"
+        }
+      }
+    }
+  },
+  "957": {
+    "USDC": {
+      "isAppChain": true,
+      "MintableToken": "0x6879287835A86F50f784313dBEd5E5cCC5bb8481",
+      "ExchangeRate": "0x64107EB9DC50E79Fb3977b9D6C927f9B9C5Bd218",
+      "Controller": "0xdf4Dc41c54482B5077572723828d1AfA2266D697",
+      "connectors": {
+        "1": {
+          "FAST": "0x0C0858290b6b268a93fB557af06390A3460c5dB6",
+          "NATIVE_BRIDGE": "0x23307E24D936b785FBa3Bc49c41B9AD5b4d261b3"
+        }
+      }
+    }
+  }
+}

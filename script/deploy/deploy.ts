@@ -156,7 +156,7 @@ const deployConnectors = async (
       console.log(hub, socket, sibling);
       const connector: Contract = await getOrDeploy(
         SuperBridgeContracts.ConnectorPlug,
-        "src/ConnectorPlug.sol",
+        "contracts/superbridge/ConnectorPlug.sol",
         [hub, socket, sibling],
         deployParams
       );
@@ -185,7 +185,7 @@ const deployAppChainContracts = async (
   try {
     const exchangeRate: Contract = await getOrDeploy(
       SuperBridgeContracts.ExchangeRate,
-      "src/ExchangeRate.sol",
+      "contracts/superbridge/ExchangeRate.sol",
       [],
       deployParams
     );
@@ -197,7 +197,7 @@ const deployAppChainContracts = async (
 
     const controller: Contract = await getOrDeploy(
       SuperBridgeContracts.Controller,
-      "src/Controller.sol",
+      "contracts/superbridge/Controller.sol",
       [
         deployParams.addresses[SuperBridgeContracts.MintableToken],
         exchangeRate.address,
@@ -223,7 +223,7 @@ const deployNonAppChainContracts = async (
 
     const vault: Contract = await getOrDeploy(
       SuperBridgeContracts.Vault,
-      "src/Vault.sol",
+      "contracts/superbridge/Vault.sol",
       [deployParams.addresses[SuperBridgeContracts.NonMintableToken]],
       deployParams
     );

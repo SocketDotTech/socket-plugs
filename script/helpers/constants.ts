@@ -129,6 +129,29 @@ const _projectConstants: ProjectConstants = {
       },
     },
   },
+  [Project.LYRA]: {
+    [DeploymentMode.PROD]: {
+      appChain: ChainSlug.LYRA,
+      nonAppChains: [ChainSlug.MAINNET],
+      tokenToBridge: Tokens.USDC,
+      integrationTypes: {
+        [IntegrationTypes.fast]: {
+          depositLimit: "0",
+          depositRate: "0",
+          withdrawLimit: "10000",
+          withdrawRate: "0.11574",
+          poolCount: 0,
+        },
+        [IntegrationTypes.native]: {
+          depositLimit: "10000",
+          depositRate: "0.11574",
+          withdrawLimit: "0",
+          withdrawRate: "0",
+          poolCount: 0,
+        },
+      },
+    },
+  },
   [Project.SX_NETWORK_TESTNET]: {
     [DeploymentMode.PROD]: {
       appChain: ChainSlug.SX_NETWORK_TESTNET,

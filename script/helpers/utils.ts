@@ -18,7 +18,7 @@ import { ProjectAddresses, TokenAddresses } from "../../src";
 
 export const deploymentsPath = path.join(
   __dirname,
-  `/../../deployments/superbridge`
+  `/../../deployments/superbridge/`
 );
 
 export const deployedAddressPath = () =>
