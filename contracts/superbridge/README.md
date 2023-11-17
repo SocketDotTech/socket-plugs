@@ -1,3 +1,5 @@
+![Superbridge Architecture](arch.jpg)
+
 ### Gauge
 
 - Abstract contract used to implement rate limits.
