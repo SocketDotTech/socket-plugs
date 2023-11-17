@@ -7,6 +7,7 @@ export enum Tokens {
 
 export enum Project {
   AEVO = "aevo",
+  LYRA_TESTNET = "lyra-testnet",
   LYRA = "lyra",
   SX_NETWORK_TESTNET = "sx-network-testnet",
 }

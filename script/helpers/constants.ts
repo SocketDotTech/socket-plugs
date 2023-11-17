@@ -92,7 +92,7 @@ const _projectConstants: ProjectConstants = {
       },
     },
   },
-  [Project.LYRA]: {
+  [Project.LYRA_TESTNET]: {
     [DeploymentMode.DEV]: {
       appChain: ChainSlug.LYRA_TESTNET,
       nonAppChains: [ChainSlug.ARBITRUM_GOERLI, ChainSlug.OPTIMISM_GOERLI],
