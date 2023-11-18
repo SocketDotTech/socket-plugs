@@ -4,7 +4,7 @@ import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {IExchangeRate} from "./ExchangeRate.sol";
 import {Gauge} from "./Gauge.sol";
 import {IConnector, IHub} from "./ConnectorPlug.sol";
-import {IMintableERC20} from "./MintableToken.sol";
+import {IMintableERC20} from "./IMintableERC20.sol";
 import {RescueFundsLib} from "./RescueFundsLib.sol";
 
 contract Controller is IHub, Gauge, Ownable2Step {

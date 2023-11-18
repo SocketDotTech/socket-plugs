@@ -2,7 +2,7 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "../contracts/superbridge/MintableToken.sol";
+import "./mocks/MintableToken.sol";
 import "../contracts/superbridge/Controller.sol";
 import "../contracts/superbridge/ExchangeRate.sol";
 import "forge-std/console.sol";
