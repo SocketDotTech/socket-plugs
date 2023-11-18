@@ -196,8 +196,12 @@ const deployAppChainContracts = async (
       throw new Error("Token not found on app chain");
 
     const controller: Contract = await getOrDeploy(
-      SuperBridgeContracts.Controller,
-      "contracts/superbridge/Controller.sol",
+      projectConstants.isFiatTokenV2_1
+        ? SuperBridgeContracts.FiatTokenV2_1_Controller
+        : SuperBridgeContracts.Controller,
+      projectConstants.isFiatTokenV2_1
+        ? "contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
+        : "contracts/superbridge/Controller.sol",
       [
         deployParams.addresses[SuperBridgeContracts.MintableToken],
         exchangeRate.address,

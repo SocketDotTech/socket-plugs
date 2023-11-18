@@ -48,6 +48,7 @@ export type ProjectConstants = {
       appChain: ChainSlug;
       nonAppChains: ChainSlug[];
       tokenToBridge: Tokens;
+      isFiatTokenV2_1?: boolean;
       integrationTypes: {
         [key in IntegrationTypes]?: {
           depositLimit: string;
@@ -134,6 +135,7 @@ const _projectConstants: ProjectConstants = {
       appChain: ChainSlug.LYRA,
       nonAppChains: [ChainSlug.MAINNET],
       tokenToBridge: Tokens.USDC,
+      isFiatTokenV2_1: true,
       integrationTypes: {
         [IntegrationTypes.fast]: {
           depositLimit: "0",

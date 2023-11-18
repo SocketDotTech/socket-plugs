@@ -17,6 +17,7 @@ export enum SuperBridgeContracts {
   NonMintableToken = "NonMintableToken",
   Vault = "Vault",
   Controller = "Controller",
+  FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
   ExchangeRate = "ExchangeRate",
   ConnectorPlug = "ConnectorPlug",
 }
