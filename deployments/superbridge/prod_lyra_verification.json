@@ -29,49 +29,29 @@
   ],
   "957": [
     [
-      "0x23307E24D936b785FBa3Bc49c41B9AD5b4d261b3",
+      "0x19609EeE157BC38E1A40E19c38218fC3900d97ac",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
       [
-        "0xdf4Dc41c54482B5077572723828d1AfA2266D697",
+        "0x4C9faD010D8be90Aba505c85eacc483dFf9b8Fa9",
         "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
         1
       ]
     ],
     [
-      "0x0C0858290b6b268a93fB557af06390A3460c5dB6",
+      "0x1281C1464449DB73bdAa30928BCC63Dc25D8D187",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
       [
-        "0xdf4Dc41c54482B5077572723828d1AfA2266D697",
+        "0x4C9faD010D8be90Aba505c85eacc483dFf9b8Fa9",
         "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
         1
       ]
     ],
     [
-      "0x3dAfeC208802E582fB33D72b4C53F3c6C36fb7eB",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0xdf4Dc41c54482B5077572723828d1AfA2266D697",
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-        1
-      ]
-    ],
-    [
-      "0x807B2e8724cDf346c87EEFF4E309bbFCb8681eC1",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0xdf4Dc41c54482B5077572723828d1AfA2266D697",
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-        1
-      ]
-    ],
-    [
-      "0xdf4Dc41c54482B5077572723828d1AfA2266D697",
-      "Controller",
-      "contracts/superbridge/Controller.sol",
+      "0x4C9faD010D8be90Aba505c85eacc483dFf9b8Fa9",
+      "FiatTokenV2_1_Controller",
+      "contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol",
       [
         "0x6879287835A86F50f784313dBEd5E5cCC5bb8481",
         "0x64107EB9DC50E79Fb3977b9D6C927f9B9C5Bd218"
