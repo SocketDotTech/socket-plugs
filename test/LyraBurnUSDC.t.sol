@@ -13,7 +13,7 @@ interface IMintable {
     function configureMinter(address minter, uint256 amount) external;
 }
 
-contract TestDebug is Test {
+contract LyraBurnUSDC is Test {
     address me = 0x5fD7D0d6b91CC4787Bcb86ca47e0Bd4ea0346d34;
     address usdc = 0x6879287835A86F50f784313dBEd5E5cCC5bb8481;
     address usdcAdmin = 0x09572935af645fA82F67673FAB0928b2Aa01835b;
