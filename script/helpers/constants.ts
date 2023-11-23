@@ -114,15 +114,15 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          depositLimit: "0",
-          depositRate: "0",
-          withdrawLimit: "10000",
-          withdrawRate: "0.11574",
+          depositLimit: "100000",
+          depositRate: "1.1574",
+          withdrawLimit: "100000",
+          withdrawRate: "1.1574",
           poolCount: 0,
         },
         [IntegrationTypes.native]: {
-          depositLimit: "10000",
-          depositRate: "0.11574",
+          depositLimit: "100000",
+          depositRate: "1.1574",
           withdrawLimit: "0",
           withdrawRate: "0",
           poolCount: 0,
@@ -138,8 +138,8 @@ const _projectConstants: ProjectConstants = {
       isFiatTokenV2_1: true,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          depositLimit: "0",
-          depositRate: "0",
+          depositLimit: "10000",
+          depositRate: "0.11574",
           withdrawLimit: "10000",
           withdrawRate: "0.11574",
           poolCount: 0,

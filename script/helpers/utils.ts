@@ -115,8 +115,7 @@ export const sleep = (delay: number) =>
 export const getInstance = async (
   contractName: string,
   address: Address
-): Promise<Contract> =>
-  (await ethers.getContractFactory(contractName)).attach(address);
+): Promise<Contract> => ethers.getContractAt(contractName, address);
 
 export const getChainSlug = async (): Promise<number> => {
   if (network.config.chainId === undefined)
