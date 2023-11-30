@@ -13,9 +13,9 @@ import {
 
 const srcChain = ChainSlug.SEPOLIA;
 const dstChain = ChainSlug.LYRA_TESTNET;
-const gasLimit = 1000000;
+const gasLimit = 500_000;
 let amount = utils.parseUnits(
-  "10",
+  "1",
   tokenDecimals[projectConstants.tokenToBridge]
 );
 
@@ -36,7 +36,7 @@ export const main = async () => {
 
     const vaultAddr = addr.Vault;
     const tokenAddr = addr.NonMintableToken;
-    const connectorAddr = addr.connectors?.[dstChain]?.NATIVE_BRIDGE;
+    const connectorAddr = addr.connectors?.[dstChain]?.FAST;
 
     if (!vaultAddr || !tokenAddr || !connectorAddr)
       throw new Error("Some contract addresses missing");
@@ -46,9 +46,9 @@ export const main = async () => {
     const vault: Contract = (
       await getInstance(SuperBridgeContracts.Vault, vaultAddr)
     ).connect(socketSigner);
-    const token: Contract = (
-      await getInstance(SuperBridgeContracts.NonMintableToken, tokenAddr)
-    ).connect(socketSigner);
+    const token: Contract = (await getInstance("ERC20", tokenAddr)).connect(
+      socketSigner
+    );
 
     // approve
     const balance: BigNumber = await token.balanceOf(socketSigner.address);
@@ -62,7 +62,10 @@ export const main = async () => {
       vault.address
     );
     if (currentApproval.lt(amount)) {
-      const approveTx = await token.approve(vault.address, amount);
+      const approveTx = await token.approve(vault.address, amount, {
+        ...overrides[srcChain],
+        gasLimit: 200_000,
+      });
       console.log("Tokens approved: ", approveTx.hash);
       await approveTx.wait();
     }

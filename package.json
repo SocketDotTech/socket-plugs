@@ -1,7 +1,7 @@
 {
   "name": "@socket.tech/socket-plugs",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.0.2-test.0",
   "description": "Plugs built using socket's data layer",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

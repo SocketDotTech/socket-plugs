@@ -7,6 +7,8 @@ export enum Tokens {
 
 export enum Project {
   AEVO = "aevo",
+  AEVO_TESTNET = "aevo-testnet",
+  LYRA_TESTNET = "lyra-testnet",
   LYRA = "lyra",
   SX_NETWORK_TESTNET = "sx-network-testnet",
 }
@@ -16,6 +18,7 @@ export enum SuperBridgeContracts {
   NonMintableToken = "NonMintableToken",
   Vault = "Vault",
   Controller = "Controller",
+  FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
   ExchangeRate = "ExchangeRate",
   ConnectorPlug = "ConnectorPlug",
 }
@@ -51,4 +54,12 @@ export type Connectors = {
 
 export type ConnectorAddresses = {
   [integration in IntegrationTypes]?: string;
+};
+
+export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
+  [ChainSlug.AEVO]: Project.AEVO,
+  [ChainSlug.AEVO_TESTNET]: Project.AEVO_TESTNET,
+  [ChainSlug.LYRA_TESTNET]: Project.LYRA_TESTNET,
+  [ChainSlug.LYRA]: Project.LYRA,
+  [ChainSlug.SX_NETWORK_TESTNET]: Project.SX_NETWORK_TESTNET,
 };

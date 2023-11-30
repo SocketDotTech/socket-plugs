@@ -1,15 +1,13 @@
 pragma solidity 0.8.13;
 
-import "solmate/utils/SafeTransferLib.sol";
 import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {IExchangeRate} from "./ExchangeRate.sol";
 import {Gauge} from "./Gauge.sol";
 import {IConnector, IHub} from "./ConnectorPlug.sol";
-import {IMintableERC20} from "./MintableToken.sol";
+import {IMintableERC20} from "./IMintableERC20.sol";
 import {RescueFundsLib} from "./RescueFundsLib.sol";
 
 contract Controller is IHub, Gauge, Ownable2Step {
-    using SafeTransferLib for IMintableERC20;
     IMintableERC20 public immutable token__;
     IExchangeRate public exchangeRate__;
 
@@ -125,7 +123,7 @@ contract Controller is IHub, Gauge, Ownable2Step {
         _consumeFullLimit(burnAmount_, _burnLimitParams[connector_]); // reverts on limit hit
 
         totalMinted -= burnAmount_;
-        token__.burn(msg.sender, burnAmount_);
+        _burn(msg.sender, burnAmount_);
 
         uint256 connectorPoolId = connectorPoolIds[connector_];
         if (connectorPoolId == 0) revert InvalidPoolId();
@@ -141,6 +139,10 @@ contract Controller is IHub, Gauge, Ownable2Step {
         );
 
         emit TokensWithdrawn(connector_, msg.sender, receiver_, burnAmount_);
+    }
+
+    function _burn(address user_, uint256 burnAmount_) internal virtual {
+        token__.burn(user_, burnAmount_);
     }
 
     function mintPendingFor(address receiver_, address connector_) external {

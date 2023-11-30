@@ -1,27 +1,27 @@
 {
-  "901": {
+  "1": {
     "USDC": {
-      "isAppChain": true,
-      "MintableToken": "0xe80F2a02398BBf1ab2C9cc52caD1978159c215BD",
-      "ExchangeRate": "0xD9e492C3899aC768F67aD9AdC0Ce88aAB5463f60",
-      "Controller": "0xBD9f6198a220046E944D704b7ff2A68b778F4A44",
+      "isAppChain": false,
+      "NonMintableToken": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "Vault": "0x6D303CEE7959f814042D31E0624fB88Ec6fbcC1d",
       "connectors": {
-        "11155111": {
-          "FAST": "0x03027410F25c527D5aEB3E6e56a6389611DCb2A9",
-          "NATIVE_BRIDGE": "0xA7f7e4fE8E4cdDCD9969Bd3fbcFF67000CD7DE47"
+        "957": {
+          "FAST": "0x200AF8FCdD5246D70B369A98143Ac8930A077B7A",
+          "NATIVE_BRIDGE": "0x22d8360eB04F46195c7B02A66658C375948d8A99"
         }
       }
     }
   },
-  "11155111": {
+  "957": {
     "USDC": {
-      "isAppChain": false,
-      "NonMintableToken": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-      "Vault": "0x040993fbF458b95871Cd2D73Ee2E09F4AF6d56bB",
+      "isAppChain": true,
+      "MintableToken": "0x6879287835A86F50f784313dBEd5E5cCC5bb8481",
+      "ExchangeRate": "0x64107EB9DC50E79Fb3977b9D6C927f9B9C5Bd218",
+      "Controller": "0x4C9faD010D8be90Aba505c85eacc483dFf9b8Fa9",
       "connectors": {
-        "901": {
-          "FAST": "0xBE51D38547992293c89CC589105784ab60b004A9",
-          "NATIVE_BRIDGE": "0x5800249621DA520aDFdCa16da20d8A5Fc0f814d8"
+        "1": {
+          "FAST": "0x1281C1464449DB73bdAa30928BCC63Dc25D8D187",
+          "NATIVE_BRIDGE": "0x19609EeE157BC38E1A40E19c38218fC3900d97ac"
         }
       }
     }

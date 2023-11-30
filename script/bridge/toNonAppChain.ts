@@ -14,9 +14,9 @@ import {
 
 const srcChain = ChainSlug.LYRA_TESTNET;
 const dstChain = ChainSlug.SEPOLIA;
-const gasLimit = 1000000;
+const gasLimit = 500_000;
 let amount = utils.parseUnits(
-  "2",
+  "1",
   tokenDecimals[projectConstants.tokenToBridge]
 );
 
@@ -48,9 +48,9 @@ export const main = async () => {
     const controller: Contract = (
       await getInstance(SuperBridgeContracts.Controller, controllerAddr)
     ).connect(socketSigner);
-    const token: Contract = (
-      await getInstance(SuperBridgeContracts.MintableToken, tokenAddr)
-    ).connect(socketSigner);
+    const token: Contract = (await getInstance("ERC20", tokenAddr)).connect(
+      socketSigner
+    );
 
     // approve
     const balance: BigNumber = await token.balanceOf(socketSigner.address);

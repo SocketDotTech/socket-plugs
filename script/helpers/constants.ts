@@ -48,6 +48,7 @@ export type ProjectConstants = {
       appChain: ChainSlug;
       nonAppChains: ChainSlug[];
       tokenToBridge: Tokens;
+      isFiatTokenV2_1?: boolean;
       integrationTypes: {
         [key in IntegrationTypes]?: {
           depositLimit: string;
@@ -92,7 +93,7 @@ const _projectConstants: ProjectConstants = {
       },
     },
   },
-  [Project.LYRA]: {
+  [Project.LYRA_TESTNET]: {
     [DeploymentMode.DEV]: {
       appChain: ChainSlug.LYRA_TESTNET,
       nonAppChains: [ChainSlug.ARBITRUM_GOERLI, ChainSlug.OPTIMISM_GOERLI],
@@ -113,8 +114,32 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          depositLimit: "0",
-          depositRate: "0",
+          depositLimit: "100000",
+          depositRate: "1.1574",
+          withdrawLimit: "100000",
+          withdrawRate: "1.1574",
+          poolCount: 0,
+        },
+        [IntegrationTypes.native]: {
+          depositLimit: "100000",
+          depositRate: "1.1574",
+          withdrawLimit: "0",
+          withdrawRate: "0",
+          poolCount: 0,
+        },
+      },
+    },
+  },
+  [Project.LYRA]: {
+    [DeploymentMode.PROD]: {
+      appChain: ChainSlug.LYRA,
+      nonAppChains: [ChainSlug.MAINNET],
+      tokenToBridge: Tokens.USDC,
+      isFiatTokenV2_1: true,
+      integrationTypes: {
+        [IntegrationTypes.fast]: {
+          depositLimit: "10000",
+          depositRate: "0.11574",
           withdrawLimit: "10000",
           withdrawRate: "0.11574",
           poolCount: 0,

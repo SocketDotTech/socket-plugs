@@ -2,12 +2,14 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "../contracts/superbridge/MintableToken.sol";
+import "./mocks/MintableToken.sol";
+import "./mocks/FiatTokenV2_1_Mintable.sol";
 import "../contracts/superbridge/Controller.sol";
+import "../contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
 import "../contracts/superbridge/ExchangeRate.sol";
 import "forge-std/console.sol";
 
-contract TestController is Test {
+abstract contract TestController is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
@@ -24,21 +26,12 @@ contract TestController is Test {
     uint256 constant _fees = 0.001 ether;
     uint256 constant _msgGasLimit = 200_000;
     uint256 constant _bootstrapTime = 100;
+    bool isFiatTokenV2_1;
     ERC20 _token;
     Controller _controller;
 
     error InvalidPoolId();
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
-
-    function setUp() external {
-        vm.startPrank(_admin);
-        _token = new MintableToken("Moon", "MOON", 18);
-        _controller = new Controller(
-            address(_token),
-            address(new ExchangeRate())
-        );
-        vm.stopPrank();
-    }
 
     function _setLimits() internal {
         Controller.UpdateLimitParams[]
@@ -197,7 +190,9 @@ contract TestController is Test {
         deal(_raju, _fees);
 
         vm.startPrank(_raju);
-        _token.approve(address(_controller), withdrawAmount);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), withdrawAmount);
+        }
         vm.expectRevert(InvalidPoolId.selector);
         _controller.withdrawFromAppChain{value: _fees}(
             _raju,
@@ -221,7 +216,9 @@ contract TestController is Test {
         deal(_raju, _fees);
 
         vm.startPrank(_raju);
-        _token.approve(address(_controller), withdrawAmount);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), withdrawAmount);
+        }
         vm.expectRevert(Gauge.AmountOutsideLimit.selector);
         _controller.withdrawFromAppChain{value: _fees}(
             _raju,
@@ -242,7 +239,9 @@ contract TestController is Test {
         deal(_raju, _fees);
 
         vm.startPrank(_raju);
-        _token.approve(address(_controller), dealAmount);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), dealAmount);
+        }
         vm.expectRevert(Controller.ZeroAmount.selector);
         _controller.withdrawFromAppChain{value: _fees}(
             _raju,
@@ -272,7 +271,9 @@ contract TestController is Test {
         assertEq(poolLockedBefore, totalAmount, "pool locked sus");
 
         vm.startPrank(_raju);
-        _token.approve(address(_controller), totalAmount);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), totalAmount);
+        }
 
         vm.expectCall(
             _connector,
@@ -362,7 +363,9 @@ contract TestController is Test {
         );
 
         vm.startPrank(_raju);
-        _token.approve(address(_controller), withdrawAmount);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), withdrawAmount);
+        }
         vm.mockCall(
             _connector,
             abi.encodeCall(
@@ -425,7 +428,9 @@ contract TestController is Test {
         vm.prank(_connector);
         _controller.receiveInbound(abi.encode(_raju, usedLimit));
         vm.startPrank(_raju);
-        _token.approve(address(_controller), usedLimit);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), usedLimit);
+        }
         vm.mockCall(
             _connector,
             abi.encodeCall(
@@ -469,7 +474,9 @@ contract TestController is Test {
         vm.prank(_connector);
         _controller.receiveInbound(abi.encode(_raju, usedLimit));
         vm.startPrank(_raju);
-        _token.approve(address(_controller), usedLimit);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), usedLimit);
+        }
         vm.mockCall(
             _connector,
             abi.encodeCall(
@@ -819,5 +826,31 @@ contract TestController is Test {
             depositAmount - _mintMaxLimit - newMint,
             "total pending mint after sus"
         );
+    }
+}
+
+contract TestNormalController is TestController {
+    function setUp() external {
+        isFiatTokenV2_1 = false;
+        vm.startPrank(_admin);
+        _token = new MintableToken("Moon", "MOON", 18);
+        _controller = new Controller(
+            address(_token),
+            address(new ExchangeRate())
+        );
+        vm.stopPrank();
+    }
+}
+
+contract TestFiatTokenV2_1_Controller is TestController {
+    function setUp() external {
+        isFiatTokenV2_1 = true;
+        vm.startPrank(_admin);
+        _token = new FiatTokenV2_1_Mintable("Moon", "MOON", 18);
+        _controller = new FiatTokenV2_1_Controller(
+            address(_token),
+            address(new ExchangeRate())
+        );
+        vm.stopPrank();
     }
 }

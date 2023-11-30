@@ -1,12 +1,6 @@
 pragma solidity 0.8.13;
 
-import "solmate/tokens/ERC20.sol";
-
-abstract contract IMintableERC20 is ERC20 {
-    function mint(address receiver_, uint256 amount_) external virtual;
-
-    function burn(address burner_, uint256 amount_) external virtual;
-}
+import "../../contracts/superbridge/IMintableERC20.sol";
 
 // this is a mock token used in tests, other projects' token to be used here
 contract MintableToken is IMintableERC20 {
