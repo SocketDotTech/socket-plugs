@@ -85,6 +85,19 @@ const _projectConstants: ProjectConstants = {
           },
         },
       },
+      [Tokens.WETH]: {
+        appChain: ChainSlug.AEVO_TESTNET,
+        nonAppChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "100",
+            depositRate: "0.0011574",
+            withdrawLimit: "100",
+            withdrawRate: "0.0011574",
+            poolCount: 0,
+          },
+        },
+      },
     },
   },
   [Project.AEVO]: {
