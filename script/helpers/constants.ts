@@ -43,7 +43,7 @@ console.log(`Owner address configured to ${socketOwner}`);
 console.log("========================================================");
 
 export type ProjectConstants = {
-  [key in Project]: {
+  [key in Project]?: {
     [key in DeploymentMode]?: {
       appChain: ChainSlug;
       nonAppChains: ChainSlug[];
@@ -84,10 +84,12 @@ const _projectConstants: ProjectConstants = {
       tokenToBridge: Tokens.USDC,
       integrationTypes: {
         [IntegrationTypes.fast]: {
-          depositLimit: "200000",
-          depositRate: "2.3148",
-          withdrawLimit: "200000",
-          withdrawRate: "2.3148",
+          depositLimit: "500000",
+          // depositRate: "500000",
+          depositRate: "5.787",
+          withdrawLimit: "500000",
+          // withdrawRate: "500000",
+          withdrawRate: "5.787",
           poolCount: 0,
         },
       },
