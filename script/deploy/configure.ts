@@ -18,6 +18,7 @@ import {
   mode,
   getLimitBN,
   getRateBN,
+  token,
 } from "../helpers/constants";
 import { getSocket } from "../bridge/utils";
 import {
@@ -44,8 +45,7 @@ export const main = async () => {
     await Promise.all(
       [projectConstants.appChain, ...projectConstants.nonAppChains].map(
         async (chain) => {
-          const addr: TokenAddresses | undefined =
-            addresses[chain]?.[projectConstants.tokenToBridge];
+          const addr: TokenAddresses | undefined = addresses[chain]?.[token];
           const connectors: Connectors | undefined = addr?.connectors;
           if (!addr || !connectors) return;
 
@@ -175,9 +175,7 @@ const connect = async (
       const localConnectorAddresses: ConnectorAddresses | undefined =
         addr.connectors?.[sibling];
       const siblingConnectorAddresses: ConnectorAddresses | undefined =
-        addresses?.[sibling]?.[projectConstants.tokenToBridge]?.connectors?.[
-          chain
-        ];
+        addresses?.[sibling]?.[token]?.connectors?.[chain];
       if (!localConnectorAddresses || !siblingConnectorAddresses) continue;
 
       const integrationTypes: IntegrationTypes[] = Object.keys(

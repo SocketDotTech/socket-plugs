@@ -3,6 +3,7 @@ import { ChainSlug, IntegrationTypes } from "./core";
 export enum Tokens {
   Moon = "MOON",
   USDC = "USDC",
+  WETH = "WETH",
 }
 
 export enum Project {
