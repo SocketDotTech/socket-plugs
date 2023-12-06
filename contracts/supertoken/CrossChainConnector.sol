@@ -5,7 +5,7 @@ import {ISocket} from "../interfaces/ISocket.sol";
 import {IPlug} from "../interfaces/IPlug.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
-interface IHub {
+interface ISocketReceiver {
     function receiveInbound(bytes memory payload_) external;
 }
 
@@ -13,27 +13,33 @@ interface IConnector {
     function outbound(
         uint256 msgGasLimit_,
         bytes memory payload_
-    ) external payable;
+    ) external payable returns (bytes32 messageId_);
 
     function siblingChainSlug() external view returns (uint32);
 
     function getMinFees(
         uint256 msgGasLimit_
     ) external view returns (uint256 totalFees);
+
+    function getMessageId() external view returns (bytes32);
 }
 
-contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
-    IHub public immutable hub__;
+contract CrossChainConnector is IConnector, IPlug, Ownable2Step {
+    ISocketReceiver public immutable socketReceiver__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
 
-    error NotHub();
+    error NotSocketReceiver();
     error NotSocket();
 
     event ConnectorPlugDisconnected();
 
-    constructor(address hub_, address socket_, uint32 siblingChainSlug_) {
-        hub__ = IHub(hub_);
+    constructor(
+        address socketReceiver,
+        address socket_,
+        uint32 siblingChainSlug_
+    ) {
+        socketReceiver__ = ISocketReceiver(socketReceiver);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;
     }
@@ -41,16 +47,17 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
     function outbound(
         uint256 msgGasLimit_,
         bytes memory payload_
-    ) external payable override {
-        if (msg.sender != address(hub__)) revert NotHub();
+    ) external payable override returns (bytes32 messageId_) {
+        if (msg.sender != address(socketReceiver__)) revert NotSocketReceiver();
 
-        socket__.outbound{value: msg.value}(
-            siblingChainSlug,
-            msgGasLimit_,
-            bytes32(0),
-            bytes32(0),
-            payload_
-        );
+        return
+            socket__.outbound{value: msg.value}(
+                siblingChainSlug,
+                msgGasLimit_,
+                bytes32(0),
+                bytes32(0),
+                payload_
+            );
     }
 
     function inbound(
@@ -58,7 +65,7 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
         bytes calldata payload_
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
-        hub__.receiveInbound(payload_);
+        socketReceiver__.receiveInbound(payload_);
     }
 
     function getMinFees(
@@ -67,7 +74,7 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
         return
             socket__.getMinFees(
                 msgGasLimit_,
-                64,
+                96,
                 bytes32(0),
                 bytes32(0),
                 siblingChainSlug,
@@ -77,13 +84,14 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
 
     function connect(
         address siblingPlug_,
-        address switchboard_
+        address inboundSwitchboard_,
+        address outboundSwitchboard_
     ) external onlyOwner {
         socket__.connect(
             siblingChainSlug,
             siblingPlug_,
-            switchboard_,
-            switchboard_
+            inboundSwitchboard_,
+            outboundSwitchboard_
         );
     }
 
@@ -118,5 +126,14 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
         uint256 amount_
     ) external onlyOwner {
         RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
+    }
+
+    function getMessageId() external view returns (bytes32) {
+        return
+            bytes32(
+                (uint256(siblingChainSlug) << 224) |
+                    (uint256(uint160(address(this))) << 64) |
+                    (ISocket(socket__).globalMessageCount() + 1)
+            );
     }
 }

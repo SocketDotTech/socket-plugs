@@ -2,10 +2,10 @@ pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {IExchangeRate} from "./ExchangeRate.sol";
-import {Gauge} from "./Gauge.sol";
+import {Gauge} from "../common/Gauge.sol";
 import {IConnector, IHub} from "./ConnectorPlug.sol";
 import {IMintableERC20} from "./IMintableERC20.sol";
-import {RescueFundsLib} from "./RescueFundsLib.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
 contract Controller is IHub, Gauge, Ownable2Step {
     IMintableERC20 public immutable token__;
