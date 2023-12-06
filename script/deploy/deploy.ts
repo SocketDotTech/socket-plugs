@@ -9,6 +9,7 @@ import {
   isAppChain,
   mode,
   projectConstants,
+  token,
   tokenDecimals,
   tokenName,
   tokenSymbol,
@@ -51,12 +52,8 @@ export const main = async () => {
           let allDeployed = false;
           const signer = getSignerFromChainSlug(chain);
 
-          let chainAddresses: TokenAddresses = addresses[chain]?.[
-            projectConstants.tokenToBridge
-          ]
-            ? (addresses[chain]?.[
-                projectConstants.tokenToBridge
-              ] as TokenAddresses)
+          let chainAddresses: TokenAddresses = addresses[chain]?.[token]
+            ? (addresses[chain]?.[token] as TokenAddresses)
             : ({} as TokenAddresses);
 
           const siblings = isAppChain(chain)

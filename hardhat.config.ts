@@ -59,6 +59,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       arbitrumOne: process.env.ARBISCAN_API_KEY || "",
       arbitrumTestnet: process.env.ARBISCAN_API_KEY || "",
+      arbitrumSepolia: process.env.ARBISCAN_API_KEY || "",
       bsc: process.env.BSCSCAN_API_KEY || "",
       bscTestnet: process.env.BSCSCAN_API_KEY || "",
       goerli: process.env.ETHERSCAN_API_KEY || "",
@@ -66,6 +67,7 @@ const config: HardhatUserConfig = {
       sepolia: process.env.ETHERSCAN_API_KEY || "",
       optimisticEthereum: process.env.OPTIMISM_API_KEY || "",
       optimisticTestnet: process.env.OPTIMISM_API_KEY || "",
+      optimisticSepolia: process.env.OPTIMISM_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
     },
@@ -79,11 +81,27 @@ const config: HardhatUserConfig = {
         },
       },
       {
+        network: "optimisticSepolia",
+        chainId: hardhatChainNameToSlug[HardhatChainName.OPTIMISM_SEPOLIA],
+        urls: {
+          apiURL: "https://api-sepolia-optimistic.etherscan.io/api",
+          browserURL: "https://sepolia-optimism.etherscan.io/",
+        },
+      },
+      {
         network: "arbitrumTestnet",
         chainId: hardhatChainNameToSlug[HardhatChainName.ARBITRUM_GOERLI],
         urls: {
           apiURL: "https://api-goerli.arbiscan.io/api",
           browserURL: "https://goerli.arbiscan.io/",
+        },
+      },
+      {
+        network: "arbitrumSepolia",
+        chainId: hardhatChainNameToSlug[HardhatChainName.ARBITRUM_SEPOLIA],
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "https://sepolia.arbiscan.io/",
         },
       },
     ],
@@ -95,8 +113,14 @@ const config: HardhatUserConfig = {
     [HardhatChainName.ARBITRUM_GOERLI]: getChainConfig(
       HardhatChainName.ARBITRUM_GOERLI
     ),
+    [HardhatChainName.ARBITRUM_SEPOLIA]: getChainConfig(
+      HardhatChainName.ARBITRUM_SEPOLIA
+    ),
     [HardhatChainName.OPTIMISM_GOERLI]: getChainConfig(
       HardhatChainName.OPTIMISM_GOERLI
+    ),
+    [HardhatChainName.OPTIMISM_SEPOLIA]: getChainConfig(
+      HardhatChainName.OPTIMISM_SEPOLIA
     ),
     [HardhatChainName.POLYGON_MAINNET]: getChainConfig(
       HardhatChainName.POLYGON_MAINNET

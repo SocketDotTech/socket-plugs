@@ -13,6 +13,7 @@ import {
   mode,
   project,
   projectConstants,
+  token,
 } from "./constants";
 import { ProjectAddresses, TokenAddresses } from "../../src";
 
@@ -141,10 +142,10 @@ export const storeAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    [chainSlug.toString(), projectConstants.tokenToBridge],
+    [chainSlug.toString(), token],
     addresses
   );
-  // deploymentAddresses[chainSlug][tokenToBridge] = addresses;
+  // deploymentAddresses[chainSlug][token] = addresses;
   fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
 };
 

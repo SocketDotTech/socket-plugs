@@ -25,7 +25,17 @@ export const overrides: {
     gasLimit: 20_000_000,
     gasPrice,
   },
+  [ChainSlug.ARBITRUM_SEPOLIA]: {
+    type,
+    gasLimit: 20_000_000,
+    gasPrice,
+  },
   [ChainSlug.OPTIMISM_GOERLI]: {
+    type,
+    gasLimit: 20_000_000,
+    gasPrice,
+  },
+  [ChainSlug.OPTIMISM_SEPOLIA]: {
     type,
     gasLimit: 20_000_000,
     gasPrice,
@@ -89,6 +99,11 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
         throw new Error("ARB_GOERLI_RPC not configured");
       return process.env.ARB_GOERLI_RPC;
 
+    case ChainSlug.ARBITRUM_SEPOLIA:
+      if (!process.env.ARB_SEPOLIA_RPC)
+        throw new Error("ARB_SEPOLIA_RPC not configured");
+      return process.env.ARB_SEPOLIA_RPC;
+
     case ChainSlug.OPTIMISM:
       if (!process.env.OPTIMISM_RPC)
         throw new Error("OPTIMISM_RPC not configured");
@@ -98,6 +113,11 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
       if (!process.env.OPTIMISM_GOERLI_RPC)
         throw new Error("OPTIMISM_GOERLI_RPC not configured");
       return process.env.OPTIMISM_GOERLI_RPC;
+
+    case ChainSlug.OPTIMISM_SEPOLIA:
+      if (!process.env.OPTIMISM_SEPOLIA_RPC)
+        throw new Error("OPTIMISM_SEPOLIA_RPC not configured");
+      return process.env.OPTIMISM_SEPOLIA_RPC;
 
     case ChainSlug.POLYGON_MAINNET:
       if (!process.env.POLYGON_RPC)

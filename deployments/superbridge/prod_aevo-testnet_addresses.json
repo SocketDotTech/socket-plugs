@@ -1,0 +1,76 @@
+{
+  "421614": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+      "Vault": "0xc317144DE60E6bC9455363bB09852C00bd14CD61",
+      "connectors": {
+        "11155112": {
+          "FAST": "0xbDf50eAe568ECef74796ed6022a0d453e8432410"
+        }
+      }
+    },
+    "WETH": {
+      "isAppChain": false,
+      "NonMintableToken": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+      "Vault": "0xd286595d2e3D879596FAB51f83A702D10a6db27b",
+      "connectors": {
+        "11155112": {
+          "FAST": "0xA7649aa944b7Dce781859C18913c2Dc8A97f03e4"
+        }
+      }
+    }
+  },
+  "11155112": {
+    "USDC": {
+      "isAppChain": true,
+      "MintableToken": "0x4D435C00E09034ec2113F63088CCD0be0a0fd06e",
+      "ExchangeRate": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+      "Controller": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
+      "connectors": {
+        "421614": {
+          "FAST": "0x7050b6f947BA48508219Ac02EC152E9f198ADc5e"
+        },
+        "11155420": {
+          "FAST": "0xb584D4bE1A5470CA1a8778E9B86c81e165204599"
+        }
+      }
+    },
+    "WETH": {
+      "isAppChain": true,
+      "MintableToken": "0x4B0F1E25d295bC5Bb996b831c826Fe3e7E7Ef13e",
+      "ExchangeRate": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+      "Controller": "0x03027410F25c527D5aEB3E6e56a6389611DCb2A9",
+      "connectors": {
+        "421614": {
+          "FAST": "0xA7f7e4fE8E4cdDCD9969Bd3fbcFF67000CD7DE47"
+        },
+        "11155420": {
+          "FAST": "0xAC313d7491910516E06FBfC2A0b5BB49bb072D91"
+        }
+      }
+    }
+  },
+  "11155420": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+      "Vault": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+      "connectors": {
+        "11155112": {
+          "FAST": "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
+        }
+      }
+    },
+    "WETH": {
+      "isAppChain": false,
+      "NonMintableToken": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
+      "Vault": "0x57D1Aeafb6a2b7Bd4954e47a556622161A8c0A65",
+      "connectors": {
+        "11155112": {
+          "FAST": "0xaa3d9fA3aB930aE635b001d00C612aa5b14d750e"
+        }
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@ import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
-import { tokenDecimals, projectConstants } from "../helpers/constants";
+import { tokenDecimals, token } from "../helpers/constants";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 import {
@@ -15,10 +15,7 @@ import {
 const srcChain = ChainSlug.LYRA_TESTNET;
 const dstChain = ChainSlug.SEPOLIA;
 const gasLimit = 500_000;
-let amount = utils.parseUnits(
-  "1",
-  tokenDecimals[projectConstants.tokenToBridge]
-);
+let amount = utils.parseUnits("1", tokenDecimals[token]);
 
 export const main = async () => {
   try {
@@ -30,7 +27,7 @@ export const main = async () => {
       throw new Error("chain addresses not found");
 
     const addr: AppChainAddresses | undefined = srcAddresses[
-      projectConstants.tokenToBridge
+      token
     ] as AppChainAddresses;
     if (!addr) throw new Error("Token addresses not found");
 
@@ -48,12 +45,14 @@ export const main = async () => {
     const controller: Contract = (
       await getInstance(SuperBridgeContracts.Controller, controllerAddr)
     ).connect(socketSigner);
-    const token: Contract = (await getInstance("ERC20", tokenAddr)).connect(
-      socketSigner
-    );
+    const tokenContract: Contract = (
+      await getInstance("ERC20", tokenAddr)
+    ).connect(socketSigner);
 
     // approve
-    const balance: BigNumber = await token.balanceOf(socketSigner.address);
+    const balance: BigNumber = await tokenContract.balanceOf(
+      socketSigner.address
+    );
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
     const limit: BigNumber = await controller.getCurrentBurnLimit(
@@ -61,12 +60,12 @@ export const main = async () => {
     );
     if (limit.lt(amount)) throw new Error("Exceeding max limit");
 
-    const currentApproval: BigNumber = await token.allowance(
+    const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
       controller.address
     );
     if (currentApproval.lt(amount)) {
-      const approveTx = await token.approve(controller.address, amount);
+      const approveTx = await tokenContract.approve(controller.address, amount);
       console.log("Tokens approved: ", approveTx.hash);
       await approveTx.wait();
     }

@@ -2,7 +2,7 @@ import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
-import { projectConstants, tokenDecimals } from "../helpers/constants";
+import { token, tokenDecimals } from "../helpers/constants";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 import {
@@ -14,10 +14,7 @@ import {
 const srcChain = ChainSlug.SEPOLIA;
 const dstChain = ChainSlug.LYRA_TESTNET;
 const gasLimit = 500_000;
-let amount = utils.parseUnits(
-  "1",
-  tokenDecimals[projectConstants.tokenToBridge]
-);
+let amount = utils.parseUnits("1", tokenDecimals[token]);
 
 export const main = async () => {
   try {
@@ -28,7 +25,7 @@ export const main = async () => {
       throw new Error("chain addresses not found");
 
     const addr: NonAppChainAddresses | undefined = srcAddresses[
-      projectConstants.tokenToBridge
+      token
     ] as NonAppChainAddresses;
     if (!addr) throw new Error("Token addresses not found");
 
@@ -46,23 +43,25 @@ export const main = async () => {
     const vault: Contract = (
       await getInstance(SuperBridgeContracts.Vault, vaultAddr)
     ).connect(socketSigner);
-    const token: Contract = (await getInstance("ERC20", tokenAddr)).connect(
-      socketSigner
-    );
+    const tokenContract: Contract = (
+      await getInstance("ERC20", tokenAddr)
+    ).connect(socketSigner);
 
     // approve
-    const balance: BigNumber = await token.balanceOf(socketSigner.address);
+    const balance: BigNumber = await tokenContract.balanceOf(
+      socketSigner.address
+    );
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
     const limit: BigNumber = await vault.getCurrentLockLimit(connectorAddr);
     if (limit.lt(amount)) throw new Error("Exceeding max limit");
 
-    const currentApproval: BigNumber = await token.allowance(
+    const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
       vault.address
     );
     if (currentApproval.lt(amount)) {
-      const approveTx = await token.approve(vault.address, amount, {
+      const approveTx = await tokenContract.approve(vault.address, amount, {
         ...overrides[srcChain],
         gasLimit: 200_000,
       });
