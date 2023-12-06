@@ -1,63 +1,67 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
+
+import "./SuperPlug.sol";
 import {Gauge} from "../common/Gauge.sol";
-import {IConnector, IHub} from "./ConnectorPlug.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 
-contract SuperTokenLocker is Gauge, IHub, AccessControl {
+contract SuperTokenLocker is Gauge, AccessControl, SuperPlug {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
 
     struct UpdateLimitParams {
         bool isLock;
-        address connector;
+        uint32 siblingChainSlug;
         uint256 maxLimit;
         uint256 ratePerSecond;
     }
 
-    // connector => receiver => pendingUnlock
-    mapping(address => mapping(address => uint256)) public pendingUnlocks;
+    // siblingChainSlug => receiver => pendingUnlock
+    mapping(uint32 => mapping(address => uint256)) public pendingUnlocks;
 
-    // connector => amount
-    mapping(address => uint256) public connectorPendingUnlocks;
+    // siblingChainSlug => amount
+    mapping(uint32 => uint256) public siblingPendingUnlocks;
 
-    // connector => lockLimitParams
-    mapping(address => LimitParams) _lockLimitParams;
+    // siblingChainSlug => lockLimitParams
+    mapping(uint32 => LimitParams) _lockLimitParams;
 
-    // connector => unlockLimitParams
-    mapping(address => LimitParams) _unlockLimitParams;
+    // siblingChainSlug => unlockLimitParams
+    mapping(uint32 => LimitParams) _unlockLimitParams;
 
-    error ConnectorUnavailable();
+    error SiblingChainSlugUnavailable();
     error ZeroAmount();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensDeposited(
-        address connector,
+        uint32 siblingChainSlug,
         address depositor,
         address receiver,
         uint256 depositAmount
     );
     event PendingTokensTransferred(
-        address connector,
+        uint32 siblingChainSlug,
         address receiver,
         uint256 unlockedAmount,
         uint256 pendingAmount
     );
     event TokensPending(
-        address connector,
+        uint32 siblingChainSlug,
         address receiver,
         uint256 pendingAmount,
         uint256 totalPendingAmount
     );
     event TokensUnlocked(
-        address connector,
+        uint32 siblingChainSlug,
         address receiver,
         uint256 unlockedAmount
     );
 
-    constructor(address token_) {
+    constructor(
+        address token_,
+        address socket_,
+        address owner_
+    ) SuperPlug(socket_, owner_) {
         token__ = ERC20(token_);
     }
 
@@ -66,16 +70,22 @@ contract SuperTokenLocker is Gauge, IHub, AccessControl {
     ) external onlyOwner {
         for (uint256 i; i < updates_.length; i++) {
             if (updates_[i].isLock) {
-                _consumePartLimit(0, _lockLimitParams[updates_[i].connector]); // to keep current limit in sync
-                _lockLimitParams[updates_[i].connector].maxLimit = updates_[i]
-                    .maxLimit;
-                _lockLimitParams[updates_[i].connector]
+                _consumePartLimit(
+                    0,
+                    _lockLimitParams[updates_[i].siblingChainSlug]
+                ); // to keep current limit in sync
+                _lockLimitParams[updates_[i].siblingChainSlug]
+                    .maxLimit = updates_[i].maxLimit;
+                _lockLimitParams[updates_[i].siblingChainSlug]
                     .ratePerSecond = updates_[i].ratePerSecond;
             } else {
-                _consumePartLimit(0, _unlockLimitParams[updates_[i].connector]); // to keep current limit in sync
-                _unlockLimitParams[updates_[i].connector].maxLimit = updates_[i]
-                    .maxLimit;
-                _unlockLimitParams[updates_[i].connector]
+                _consumePartLimit(
+                    0,
+                    _unlockLimitParams[updates_[i].siblingChainSlug]
+                ); // to keep current limit in sync
+                _unlockLimitParams[updates_[i].siblingChainSlug]
+                    .maxLimit = updates_[i].maxLimit;
+                _unlockLimitParams[updates_[i].siblingChainSlug]
                     .ratePerSecond = updates_[i].ratePerSecond;
             }
         }
@@ -87,52 +97,60 @@ contract SuperTokenLocker is Gauge, IHub, AccessControl {
         address receiver_,
         uint256 amount_,
         uint256 msgGasLimit_,
-        address connector_
+        uint32 siblingChainSlug_
     ) external payable {
         if (amount_ == 0) revert ZeroAmount();
 
-        if (_lockLimitParams[connector_].maxLimit == 0)
-            revert ConnectorUnavailable();
+        if (_lockLimitParams[siblingChainSlug_].maxLimit == 0)
+            revert SiblingChainSlugUnavailable();
 
-        _consumeFullLimit(amount_, _lockLimitParams[connector_]); // reverts on limit hit
+        _consumeFullLimit(amount_, _lockLimitParams[siblingChainSlug_]); // reverts on limit hit
 
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
-        IConnector(connector_).outbound{value: msg.value}(
+        _outbound(
+            siblingChainSlug_,
             msgGasLimit_,
             abi.encode(receiver_, amount_)
         );
 
-        emit TokensDeposited(connector_, msg.sender, receiver_, amount_);
+        emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);
     }
 
-    function unlockPendingFor(address receiver_, address connector_) external {
-        if (_unlockLimitParams[connector_].maxLimit == 0)
-            revert ConnectorUnavailable();
+    function unlockPendingFor(
+        address receiver_,
+        uint32 siblingChainSlug_
+    ) external {
+        if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
+            revert SiblingChainSlugUnavailable();
 
-        uint256 pendingUnlock = pendingUnlocks[connector_][receiver_];
+        uint256 pendingUnlock = pendingUnlocks[siblingChainSlug_][receiver_];
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             pendingUnlock,
-            _unlockLimitParams[connector_]
+            _unlockLimitParams[siblingChainSlug_]
         );
 
-        pendingUnlocks[connector_][receiver_] = pendingAmount;
-        connectorPendingUnlocks[connector_] -= consumedAmount;
+        pendingUnlocks[siblingChainSlug_][receiver_] = pendingAmount;
+        siblingPendingUnlocks[siblingChainSlug_] -= consumedAmount;
 
         token__.safeTransfer(receiver_, consumedAmount);
 
         emit PendingTokensTransferred(
-            connector_,
+            siblingChainSlug_,
             receiver_,
             consumedAmount,
             pendingAmount
         );
     }
 
-    // receive inbound assuming connector called
-    function receiveInbound(bytes memory payload_) external override {
-        if (_unlockLimitParams[msg.sender].maxLimit == 0)
-            revert ConnectorUnavailable();
+    function inbound(
+        uint32 siblingChainSlug_,
+        bytes memory payload_
+    ) external payable override {
+        if (msg.sender != address(socket__)) revert NotSocket();
+
+        if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
+            revert SiblingChainSlugUnavailable();
 
         (address receiver, uint256 unlockAmount) = abi.decode(
             payload_,
@@ -141,54 +159,47 @@ contract SuperTokenLocker is Gauge, IHub, AccessControl {
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             unlockAmount,
-            _unlockLimitParams[msg.sender]
+            _unlockLimitParams[siblingChainSlug_]
         );
 
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
-            pendingUnlocks[msg.sender][receiver] += pendingAmount;
-            connectorPendingUnlocks[msg.sender] += pendingAmount;
+            pendingUnlocks[siblingChainSlug_][receiver] += pendingAmount;
+            siblingPendingUnlocks[siblingChainSlug_] += pendingAmount;
             emit TokensPending(
-                msg.sender,
+                siblingChainSlug_,
                 receiver,
                 pendingAmount,
-                pendingUnlocks[msg.sender][receiver]
+                pendingUnlocks[siblingChainSlug_][receiver]
             );
         }
         token__.safeTransfer(receiver, consumedAmount);
 
-        emit TokensUnlocked(msg.sender, receiver, consumedAmount);
-    }
-
-    function getMinFees(
-        address connector_,
-        uint256 msgGasLimit_
-    ) external view returns (uint256 totalFees) {
-        return IConnector(connector_).getMinFees(msgGasLimit_);
+        emit TokensUnlocked(siblingChainSlug_, receiver, consumedAmount);
     }
 
     function getCurrentLockLimit(
-        address connector_
+        uint32 siblingChainSlug_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_lockLimitParams[connector_]);
+        return _getCurrentLimit(_lockLimitParams[siblingChainSlug_]);
     }
 
     function getCurrentUnlockLimit(
-        address connector_
+        uint32 siblingChainSlug_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_unlockLimitParams[connector_]);
+        return _getCurrentLimit(_unlockLimitParams[siblingChainSlug_]);
     }
 
     function getLockLimitParams(
-        address connector_
+        uint32 siblingChainSlug_
     ) external view returns (LimitParams memory) {
-        return _lockLimitParams[connector_];
+        return _lockLimitParams[siblingChainSlug_];
     }
 
     function getUnlockLimitParams(
-        address connector_
+        uint32 siblingChainSlug_
     ) external view returns (LimitParams memory) {
-        return _unlockLimitParams[connector_];
+        return _unlockLimitParams[siblingChainSlug_];
     }
 
     /**

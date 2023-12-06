@@ -166,6 +166,8 @@ interface ISocket {
      */
     function chainSlug() external view returns (uint32 chainSlug);
 
+    function globalMessageCount() external view returns (uint64);
+
     /**
      * @notice returns the config for given `plugAddress_` and `siblingChainSlug_`
      * @param siblingChainSlug_ the sibling chain slug
