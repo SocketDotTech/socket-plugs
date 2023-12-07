@@ -13,6 +13,8 @@ export enum Project {
   LYRA = "lyra",
   SX_NETWORK_TESTNET = "sx-network-testnet",
   SOCKET_DEV = "socket-dev",
+  MODE_TESTNET = "mode-testnet",
+  VICTION_TESTNET = "viction-testnet",
 }
 
 export enum SuperBridgeContracts {
@@ -64,4 +66,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.LYRA_TESTNET]: Project.LYRA_TESTNET,
   [ChainSlug.LYRA]: Project.LYRA,
   [ChainSlug.SX_NETWORK_TESTNET]: Project.SX_NETWORK_TESTNET,
+  [ChainSlug.OPTIMISM_SEPOLIA]: Project.SOCKET_DEV,
+  [ChainSlug.MODE_TESTNET]: Project.MODE_TESTNET,
+  [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
 };

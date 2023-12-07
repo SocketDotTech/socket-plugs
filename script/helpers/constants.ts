@@ -235,6 +235,40 @@ const _projectConstants: ProjectConstants = {
       },
     },
   },
+  [Project.MODE_TESTNET]: {
+    [DeploymentMode.PROD]: {
+      [Tokens.USDC]: {
+        appChain: ChainSlug.MODE_TESTNET,
+        nonAppChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
+        },
+      },
+    },
+  },
+  [Project.VICTION_TESTNET]: {
+    [DeploymentMode.PROD]: {
+      [Tokens.USDC]: {
+        appChain: ChainSlug.VICTION_TESTNET,
+        nonAppChains: [ChainSlug.SEPOLIA],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
+        },
+      },
+    },
+  },
 };
 
 export const isAppChain = (chain: ChainSlug) =>

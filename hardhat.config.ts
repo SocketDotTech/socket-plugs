@@ -148,6 +148,12 @@ const config: HardhatUserConfig = {
     [HardhatChainName.SX_NETWORK_TESTNET]: getChainConfig(
       HardhatChainName.SX_NETWORK_TESTNET
     ),
+    [HardhatChainName.MODE_TESTNET]: getChainConfig(
+      HardhatChainName.MODE_TESTNET
+    ),
+    [HardhatChainName.VICTION_TESTNET]: getChainConfig(
+      HardhatChainName.VICTION_TESTNET
+    ),
   },
   paths: {
     sources: "./contracts",

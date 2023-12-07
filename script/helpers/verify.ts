@@ -38,7 +38,9 @@ export const main = async () => {
         chain == ChainSlug.AEVO_TESTNET ||
         chain == ChainSlug.LYRA ||
         chain == ChainSlug.LYRA_TESTNET ||
-        chain == ChainSlug.SX_NETWORK_TESTNET
+        chain == ChainSlug.SX_NETWORK_TESTNET ||
+        chain == ChainSlug.MODE_TESTNET ||
+        chain == ChainSlug.VICTION_TESTNET
       )
         continue;
       // hre.changeNetwork(ChainSlugToHardhatKey[chain]);

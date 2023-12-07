@@ -85,6 +85,16 @@ export const overrides: {
     gasLimit: 10_000_000,
     gasPrice: 20_000_000_000,
   },
+  [ChainSlug.MODE_TESTNET]: {
+    type: 1,
+    gasLimit: 3_000_000,
+    gasPrice: 100_000_000,
+  },
+  [ChainSlug.VICTION_TESTNET]: {
+    // type: 1,
+    gasLimit: 3_000_000,
+    gasPrice: 2_000_000_000,
+  },
 };
 
 export function getJsonRpcUrl(chain: ChainSlug): string {
@@ -174,6 +184,16 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
       if (!process.env.SX_NETWORK_TESTNET_RPC)
         throw new Error("SX_NETWORK_TESTNET_RPC not configured");
       return process.env.SX_NETWORK_TESTNET_RPC;
+
+    case ChainSlug.MODE_TESTNET:
+      if (!process.env.MODE_TESTNET_RPC)
+        throw new Error("MODE_TESTNET_RPC not configured");
+      return process.env.MODE_TESTNET_RPC;
+
+    case ChainSlug.VICTION_TESTNET:
+      if (!process.env.VICTION_TESTNET_RPC)
+        throw new Error("VICTION_TESTNET_RPC not configured");
+      return process.env.VICTION_TESTNET_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";
