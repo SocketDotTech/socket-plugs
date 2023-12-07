@@ -3,9 +3,8 @@ pragma solidity 0.8.13;
 import "solmate/tokens/ERC20.sol";
 import "./SuperPlug.sol";
 import "../common/Gauge.sol";
-import {AccessControl} from "../common/AccessControl.sol";
 
-contract SuperToken is ERC20, Gauge, AccessControl, SuperPlug {
+contract SuperToken is ERC20, Gauge, SuperPlug {
     struct UpdateLimitParams {
         bool isMint;
         uint32 siblingChainSlug;

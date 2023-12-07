@@ -2,10 +2,10 @@ pragma solidity 0.8.13;
 
 import {ISocket} from "../interfaces/ISocket.sol";
 import {IPlug} from "../interfaces/IPlug.sol";
-import {AccessControl} from "../common/AccessControl.sol";
+import {Ownable} from "../common/Ownable.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
-abstract contract SuperPlug is IPlug, AccessControl {
+abstract contract SuperPlug is IPlug, Ownable {
     ISocket public socket__;
 
     event SuperPlugDisconnected(uint32 siblingChainSlug);
@@ -13,7 +13,7 @@ abstract contract SuperPlug is IPlug, AccessControl {
 
     error NotSocket();
 
-    constructor(address socket_, address owner_) AccessControl(owner_) {
+    constructor(address socket_, address owner_) Ownable(owner_) {
         socket__ = ISocket(socket_);
     }
 

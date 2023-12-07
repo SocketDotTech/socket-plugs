@@ -4,9 +4,8 @@ import "solmate/utils/SafeTransferLib.sol";
 
 import "./SuperPlug.sol";
 import {Gauge} from "../common/Gauge.sol";
-import {AccessControl} from "../common/AccessControl.sol";
 
-contract SuperTokenLocker is Gauge, AccessControl, SuperPlug {
+contract SuperTokenLocker is Gauge, SuperPlug {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
 
