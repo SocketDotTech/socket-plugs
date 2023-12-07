@@ -1,0 +1,47 @@
+{
+  "421614": [
+    [
+      "0x47E136cf4A96e1afa72e19022f9699Bbaa1BE60e",
+      "ConnectorPlug",
+      "contracts/superbridge/ConnectorPlug.sol",
+      [
+        "0xc5a5Ac67fff82Da72d1F862f1363E2b217a2A61A",
+        "0xE22dc865c5821b66a28Ea9D8a715f156D25aa5B9",
+        11155420
+      ]
+    ],
+    [
+      "0xc5a5Ac67fff82Da72d1F862f1363E2b217a2A61A",
+      "Vault",
+      "contracts/superbridge/Vault.sol",
+      ["0x8537307810fC40F4073A12a38554D4Ff78EfFf41"]
+    ]
+  ],
+  "11155420": [
+    [
+      "0xc5a5Ac67fff82Da72d1F862f1363E2b217a2A61A",
+      "ConnectorPlug",
+      "contracts/superbridge/ConnectorPlug.sol",
+      [
+        "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
+        "0xE22dc865c5821b66a28Ea9D8a715f156D25aa5B9",
+        421614
+      ]
+    ],
+    [
+      "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
+      "Controller",
+      "contracts/superbridge/Controller.sol",
+      [
+        "0x6D1e0220914f4fb73aF954694564e77024de3693",
+        "0x43B32c740420865def58be48a286c6eB100bA54C"
+      ]
+    ],
+    [
+      "0x43B32c740420865def58be48a286c6eB100bA54C",
+      "ExchangeRate",
+      "contracts/superbridge/ExchangeRate.sol",
+      []
+    ]
+  ]
+}

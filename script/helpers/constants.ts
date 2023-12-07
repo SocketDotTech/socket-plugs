@@ -218,6 +218,23 @@ const _projectConstants: ProjectConstants = {
       },
     },
   },
+  [Project.SOCKET_DEV]: {
+    [DeploymentMode.DEV]: {
+      [Tokens.USDC]: {
+        appChain: ChainSlug.OPTIMISM_SEPOLIA,
+        nonAppChains: [ChainSlug.ARBITRUM_SEPOLIA],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
+        },
+      },
+    },
+  },
 };
 
 export const isAppChain = (chain: ChainSlug) =>

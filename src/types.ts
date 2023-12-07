@@ -12,6 +12,7 @@ export enum Project {
   LYRA_TESTNET = "lyra-testnet",
   LYRA = "lyra",
   SX_NETWORK_TESTNET = "sx-network-testnet",
+  SOCKET_DEV = "socket-dev",
 }
 
 export enum SuperBridgeContracts {
