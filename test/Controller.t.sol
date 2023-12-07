@@ -130,7 +130,7 @@ abstract contract TestController is Test {
         );
 
         vm.prank(_raju);
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(Ownable.OnlyOwner.selector);
         _controller.updateLimitParams(u);
     }
 
