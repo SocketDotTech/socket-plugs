@@ -27,6 +27,7 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
 
     error SiblingNotSupported();
     error MessageIdMisMatched();
+    error ZeroAmount();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
 
@@ -109,6 +110,7 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         if (_sendingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
 
+        if (sendingAmount_ == 0) revert ZeroAmount();
         _consumeFullLimit(
             sendingAmount_,
             _sendingLimitParams[siblingChainSlug_]
