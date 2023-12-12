@@ -132,6 +132,21 @@ const _projectConstants: ProjectConstants = {
           },
         },
       },
+      [Tokens.WETH]: {
+        appChain: ChainSlug.AEVO,
+        nonAppChains: [ChainSlug.ARBITRUM, ChainSlug.OPTIMISM],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "2000",
+            // depositRate: "2000",
+            depositRate: "0.02314815",
+            withdrawLimit: "2000",
+            // withdrawRate: "2000",
+            withdrawRate: "0.02314815",
+            poolCount: 0,
+          },
+        },
+      },
     },
   },
   [Project.LYRA_TESTNET]: {
