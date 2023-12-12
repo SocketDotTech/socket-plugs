@@ -92,11 +92,11 @@ contract SuperTokenLocker is Gauge, SuperPlug {
         emit LimitParamsUpdated(updates_);
     }
 
-    function depositToAppChain(
+    function bridge(
         address receiver_,
+        uint32 siblingChainSlug_,
         uint256 amount_,
-        uint256 msgGasLimit_,
-        uint32 siblingChainSlug_
+        uint256 msgGasLimit_
     ) external payable {
         if (amount_ == 0) revert ZeroAmount();
 
@@ -107,10 +107,11 @@ contract SuperTokenLocker is Gauge, SuperPlug {
 
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
+        bytes32 messageId = getMessageId(siblingChainSlug_);
         _outbound(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, amount_)
+            abi.encode(receiver_, amount_, messageId)
         );
 
         emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);
