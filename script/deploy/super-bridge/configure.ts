@@ -7,20 +7,20 @@ import {
   getAddresses,
 } from "@socket.tech/dl-core";
 
-import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { getSignerFromChainSlug, overrides } from "../../helpers/networks";
 import {
   getInstance,
   getProjectAddresses,
   getPoolIdHex,
-} from "../helpers/utils";
+} from "../../helpers/utils";
 import {
   projectConstants,
   mode,
   getLimitBN,
   getRateBN,
   token,
-} from "../helpers/constants";
-import { getSocket } from "../bridge/utils";
+} from "../../helpers/constants";
+import { getSocket } from "../../bridge/utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
@@ -29,7 +29,7 @@ import {
   NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
-} from "../../src";
+} from "../../../src";
 
 type UpdateLimitParams = [
   boolean,
@@ -158,8 +158,8 @@ const switchboardName = (it: IntegrationTypes) =>
   it === IntegrationTypes.fast
     ? CORE_CONTRACTS.FastSwitchboard
     : it === IntegrationTypes.optimistic
-    ? CORE_CONTRACTS.OptimisticSwitchboard
-    : CORE_CONTRACTS.NativeSwitchboard;
+      ? CORE_CONTRACTS.OptimisticSwitchboard
+      : CORE_CONTRACTS.NativeSwitchboard;
 
 const connect = async (
   addr: TokenAddresses,

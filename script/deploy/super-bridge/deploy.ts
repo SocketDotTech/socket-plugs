@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { Contract, Wallet, utils } from "ethers";
-import { getSignerFromChainSlug } from "../helpers/networks";
+import { getSignerFromChainSlug } from "../../helpers/networks";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 import {
   integrationTypes,
@@ -13,21 +13,21 @@ import {
   tokenDecimals,
   tokenName,
   tokenSymbol,
-} from "../helpers/constants";
+} from "../../helpers/constants";
 import {
   DeployParams,
   createObj,
   getProjectAddresses,
   getOrDeploy,
   storeAddresses,
-} from "../helpers/utils";
+} from "../../helpers/utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
   NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
-} from "../../src";
+} from "../../../src";
 
 export interface ReturnObj {
   allDeployed: boolean;
