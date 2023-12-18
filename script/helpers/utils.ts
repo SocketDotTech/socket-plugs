@@ -15,7 +15,11 @@ import {
   projectConstants,
   token,
 } from "./constants";
-import { ProjectAddresses, TokenAddresses } from "../../src";
+import {
+  ProjectAddresses,
+  SuperTokenChainAddresses,
+  TokenAddresses,
+} from "../../src";
 
 export const deploymentsPath = path.join(
   __dirname,
@@ -26,7 +30,7 @@ export const deployedAddressPath = () =>
   deploymentsPath + `${mode}_${project}_addresses.json`;
 
 export interface DeployParams {
-  addresses: TokenAddresses;
+  addresses: TokenAddresses | SuperTokenChainAddresses;
   signer: Wallet;
   currentChainSlug: number;
 }
@@ -125,14 +129,15 @@ export const getChainSlug = async (): Promise<number> => {
 };
 
 export const storeAddresses = async (
-  addresses: TokenAddresses,
-  chainSlug: ChainSlug
+  addresses: TokenAddresses | SuperTokenChainAddresses,
+  chainSlug: ChainSlug,
+  pathToDeployments = deploymentsPath
 ) => {
-  if (!fs.existsSync(deploymentsPath)) {
-    await fs.promises.mkdir(deploymentsPath, { recursive: true });
+  if (!fs.existsSync(pathToDeployments)) {
+    await fs.promises.mkdir(pathToDeployments, { recursive: true });
   }
 
-  const addressesPath = deploymentsPath + `${mode}_${project}_addresses.json`;
+  const addressesPath = pathToDeployments + `${mode}_${project}_addresses.json`;
   const outputExists = fs.existsSync(addressesPath);
   let deploymentAddresses: ProjectAddresses = {};
   if (outputExists) {
