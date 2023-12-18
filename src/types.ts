@@ -72,7 +72,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
 export enum SuperTokenContracts {
   NonSuperToken = "MintableToken",
   SuperToken = "SuperToken",
-  SuperTokenLocker = "SuperTokenLocker",
+  Vault = "Vault",
   SocketPlug = "SocketPlug",
 }
 
@@ -87,6 +87,6 @@ export type Plugs = {
 export type SuperTokenChainAddresses = {
   [SuperTokenContracts.NonSuperToken]?: string;
   [SuperTokenContracts.SuperToken]?: string;
-  [SuperTokenContracts.SuperTokenLocker]?: string;
+  [SuperTokenContracts.Vault]?: string;
   [SuperTokenContracts.SocketPlug]: string;
 };

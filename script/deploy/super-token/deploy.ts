@@ -70,12 +70,8 @@ export const main = async () => {
         let allDeployed = false;
         const signer = getSignerFromChainSlug(chainSlug);
 
-        let chainAddresses: SuperTokenChainAddresses = addresses[chainSlug]?.[
-          config.tokenSymbol
-        ]
-          ? (addresses[chainSlug]?.[
-              config.tokenSymbol
-            ] as SuperTokenChainAddresses)
+        let chainAddresses: SuperTokenChainAddresses = addresses[chainSlug]
+          ? (addresses[chainSlug] as SuperTokenChainAddresses)
           : ({} as SuperTokenChainAddresses);
 
         while (!allDeployed) {
@@ -116,8 +112,9 @@ const deploy = async (
   };
 
   try {
+    deployUtils = await deployPlug(deployUtils, socketAddress);
     if (isSuperTokenChain) {
-      deployUtils = await deploySuperToken(deployUtils, socketAddress);
+      deployUtils = await deploySuperToken(deployUtils);
     } else {
       if (
         !config.vaultTokens[chainSlug] &&
@@ -126,7 +123,7 @@ const deploy = async (
         throw new Error("Token not found!");
       deployUtils.addresses[SuperTokenContracts.NonSuperToken] =
         config.vaultTokens[chainSlug].token;
-      deployUtils = await deployVault(deployUtils, socketAddress);
+      deployUtils = await deployVault(deployUtils);
     }
 
     allDeployed = true;
@@ -150,9 +147,28 @@ const deploy = async (
   };
 };
 
-const deploySuperToken = async (
+const deployPlug = async (
   deployParams: DeployParams,
   socketAddress: string
+): Promise<DeployParams> => {
+  try {
+    const socketPlug: Contract = await getOrDeploy(
+      SuperTokenContracts.SocketPlug,
+      "contracts/supertoken/SocketPlug.sol",
+      [socketAddress],
+      deployParams
+    );
+    deployParams.addresses[SuperTokenContracts.SocketPlug] = socketPlug.address;
+    console.log(deployParams.addresses);
+    console.log("Chain Contracts deployed!");
+  } catch (error) {
+    console.log("Error in deploying chain contracts", error);
+  }
+  return deployParams;
+};
+
+const deploySuperToken = async (
+  deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
     const superToken: Contract = await getOrDeploy(
@@ -163,9 +179,8 @@ const deploySuperToken = async (
         config.tokenSymbol,
         config.tokenDecimal,
         config.initialSupplyOwner,
-        config.owner,
         config.initialSupply,
-        socketAddress,
+        deployParams.addresses[SuperTokenContracts.SocketPlug],
       ],
       deployParams
     );
@@ -179,25 +194,23 @@ const deploySuperToken = async (
 };
 
 const deployVault = async (
-  deployParams: DeployParams,
-  socketAddress: string
+  deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
     if (!deployParams.addresses[SuperTokenContracts.NonSuperToken])
       throw new Error("Token not found on chain");
 
     const vault: Contract = await getOrDeploy(
-      SuperTokenContracts.SuperTokenLocker,
-      "contracts/supertoken/SuperTokenLocker.sol",
+      SuperTokenContracts.Vault,
+      "contracts/supertoken/Vault.sol",
       [
         deployParams.addresses[SuperTokenContracts.NonSuperToken],
-        socketAddress,
+        deployParams.addresses[SuperTokenContracts.SocketPlug],
         config.owner,
       ],
       deployParams
     );
-    deployParams.addresses[SuperTokenContracts.SuperTokenLocker] =
-      vault.address;
+    deployParams.addresses[SuperTokenContracts.Vault] = vault.address;
 
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
