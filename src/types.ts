@@ -73,16 +73,20 @@ export enum SuperTokenContracts {
   NonSuperToken = "MintableToken",
   SuperToken = "SuperToken",
   SuperTokenLocker = "SuperTokenLocker",
+  SocketPlug = "SocketPlug",
 }
 
 export type SuperTokenAddresses = {
-  [chainSlug in ChainSlug]?: ChainAddresses;
+  [chainSlug in ChainSlug]?: SuperTokenChainAddresses;
+};
+
+export type Plugs = {
+  [chainSlug in ChainSlug]?: string;
 };
 
 export type SuperTokenChainAddresses = {
-  [token in Tokens]?: {
-    [SuperBridgeContracts.MintableToken]?: string;
-    [SuperBridgeContracts.NonMintableToken]?: string;
-    [SuperBridgeContracts.Vault]?: string;
-  };
+  [SuperTokenContracts.NonSuperToken]?: string;
+  [SuperTokenContracts.SuperToken]?: string;
+  [SuperTokenContracts.SuperTokenLocker]?: string;
+  [SuperTokenContracts.SocketPlug]: string;
 };
