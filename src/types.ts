@@ -2,6 +2,7 @@ import { ChainSlug, IntegrationTypes } from "./core";
 
 export enum Tokens {
   Moon = "MOON",
+  USDCE = "USDC.e",
   USDC = "USDC",
   WETH = "WETH",
 }

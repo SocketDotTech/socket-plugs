@@ -117,6 +117,21 @@ const _projectConstants: ProjectConstants = {
       },
     },
     [DeploymentMode.PROD]: {
+      [Tokens.USDCE]: {
+        appChain: ChainSlug.AEVO,
+        nonAppChains: [ChainSlug.ARBITRUM, ChainSlug.OPTIMISM],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "5000000",
+            // depositRate: "5000000",
+            depositRate: "57.87",
+            withdrawLimit: "5000000",
+            // withdrawRate: "5000000",
+            withdrawRate: "57.87",
+            poolCount: 0,
+          },
+        },
+      },
       [Tokens.USDC]: {
         appChain: ChainSlug.AEVO,
         nonAppChains: [ChainSlug.ARBITRUM, ChainSlug.OPTIMISM],
