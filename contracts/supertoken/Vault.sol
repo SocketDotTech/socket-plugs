@@ -2,12 +2,20 @@ pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
 
-import "./SuperPlug.sol";
+import "./SocketPlug.sol";
 import {Gauge} from "../common/Gauge.sol";
+import {ISuperToken} from "./ISuperToken.sol";
+import {ISocketPlug} from "./ISocketPlug.sol";
+import {AccessControl} from "../common/AccessControl.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
-contract SuperTokenLocker is Gauge, SuperPlug {
+contract Vault is Gauge, ISuperToken, AccessControl {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
+    ISocketPlug public plug__;
+
+    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     struct UpdateLimitParams {
         bool isLock;
@@ -30,6 +38,7 @@ contract SuperTokenLocker is Gauge, SuperPlug {
 
     error SiblingChainSlugUnavailable();
     error ZeroAmount();
+    error NotPlug();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensDeposited(
@@ -58,15 +67,16 @@ contract SuperTokenLocker is Gauge, SuperPlug {
 
     constructor(
         address token_,
-        address socket_,
-        address owner_
-    ) SuperPlug(socket_, owner_) {
+        address owner_,
+        address plug_
+    ) AccessControl(owner_) {
         token__ = ERC20(token_);
+        plug__ = ISocketPlug(plug_);
     }
 
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
-    ) external onlyOwner {
+    ) external onlyRole(LIMIT_UPDATER_ROLE) {
         for (uint256 i; i < updates_.length; i++) {
             if (updates_[i].isLock) {
                 _consumePartLimit(
@@ -107,8 +117,8 @@ contract SuperTokenLocker is Gauge, SuperPlug {
 
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
-        bytes32 messageId = getMessageId(siblingChainSlug_);
-        _outbound(
+        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
+        plug__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
             abi.encode(receiver_, amount_, messageId)
@@ -147,7 +157,7 @@ contract SuperTokenLocker is Gauge, SuperPlug {
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override {
-        if (msg.sender != address(socket__)) revert NotSocket();
+        if (msg.sender != address(plug__)) revert NotPlug();
 
         if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingChainSlugUnavailable();
@@ -212,7 +222,7 @@ contract SuperTokenLocker is Gauge, SuperPlug {
         address token_,
         address rescueTo_,
         uint256 amount_
-    ) external onlyOwner {
+    ) external onlyRole(RESCUE_ROLE) {
         RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }
