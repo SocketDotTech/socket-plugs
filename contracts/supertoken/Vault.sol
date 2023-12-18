@@ -8,6 +8,7 @@ import {ISuperToken} from "./ISuperToken.sol";
 import {ISocketPlug} from "./ISocketPlug.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import "forge-std/console.sol";
 
 contract Vault is Gauge, ISuperToken, AccessControl {
     using SafeTransferLib for ERC20;

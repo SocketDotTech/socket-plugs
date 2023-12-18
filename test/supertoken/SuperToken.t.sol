@@ -5,12 +5,12 @@ import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
 import "../mocks/NonMintableToken.sol";
 
-import "../../contracts/supertoken/SuperPlug.sol";
+import "../../contracts/supertoken/SocketPlug.sol";
 import "../../contracts/supertoken/SuperToken.sol";
-import "../../contracts/supertoken/SuperTokenLocker.sol";
+import "../../contracts/supertoken/Vault.sol";
 import "../mocks/MockSocket.sol";
 
-contract TestAppChainToken is Test {
+contract TestVault is Test {
     MockSocket _socket;
     uint256 _c;
     address _admin;
@@ -24,14 +24,19 @@ contract TestAppChainToken is Test {
 
     address switchboard;
 
+    SocketPlug superTokenPlug;
     SuperToken superToken;
+
+    SocketPlug otherSuperTokenPlug;
     SuperToken otherSuperToken;
 
     MintableToken notSuperTokenArb;
     MintableToken notSuperTokenOpt;
 
-    SuperTokenLocker arbLocker;
-    SuperTokenLocker optLocker;
+    SocketPlug arbLockerPlug;
+    Vault arbLocker;
+    SocketPlug optLockerPlug;
+    Vault optLocker;
 
     uint256 public constant FAST_MAX_LIMIT = 100;
     uint256 public constant FAST_RATE = 1;
@@ -39,6 +44,8 @@ contract TestAppChainToken is Test {
     uint256 public constant SLOW_RATE = 2;
     uint256 public constant MSG_GAS_LIMIT = 200_000;
     uint256 public constant BOOTSTRAP_TIME = 250;
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
+    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
     function setUp() external {
         _admin = address(uint160(_c++));
@@ -59,6 +66,8 @@ contract TestAppChainToken is Test {
 
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
         notSuperTokenOpt = new MintableToken("Moon", "MOON", 18);
+
+        superTokenPlug = new SocketPlug(address(_socket), _admin);
         superToken = new SuperToken(
             "Moon",
             "MOON",
@@ -66,9 +75,11 @@ contract TestAppChainToken is Test {
             _admin,
             _admin,
             100000,
-            address(_socket)
+            address(superTokenPlug)
         );
+        superTokenPlug.setSuperToken(address(superToken));
 
+        otherSuperTokenPlug = new SocketPlug(address(_socket), _admin);
         otherSuperToken = new SuperToken(
             "Moon",
             "MOON",
@@ -76,60 +87,66 @@ contract TestAppChainToken is Test {
             _admin,
             _admin,
             100000,
-            address(_socket)
+            address(otherSuperTokenPlug)
         );
+        otherSuperTokenPlug.setSuperToken(address(otherSuperToken));
 
-        arbLocker = new SuperTokenLocker(
+        arbLockerPlug = new SocketPlug(address(_socket), _admin);
+        arbLocker = new Vault(
             address(notSuperTokenArb),
-            address(_socket),
-            _admin
+            _admin,
+            address(arbLockerPlug)
         );
-        optLocker = new SuperTokenLocker(
+        arbLockerPlug.setSuperToken(address(arbLocker));
+
+        optLockerPlug = new SocketPlug(address(_socket), _admin);
+        optLocker = new Vault(
             address(notSuperTokenOpt),
-            address(_socket),
-            _admin
+            _admin,
+            address(optLockerPlug)
         );
+        optLockerPlug.setSuperToken(address(optLocker));
 
         _connectPlugs(
-            superToken,
+            superTokenPlug,
             chainSlug,
             arbChainSlug,
-            address(arbLocker),
+            address(arbLockerPlug),
             switchboard
         );
         _connectPlugs(
-            superToken,
+            superTokenPlug,
             chainSlug,
             optChainSlug,
-            address(optLocker),
+            address(optLockerPlug),
             switchboard
         );
         _connectPlugs(
-            arbLocker,
+            arbLockerPlug,
             arbChainSlug,
             chainSlug,
-            address(superToken),
+            address(superTokenPlug),
             switchboard
         );
         _connectPlugs(
-            optLocker,
+            optLockerPlug,
             optChainSlug,
             chainSlug,
-            address(superToken),
+            address(superTokenPlug),
             switchboard
         );
         _connectPlugs(
-            otherSuperToken,
+            otherSuperTokenPlug,
             otherChainSlug,
             chainSlug,
-            address(superToken),
+            address(superTokenPlug),
             switchboard
         );
         _connectPlugs(
-            superToken,
+            superTokenPlug,
             chainSlug,
             otherChainSlug,
-            address(otherSuperToken),
+            address(otherSuperTokenPlug),
             switchboard
         );
 
@@ -145,7 +162,7 @@ contract TestAppChainToken is Test {
     }
 
     function _connectPlugs(
-        SuperPlug plug,
+        SocketPlug plug,
         uint32 slug,
         uint32 siblingSlug,
         address siblingPlug,
@@ -161,6 +178,8 @@ contract TestAppChainToken is Test {
     }
 
     function _setTokenLimits(SuperToken token, uint32 siblingSlug) internal {
+        token.grantRole(LIMIT_UPDATER_ROLE, _admin);
+
         SuperToken.UpdateLimitParams[]
             memory u = new SuperToken.UpdateLimitParams[](4);
         u[0] = SuperToken.UpdateLimitParams(
@@ -179,19 +198,17 @@ contract TestAppChainToken is Test {
         skip(BOOTSTRAP_TIME);
     }
 
-    function _setLockerLimits(
-        SuperTokenLocker locker,
-        uint32 siblingSlug
-    ) internal {
-        SuperTokenLocker.UpdateLimitParams[]
-            memory u = new SuperTokenLocker.UpdateLimitParams[](8);
-        u[0] = SuperTokenLocker.UpdateLimitParams(
+    function _setLockerLimits(Vault locker, uint32 siblingSlug) internal {
+        locker.grantRole(LIMIT_UPDATER_ROLE, _admin);
+
+        Vault.UpdateLimitParams[] memory u = new Vault.UpdateLimitParams[](8);
+        u[0] = Vault.UpdateLimitParams(
             true,
             siblingSlug,
             FAST_MAX_LIMIT,
             FAST_RATE
         );
-        u[1] = SuperTokenLocker.UpdateLimitParams(
+        u[1] = Vault.UpdateLimitParams(
             false,
             siblingSlug,
             FAST_MAX_LIMIT,
@@ -202,7 +219,7 @@ contract TestAppChainToken is Test {
         skip(BOOTSTRAP_TIME);
     }
 
-    function testSuperTokenLockerToSuperTokenDeposit() external {
+    function testVaultToSuperTokenDeposit() external {
         uint256 depositAmount = 44;
 
         vm.prank(_admin);
@@ -230,7 +247,7 @@ contract TestAppChainToken is Test {
         assertEq(
             vaultBalAfter,
             vaultBalBefore + depositAmount,
-            "SuperTokenLocker bal sus"
+            "Vault bal sus"
         );
         assertEq(
             tokenSupplyAfter,
@@ -239,7 +256,7 @@ contract TestAppChainToken is Test {
         );
     }
 
-    function testSuperTokenToSuperTokenLockerDeposit() external {
+    function testSuperTokenToVaultDeposit() external {
         uint256 depositAmount = 44;
 
         vm.prank(_admin);
@@ -267,7 +284,7 @@ contract TestAppChainToken is Test {
         assertEq(
             vaultBalAfter,
             vaultBalBefore - depositAmount,
-            "SuperTokenLocker bal sus"
+            "Vault bal sus"
         );
         assertEq(
             totalSupplyAfter,
@@ -314,7 +331,7 @@ contract TestAppChainToken is Test {
 
     function testDisconnect() external {
         hoax(_admin);
-        superToken.disconnect(arbChainSlug);
+        superTokenPlug.disconnect(arbChainSlug);
 
         uint256 depositAmount = 100;
         vm.prank(_admin);
@@ -323,7 +340,7 @@ contract TestAppChainToken is Test {
         vm.startPrank(_raju);
         superToken.approve(address(arbLocker), depositAmount);
 
-        vm.expectRevert(SuperTokenLocker.SiblingChainSlugUnavailable.selector);
+        vm.expectRevert(Vault.SiblingChainSlugUnavailable.selector);
         arbLocker.bridge(_ramu, arbChainSlug, depositAmount, MSG_GAS_LIMIT);
     }
 }
