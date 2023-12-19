@@ -52,12 +52,12 @@ export const overrides: {
   },
   [ChainSlug.OPTIMISM]: {
     type,
-    gasLimit: 2_000_000,
+    // gasLimit: 2_000_000,
     gasPrice,
   },
   [ChainSlug.ARBITRUM]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 2_000_000,
     gasPrice,
   },
   [ChainSlug.AEVO]: {
@@ -89,6 +89,11 @@ export const overrides: {
     // type: 1,
     gasLimit: 5_000_000,
     // gasPrice: 20_000_000_000,
+  },
+  [ChainSlug.POLYGON_MAINNET]: {
+    type: 1,
+    gasLimit: 5_000_000,
+    gasPrice: 200_000_000_000,
   },
 };
 

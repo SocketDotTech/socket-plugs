@@ -1,4 +1,3 @@
-import { parseUnits } from "ethers/lib/utils";
 import { socketOwner } from "../../helpers/constants";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 

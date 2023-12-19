@@ -117,7 +117,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
 
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
-        bytes32 messageId = plug__.getMessageId();
+        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
         plug__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,

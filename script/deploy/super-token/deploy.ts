@@ -165,7 +165,6 @@ const setSuperToken = async (
     );
 
     socketPlug = socketPlug.connect(deployParams.signer);
-
     const contractState = await socketPlug.token__();
     console.log(
       `contract state: ${contractState}, superToken: ${superToken}, ${deployParams.currentChainSlug}`
@@ -198,7 +197,7 @@ const deployPlug = async (
     const socketPlug: Contract = await getOrDeploy(
       SuperTokenContracts.SocketPlug,
       "contracts/supertoken/SocketPlug.sol",
-      [socketAddress, config.owner],
+      [socketAddress, config.owner, deployParams.currentChainSlug],
       deployParams,
       config.projectName.toLowerCase()
     );

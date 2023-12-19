@@ -8,10 +8,10 @@ import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
 import { config } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
 
-const srcChain = ChainSlug.ARBITRUM_GOERLI;
+const srcChain = ChainSlug.OPTIMISM_GOERLI;
 const dstChain = ChainSlug.POLYGON_MUMBAI;
 const gasLimit = 500_000;
-let amount = utils.parseUnits("1", 4);
+let amount = utils.parseUnits("5", config.tokenDecimal);
 
 export const main = async () => {
   try {
@@ -35,30 +35,10 @@ export const main = async () => {
       await getInstance(SuperTokenContracts.SuperToken, tokenAddr)
     ).connect(socketSigner);
 
-    // approve
-    const balance: BigNumber = await tokenContract.balanceOf(
-      socketSigner.address
-    );
-    if (balance.lt(amount)) throw new Error("Not enough balance");
-
     const limit: BigNumber = await tokenContract.getCurrentSendingLimit(
       dstChain
     );
     if (limit.lt(amount)) throw new Error("Exceeding max limit");
-
-    const currentApproval: BigNumber = await tokenContract.allowance(
-      socketSigner.address,
-      tokenContract.address
-    );
-    if (currentApproval.lt(amount)) {
-      const approveTx = await tokenContract.approve(
-        tokenContract.address,
-        amount,
-        { ...overrides[srcChain as ChainSlug] }
-      );
-      console.log("Tokens approved: ", approveTx.hash);
-      await approveTx.wait();
-    }
 
     // deposit
     console.log(`depositing ${amount} to app chain from ${srcChain}`);

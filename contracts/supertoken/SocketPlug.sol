@@ -13,6 +13,7 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
 
     uint32 public immutable chainSlug;
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+    mapping(uint32 => address) public siblingPlugs;
 
     event SocketPlugDisconnected(uint32 siblingChainSlug);
     event SocketUpdated();
@@ -88,6 +89,8 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
         address inboundSwitchboard_,
         address outboundSwitchboard_
     ) external onlyOwner {
+        siblingPlugs[siblingChainSlug_] = siblingPlug_;
+
         socket__.connect(
             siblingChainSlug_,
             siblingPlug_,
@@ -115,11 +118,13 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
         emit SocketPlugDisconnected(siblingChainSlug_);
     }
 
-    function getMessageId() public view returns (bytes32) {
+    function getMessageId(
+        uint32 siblingChainSlug_
+    ) public view returns (bytes32) {
         return
             bytes32(
                 (uint256(chainSlug) << 224) |
-                    (uint256(uint160(address(this))) << 64) |
+                    (uint256(uint160(siblingPlugs[siblingChainSlug_])) << 64) |
                     (ISocket(socket__).globalMessageCount())
             );
     }

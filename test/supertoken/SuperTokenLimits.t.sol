@@ -214,7 +214,7 @@ contract TestSuperTokenLimits is Test {
 
         bytes32 messageId = bytes32(
             (uint256(_siblingSlug) << 224) |
-                (uint256(uint160(address(superTokenPlug))) << 64) |
+                (uint256(uint160(address(0))) << 64) |
                 (0)
         );
         bytes memory payload = abi.encode(_raju, withdrawAmount, messageId);
@@ -285,7 +285,7 @@ contract TestSuperTokenLimits is Test {
 
         bytes32 messageId = bytes32(
             (uint256(_siblingSlug) << 224) |
-                (uint256(uint160(address(superTokenPlug))) << 64) |
+                (uint256(uint160(address(0))) << 64) |
                 (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
@@ -353,7 +353,7 @@ contract TestSuperTokenLimits is Test {
 
         bytes32 messageId = bytes32(
             (uint256(_siblingSlug) << 224) |
-                (uint256(uint160(address(superTokenPlug))) << 64) |
+                (uint256(uint160(address(0))) << 64) |
                 (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);

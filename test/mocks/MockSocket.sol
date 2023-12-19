@@ -67,7 +67,7 @@ contract MockSocket is ISocket {
         return
             bytes32(
                 (uint256(_localSlug) << 224) |
-                    (uint256(uint160(msg.sender)) << 64) |
+                    (uint256(uint160(srcPlugConfig.siblingPlug)) << 64) |
                     0
             );
     }
