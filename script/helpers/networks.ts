@@ -22,7 +22,7 @@ export const overrides: {
 } = {
   [ChainSlug.ARBITRUM_GOERLI]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.ARBITRUM_SEPOLIA]: {
@@ -87,7 +87,7 @@ export const overrides: {
   },
   [ChainSlug.POLYGON_MUMBAI]: {
     // type: 1,
-    gasLimit: 10_000_000,
+    gasLimit: 5_000_000,
     // gasPrice: 20_000_000_000,
   },
 };
