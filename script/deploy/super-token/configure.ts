@@ -1,4 +1,4 @@
-import { BigNumber, Contract, Wallet } from "ethers";
+import { BigNumber, Contract, Wallet, utils } from "ethers";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 
 import {
@@ -24,12 +24,21 @@ type UpdateLimitParams = [
   string | number | BigNumber
 ];
 
+const LIMIT_UPDATER_ROLE = utils
+  .keccak256(utils.toUtf8Bytes("LIMIT_UPDATER_ROLE"))
+  .toString();
+const RESCUE_ROLE = utils
+  .keccak256(utils.toUtf8Bytes("RESCUE_ROLE"))
+  .toString();
+
 export const main = async () => {
   try {
     const addresses: SuperTokenAddresses = await getSuperTokenProjectAddresses(
-      config.projectName
+      config.projectName.toLowerCase()
     );
-    const chains = Object.keys(addresses).map((c) => parseInt(c) as ChainSlug);
+    const chains = Object.keys(addresses)
+      .filter((c) => c !== "default")
+      .map((c) => parseInt(c) as ChainSlug);
 
     await Promise.all(
       chains.map(async (chain) => {
@@ -41,6 +50,7 @@ export const main = async () => {
 
         const socketSigner = getSignerFromChainSlug(chain);
         await connect(addresses, chain, siblingSlugs, socketSigner);
+        await grantRoles(addr, chain, socketSigner);
 
         const updateLimitParams: UpdateLimitParams[] = [];
         for (let sibling of siblingSlugs) {
@@ -103,6 +113,68 @@ export const main = async () => {
   }
 };
 
+const grantRoles = async (
+  addresses: SuperTokenChainAddresses,
+  chain: ChainSlug,
+  socketSigner: Wallet
+) => {
+  try {
+    const addr = addresses[SuperTokenContracts.SuperToken]
+      ? addresses[SuperTokenContracts.SuperToken]
+      : addresses[SuperTokenContracts.SuperTokenVault];
+    let tokenOrVault: Contract = await getInstance(
+      SuperTokenContracts.SuperToken,
+      addr
+    );
+    tokenOrVault = tokenOrVault.connect(socketSigner);
+
+    // limit updater
+    {
+      const contractState = await tokenOrVault.hasRole(
+        LIMIT_UPDATER_ROLE,
+        socketSigner.address
+      );
+      console.log(
+        `contract state: ${contractState}, role: limit updater, ${chain}`
+      );
+      if (contractState) {
+        console.log("limit updater role already set!");
+      } else {
+        let tx = await tokenOrVault.grantRole(
+          LIMIT_UPDATER_ROLE,
+          socketSigner.address,
+          {
+            ...overrides[chain],
+          }
+        );
+        console.log(chain, tx.hash);
+        await tx.wait();
+      }
+    }
+
+    const contractState = await tokenOrVault.hasRole(
+      RESCUE_ROLE,
+      socketSigner.address
+    );
+    console.log(
+      `contract state: ${contractState}, role: rescue updater, ${chain}`
+    );
+    if (contractState) {
+      console.log("Rescue role already set!");
+    } else {
+      let tx = await tokenOrVault.grantRole(RESCUE_ROLE, socketSigner.address, {
+        ...overrides[chain],
+      });
+      console.log(chain, tx.hash);
+      await tx.wait();
+    }
+
+    console.log("Initialized Socket plug!");
+  } catch (error) {
+    console.log("Error in setting roles in contracts", error);
+  }
+};
+
 const connect = async (
   addresses: SuperTokenAddresses,
   chain: ChainSlug,
@@ -114,7 +186,6 @@ const connect = async (
 
     const localPlug = addresses[chain][SuperTokenContracts.SocketPlug];
     const socketContract: Contract = getSocket(chain, socketSigner);
-
     if (!localPlug) return;
 
     for (let sibling of siblingSlugs) {
@@ -134,7 +205,6 @@ const connect = async (
       }
 
       let plugConfig = await socketContract.getPlugConfig(localPlug, sibling);
-
       if (plugConfig[0].toLowerCase() === siblingPlug.toLowerCase()) {
         console.log("already set, confirming ", { plugConfig });
         continue;
@@ -145,7 +215,9 @@ const connect = async (
       ).connect(socketSigner);
 
       let tx = await connectorContract.functions["connect"](
+        sibling,
         siblingPlug,
+        switchboard,
         switchboard,
         { ...overrides[chain] }
       );

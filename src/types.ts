@@ -70,7 +70,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
 ////// **** SUPER TOKEN TYPES **** //////
 
 export enum SuperTokenContracts {
-  NonSuperToken = "MintableToken",
+  NonSuperToken = "NonSuperToken",
   SuperToken = "SuperToken",
   SuperTokenVault = "SuperTokenVault",
   SocketPlug = "SocketPlug",
@@ -78,10 +78,6 @@ export enum SuperTokenContracts {
 
 export type SuperTokenAddresses = {
   [chainSlug in ChainSlug]?: SuperTokenChainAddresses;
-};
-
-export type Plugs = {
-  [chainSlug in ChainSlug]?: string;
 };
 
 export type SuperTokenChainAddresses = {

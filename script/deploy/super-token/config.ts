@@ -9,11 +9,11 @@ export const config = {
   tokenDecimal: 18,
   initialSupplyOwner: socketOwner,
   owner: socketOwner,
-  initialSupply: parseUnits("1000000", "ether"),
+  initialSupply: 0, //parseUnits("1000000", "ether"),
   superTokenChains: [ChainSlug.OPTIMISM_SEPOLIA, ChainSlug.ARBITRUM_SEPOLIA],
   vaultTokens: {
     [ChainSlug.POLYGON_MUMBAI]: {
-      token: "",
+      token: "0xB24d5ef4066Ba3eAF276313F6c476b82a5eDd780",
     },
   },
   integrationType: IntegrationTypes.fast,

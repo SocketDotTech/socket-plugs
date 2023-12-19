@@ -132,13 +132,15 @@ export const getChainSlug = async (): Promise<number> => {
 export const storeAddresses = async (
   addresses: TokenAddresses | SuperTokenChainAddresses,
   chainSlug: ChainSlug,
+  fileName: string,
+  tokenName = token.toString(),
   pathToDeployments = deploymentsPath
 ) => {
   if (!fs.existsSync(pathToDeployments)) {
     await fs.promises.mkdir(pathToDeployments, { recursive: true });
   }
 
-  const addressesPath = pathToDeployments + `${mode}_${project}_addresses.json`;
+  const addressesPath = pathToDeployments + fileName;
   const outputExists = fs.existsSync(addressesPath);
   let deploymentAddresses: ProjectAddresses = {};
   if (outputExists) {
@@ -148,7 +150,7 @@ export const storeAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    [chainSlug.toString(), token],
+    [chainSlug.toString(), tokenName],
     addresses
   );
   // deploymentAddresses[chainSlug][token] = addresses;

@@ -1,5 +1,11 @@
+import fs from "fs";
 import path from "path";
-import { SuperTokenAddresses } from "../../../src";
+
+import {
+  ChainSlug,
+  SuperTokenAddresses,
+  SuperTokenChainAddresses,
+} from "../../../src";
 import { mode } from "../../helpers/constants";
 import { BigNumber, utils } from "ethers";
 
@@ -22,6 +28,28 @@ export const superTokenDeploymentsPath = path.join(
   __dirname,
   `../../../deployments/supertoken/`
 );
+
+export const storeSuperTokenAddresses = async (
+  addresses: SuperTokenChainAddresses,
+  chainSlug: ChainSlug,
+  fileName: string,
+  pathToDeployments: string
+) => {
+  if (!fs.existsSync(pathToDeployments)) {
+    await fs.promises.mkdir(pathToDeployments, { recursive: true });
+  }
+
+  const addressesPath = pathToDeployments + fileName;
+  const outputExists = fs.existsSync(addressesPath);
+  let deploymentAddresses: SuperTokenAddresses = {};
+  if (outputExists) {
+    const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
+    deploymentAddresses = JSON.parse(deploymentAddressesString);
+  }
+
+  deploymentAddresses[chainSlug.toString()] = addresses;
+  fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
+};
 
 export const getSuperTokenLimitBN = (
   limit: string,

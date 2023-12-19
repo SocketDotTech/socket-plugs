@@ -8,6 +8,7 @@ import {
   integrationTypes,
   isAppChain,
   mode,
+  project,
   projectConstants,
   token,
   tokenDecimals,
@@ -120,7 +121,11 @@ const deploy = async (
     );
   }
 
-  await storeAddresses(deployUtils.addresses, deployUtils.currentChainSlug);
+  await storeAddresses(
+    deployUtils.addresses,
+    deployUtils.currentChainSlug,
+    `${mode}_${project.toLowerCase()}_addresses.json`
+  );
   return {
     allDeployed,
     deployedAddresses: deployUtils.addresses as TokenAddresses,
