@@ -114,9 +114,9 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
     ) public view returns (bytes32) {
         return
             bytes32(
-                (uint256(siblingChainSlug_) << 224) |
+                (uint256(block.chainid) << 224) |
                     (uint256(uint160(address(this))) << 64) |
-                    (ISocket(socket__).globalMessageCount() + 1)
+                    (ISocket(socket__).globalMessageCount())
             );
     }
 
