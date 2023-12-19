@@ -10,9 +10,9 @@ export const config = {
   initialSupplyOwner: socketOwner,
   owner: socketOwner,
   initialSupply: parseUnits("1000000", "ether"),
-  superTokenChains: [ChainSlug.OPTIMISM_SEPOLIA, ChainSlug.POLYGON_MUMBAI],
+  superTokenChains: [ChainSlug.OPTIMISM_SEPOLIA, ChainSlug.ARBITRUM_SEPOLIA],
   vaultTokens: {
-    [ChainSlug.ARBITRUM_SEPOLIA]: {
+    [ChainSlug.POLYGON_MUMBAI]: {
       token: "",
     },
   },
