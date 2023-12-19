@@ -5,9 +5,9 @@ import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
 
 import "../../contracts/supertoken/SocketPlug.sol";
-import "../../contracts/supertoken/Vault.sol";
+import "../../contracts/supertoken/SuperTokenVault.sol";
 
-contract TestVaultLimits is Test {
+contract TestSuperTokenVaultLimits is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
@@ -23,7 +23,7 @@ contract TestVaultLimits is Test {
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     MintableToken _token;
-    Vault _locker;
+    SuperTokenVault _locker;
     SocketPlug _lockerPlug;
     address _socket;
 
@@ -40,7 +40,11 @@ contract TestVaultLimits is Test {
         _token = new MintableToken("Moon", "MOON", 18);
 
         _lockerPlug = new SocketPlug(address(_socket), _admin);
-        _locker = new Vault(address(_token), _admin, address(_lockerPlug));
+        _locker = new SuperTokenVault(
+            address(_token),
+            _admin,
+            address(_lockerPlug)
+        );
         _lockerPlug.setSuperToken(address(_locker));
 
         _token.mint(_raju, _rajuInitialBal);
@@ -49,27 +53,28 @@ contract TestVaultLimits is Test {
     }
 
     function _setLimits() internal {
-        Vault.UpdateLimitParams[] memory u = new Vault.UpdateLimitParams[](4);
-        u[0] = Vault.UpdateLimitParams(
+        SuperTokenVault.UpdateLimitParams[]
+            memory u = new SuperTokenVault.UpdateLimitParams[](4);
+        u[0] = SuperTokenVault.UpdateLimitParams(
             false,
             _siblingSlug1,
             _unlockMaxLimit,
             _unlockRate
         );
-        u[1] = Vault.UpdateLimitParams(
+        u[1] = SuperTokenVault.UpdateLimitParams(
             true,
             _siblingSlug1,
             _lockMaxLimit,
             _lockRate
         );
 
-        u[2] = Vault.UpdateLimitParams(
+        u[2] = SuperTokenVault.UpdateLimitParams(
             false,
             _siblingSlug2,
             _unlockMaxLimit,
             _unlockRate
         );
-        u[3] = Vault.UpdateLimitParams(
+        u[3] = SuperTokenVault.UpdateLimitParams(
             true,
             _siblingSlug2,
             _lockMaxLimit,
@@ -86,10 +91,9 @@ contract TestVaultLimits is Test {
     function testUpdateLimitParams() external {
         _setLimits();
 
-        Vault.LimitParams memory burnLimitParams = _locker.getLockLimitParams(
-            _siblingSlug1
-        );
-        Vault.LimitParams memory unlockLimitParams = _locker
+        SuperTokenVault.LimitParams memory burnLimitParams = _locker
+            .getLockLimitParams(_siblingSlug1);
+        SuperTokenVault.LimitParams memory unlockLimitParams = _locker
             .getUnlockLimitParams(_siblingSlug1);
 
         assertEq(
@@ -116,14 +120,15 @@ contract TestVaultLimits is Test {
     }
 
     function testUpdateLimitParamsRaju() external {
-        Vault.UpdateLimitParams[] memory u = new Vault.UpdateLimitParams[](2);
-        u[0] = Vault.UpdateLimitParams(
+        SuperTokenVault.UpdateLimitParams[]
+            memory u = new SuperTokenVault.UpdateLimitParams[](2);
+        u[0] = SuperTokenVault.UpdateLimitParams(
             true,
             _siblingSlug1,
             _unlockMaxLimit,
             _unlockRate
         );
-        u[1] = Vault.UpdateLimitParams(
+        u[1] = SuperTokenVault.UpdateLimitParams(
             false,
             _siblingSlug1,
             _lockMaxLimit,
@@ -176,7 +181,7 @@ contract TestVaultLimits is Test {
         vm.startPrank(_raju);
         _token.approve(address(_locker), depositAmount);
 
-        vm.expectRevert(Vault.ZeroAmount.selector);
+        vm.expectRevert(SuperTokenVault.ZeroAmount.selector);
         _locker.bridge{value: _fees}(
             _raju,
             _siblingSlug1,

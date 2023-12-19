@@ -10,7 +10,7 @@ import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import "forge-std/console.sol";
 
-contract Vault is Gauge, ISuperToken, AccessControl {
+contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
     ISocketPlug public plug__;

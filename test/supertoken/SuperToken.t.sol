@@ -7,10 +7,10 @@ import "../mocks/NonMintableToken.sol";
 
 import "../../contracts/supertoken/SocketPlug.sol";
 import "../../contracts/supertoken/SuperToken.sol";
-import "../../contracts/supertoken/Vault.sol";
+import "../../contracts/supertoken/SuperTokenVault.sol";
 import "../mocks/MockSocket.sol";
 
-contract TestVault is Test {
+contract TestSuperToken is Test {
     MockSocket _socket;
     uint256 _c;
     address _admin;
@@ -34,9 +34,9 @@ contract TestVault is Test {
     MintableToken notSuperTokenOpt;
 
     SocketPlug arbLockerPlug;
-    Vault arbLocker;
+    SuperTokenVault arbLocker;
     SocketPlug optLockerPlug;
-    Vault optLocker;
+    SuperTokenVault optLocker;
 
     uint256 public constant FAST_MAX_LIMIT = 100;
     uint256 public constant FAST_RATE = 1;
@@ -92,7 +92,7 @@ contract TestVault is Test {
         otherSuperTokenPlug.setSuperToken(address(otherSuperToken));
 
         arbLockerPlug = new SocketPlug(address(_socket), _admin);
-        arbLocker = new Vault(
+        arbLocker = new SuperTokenVault(
             address(notSuperTokenArb),
             _admin,
             address(arbLockerPlug)
@@ -100,7 +100,7 @@ contract TestVault is Test {
         arbLockerPlug.setSuperToken(address(arbLocker));
 
         optLockerPlug = new SocketPlug(address(_socket), _admin);
-        optLocker = new Vault(
+        optLocker = new SuperTokenVault(
             address(notSuperTokenOpt),
             _admin,
             address(optLockerPlug)
@@ -198,17 +198,21 @@ contract TestVault is Test {
         skip(BOOTSTRAP_TIME);
     }
 
-    function _setLockerLimits(Vault locker, uint32 siblingSlug) internal {
+    function _setLockerLimits(
+        SuperTokenVault locker,
+        uint32 siblingSlug
+    ) internal {
         locker.grantRole(LIMIT_UPDATER_ROLE, _admin);
 
-        Vault.UpdateLimitParams[] memory u = new Vault.UpdateLimitParams[](8);
-        u[0] = Vault.UpdateLimitParams(
+        SuperTokenVault.UpdateLimitParams[]
+            memory u = new SuperTokenVault.UpdateLimitParams[](8);
+        u[0] = SuperTokenVault.UpdateLimitParams(
             true,
             siblingSlug,
             FAST_MAX_LIMIT,
             FAST_RATE
         );
-        u[1] = Vault.UpdateLimitParams(
+        u[1] = SuperTokenVault.UpdateLimitParams(
             false,
             siblingSlug,
             FAST_MAX_LIMIT,
@@ -219,7 +223,7 @@ contract TestVault is Test {
         skip(BOOTSTRAP_TIME);
     }
 
-    function testVaultToSuperTokenDeposit() external {
+    function testSuperTokenVaultToSuperTokenDeposit() external {
         uint256 depositAmount = 44;
 
         vm.prank(_admin);
@@ -247,7 +251,7 @@ contract TestVault is Test {
         assertEq(
             vaultBalAfter,
             vaultBalBefore + depositAmount,
-            "Vault bal sus"
+            "SuperTokenVault bal sus"
         );
         assertEq(
             tokenSupplyAfter,
@@ -256,7 +260,7 @@ contract TestVault is Test {
         );
     }
 
-    function testSuperTokenToVaultDeposit() external {
+    function testSuperTokenToSuperTokenVaultDeposit() external {
         uint256 depositAmount = 44;
 
         vm.prank(_admin);
@@ -284,7 +288,7 @@ contract TestVault is Test {
         assertEq(
             vaultBalAfter,
             vaultBalBefore - depositAmount,
-            "Vault bal sus"
+            "SuperTokenVault bal sus"
         );
         assertEq(
             totalSupplyAfter,
@@ -340,7 +344,7 @@ contract TestVault is Test {
         vm.startPrank(_raju);
         superToken.approve(address(arbLocker), depositAmount);
 
-        vm.expectRevert(Vault.SiblingChainSlugUnavailable.selector);
+        vm.expectRevert(SuperTokenVault.SiblingChainSlugUnavailable.selector);
         arbLocker.bridge(_ramu, arbChainSlug, depositAmount, MSG_GAS_LIMIT);
     }
 }

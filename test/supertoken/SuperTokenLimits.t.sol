@@ -6,7 +6,6 @@ import "../mocks/MintableToken.sol";
 
 import "../../contracts/supertoken/SocketPlug.sol";
 import "../../contracts/supertoken/SuperToken.sol";
-import "../../contracts/supertoken/Vault.sol";
 import "../mocks/MockSocket.sol";
 
 contract TestSuperTokenLimits is Test {

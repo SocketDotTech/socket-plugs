@@ -99,7 +99,8 @@ const deploy = async (
   };
 
   try {
-    deployUtils.addresses.isAppChain = isAppChain;
+    const addr = deployUtils.addresses as TokenAddresses;
+    addr.isAppChain = isAppChain;
     if (isAppChain) {
       deployUtils = await deployAppChainContracts(deployUtils);
     } else {
@@ -122,7 +123,7 @@ const deploy = async (
   await storeAddresses(deployUtils.addresses, deployUtils.currentChainSlug);
   return {
     allDeployed,
-    deployedAddresses: deployUtils.addresses,
+    deployedAddresses: deployUtils.addresses as TokenAddresses,
   };
 };
 
@@ -138,7 +139,7 @@ const deployConnectors = async (
       mode
     ).Socket;
     let hub: string;
-    const addr: TokenAddresses = deployParams.addresses;
+    const addr: TokenAddresses = deployParams.addresses as TokenAddresses;
     if (addr.isAppChain) {
       const a = addr as AppChainAddresses;
       if (!a.Controller) throw new Error("Controller not found!");

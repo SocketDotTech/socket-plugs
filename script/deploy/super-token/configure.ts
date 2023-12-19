@@ -81,10 +81,10 @@ export const main = async () => {
             SuperTokenContracts.SuperToken,
             addr[SuperTokenContracts.SuperToken]
           );
-        } else if (addr[SuperTokenContracts.Vault]) {
+        } else if (addr[SuperTokenContracts.SuperTokenVault]) {
           contract = await getInstance(
-            SuperTokenContracts.Vault,
-            addr[SuperTokenContracts.Vault]
+            SuperTokenContracts.SuperTokenVault,
+            addr[SuperTokenContracts.SuperTokenVault]
           );
         } else throw new Error(`Not a super token address config, ${addr}`);
 

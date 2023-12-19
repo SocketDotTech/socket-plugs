@@ -39,7 +39,8 @@ export const getOrDeploy = async (
   contractName: string,
   path: string,
   args: any[],
-  deployUtils: DeployParams
+  deployUtils: DeployParams,
+  projectName = project.toString()
 ): Promise<Contract> => {
   if (!deployUtils || !deployUtils.addresses)
     throw new Error("No addresses found");
@@ -53,7 +54,7 @@ export const getOrDeploy = async (
     );
 
     console.log(
-      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${mode}, ${project} at address ${contract.address}`
+      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${mode}, ${projectName} at address ${contract.address}`
     );
 
     await storeVerificationParams(
@@ -66,7 +67,7 @@ export const getOrDeploy = async (
       deployUtils.addresses[contractName]
     );
     console.log(
-      `${contractName} found on ${deployUtils.currentChainSlug} for ${mode}, ${project} at address ${contract.address}`
+      `${contractName} found on ${deployUtils.currentChainSlug} for ${mode}, ${projectName} at address ${contract.address}`
     );
   }
 

@@ -9,7 +9,7 @@ export const getSuperTokenProjectAddresses = async (
   let addresses: SuperTokenAddresses;
   try {
     addresses = await import(
-      `../../deployments/supertoken/${mode}_${project}_addresses.json`
+      `../../../deployments/supertoken/${mode}_${project}_addresses.json`
     );
   } catch (e) {
     console.log("addresses not found", e);
@@ -20,7 +20,7 @@ export const getSuperTokenProjectAddresses = async (
 
 export const superTokenDeploymentsPath = path.join(
   __dirname,
-  `/../../deployments/supertoken/`
+  `../../../deployments/supertoken/`
 );
 
 export const getSuperTokenLimitBN = (
