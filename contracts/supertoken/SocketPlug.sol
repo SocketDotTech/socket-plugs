@@ -11,6 +11,7 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
     ISocket public socket__;
     ISuperToken public token__;
 
+    uint32 public immutable chainSlug;
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
     event SocketPlugDisconnected(uint32 siblingChainSlug);
@@ -21,8 +22,13 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
     error NotSocket();
     error TokenAlreadySet();
 
-    constructor(address socket_, address owner_) AccessControl(owner_) {
+    constructor(
+        address socket_,
+        address owner_,
+        uint32 chainSlug_
+    ) AccessControl(owner_) {
         socket__ = ISocket(socket_);
+        chainSlug = chainSlug_;
     }
 
     function outbound(
@@ -109,12 +115,10 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
         emit SocketPlugDisconnected(siblingChainSlug_);
     }
 
-    function getMessageId(
-        uint32 siblingChainSlug_
-    ) public view returns (bytes32) {
+    function getMessageId() public view returns (bytes32) {
         return
             bytes32(
-                (uint256(block.chainid) << 224) |
+                (uint256(chainSlug) << 224) |
                     (uint256(uint160(address(this))) << 64) |
                     (ISocket(socket__).globalMessageCount())
             );

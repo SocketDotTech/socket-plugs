@@ -126,7 +126,7 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
         ); // reverts on limit hit
         _burn(msg.sender, sendingAmount_);
 
-        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
+        bytes32 messageId = plug__.getMessageId();
         bytes32 returnedMessageId = plug__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,

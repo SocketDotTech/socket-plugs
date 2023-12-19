@@ -27,6 +27,7 @@ contract TestSuperTokenLimits is Test {
     SuperToken _token;
     address _socket;
 
+    uint32 _siblingSlug;
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
 
@@ -39,7 +40,7 @@ contract TestSuperTokenLimits is Test {
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
-        superTokenPlug = new SocketPlug(address(_socket), _admin);
+        superTokenPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
         _token = new SuperToken(
             "Moon",
             "MOON",
@@ -50,7 +51,6 @@ contract TestSuperTokenLimits is Test {
             address(superTokenPlug)
         );
         superTokenPlug.setSuperToken(address(_token));
-
         _token.transfer(_raju, _rajuInitialBal);
 
         vm.stopPrank();
@@ -213,9 +213,9 @@ contract TestSuperTokenLimits is Test {
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
+            (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(superTokenPlug))) << 64) |
-                (1)
+                (0)
         );
         bytes memory payload = abi.encode(_raju, withdrawAmount, messageId);
         vm.startPrank(_raju);
@@ -284,9 +284,9 @@ contract TestSuperTokenLimits is Test {
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
+            (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(superTokenPlug))) << 64) |
-                (1)
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
@@ -352,9 +352,9 @@ contract TestSuperTokenLimits is Test {
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
+            (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(superTokenPlug))) << 64) |
-                (1)
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);

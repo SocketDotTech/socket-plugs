@@ -67,7 +67,7 @@ contract TestSuperToken is Test {
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
         notSuperTokenOpt = new MintableToken("Moon", "MOON", 18);
 
-        superTokenPlug = new SocketPlug(address(_socket), _admin);
+        superTokenPlug = new SocketPlug(address(_socket), _admin, chainSlug);
         superToken = new SuperToken(
             "Moon",
             "MOON",
@@ -79,7 +79,11 @@ contract TestSuperToken is Test {
         );
         superTokenPlug.setSuperToken(address(superToken));
 
-        otherSuperTokenPlug = new SocketPlug(address(_socket), _admin);
+        otherSuperTokenPlug = new SocketPlug(
+            address(_socket),
+            _admin,
+            otherChainSlug
+        );
         otherSuperToken = new SuperToken(
             "Moon",
             "MOON",
@@ -91,7 +95,7 @@ contract TestSuperToken is Test {
         );
         otherSuperTokenPlug.setSuperToken(address(otherSuperToken));
 
-        arbLockerPlug = new SocketPlug(address(_socket), _admin);
+        arbLockerPlug = new SocketPlug(address(_socket), _admin, arbChainSlug);
         arbLocker = new SuperTokenVault(
             address(notSuperTokenArb),
             _admin,
@@ -99,7 +103,7 @@ contract TestSuperToken is Test {
         );
         arbLockerPlug.setSuperToken(address(arbLocker));
 
-        optLockerPlug = new SocketPlug(address(_socket), _admin);
+        optLockerPlug = new SocketPlug(address(_socket), _admin, optChainSlug);
         optLocker = new SuperTokenVault(
             address(notSuperTokenOpt),
             _admin,

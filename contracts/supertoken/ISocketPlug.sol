@@ -12,7 +12,5 @@ interface ISocketPlug {
         uint256 msgGasLimit_
     ) external view returns (uint256 totalFees);
 
-    function getMessageId(
-        uint32 siblingChainSlug_
-    ) external view returns (bytes32);
+    function getMessageId() external view returns (bytes32);
 }

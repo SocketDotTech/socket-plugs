@@ -27,6 +27,7 @@ contract TestSuperTokenVaultLimits is Test {
     SocketPlug _lockerPlug;
     address _socket;
 
+    uint32 _siblingSlug;
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
 
@@ -34,12 +35,13 @@ contract TestSuperTokenVaultLimits is Test {
         vm.startPrank(_admin);
 
         _socket = address(uint160(_c++));
+        _siblingSlug = uint32(_c++);
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
         _token = new MintableToken("Moon", "MOON", 18);
 
-        _lockerPlug = new SocketPlug(address(_socket), _admin);
+        _lockerPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
         _locker = new SuperTokenVault(
             address(_token),
             _admin,
@@ -211,9 +213,9 @@ contract TestSuperTokenVaultLimits is Test {
         _token.approve(address(_locker), depositAmount);
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
+            (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(_lockerPlug))) << 64) |
-                (1)
+                (0)
         );
         bytes memory payload = abi.encode(_raju, depositAmount, messageId);
 
@@ -283,9 +285,9 @@ contract TestSuperTokenVaultLimits is Test {
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
+            (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(_lockerPlug))) << 64) |
-                (1)
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
@@ -354,9 +356,9 @@ contract TestSuperTokenVaultLimits is Test {
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
+            (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(_lockerPlug))) << 64) |
-                (1)
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);

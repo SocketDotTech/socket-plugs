@@ -8,7 +8,6 @@ import {ISuperToken} from "./ISuperToken.sol";
 import {ISocketPlug} from "./ISocketPlug.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import "forge-std/console.sol";
 
 contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
     using SafeTransferLib for ERC20;
@@ -118,7 +117,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
 
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
-        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
+        bytes32 messageId = plug__.getMessageId();
         plug__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
