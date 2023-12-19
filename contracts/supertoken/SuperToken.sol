@@ -1,16 +1,23 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./SuperPlug.sol";
+import "./ISocketPlug.sol";
 import "../common/Gauge.sol";
+import {ISuperToken} from "./ISuperToken.sol";
+import {AccessControl} from "../common/AccessControl.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
-contract SuperToken is ERC20, Gauge, SuperPlug {
+contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
     struct UpdateLimitParams {
         bool isMint;
         uint32 siblingChainSlug;
         uint256 maxLimit;
         uint256 ratePerSecond;
     }
+
+    ISocketPlug public plug__;
+    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     // siblingChainSlug => mintLimitParams
     mapping(uint32 => LimitParams) _receivingLimitParams;
@@ -28,6 +35,7 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
     error SiblingNotSupported();
     error MessageIdMisMatched();
     error ZeroAmount();
+    error NotPlug();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
 
@@ -68,14 +76,15 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         address user_,
         address owner_,
         uint256 initialSupply_,
-        address socket_
-    ) ERC20(name_, symbol_, decimals_) SuperPlug(socket_, owner_) {
+        address plug_
+    ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(user_, initialSupply_);
+        plug__ = ISocketPlug(plug_);
     }
 
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
-    ) external onlyOwner {
+    ) external onlyRole(LIMIT_UPDATER_ROLE) {
         for (uint256 i; i < updates_.length; i++) {
             if (updates_[i].isMint) {
                 _consumePartLimit(
@@ -117,8 +126,8 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         ); // reverts on limit hit
         _burn(msg.sender, sendingAmount_);
 
-        bytes32 messageId = getMessageId(siblingChainSlug_);
-        bytes32 returnedMessageId = _outbound(
+        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
+        bytes32 returnedMessageId = plug__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
             abi.encode(receiver_, sendingAmount_, messageId)
@@ -168,7 +177,7 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override {
-        if (msg.sender != address(socket__)) revert NotSocket();
+        if (msg.sender != address(plug__)) revert NotPlug();
 
         if (_receivingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
@@ -243,7 +252,7 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         address token_,
         address rescueTo_,
         uint256 amount_
-    ) external onlyOwner {
+    ) external onlyRole(RESCUE_ROLE) {
         RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }

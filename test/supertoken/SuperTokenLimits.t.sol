@@ -4,9 +4,8 @@ import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
 
-import "../../contracts/supertoken/SuperPlug.sol";
+import "../../contracts/supertoken/SocketPlug.sol";
 import "../../contracts/supertoken/SuperToken.sol";
-import "../../contracts/supertoken/SuperTokenLocker.sol";
 import "../mocks/MockSocket.sol";
 
 contract TestSuperTokenLimits is Test {
@@ -24,11 +23,15 @@ contract TestSuperTokenLimits is Test {
     uint256 constant _initialSupply = 100000;
     uint256 constant _rajuInitialBal = 1000;
 
+    SocketPlug superTokenPlug;
     SuperToken _token;
     address _socket;
 
+    uint32 _siblingSlug;
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
+
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     function setUp() external {
         vm.startPrank(_admin);
@@ -37,6 +40,7 @@ contract TestSuperTokenLimits is Test {
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
+        superTokenPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
         _token = new SuperToken(
             "Moon",
             "MOON",
@@ -44,9 +48,9 @@ contract TestSuperTokenLimits is Test {
             _admin,
             _admin,
             _initialSupply,
-            _socket
+            address(superTokenPlug)
         );
-
+        superTokenPlug.setSuperToken(address(_token));
         _token.transfer(_raju, _rajuInitialBal);
 
         vm.stopPrank();
@@ -80,6 +84,9 @@ contract TestSuperTokenLimits is Test {
             _burnMaxLimit,
             _burnRate
         );
+
+        vm.prank(_admin);
+        _token.grantRole(LIMIT_UPDATER_ROLE, _admin);
 
         vm.prank(_admin);
         _token.updateLimitParams(u);
@@ -134,7 +141,12 @@ contract TestSuperTokenLimits is Test {
         );
 
         vm.prank(_raju);
-        vm.expectRevert(Ownable.OnlyOwner.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                AccessControl.NoPermit.selector,
+                LIMIT_UPDATER_ROLE
+            )
+        );
         _token.updateLimitParams(u);
     }
 
@@ -184,7 +196,7 @@ contract TestSuperTokenLimits is Test {
         _setLimits();
         uint256 withdrawAmount = 10 ether;
 
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
             abi.encode(_raju, withdrawAmount, bytes32(""))
@@ -201,9 +213,9 @@ contract TestSuperTokenLimits is Test {
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
-                (uint256(uint160(address(_token))) << 64) |
-                (1)
+            (uint256(_siblingSlug) << 224) |
+                (uint256(uint160(address(0))) << 64) |
+                (0)
         );
         bytes memory payload = abi.encode(_raju, withdrawAmount, messageId);
         vm.startPrank(_raju);
@@ -265,16 +277,16 @@ contract TestSuperTokenLimits is Test {
         uint256 usedLimit = 30 ether;
         uint256 time = 10;
         deal(_raju, _fees);
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
             abi.encode(_raju, usedLimit, bytes32(""))
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
-                (uint256(uint160(address(_token))) << 64) |
-                (1)
+            (uint256(_siblingSlug) << 224) |
+                (uint256(uint160(address(0))) << 64) |
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
@@ -333,16 +345,16 @@ contract TestSuperTokenLimits is Test {
         uint256 usedLimit = 30 ether;
         uint256 time = 100;
         deal(_raju, _fees);
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
             abi.encode(_raju, usedLimit, bytes32(""))
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
-                (uint256(uint160(address(_token))) << 64) |
-                (1)
+            (uint256(_siblingSlug) << 224) |
+                (uint256(uint160(address(0))) << 64) |
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
@@ -412,7 +424,7 @@ contract TestSuperTokenLimits is Test {
 
         assertTrue(depositAmount <= mintLimitBefore, "limit hit");
 
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
             abi.encode(_raju, depositAmount, bytes32(""))
@@ -475,7 +487,7 @@ contract TestSuperTokenLimits is Test {
         assertTrue(mintLimitBefore > 0, "no mint limit available");
         assertTrue(depositAmount > mintLimitBefore, "mint not partial");
 
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
             abi.encode(_raju, depositAmount, bytes32(0))
@@ -523,7 +535,7 @@ contract TestSuperTokenLimits is Test {
         uint256 time = 10;
         deal(address(_token), address(_token), usedLimit, true);
 
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(_siblingSlug1, abi.encode(_raju, usedLimit, bytes32(0)));
 
         uint256 mintLimitBefore = _token.getCurrentReceivingLimit(
@@ -552,7 +564,7 @@ contract TestSuperTokenLimits is Test {
         uint256 usedLimit = 20 ether;
         uint256 time = 100;
         deal(address(_token), address(_token), usedLimit, true);
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(_siblingSlug1, abi.encode(_raju, usedLimit, bytes32(0)));
 
         uint256 mintLimitBefore = _token.getCurrentReceivingLimit(
@@ -577,7 +589,7 @@ contract TestSuperTokenLimits is Test {
         uint256 depositAmount = 120 ether;
         uint256 time = 200;
 
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
             abi.encode(_raju, depositAmount, bytes32(0))
@@ -653,7 +665,7 @@ contract TestSuperTokenLimits is Test {
         uint256 time = 5;
         deal(address(_token), address(_token), depositAmount, true);
 
-        vm.prank(_socket);
+        vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
             abi.encode(_raju, depositAmount, bytes32(0))

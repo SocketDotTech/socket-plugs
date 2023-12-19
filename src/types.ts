@@ -14,6 +14,8 @@ export enum Project {
   SX_NETWORK_TESTNET = "sx-network-testnet",
 }
 
+////// **** SUPER BRIDGE TYPES **** //////
+
 export enum SuperBridgeContracts {
   MintableToken = "MintableToken",
   NonMintableToken = "NonMintableToken",
@@ -63,4 +65,24 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.LYRA_TESTNET]: Project.LYRA_TESTNET,
   [ChainSlug.LYRA]: Project.LYRA,
   [ChainSlug.SX_NETWORK_TESTNET]: Project.SX_NETWORK_TESTNET,
+};
+
+////// **** SUPER TOKEN TYPES **** //////
+
+export enum SuperTokenContracts {
+  NonSuperToken = "NonSuperToken",
+  SuperToken = "SuperToken",
+  SuperTokenVault = "SuperTokenVault",
+  SocketPlug = "SocketPlug",
+}
+
+export type SuperTokenAddresses = {
+  [chainSlug in ChainSlug]?: SuperTokenChainAddresses;
+};
+
+export type SuperTokenChainAddresses = {
+  [SuperTokenContracts.NonSuperToken]?: string;
+  [SuperTokenContracts.SuperToken]?: string;
+  [SuperTokenContracts.SuperTokenVault]?: string;
+  [SuperTokenContracts.SocketPlug]: string;
 };

@@ -1,0 +1,15 @@
+{
+  "420": {
+    "SocketPlug": "0x0d4c6fd645Ae536EDdE6688736Fa8c08295ce6f8",
+    "SuperToken": "0x89dFbBde140FCFE428E443e64244913DAe46021d"
+  },
+  "80001": {
+    "SocketPlug": "0x5Fa0244513bC80d2D7E64018f0c9177539640cf8",
+    "NonSuperToken": "0xB24d5ef4066Ba3eAF276313F6c476b82a5eDd780",
+    "SuperTokenVault": "0xF55327A3b9Ae930Ab4391df1a506d24160446620"
+  },
+  "421613": {
+    "SocketPlug": "0xe19877990491DAA2F18137CE578df1a009ed8333",
+    "SuperToken": "0xAcEFb125EBD5a6716856fbf58E2067660949f17C"
+  }
+}

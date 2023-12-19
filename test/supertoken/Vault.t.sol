@@ -4,10 +4,10 @@ import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
 
-import "../../contracts/supertoken/SuperPlug.sol";
-import "../../contracts/supertoken/SuperTokenLocker.sol";
+import "../../contracts/supertoken/SocketPlug.sol";
+import "../../contracts/supertoken/SuperTokenVault.sol";
 
-contract TestSuperTokenLockerLimits is Test {
+contract TestSuperTokenVaultLimits is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
@@ -20,11 +20,14 @@ contract TestSuperTokenLockerLimits is Test {
     uint256 constant _msgGasLimit = 200_000;
     uint256 constant _bootstrapTime = 100;
     uint256 constant _rajuInitialBal = 1000;
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     MintableToken _token;
-    SuperTokenLocker _locker;
+    SuperTokenVault _locker;
+    SocketPlug _lockerPlug;
     address _socket;
 
+    uint32 _siblingSlug;
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
 
@@ -32,45 +35,56 @@ contract TestSuperTokenLockerLimits is Test {
         vm.startPrank(_admin);
 
         _socket = address(uint160(_c++));
+        _siblingSlug = uint32(_c++);
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
         _token = new MintableToken("Moon", "MOON", 18);
-        _locker = new SuperTokenLocker(address(_token), _socket, _admin);
+
+        _lockerPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
+        _locker = new SuperTokenVault(
+            address(_token),
+            _admin,
+            address(_lockerPlug)
+        );
+        _lockerPlug.setSuperToken(address(_locker));
+
         _token.mint(_raju, _rajuInitialBal);
 
         vm.stopPrank();
     }
 
     function _setLimits() internal {
-        SuperTokenLocker.UpdateLimitParams[]
-            memory u = new SuperTokenLocker.UpdateLimitParams[](4);
-        u[0] = SuperTokenLocker.UpdateLimitParams(
+        SuperTokenVault.UpdateLimitParams[]
+            memory u = new SuperTokenVault.UpdateLimitParams[](4);
+        u[0] = SuperTokenVault.UpdateLimitParams(
             false,
             _siblingSlug1,
             _unlockMaxLimit,
             _unlockRate
         );
-        u[1] = SuperTokenLocker.UpdateLimitParams(
+        u[1] = SuperTokenVault.UpdateLimitParams(
             true,
             _siblingSlug1,
             _lockMaxLimit,
             _lockRate
         );
 
-        u[2] = SuperTokenLocker.UpdateLimitParams(
+        u[2] = SuperTokenVault.UpdateLimitParams(
             false,
             _siblingSlug2,
             _unlockMaxLimit,
             _unlockRate
         );
-        u[3] = SuperTokenLocker.UpdateLimitParams(
+        u[3] = SuperTokenVault.UpdateLimitParams(
             true,
             _siblingSlug2,
             _lockMaxLimit,
             _lockRate
         );
 
+        vm.prank(_admin);
+        _locker.grantRole(LIMIT_UPDATER_ROLE, _admin);
         vm.prank(_admin);
         _locker.updateLimitParams(u);
         skip(_bootstrapTime);
@@ -79,9 +93,9 @@ contract TestSuperTokenLockerLimits is Test {
     function testUpdateLimitParams() external {
         _setLimits();
 
-        SuperTokenLocker.LimitParams memory burnLimitParams = _locker
+        SuperTokenVault.LimitParams memory burnLimitParams = _locker
             .getLockLimitParams(_siblingSlug1);
-        SuperTokenLocker.LimitParams memory unlockLimitParams = _locker
+        SuperTokenVault.LimitParams memory unlockLimitParams = _locker
             .getUnlockLimitParams(_siblingSlug1);
 
         assertEq(
@@ -108,15 +122,15 @@ contract TestSuperTokenLockerLimits is Test {
     }
 
     function testUpdateLimitParamsRaju() external {
-        SuperTokenLocker.UpdateLimitParams[]
-            memory u = new SuperTokenLocker.UpdateLimitParams[](2);
-        u[0] = SuperTokenLocker.UpdateLimitParams(
+        SuperTokenVault.UpdateLimitParams[]
+            memory u = new SuperTokenVault.UpdateLimitParams[](2);
+        u[0] = SuperTokenVault.UpdateLimitParams(
             true,
             _siblingSlug1,
             _unlockMaxLimit,
             _unlockRate
         );
-        u[1] = SuperTokenLocker.UpdateLimitParams(
+        u[1] = SuperTokenVault.UpdateLimitParams(
             false,
             _siblingSlug1,
             _lockMaxLimit,
@@ -124,7 +138,12 @@ contract TestSuperTokenLockerLimits is Test {
         );
 
         vm.prank(_raju);
-        vm.expectRevert(Ownable.OnlyOwner.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                AccessControl.NoPermit.selector,
+                LIMIT_UPDATER_ROLE
+            )
+        );
         _locker.updateLimitParams(u);
     }
 
@@ -164,7 +183,7 @@ contract TestSuperTokenLockerLimits is Test {
         vm.startPrank(_raju);
         _token.approve(address(_locker), depositAmount);
 
-        vm.expectRevert(SuperTokenLocker.ZeroAmount.selector);
+        vm.expectRevert(SuperTokenVault.ZeroAmount.selector);
         _locker.bridge{value: _fees}(
             _raju,
             _siblingSlug1,
@@ -194,9 +213,9 @@ contract TestSuperTokenLockerLimits is Test {
         _token.approve(address(_locker), depositAmount);
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
-                (uint256(uint160(address(_locker))) << 64) |
-                (1)
+            (uint256(_siblingSlug) << 224) |
+                (uint256(uint160(address(0))) << 64) |
+                (0)
         );
         bytes memory payload = abi.encode(_raju, depositAmount, messageId);
 
@@ -259,16 +278,16 @@ contract TestSuperTokenLockerLimits is Test {
         deal(_raju, _fees);
         deal(address(_token), address(_locker), usedLimit, true);
 
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, usedLimit, bytes32(""))
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
-                (uint256(uint160(address(_locker))) << 64) |
-                (1)
+            (uint256(_siblingSlug) << 224) |
+                (uint256(uint160(address(0))) << 64) |
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
@@ -330,16 +349,16 @@ contract TestSuperTokenLockerLimits is Test {
         deal(_raju, _fees);
         deal(address(_token), address(_locker), usedLimit, true);
 
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, usedLimit, bytes32(""))
         );
 
         bytes32 messageId = bytes32(
-            (uint256(_siblingSlug1) << 224) |
-                (uint256(uint160(address(_locker))) << 64) |
-                (1)
+            (uint256(_siblingSlug) << 224) |
+                (uint256(uint160(address(0))) << 64) |
+                (0)
         );
         bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
@@ -409,7 +428,7 @@ contract TestSuperTokenLockerLimits is Test {
 
         assertTrue(withdrawAmount <= unlockLimitBefore, "limit hit");
 
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, withdrawAmount, bytes32(""))
@@ -474,7 +493,7 @@ contract TestSuperTokenLockerLimits is Test {
         assertTrue(unlockLimitBefore > 0, "no unlock limit available");
         assertTrue(withdrawAmount > unlockLimitBefore, "unlock not partial");
 
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, withdrawAmount, bytes32(0))
@@ -521,7 +540,7 @@ contract TestSuperTokenLockerLimits is Test {
         uint256 time = 10;
         deal(address(_token), address(_locker), usedLimit, true);
 
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, usedLimit, bytes32(0))
@@ -553,7 +572,7 @@ contract TestSuperTokenLockerLimits is Test {
         uint256 usedLimit = 20 ether;
         uint256 time = 100;
         deal(address(_token), address(_locker), usedLimit, true);
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, usedLimit, bytes32(0))
@@ -582,7 +601,7 @@ contract TestSuperTokenLockerLimits is Test {
         uint256 time = 200;
 
         deal(address(_token), address(_locker), withdrawAmount, true);
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, withdrawAmount, bytes32(0))
@@ -656,7 +675,7 @@ contract TestSuperTokenLockerLimits is Test {
         uint256 time = 5;
         deal(address(_token), address(_locker), withdrawAmount, true);
 
-        vm.prank(_socket);
+        vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
             abi.encode(_raju, withdrawAmount, bytes32(0))

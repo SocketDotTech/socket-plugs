@@ -15,7 +15,11 @@ import {
   projectConstants,
   token,
 } from "./constants";
-import { ProjectAddresses, TokenAddresses } from "../../src";
+import {
+  ProjectAddresses,
+  SuperTokenChainAddresses,
+  TokenAddresses,
+} from "../../src";
 
 export const deploymentsPath = path.join(
   __dirname,
@@ -26,7 +30,7 @@ export const deployedAddressPath = () =>
   deploymentsPath + `${mode}_${project}_addresses.json`;
 
 export interface DeployParams {
-  addresses: TokenAddresses;
+  addresses: TokenAddresses | SuperTokenChainAddresses;
   signer: Wallet;
   currentChainSlug: number;
 }
@@ -35,7 +39,8 @@ export const getOrDeploy = async (
   contractName: string,
   path: string,
   args: any[],
-  deployUtils: DeployParams
+  deployUtils: DeployParams,
+  projectName = project.toString()
 ): Promise<Contract> => {
   if (!deployUtils || !deployUtils.addresses)
     throw new Error("No addresses found");
@@ -49,7 +54,7 @@ export const getOrDeploy = async (
     );
 
     console.log(
-      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${mode}, ${project} at address ${contract.address}`
+      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${mode}, ${projectName} at address ${contract.address}`
     );
 
     await storeVerificationParams(
@@ -62,7 +67,7 @@ export const getOrDeploy = async (
       deployUtils.addresses[contractName]
     );
     console.log(
-      `${contractName} found on ${deployUtils.currentChainSlug} for ${mode}, ${project} at address ${contract.address}`
+      `${contractName} found on ${deployUtils.currentChainSlug} for ${mode}, ${projectName} at address ${contract.address}`
     );
   }
 
@@ -125,14 +130,17 @@ export const getChainSlug = async (): Promise<number> => {
 };
 
 export const storeAddresses = async (
-  addresses: TokenAddresses,
-  chainSlug: ChainSlug
+  addresses: TokenAddresses | SuperTokenChainAddresses,
+  chainSlug: ChainSlug,
+  fileName: string,
+  tokenName = token.toString(),
+  pathToDeployments = deploymentsPath
 ) => {
-  if (!fs.existsSync(deploymentsPath)) {
-    await fs.promises.mkdir(deploymentsPath, { recursive: true });
+  if (!fs.existsSync(pathToDeployments)) {
+    await fs.promises.mkdir(pathToDeployments, { recursive: true });
   }
 
-  const addressesPath = deploymentsPath + `${mode}_${project}_addresses.json`;
+  const addressesPath = pathToDeployments + fileName;
   const outputExists = fs.existsSync(addressesPath);
   let deploymentAddresses: ProjectAddresses = {};
   if (outputExists) {
@@ -142,7 +150,7 @@ export const storeAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    [chainSlug.toString(), token],
+    [chainSlug.toString(), tokenName],
     addresses
   );
   // deploymentAddresses[chainSlug][token] = addresses;

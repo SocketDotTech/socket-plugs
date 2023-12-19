@@ -2,32 +2,33 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { Contract, Wallet, utils } from "ethers";
-import { getSignerFromChainSlug } from "../helpers/networks";
+import { getSignerFromChainSlug } from "../../helpers/networks";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 import {
   integrationTypes,
   isAppChain,
   mode,
+  project,
   projectConstants,
   token,
   tokenDecimals,
   tokenName,
   tokenSymbol,
-} from "../helpers/constants";
+} from "../../helpers/constants";
 import {
   DeployParams,
   createObj,
   getProjectAddresses,
   getOrDeploy,
   storeAddresses,
-} from "../helpers/utils";
+} from "../../helpers/utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
   NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
-} from "../../src";
+} from "../../../src";
 
 export interface ReturnObj {
   allDeployed: boolean;
@@ -99,7 +100,8 @@ const deploy = async (
   };
 
   try {
-    deployUtils.addresses.isAppChain = isAppChain;
+    const addr = deployUtils.addresses as TokenAddresses;
+    addr.isAppChain = isAppChain;
     if (isAppChain) {
       deployUtils = await deployAppChainContracts(deployUtils);
     } else {
@@ -119,10 +121,14 @@ const deploy = async (
     );
   }
 
-  await storeAddresses(deployUtils.addresses, deployUtils.currentChainSlug);
+  await storeAddresses(
+    deployUtils.addresses,
+    deployUtils.currentChainSlug,
+    `${mode}_${project.toLowerCase()}_addresses.json`
+  );
   return {
     allDeployed,
-    deployedAddresses: deployUtils.addresses,
+    deployedAddresses: deployUtils.addresses as TokenAddresses,
   };
 };
 
@@ -138,7 +144,7 @@ const deployConnectors = async (
       mode
     ).Socket;
     let hub: string;
-    const addr: TokenAddresses = deployParams.addresses;
+    const addr: TokenAddresses = deployParams.addresses as TokenAddresses;
     if (addr.isAppChain) {
       const a = addr as AppChainAddresses;
       if (!a.Controller) throw new Error("Controller not found!");
