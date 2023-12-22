@@ -14,17 +14,13 @@
       "0x7809621a6D7e61E400853C64b61568aA773A28Ef",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
-      ]
+      ["0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"]
     ],
     [
       "0x3Ab7b942F6ea66E5CA62E0A27869aA66747a4Ec2",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
-      ]
+      ["0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"]
     ],
     [
       "0xeCaa2435d99c4987876A0382F1661dBf539700C0",
@@ -40,9 +36,7 @@
       "0x5c7Dd6cb73d93879E94F20d103804C495A10aE7e",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0x4200000000000000000000000000000000000006"
-      ]
+      ["0x4200000000000000000000000000000000000006"]
     ],
     [
       "0x1812ff6bd726934f18159164e2927B34949B16a8",
@@ -58,9 +52,7 @@
       "0xFff4A34925301d231ddF42B871c3b199c1E80584",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
-      ]
+      ["0x7F5c764cBc14f9669B88837ca1490cCa17c31607"]
     ]
   ],
   "2999": [
@@ -164,9 +156,7 @@
       "0x7711C90bD0a148F3dd3f0e587742dc152c3E9DDB",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
-      ]
+      ["0xaf88d065e77c8cC2239327C5EDb3A432268e5831"]
     ],
     [
       "0x63D8934c1fC89F57b17AB5e14db52bB07D577C0F",
@@ -182,9 +172,7 @@
       "0x90bFB3C35ddfBbA42D998414F0ff1eADD430E161",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
-      ]
+      ["0x82af49447d8a07e3bd95bd0d56f35241523fbab1"]
     ],
     [
       "0x69Adf49285c25d9f840c577A0e3cb134caF944D3",
@@ -200,9 +188,7 @@
       "0x80d40e32FAD8bE8da5C6A42B8aF1E181984D137c",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"
-      ]
+      ["0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"]
     ]
   ]
 }
