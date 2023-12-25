@@ -69,6 +69,7 @@ const config: HardhatUserConfig = {
       optimisticTestnet: process.env.OPTIMISM_API_KEY || "",
       optimisticSepolia: process.env.OPTIMISM_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
+      base: process.env.BASESCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
     },
     customChains: [
@@ -102,6 +103,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api-sepolia.arbiscan.io/api",
           browserURL: "https://sepolia.arbiscan.io/",
+        },
+      },
+      {
+        network: "base",
+        chainId: hardhatChainNameToSlug[HardhatChainName.BASE],
+        urls: {
+          apiURL: "https://api.basescan.org/api",
+          browserURL: "https://basescan.org/",
         },
       },
     ],
@@ -147,6 +156,17 @@ const config: HardhatUserConfig = {
     [HardhatChainName.LYRA]: getChainConfig(HardhatChainName.LYRA),
     [HardhatChainName.SX_NETWORK_TESTNET]: getChainConfig(
       HardhatChainName.SX_NETWORK_TESTNET
+    ),
+    [HardhatChainName.MODE_TESTNET]: getChainConfig(
+      HardhatChainName.MODE_TESTNET
+    ),
+    [HardhatChainName.VICTION_TESTNET]: getChainConfig(
+      HardhatChainName.VICTION_TESTNET
+    ),
+    [HardhatChainName.BASE]: getChainConfig(HardhatChainName.BASE),
+    [HardhatChainName.MODE]: getChainConfig(HardhatChainName.MODE),
+    [HardhatChainName.ANCIENT8_TESTNET]: getChainConfig(
+      HardhatChainName.ANCIENT8_TESTNET
     ),
   },
   paths: {
