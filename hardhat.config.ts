@@ -165,6 +165,9 @@ const config: HardhatUserConfig = {
     ),
     [HardhatChainName.BASE]: getChainConfig(HardhatChainName.BASE),
     [HardhatChainName.MODE]: getChainConfig(HardhatChainName.MODE),
+    [HardhatChainName.ANCIENT8_TESTNET]: getChainConfig(
+      HardhatChainName.ANCIENT8_TESTNET
+    ),
   },
   paths: {
     sources: "./contracts",

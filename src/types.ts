@@ -17,6 +17,7 @@ export enum Project {
   MODE_TESTNET = "mode-testnet",
   VICTION_TESTNET = "viction-testnet",
   MODE = "mode",
+  ANCIENT8_TESTNET = "ancient8-testnet",
 }
 
 export enum SuperBridgeContracts {
@@ -72,4 +73,5 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.MODE_TESTNET]: Project.MODE_TESTNET,
   [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
   [ChainSlug.MODE]: Project.MODE,
+  [ChainSlug.ANCIENT8_TESTNET]: Project.ANCIENT8_TESTNET,
 };

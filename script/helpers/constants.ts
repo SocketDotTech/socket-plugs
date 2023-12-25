@@ -330,6 +330,24 @@ const _projectConstants: ProjectConstants = {
       },
     },
   },
+  [Project.ANCIENT8_TESTNET]: {
+    [DeploymentMode.PROD]: {
+      [Tokens.USDC]: {
+        appChain: ChainSlug.ANCIENT8_TESTNET,
+        nonAppChains: [ChainSlug.OPTIMISM_SEPOLIA, ChainSlug.ARBITRUM_SEPOLIA],
+        isFiatTokenV2_1: true,
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "100000",
+            depositRate: "1.1574",
+            withdrawLimit: "100000",
+            withdrawRate: "1.1574",
+            poolCount: 0,
+          },
+        },
+      },
+    },
+  },
 };
 
 export const isAppChain = (chain: ChainSlug) =>
@@ -337,12 +355,14 @@ export const isAppChain = (chain: ChainSlug) =>
 
 export const tokenName: { [key in Tokens]: string } = {
   [Tokens.Moon]: "Moon",
+  [Tokens.USDCE]: "Bridged USD coin",
   [Tokens.USDC]: "USD coin",
   [Tokens.WETH]: "Wrapped Ether",
 };
 
 export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.Moon]: "MOON",
+  [Tokens.USDCE]: "USDC.e",
   [Tokens.USDC]: "USDC",
   [Tokens.WETH]: "WETH",
 };
@@ -350,6 +370,7 @@ export const tokenSymbol: { [key in Tokens]: string } = {
 export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.Moon]: 18,
   [Tokens.USDC]: 6,
+  [Tokens.USDCE]: 6,
   [Tokens.WETH]: 18,
 };
 
