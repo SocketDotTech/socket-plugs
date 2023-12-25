@@ -117,7 +117,7 @@ interface ISocket {
         uint256 minMsgGasLimit_,
         bytes32 executionParams_,
         bytes32 transmissionParams_,
-        bytes calldata payload_
+        bytes memory payload_
     ) external payable returns (bytes32 msgId);
 
     /**

@@ -64,7 +64,12 @@ contract MockSocket is ISocket {
             payload_
         );
 
-        return bytes32(0);
+        return
+            bytes32(
+                (uint256(siblingChainSlug_) << 224) |
+                    (uint256(uint160(msg.sender)) << 64) |
+                    1
+            );
     }
 
     // ignore ISocket function
