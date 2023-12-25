@@ -98,7 +98,7 @@ contract TestVault is Test {
         );
 
         vm.prank(_raju);
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert(Ownable.OnlyOwner.selector);
         _vault.updateLimitParams(u);
     }
 

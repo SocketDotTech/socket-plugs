@@ -1,13 +1,13 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
-import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
-import {Gauge} from "./Gauge.sol";
+import "../common/Ownable.sol";
+import {Gauge} from "../common/Gauge.sol";
 import {IConnector, IHub} from "./ConnectorPlug.sol";
-import {RescueFundsLib} from "./RescueFundsLib.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
 // @todo: separate our connecter plugs
-contract Vault is Gauge, IHub, Ownable2Step {
+contract Vault is Gauge, IHub, Ownable(msg.sender) {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
 

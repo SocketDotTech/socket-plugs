@@ -1,9 +1,9 @@
 pragma solidity 0.8.13;
 
-import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
+import "../common/Ownable.sol";
 import {ISocket} from "../interfaces/ISocket.sol";
 import {IPlug} from "../interfaces/IPlug.sol";
-import {RescueFundsLib} from "./RescueFundsLib.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
 interface IHub {
     function receiveInbound(bytes memory payload_) external;
@@ -22,7 +22,7 @@ interface IConnector {
     ) external view returns (uint256 totalFees);
 }
 
-contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
+contract ConnectorPlug is IConnector, IPlug, Ownable {
     IHub public immutable hub__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
@@ -32,7 +32,11 @@ contract ConnectorPlug is IConnector, IPlug, Ownable2Step {
 
     event ConnectorPlugDisconnected();
 
-    constructor(address hub_, address socket_, uint32 siblingChainSlug_) {
+    constructor(
+        address hub_,
+        address socket_,
+        uint32 siblingChainSlug_
+    ) Ownable(msg.sender) {
         hub__ = IHub(hub_);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;

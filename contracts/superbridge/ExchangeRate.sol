@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
-import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
-import {RescueFundsLib} from "./RescueFundsLib.sol";
+import "../common/Ownable.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
 interface IExchangeRate {
     // not marked pure, may involve state interactions in future
@@ -17,7 +17,7 @@ interface IExchangeRate {
     ) external returns (uint256 unlockAmount);
 }
 
-contract ExchangeRate is IExchangeRate, Ownable2Step {
+contract ExchangeRate is IExchangeRate, Ownable(msg.sender) {
     // chainId input needed? what else? slippage?
     function getMintAmount(
         uint256 lockAmount,
