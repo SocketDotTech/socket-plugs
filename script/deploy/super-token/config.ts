@@ -1,3 +1,4 @@
+import { utils } from "ethers";
 import { socketOwner } from "../../helpers/constants";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
@@ -21,3 +22,8 @@ export const config = {
   withdrawLimit: "10000",
   withdrawRate: "0.11574",
 };
+
+export const srcChain = ChainSlug.POLYGON_MAINNET;
+export const dstChain = ChainSlug.ARBITRUM;
+export const gasLimit = 500_000;
+export const amount = utils.parseUnits("5", config.tokenDecimal);
