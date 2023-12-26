@@ -28,15 +28,16 @@ if (
 export const mode: DeploymentMode = process.env
   .DEPLOYMENT_MODE as DeploymentMode;
 
-if (!process.env.PROJECT) throw new Error("Project not mentioned");
-if (!Object.values(Project).includes(process.env.PROJECT as Project))
-  throw new Error("Project is invalid");
-export const project: Project = process.env.PROJECT as Project;
+// if (!process.env.PROJECT) throw new Error("Project not mentioned");
+// if (!Object.values(Project).includes(process.env.PROJECT as Project))
+//   throw new Error("Project is invalid");
+export const project: Project =
+  (process.env.PROJECT as Project) ?? Project.AEVO;
 
-if (!process.env.TOKEN) throw new Error("Token not mentioned");
-if (!Object.values(Tokens).includes(process.env.TOKEN as Tokens))
-  throw new Error("Token is invalid");
-export const token: Tokens = process.env.TOKEN as Tokens;
+// if (!process.env.TOKEN) throw new Error("Token not mentioned");
+// if (!Object.values(Tokens).includes(process.env.TOKEN as Tokens))
+// throw new Error("Token is invalid");
+export const token: Tokens = (process.env.TOKEN as Tokens) ?? Tokens.USDC;
 
 console.log("========================================================");
 console.log("MODE", mode);
