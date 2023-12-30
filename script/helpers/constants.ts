@@ -205,6 +205,23 @@ const _projectConstants: ProjectConstants = {
           },
         },
       },
+      [Tokens.WETH]: {
+        appChain: ChainSlug.LYRA_TESTNET,
+        nonAppChains: [
+          ChainSlug.SEPOLIA,
+          ChainSlug.OPTIMISM_SEPOLIA,
+          ChainSlug.ARBITRUM_SEPOLIA,
+        ],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "5000",
+            depositRate: "0.05787",
+            withdrawLimit: "5000",
+            withdrawRate: "0.05787",
+            poolCount: 0,
+          },
+        },
+      },
     },
   },
   [Project.LYRA]: {
