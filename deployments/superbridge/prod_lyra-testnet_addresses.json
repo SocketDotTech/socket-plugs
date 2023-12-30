@@ -6,9 +6,27 @@
       "ExchangeRate": "0xD9e492C3899aC768F67aD9AdC0Ce88aAB5463f60",
       "Controller": "0xBD9f6198a220046E944D704b7ff2A68b778F4A44",
       "connectors": {
+        "421614": {
+          "FAST": "0x23307E24D936b785FBa3Bc49c41B9AD5b4d261b3"
+        },
         "11155111": {
-          "FAST": "0x03027410F25c527D5aEB3E6e56a6389611DCb2A9",
+          "FAST": "0x3dAfeC208802E582fB33D72b4C53F3c6C36fb7eB",
           "NATIVE_BRIDGE": "0xA7f7e4fE8E4cdDCD9969Bd3fbcFF67000CD7DE47"
+        },
+        "11155420": {
+          "FAST": "0x0C0858290b6b268a93fB557af06390A3460c5dB6"
+        }
+      }
+    }
+  },
+  "421614": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+      "Vault": "0x1281C1464449DB73bdAa30928BCC63Dc25D8D187",
+      "connectors": {
+        "901": {
+          "FAST": "0x771d1Ae208377453D478dF08BbC38034F72aC833"
         }
       }
     }
@@ -22,6 +40,18 @@
         "901": {
           "FAST": "0xBE51D38547992293c89CC589105784ab60b004A9",
           "NATIVE_BRIDGE": "0x5800249621DA520aDFdCa16da20d8A5Fc0f814d8"
+        }
+      }
+    }
+  },
+  "11155420": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+      "Vault": "0xB3F7C40bAb3d9200655fB439433E19173a8428C1",
+      "connectors": {
+        "901": {
+          "FAST": "0xAD1d1CB08A0a6f758136A41E218c7C35B62A25Ac"
         }
       }
     }

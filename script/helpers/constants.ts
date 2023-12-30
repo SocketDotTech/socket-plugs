@@ -183,18 +183,22 @@ const _projectConstants: ProjectConstants = {
     [DeploymentMode.PROD]: {
       [Tokens.USDC]: {
         appChain: ChainSlug.LYRA_TESTNET,
-        nonAppChains: [ChainSlug.SEPOLIA],
+        nonAppChains: [
+          ChainSlug.SEPOLIA,
+          ChainSlug.OPTIMISM_SEPOLIA,
+          ChainSlug.ARBITRUM_SEPOLIA,
+        ],
         integrationTypes: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            depositLimit: "10000000",
+            depositRate: "115.74",
+            withdrawLimit: "10000000",
+            withdrawRate: "115.74",
             poolCount: 0,
           },
           [IntegrationTypes.native]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
+            depositLimit: "10000000",
+            depositRate: "115.74",
             withdrawLimit: "0",
             withdrawRate: "0",
             poolCount: 0,
