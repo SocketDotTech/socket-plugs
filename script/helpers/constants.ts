@@ -228,7 +228,7 @@ const _projectConstants: ProjectConstants = {
     [DeploymentMode.PROD]: {
       [Tokens.USDC]: {
         appChain: ChainSlug.LYRA,
-        nonAppChains: [ChainSlug.MAINNET],
+        nonAppChains: [ChainSlug.OPTIMISM, ChainSlug.ARBITRUM],
         isFiatTokenV2_1: true,
         integrationTypes: {
           [IntegrationTypes.fast]: {
@@ -240,14 +240,76 @@ const _projectConstants: ProjectConstants = {
             withdrawRate: "11.574",
             poolCount: 0,
           },
-          [IntegrationTypes.native]: {
+          // [IntegrationTypes.native]: {
+          //   depositLimit: "10000000",
+          //   // depositRate: "10000000",
+          //   depositRate: "115.74",
+          //   withdrawLimit: "0",
+          //   withdrawRate: "0",
+          //   poolCount: 0,
+          // },
+        },
+      },
+      [Tokens.USDCE]: {
+        appChain: ChainSlug.LYRA,
+        nonAppChains: [ChainSlug.OPTIMISM, ChainSlug.ARBITRUM],
+        isFiatTokenV2_1: true,
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
             depositLimit: "10000000",
             // depositRate: "10000000",
             depositRate: "115.74",
-            withdrawLimit: "0",
-            withdrawRate: "0",
+            withdrawLimit: "1000000",
+            // withdrawRate: "1000000",
+            withdrawRate: "11.574",
             poolCount: 0,
           },
+        },
+      },
+      [Tokens.WETH]: {
+        appChain: ChainSlug.LYRA,
+        nonAppChains: [ChainSlug.OPTIMISM, ChainSlug.ARBITRUM],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "5000",
+            // depositRate: "5000",
+            depositRate: "0.05787037",
+            withdrawLimit: "500",
+            // withdrawRate: "500",
+            withdrawRate: "0.005787037",
+            poolCount: 0,
+          },
+          // [IntegrationTypes.native]: {
+          //   depositLimit: "5000",
+          //   // depositRate: "5000",
+          //   depositRate: "0.05787037",
+          //   withdrawLimit: "0",
+          //   withdrawRate: "0",
+          //   poolCount: 0,
+          // },
+        },
+      },
+      [Tokens.WBTC]: {
+        appChain: ChainSlug.LYRA,
+        nonAppChains: [ChainSlug.OPTIMISM, ChainSlug.ARBITRUM],
+        integrationTypes: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "250",
+            // depositRate: "250",
+            depositRate: "0.00289351",
+            withdrawLimit: "25",
+            // withdrawRate: "25",
+            withdrawRate: "0.000289351",
+            poolCount: 0,
+          },
+          // [IntegrationTypes.native]: {
+          //   depositLimit: "250",
+          //   // depositRate: "250",
+          //   depositRate: "0.00289351",
+          //   withdrawLimit: "0",
+          //   withdrawRate: "0",
+          //   poolCount: 0,
+          // },
         },
       },
     },
@@ -379,6 +441,7 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.USDCE]: "Bridged USD coin",
   [Tokens.USDC]: "USD coin",
   [Tokens.WETH]: "Wrapped Ether",
+  [Tokens.WBTC]: "Wrapped Bitcoin",
 };
 
 export const tokenSymbol: { [key in Tokens]: string } = {
@@ -386,6 +449,7 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.USDCE]: "USDC.e",
   [Tokens.USDC]: "USDC",
   [Tokens.WETH]: "WETH",
+  [Tokens.WBTC]: "WBTC",
 };
 
 export const tokenDecimals: { [key in Tokens]: number } = {
@@ -393,6 +457,7 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.USDC]: 6,
   [Tokens.USDCE]: 6,
   [Tokens.WETH]: 18,
+  [Tokens.WBTC]: 18,
 };
 
 export const projectConstants = (() => {
