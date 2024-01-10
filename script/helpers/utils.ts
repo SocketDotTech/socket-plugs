@@ -44,7 +44,9 @@ export const getOrDeploy = async (
     );
 
     console.log(
-      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${getMode()}, ${getProject()} at address ${contract.address}`
+      `${contractName} deployed on ${
+        deployUtils.currentChainSlug
+      } for ${getMode()}, ${getProject()} at address ${contract.address}`
     );
 
     await storeVerificationParams(
@@ -57,7 +59,9 @@ export const getOrDeploy = async (
       deployUtils.addresses[contractName]
     );
     console.log(
-      `${contractName} found on ${deployUtils.currentChainSlug} for ${getMode()}, ${getProject()} at address ${contract.address}`
+      `${contractName} found on ${
+        deployUtils.currentChainSlug
+      } for ${getMode()}, ${getProject()} at address ${contract.address}`
     );
   }
 

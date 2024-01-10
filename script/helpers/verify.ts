@@ -18,7 +18,8 @@ type VerifyArgs = [string, string, string, any[]];
  */
 export const main = async () => {
   try {
-    const path = deploymentsPath + `${getMode()}_${getProject()}_verification.json`;
+    const path =
+      deploymentsPath + `${getMode()}_${getProject()}_verification.json`;
     if (!fs.existsSync(path)) {
       throw new Error("addresses.json not found");
     }
