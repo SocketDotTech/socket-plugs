@@ -8,7 +8,6 @@ import {
 } from "../../../src";
 import { getSignerFromChainSlug, overrides } from "../../helpers/networks";
 import { getInstance } from "../../helpers/utils";
-import { mode } from "../../helpers/constants";
 import { getSocket } from "../../bridge/utils";
 import {
   getSuperTokenLimitBN,
@@ -16,6 +15,7 @@ import {
   getSuperTokenRateBN,
 } from "./utils";
 import { config } from "./config";
+import { getMode } from "../../constants/config";
 
 type UpdateLimitParams = [
   boolean,
@@ -194,7 +194,7 @@ const connect = async (
       if (!siblingPlug) continue;
 
       // connect socket
-      const switchboard = getAddresses(chain, mode).integrations[sibling][
+      const switchboard = getAddresses(chain, getMode()).integrations[sibling][
         config.integrationType
       ]?.switchboard;
 

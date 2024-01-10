@@ -1,14 +1,14 @@
 import { utils } from "ethers";
-import { socketOwner } from "../../helpers/constants";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
+import { getSocketOwner } from "../../constants/config";
 
 export const config = {
   projectName: "looks",
   tokenName: "looks",
   tokenSymbol: "LOOKS",
   tokenDecimal: 18,
-  initialSupplyOwner: socketOwner,
-  owner: socketOwner,
+  initialSupplyOwner: getSocketOwner(),
+  owner: getSocketOwner(),
   initialSupply: 0,
   superTokenChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
   vaultTokens: {

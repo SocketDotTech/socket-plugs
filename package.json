@@ -1,10 +1,10 @@
 {
   "name": "@socket.tech/socket-plugs",
   "license": "MIT",
-  "version": "1.0.4",
+  "version": "1.0.13",
   "description": "Plugs built using socket's data layer",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "files": [
     "dist",
     "artifacts/abi",
@@ -49,6 +49,6 @@
     "compile"
   ],
   "dependencies": {
-    "@socket.tech/dl-core": "2.4.15-test.2"
+    "@socket.tech/dl-core": "2.4.16"
   }
 }
