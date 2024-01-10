@@ -3,7 +3,6 @@ import { BigNumber, Contract, utils } from "ethers";
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { getSocket } from "./utils";
 import {
   SuperBridgeContracts,
   ChainAddresses,
@@ -14,8 +13,10 @@ import { getToken } from "../constants/config";
 
 const srcChain = ChainSlug.SEPOLIA;
 const dstChain = ChainSlug.LYRA_TESTNET;
+const amount = "1";
+
 const gasLimit = 500_000;
-let amount = utils.parseUnits("1", tokenDecimals[getToken()]);
+const amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
 
 export const main = async () => {
   try {
@@ -52,47 +53,38 @@ export const main = async () => {
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
     );
-    if (balance.lt(amount)) throw new Error("Not enough balance");
+    if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
     const limit: BigNumber = await vault.getCurrentLockLimit(connectorAddr);
-    if (limit.lt(amount)) throw new Error("Exceeding max limit");
+    if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
 
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
       vault.address
     );
-    if (currentApproval.lt(amount)) {
-      const approveTx = await tokenContract.approve(vault.address, amount, {
+    if (currentApproval.lt(amountBN)) {
+      const approveTx = await tokenContract.approve(vault.address, amountBN, {
         ...overrides[srcChain],
-        gasLimit: 200_000,
       });
       console.log("Tokens approved: ", approveTx.hash);
       await approveTx.wait();
     }
 
     // deposit
-    console.log(`depositing ${amount} to app chain from ${srcChain}`);
+    console.log(`depositing ${amountBN} to app chain from ${srcChain}`);
 
-    const socket: Contract = getSocket(srcChain, socketSigner);
-    const value = await socket.getMinFees(
-      gasLimit,
-      100,
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-      dstChain,
-      connectorAddr
-    );
+    const fees = await vault.getMinFees(connectorAddr, gasLimit);
 
     const depositTx = await vault.depositToAppChain(
       socketSigner.address,
-      amount,
+      amountBN,
       gasLimit,
       connectorAddr,
-      { ...overrides[srcChain], value }
+      { ...overrides[srcChain], value: fees }
     );
     console.log("Tokens deposited: ", depositTx.hash);
     console.log(
-      `Track message here: https://6il289myzb.execute-api.us-east-1.amazonaws.com/dev/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`
+      `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`
     );
     await depositTx.wait();
   } catch (error) {
