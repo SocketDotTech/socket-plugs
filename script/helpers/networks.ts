@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import { BigNumberish, Wallet, ethers } from "ethers";
 import { resolve } from "path";
 import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
-import { socketSignerKey } from "./constants";
+import { getSocketSignerKey } from "../constants/config";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -239,5 +239,5 @@ export const getProviderFromChainSlug = (
 };
 
 export const getSignerFromChainSlug = (chainSlug: ChainSlug): Wallet => {
-  return new Wallet(socketSignerKey, getProviderFromChainSlug(chainSlug));
+  return new Wallet(getSocketSignerKey(), getProviderFromChainSlug(chainSlug));
 };
