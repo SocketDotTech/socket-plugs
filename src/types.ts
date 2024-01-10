@@ -5,6 +5,7 @@ export enum Tokens {
   USDCE = "USDC.e",
   USDC = "USDC",
   WETH = "WETH",
+  WBTC = "WBTC",
 }
 
 export enum Project {

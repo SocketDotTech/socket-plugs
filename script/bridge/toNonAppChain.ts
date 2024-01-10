@@ -1,21 +1,22 @@
-import fs from "fs";
 import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
-import { tokenDecimals, token } from "../helpers/constants";
+
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
   ChainAddresses,
+  tokenDecimals,
 } from "../../src";
+import { getToken } from "../constants/config";
 
 const srcChain = ChainSlug.LYRA_TESTNET;
 const dstChain = ChainSlug.SEPOLIA;
 const gasLimit = 500_000;
-let amount = utils.parseUnits("1", tokenDecimals[token]);
+let amount = utils.parseUnits("1", tokenDecimals[getToken()]);
 
 export const main = async () => {
   try {
@@ -27,7 +28,7 @@ export const main = async () => {
       throw new Error("chain addresses not found");
 
     const addr: AppChainAddresses | undefined = srcAddresses[
-      token
+      getToken()
     ] as AppChainAddresses;
     if (!addr) throw new Error("Token addresses not found");
 
