@@ -1,9 +1,8 @@
 import { BigNumber, Contract } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
-import { getInstance } from "../../../helpers/utils";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { getSocket } from "./utils";
+import { getSocket, getInstance } from "./utils";
 import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
 import { amount, config, dstChain, gasLimit, srcChain } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
