@@ -68,9 +68,12 @@ export const main = async () => {
       controller.address
     );
     if (currentApproval.lt(amountBN)) {
-      // const approveTx = await tokenContract.approve(controller.address, amountBN);
-      // console.log("Tokens approved: ", approveTx.hash);
-      // await approveTx.wait();
+      const approveTx = await tokenContract.approve(
+        controller.address,
+        amountBN
+      );
+      console.log("Tokens approved: ", approveTx.hash);
+      await approveTx.wait();
     }
 
     // deposit
@@ -79,18 +82,18 @@ export const main = async () => {
     const socket: Contract = getSocket(srcChain, socketSigner);
     const fees = await controller.getMinFees(connectorAddr, gasLimit);
 
-    // const withdrawTx = await controller.withdrawFromAppChain(
-    //   socketSigner.address,
-    //   amountBN,
-    //   gasLimit,
-    //   connectorAddr,
-    //   { ...overrides[srcChain], value: fees }
-    // );
-    // console.log("Tokens burnt", withdrawTx.hash);
-    // console.log(
-    //   `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${withdrawTx.hash}`
-    // );
-    // await withdrawTx.wait();
+    const withdrawTx = await controller.withdrawFromAppChain(
+      socketSigner.address,
+      amountBN,
+      gasLimit,
+      connectorAddr,
+      { ...overrides[srcChain], value: fees }
+    );
+    console.log("Tokens burnt", withdrawTx.hash);
+    console.log(
+      `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${withdrawTx.hash}`
+    );
+    await withdrawTx.wait();
   } catch (error) {
     console.log("Error while sending transaction", error);
   }
