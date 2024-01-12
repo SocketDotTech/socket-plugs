@@ -27,23 +27,23 @@ export const overrides: {
   },
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.OPTIMISM_GOERLI]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.OPTIMISM_SEPOLIA]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.SEPOLIA]: {
-    type: 1,
+    type,
     gasLimit,
-    gasPrice: 10_000_000_000,
+    gasPrice,
   },
   [ChainSlug.AEVO_TESTNET]: {
     type,
@@ -56,7 +56,7 @@ export const overrides: {
     gasPrice,
   },
   [ChainSlug.ARBITRUM]: {
-    type,
+    // type,
     // gasLimit: 2_000_000,
     gasPrice,
   },
@@ -76,14 +76,14 @@ export const overrides: {
     gasPrice: 100_000_000,
   },
   [ChainSlug.MAINNET]: {
-    type: 1,
-    gasLimit: 400_000,
-    gasPrice: 57_000_000_000,
+    // type: 1,
+    // gasLimit: 400_000,
+    gasPrice,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
     // type: 1,
     gasLimit: 10_000_000,
-    gasPrice: 20_000_000_000,
+    gasPrice,
   },
   [ChainSlug.POLYGON_MUMBAI]: {
     // type: 1,
@@ -93,22 +93,22 @@ export const overrides: {
   [ChainSlug.POLYGON_MAINNET]: {
     type: 1,
     gasLimit: 5_000_000,
-    gasPrice: 200_000_000_000,
+    gasPrice,
   },
   [ChainSlug.MODE_TESTNET]: {
     type: 1,
     gasLimit: 3_000_000,
-    gasPrice: 100_000_000,
+    gasPrice,
   },
   [ChainSlug.VICTION_TESTNET]: {
     // type: 1,
     gasLimit: 3_000_000,
-    gasPrice: 2_000_000_000,
+    gasPrice,
   },
   [ChainSlug.BASE]: {
-    type: 1,
+    // type: 1,
     gasLimit,
-    gasPrice: 10_000_000,
+    gasPrice,
   },
   [ChainSlug.MODE]: {
     type: 1,
