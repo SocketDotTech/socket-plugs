@@ -9,7 +9,7 @@ import { ProjectConstants } from "../types";
 const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
-      appChain: ChainSlug.ANCIENT8_TESTNET,
+      appChain: ChainSlug.ANCIENT8_TESTNET2,
       nonAppChains: [ChainSlug.OPTIMISM_SEPOLIA, ChainSlug.ARBITRUM_SEPOLIA],
       isFiatTokenV2_1: true,
       integrationTypes: {
