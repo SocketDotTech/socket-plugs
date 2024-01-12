@@ -105,7 +105,7 @@ export const overrides: {
     gasLimit,
     gasPrice: 10_000_000,
   },
-  [ChainSlug.ANCIENT8_TESTNET]: {
+  [ChainSlug.ANCIENT8_TESTNET2]: {
     type: 1,
     gasLimit,
     gasPrice: 10_000_000,
@@ -218,10 +218,10 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
       if (!process.env.MODE_RPC) throw new Error("MODE_RPC not configured");
       return process.env.MODE_RPC;
 
-    case ChainSlug.ANCIENT8_TESTNET:
-      if (!process.env.ANCIENT8_TESTNET_RPC)
-        throw new Error("ANCIENT8_TESTNET_RPC not configured");
-      return process.env.ANCIENT8_TESTNET_RPC;
+    case ChainSlug.ANCIENT8_TESTNET2:
+      if (!process.env.ANCIENT8_TESTNET2_RPC)
+        throw new Error("ANCIENT8_TESTNET2_RPC not configured");
+      return process.env.ANCIENT8_TESTNET2_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";
