@@ -18,6 +18,10 @@
     "WBTC": {
       "isAppChain": false,
       "NonMintableToken": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+    },
+    "USDT": {
+      "isAppChain": false,
+      "NonMintableToken": "0xdac17f958d2ee523a2206206994597c13d831ec7"
     }
   },
   "10": {
@@ -60,6 +64,10 @@
           "FAST": "0x906A44Daa8bdA5599a384264e3811b9BeA1109b4"
         }
       }
+    },
+    "USDT": {
+      "isAppChain": false,
+      "NonMintableToken": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58"
     }
   },
   "957": {
@@ -122,6 +130,11 @@
           "FAST": "0x26E5CE884875ea3776a57f0B225b1Ea8D2E9bEeB"
         }
       }
+    },
+    "USDT": {
+      "isAppChain": true,
+      "MintableToken": "",
+      "ExchangeRate": "0x64107EB9DC50E79Fb3977b9D6C927f9B9C5Bd218"
     }
   },
   "42161": {
@@ -164,6 +177,10 @@
           "FAST": "0x42c846313c37845B9d67BB5c1F4F48E528234Afc"
         }
       }
+    },
+    "USDT": {
+      "isAppChain": false,
+      "NonMintableToken": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
     }
   }
 }
