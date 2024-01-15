@@ -139,13 +139,17 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
         if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingChainSlugUnavailable();
 
-        uint256 pendingUnlock = pendingUnlocks[siblingChainSlug_][receiver_][identifier_];
+        uint256 pendingUnlock = pendingUnlocks[siblingChainSlug_][receiver_][
+            identifier_
+        ];
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             pendingUnlock,
             _unlockLimitParams[siblingChainSlug_]
         );
 
-        pendingUnlocks[siblingChainSlug_][receiver_][identifier_] = pendingAmount;
+        pendingUnlocks[siblingChainSlug_][receiver_][
+            identifier_
+        ] = pendingAmount;
         siblingPendingUnlocks[siblingChainSlug_] -= consumedAmount;
 
         token__.safeTransfer(receiver_, consumedAmount);
@@ -192,7 +196,9 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
 
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
-            pendingUnlocks[siblingChainSlug_][receiver][identifier] += pendingAmount;
+            pendingUnlocks[siblingChainSlug_][receiver][
+                identifier
+            ] += pendingAmount;
             siblingPendingUnlocks[siblingChainSlug_] += pendingAmount;
 
             // cache payload
