@@ -1,14 +1,14 @@
 pragma solidity 0.8.13;
 
-import {ISocket} from "../interfaces/ISocket.sol";
-import {IPlug} from "../interfaces/IPlug.sol";
-import {AccessControl} from "../common/AccessControl.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import {ISocketPlug} from "./ISocketPlug.sol";
-import {ISuperToken} from "./ISuperToken.sol";
+import {ISocket} from "../../interfaces/ISocket.sol";
+import {IPlug} from "../../interfaces/IPlug.sol";
+import {AccessControl} from "../../common/AccessControl.sol";
+import {RescueFundsLib} from "../../libraries/RescueFundsLib.sol";
+import {IMessageBridge} from "./../IMessageBridge.sol";
+import {ISuperToken} from "./../ISuperToken.sol";
 
-contract SocketPlug is IPlug, AccessControl, ISocketPlug {
-    ISocket public socket__;
+contract SocketPlug is IPlug, AccessControl, IMessageBridge {
+    ISocket public immutable socket__;
     ISuperToken public token__;
 
     uint32 public immutable chainSlug;
@@ -16,7 +16,6 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
     mapping(uint32 => address) public siblingPlugs;
 
     event SocketPlugDisconnected(uint32 siblingChainSlug);
-    event SocketUpdated();
     event SuperTokenSet();
 
     error NotSuperToken();
@@ -32,10 +31,12 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
         chainSlug = chainSlug_;
     }
 
+    // extra bytes memory can be used by other protocol plugs for additional options
     function outbound(
         uint32 siblingChainSlug_,
         uint256 msgGasLimit_,
-        bytes memory payload_
+        bytes memory payload_,
+        bytes memory
     ) external payable returns (bytes32 messageId_) {
         if (msg.sender != address(token__)) revert NotSuperToken();
 
@@ -76,11 +77,6 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
         if (address(token__) != address(0)) revert TokenAlreadySet();
         token__ = ISuperToken(token);
         emit SuperTokenSet();
-    }
-
-    function updateSocket(address socket_) external onlyOwner {
-        socket__ = ISocket(socket_);
-        emit SocketUpdated();
     }
 
     function connect(
