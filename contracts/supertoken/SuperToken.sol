@@ -174,7 +174,10 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl, Execute {
 
         _mint(receiver_, consumedAmount);
 
-        if (pendingAmount == 0) {
+        if (
+            pendingAmount == 0 &&
+            pendingExecutions[identifier].receiver != address(0)
+        ) {
             // execute
             bool success = _execute(
                 receiver_,
@@ -230,8 +233,14 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl, Execute {
             );
 
             // cache payload
-            _cachePayload(identifier, siblingChainSlug_, receiver, execPayload);
-        } else {
+            if (execPayload.length > 0)
+                _cachePayload(
+                    identifier,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
+        } else if (execPayload.length > 0) {
             // execute
             bool success = _execute(receiver, execPayload);
 

@@ -154,7 +154,10 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
 
         token__.safeTransfer(receiver_, consumedAmount);
 
-        if (pendingAmount == 0) {
+        if (
+            pendingAmount == 0 &&
+            pendingExecutions[identifier_].receiver != address(0)
+        ) {
             // execute
             bool success = _execute(
                 receiver_,
@@ -202,7 +205,13 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
             siblingPendingUnlocks[siblingChainSlug_] += pendingAmount;
 
             // cache payload
-            _cachePayload(identifier, siblingChainSlug_, receiver, execPayload);
+            if (execPayload.length > 0)
+                _cachePayload(
+                    identifier,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
 
             emit TokensPending(
                 siblingChainSlug_,
@@ -210,7 +219,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
                 pendingAmount,
                 pendingUnlocks[siblingChainSlug_][receiver][identifier]
             );
-        } else {
+        } else if (execPayload.length > 0) {
             // execute
             bool success = _execute(receiver, execPayload);
 
