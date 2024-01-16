@@ -3,13 +3,20 @@ pragma solidity 0.8.13;
 import "solmate/tokens/ERC20.sol";
 
 import "./IMessageBridge.sol";
-import {ISuperToken} from "./ISuperToken.sol";
+import "./ISuperTokenOrVault.sol";
+
 import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import "../common/Gauge.sol";
 import "./Execute.sol";
 
-contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl, Execute {
+contract SuperToken is
+    ERC20,
+    Gauge,
+    ISuperTokenOrVault,
+    AccessControl,
+    Execute
+{
     IMessageBridge public bridge__;
 
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");

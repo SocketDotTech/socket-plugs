@@ -3,13 +3,13 @@ pragma solidity 0.8.13;
 import "solmate/utils/SafeTransferLib.sol";
 
 import {Gauge} from "../common/Gauge.sol";
-import {ISuperToken} from "./ISuperToken.sol";
+import {ISuperTokenOrVault} from "./ISuperTokenOrVault.sol";
 import {IMessageBridge} from "./IMessageBridge.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import "./Execute.sol";
 
-contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
+contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
     IMessageBridge public bridge__;
