@@ -1,8 +1,10 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/ReentrancyGuard.sol";
+import "../libraries/ExcessivelySafeCall.sol";
 
 contract Execute is ReentrancyGuard {
+    using ExcessivelySafeCall for address;
     struct PendingExecutionDetails {
         address receiver;
         uint32 siblingChainSlug;
@@ -10,6 +12,7 @@ contract Execute is ReentrancyGuard {
         bool isAmountPending;
     }
 
+    uint16 private constant MAX_COPY_BYTES = 150;
     // messageId => PendingExecutionDetails
     mapping(bytes32 => PendingExecutionDetails) public pendingExecutions;
 
@@ -30,7 +33,11 @@ contract Execute is ReentrancyGuard {
         address receiver_,
         bytes memory payload_
     ) internal returns (bool success) {
-        (success, ) = receiver_.call(payload_);
+        (success, ) = receiver_.excessivelySafeCall(
+            gasleft(),
+            MAX_COPY_BYTES,
+            payload_
+        );
     }
 
     function _cachePayload(
