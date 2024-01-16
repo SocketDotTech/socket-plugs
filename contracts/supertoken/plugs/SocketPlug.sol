@@ -18,7 +18,7 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
     event SocketPlugDisconnected(uint32 siblingChainSlug);
     event SuperTokenSet();
 
-    error NotSuperToken();
+    error NotSuperTokenOrVault();
     error NotSocket();
     error TokenAlreadySet();
 
@@ -38,7 +38,7 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
         bytes memory payload_,
         bytes memory
     ) external payable returns (bytes32 messageId_) {
-        if (msg.sender != address(token__)) revert NotSuperToken();
+        if (msg.sender != address(token__)) revert NotSuperTokenOrVault();
 
         return
             socket__.outbound{value: msg.value}(

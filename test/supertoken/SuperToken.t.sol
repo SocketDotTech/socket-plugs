@@ -248,6 +248,7 @@ contract TestSuperToken is Test {
             chainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
 
@@ -291,6 +292,7 @@ contract TestSuperToken is Test {
             arbChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
 
@@ -333,6 +335,7 @@ contract TestSuperToken is Test {
             otherChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
 
@@ -372,6 +375,7 @@ contract TestSuperToken is Test {
             arbChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
     }

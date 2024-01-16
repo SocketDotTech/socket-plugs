@@ -12,7 +12,7 @@ import "./Execute.sol";
 contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
-    IMessageBridge public plug__;
+    IMessageBridge public bridge__;
 
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
@@ -41,6 +41,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
     error ZeroAmount();
     error NotPlug();
 
+    event PlugUpdated(address plug);
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensDeposited(
         uint32 siblingChainSlug,
@@ -72,7 +73,12 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
         address plug_
     ) AccessControl(owner_) {
         token__ = ERC20(token_);
-        plug__ = IMessageBridge(plug_);
+        bridge__ = IMessageBridge(plug_);
+    }
+
+    function updatePlug(address plug_) external onlyOwner {
+        bridge__ = IMessageBridge(plug_);
+        emit PlugUpdated(plug_);
     }
 
     function updateLimitParams(
@@ -120,8 +126,8 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
 
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
-        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
-        plug__.outbound{value: msg.value}(
+        bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
+        bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
             abi.encode(receiver_, amount_, messageId, payload_),
@@ -178,7 +184,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl, Execute {
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override nonReentrant {
-        if (msg.sender != address(plug__)) revert NotPlug();
+        if (msg.sender != address(bridge__)) revert NotPlug();
 
         if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingChainSlugUnavailable();

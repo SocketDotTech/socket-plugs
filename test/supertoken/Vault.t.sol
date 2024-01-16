@@ -168,6 +168,7 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             depositAmount,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -190,6 +191,7 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             depositAmount,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -219,7 +221,12 @@ contract TestSuperTokenVaultLimits is Test {
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(_raju, depositAmount, messageId);
+        bytes memory payload = abi.encode(
+            _raju,
+            depositAmount,
+            messageId,
+            bytes("")
+        );
 
         vm.mockCall(
             _socket,
@@ -248,6 +255,7 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             depositAmount,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -284,7 +292,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(""))
+            abi.encode(_raju, usedLimit, bytes32(""), bytes(""))
         );
 
         bytes32 messageId = bytes32(
@@ -292,7 +300,12 @@ contract TestSuperTokenVaultLimits is Test {
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(_raju, usedLimit, messageId);
+        bytes memory payload = abi.encode(
+            _raju,
+            usedLimit,
+            messageId,
+            bytes("")
+        );
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
@@ -323,6 +336,7 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             usedLimit,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -356,7 +370,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(""))
+            abi.encode(_raju, usedLimit, bytes32(""), bytes(""))
         );
 
         bytes32 messageId = bytes32(
@@ -364,7 +378,12 @@ contract TestSuperTokenVaultLimits is Test {
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(_raju, usedLimit, messageId);
+        bytes memory payload = abi.encode(
+            _raju,
+            usedLimit,
+            messageId,
+            bytes("")
+        );
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
@@ -395,6 +414,7 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             usedLimit,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -422,7 +442,8 @@ contract TestSuperTokenVaultLimits is Test {
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksBefore = _locker.siblingPendingUnlocks(
             _siblingSlug1
@@ -436,14 +457,15 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(""))
+            abi.encode(_raju, withdrawAmount, bytes32(""), bytes(""))
         );
 
         uint256 vaultBalAfter = _token.balanceOf(address(_locker));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksAfter = _locker.siblingPendingUnlocks(
             _siblingSlug1
@@ -486,7 +508,8 @@ contract TestSuperTokenVaultLimits is Test {
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksBefore = _locker.siblingPendingUnlocks(
             _siblingSlug1
@@ -501,14 +524,15 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(0))
+            abi.encode(_raju, withdrawAmount, bytes32(0), bytes(""))
         );
 
         uint256 vaultBalAfter = _token.balanceOf(address(_locker));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksAfter = _locker.siblingPendingUnlocks(
             _siblingSlug1
@@ -548,7 +572,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(0))
+            abi.encode(_raju, usedLimit, bytes32(0), bytes(""))
         );
 
         uint256 unlockLimitBefore = _locker.getCurrentUnlockLimit(
@@ -580,7 +604,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(0))
+            abi.encode(_raju, usedLimit, bytes32(0), bytes(""))
         );
 
         uint256 unlockLimitBefore = _locker.getCurrentUnlockLimit(
@@ -609,14 +633,15 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(0))
+            abi.encode(_raju, withdrawAmount, bytes32(0), bytes(""))
         );
 
         uint256 vaultBalBefore = _token.balanceOf(address(_locker));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksBefore = _locker.siblingPendingUnlocks(
             _siblingSlug1
@@ -648,13 +673,14 @@ contract TestSuperTokenVaultLimits is Test {
         );
 
         skip(time);
-        _locker.unlockPendingFor(_raju, _siblingSlug1);
+        _locker.unlockPendingFor(_raju, _siblingSlug1, bytes32(0));
 
         uint256 vaultBalAfter = _token.balanceOf(address(_locker));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksAfter = _locker.siblingPendingUnlocks(
             _siblingSlug1
@@ -683,14 +709,15 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(0))
+            abi.encode(_raju, withdrawAmount, bytes32(0), bytes(""))
         );
 
         uint256 vaultBalBefore = _token.balanceOf(address(_locker));
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 pendingUnlocksBefore = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksBefore = _locker.siblingPendingUnlocks(
             _siblingSlug1
@@ -725,13 +752,14 @@ contract TestSuperTokenVaultLimits is Test {
         );
 
         skip(time);
-        _locker.unlockPendingFor(_raju, _siblingSlug1);
+        _locker.unlockPendingFor(_raju, _siblingSlug1, bytes32(0));
 
         uint256 vaultBalAfter = _token.balanceOf(address(_locker));
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 pendingUnlocksAfter = _locker.pendingUnlocks(
             _siblingSlug1,
-            _raju
+            _raju,
+            bytes32(0)
         );
         uint256 siblingPendingUnlocksAfter = _locker.siblingPendingUnlocks(
             _siblingSlug1
