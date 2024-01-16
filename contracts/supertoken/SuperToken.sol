@@ -186,6 +186,7 @@ contract SuperToken is
             pendingExecutions[identifier].receiver != address(0)
         ) {
             // execute
+            pendingExecutions[identifier].isAmountPending = false;
             bool success = _execute(
                 receiver_,
                 pendingExecutions[identifier].payload
@@ -244,6 +245,7 @@ contract SuperToken is
                 _cachePayload(
                     identifier,
                     siblingChainSlug_,
+                    true,
                     receiver,
                     execPayload
                 );
@@ -255,6 +257,7 @@ contract SuperToken is
                 _cachePayload(
                     identifier,
                     siblingChainSlug_,
+                    false,
                     receiver,
                     execPayload
                 );

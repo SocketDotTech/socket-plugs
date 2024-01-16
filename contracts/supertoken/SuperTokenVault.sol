@@ -165,6 +165,7 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
             pendingExecutions[identifier_].receiver != address(0)
         ) {
             // execute
+            pendingExecutions[identifier_].isAmountPending = false;
             bool success = _execute(
                 receiver_,
                 pendingExecutions[identifier_].payload
@@ -215,6 +216,7 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
                 _cachePayload(
                     identifier,
                     siblingChainSlug_,
+                    true,
                     receiver,
                     execPayload
                 );
@@ -233,6 +235,7 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
                 _cachePayload(
                     identifier,
                     siblingChainSlug_,
+                    false,
                     receiver,
                     execPayload
                 );
