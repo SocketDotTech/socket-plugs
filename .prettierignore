@@ -24,3 +24,4 @@ yarn.lock
 .prettierrc
 .git/*
 *.jpg
+lcov.info
