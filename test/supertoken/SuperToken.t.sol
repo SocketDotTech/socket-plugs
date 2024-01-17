@@ -78,7 +78,7 @@ contract TestSuperToken is Test {
             100000,
             address(superTokenPlug)
         );
-        superTokenPlug.setSuperToken(address(superToken));
+        superTokenPlug.setSuperTokenOrVault(address(superToken));
 
         otherSuperTokenPlug = new SocketPlug(
             address(_socket),
@@ -94,7 +94,7 @@ contract TestSuperToken is Test {
             100000,
             address(otherSuperTokenPlug)
         );
-        otherSuperTokenPlug.setSuperToken(address(otherSuperToken));
+        otherSuperTokenPlug.setSuperTokenOrVault(address(otherSuperToken));
 
         arbLockerPlug = new SocketPlug(address(_socket), _admin, arbChainSlug);
         arbLocker = new SuperTokenVault(
@@ -102,7 +102,7 @@ contract TestSuperToken is Test {
             _admin,
             address(arbLockerPlug)
         );
-        arbLockerPlug.setSuperToken(address(arbLocker));
+        arbLockerPlug.setSuperTokenOrVault(address(arbLocker));
 
         optLockerPlug = new SocketPlug(address(_socket), _admin, optChainSlug);
         optLocker = new SuperTokenVault(
@@ -110,7 +110,7 @@ contract TestSuperToken is Test {
             _admin,
             address(optLockerPlug)
         );
-        optLockerPlug.setSuperToken(address(optLocker));
+        optLockerPlug.setSuperTokenOrVault(address(optLocker));
 
         _connectPlugs(
             superTokenPlug,
@@ -389,13 +389,13 @@ contract TestSuperToken is Test {
         );
 
         vm.expectRevert(Ownable.OnlyOwner.selector);
-        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
+        newSuperTokenPlug.setSuperTokenOrVault(address(uint160(_c++)));
 
         hoax(_admin);
-        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
+        newSuperTokenPlug.setSuperTokenOrVault(address(uint160(_c++)));
 
         vm.expectRevert(SocketPlug.TokenOrVaultAlreadySet.selector);
         hoax(_admin);
-        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
+        newSuperTokenPlug.setSuperTokenOrVault(address(uint160(_c++)));
     }
 }

@@ -78,7 +78,7 @@ contract TestExecute is Test {
             100000,
             address(superTokenPlug)
         );
-        superTokenPlug.setSuperToken(address(superToken));
+        superTokenPlug.setSuperTokenOrVault(address(superToken));
         executableReceiver = new MockExecutableReceiver(
             _ramu,
             address(superToken)
@@ -98,7 +98,7 @@ contract TestExecute is Test {
             100000,
             address(otherSuperTokenPlug)
         );
-        otherSuperTokenPlug.setSuperToken(address(otherSuperToken));
+        otherSuperTokenPlug.setSuperTokenOrVault(address(otherSuperToken));
 
         arbLockerPlug = new SocketPlug(address(_socket), _admin, arbChainSlug);
         arbLocker = new SuperTokenVault(
@@ -106,7 +106,7 @@ contract TestExecute is Test {
             _admin,
             address(arbLockerPlug)
         );
-        arbLockerPlug.setSuperToken(address(arbLocker));
+        arbLockerPlug.setSuperTokenOrVault(address(arbLocker));
 
         _connectPlugs(
             superTokenPlug,

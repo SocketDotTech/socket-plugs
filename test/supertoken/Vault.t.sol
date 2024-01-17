@@ -47,7 +47,7 @@ contract TestSuperTokenVaultLimits is Test {
             _admin,
             address(_lockerPlug)
         );
-        _lockerPlug.setSuperToken(address(_locker));
+        _lockerPlug.setSuperTokenOrVault(address(_locker));
 
         _token.mint(_raju, _rajuInitialBal);
 
