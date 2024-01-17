@@ -3,15 +3,16 @@ pragma solidity 0.8.13;
 import "solmate/utils/SafeTransferLib.sol";
 
 import {Gauge} from "../common/Gauge.sol";
-import {ISuperToken} from "./ISuperToken.sol";
+import {ISuperTokenOrVault} from "./ISuperTokenOrVault.sol";
 import {IMessageBridge} from "./IMessageBridge.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import "./Execute.sol";
 
-contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
+contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
-    IMessageBridge public plug__;
+    IMessageBridge public bridge__;
 
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
@@ -23,8 +24,9 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
         uint256 ratePerSecond;
     }
 
-    // siblingChainSlug => receiver => pendingUnlock
-    mapping(uint32 => mapping(address => uint256)) public pendingUnlocks;
+    // siblingChainSlug => receiver => identifier => pendingUnlock
+    mapping(uint32 => mapping(address => mapping(bytes32 => uint256)))
+        public pendingUnlocks;
 
     // siblingChainSlug => amount
     mapping(uint32 => uint256) public siblingPendingUnlocks;
@@ -39,6 +41,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
     error ZeroAmount();
     error NotPlug();
 
+    event PlugUpdated(address plug);
     event LimitParamsUpdated(UpdateLimitParams[] updates);
     event TokensDeposited(
         uint32 siblingChainSlug,
@@ -70,7 +73,12 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
         address plug_
     ) AccessControl(owner_) {
         token__ = ERC20(token_);
-        plug__ = IMessageBridge(plug_);
+        bridge__ = IMessageBridge(plug_);
+    }
+
+    function updatePlug(address plug_) external onlyOwner {
+        bridge__ = IMessageBridge(plug_);
+        emit PlugUpdated(plug_);
     }
 
     function updateLimitParams(
@@ -106,6 +114,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
         uint32 siblingChainSlug_,
         uint256 amount_,
         uint256 msgGasLimit_,
+        bytes calldata payload_,
         bytes calldata options_
     ) external payable {
         if (amount_ == 0) revert ZeroAmount();
@@ -117,11 +126,11 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
 
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
-        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
-        plug__.outbound{value: msg.value}(
+        bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
+        bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, amount_, messageId),
+            abi.encode(receiver_, amount_, messageId, payload_),
             options_
         );
 
@@ -130,21 +139,39 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
 
     function unlockPendingFor(
         address receiver_,
-        uint32 siblingChainSlug_
-    ) external {
+        uint32 siblingChainSlug_,
+        bytes32 identifier_
+    ) external nonReentrant {
         if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingChainSlugUnavailable();
 
-        uint256 pendingUnlock = pendingUnlocks[siblingChainSlug_][receiver_];
+        uint256 pendingUnlock = pendingUnlocks[siblingChainSlug_][receiver_][
+            identifier_
+        ];
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             pendingUnlock,
             _unlockLimitParams[siblingChainSlug_]
         );
 
-        pendingUnlocks[siblingChainSlug_][receiver_] = pendingAmount;
+        pendingUnlocks[siblingChainSlug_][receiver_][
+            identifier_
+        ] = pendingAmount;
         siblingPendingUnlocks[siblingChainSlug_] -= consumedAmount;
 
         token__.safeTransfer(receiver_, consumedAmount);
+
+        if (
+            pendingAmount == 0 &&
+            pendingExecutions[identifier_].receiver != address(0)
+        ) {
+            // execute
+            pendingExecutions[identifier_].isAmountPending = false;
+            bool success = _execute(
+                receiver_,
+                pendingExecutions[identifier_].payload
+            );
+            if (success) _clearPayload(identifier_);
+        }
 
         emit PendingTokensTransferred(
             siblingChainSlug_,
@@ -157,34 +184,62 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
     function inbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
-    ) external payable override {
-        if (msg.sender != address(plug__)) revert NotPlug();
+    ) external payable override nonReentrant {
+        if (msg.sender != address(bridge__)) revert NotPlug();
 
         if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingChainSlugUnavailable();
 
-        (address receiver, uint256 unlockAmount) = abi.decode(
-            payload_,
-            (address, uint256)
-        );
+        (
+            address receiver,
+            uint256 unlockAmount,
+            bytes32 identifier,
+            bytes memory execPayload
+        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             unlockAmount,
             _unlockLimitParams[siblingChainSlug_]
         );
 
+        token__.safeTransfer(receiver, consumedAmount);
+
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
-            pendingUnlocks[siblingChainSlug_][receiver] += pendingAmount;
+            pendingUnlocks[siblingChainSlug_][receiver][
+                identifier
+            ] += pendingAmount;
             siblingPendingUnlocks[siblingChainSlug_] += pendingAmount;
+
+            // cache payload
+            if (execPayload.length > 0)
+                _cachePayload(
+                    identifier,
+                    siblingChainSlug_,
+                    true,
+                    receiver,
+                    execPayload
+                );
+
             emit TokensPending(
                 siblingChainSlug_,
                 receiver,
                 pendingAmount,
-                pendingUnlocks[siblingChainSlug_][receiver]
+                pendingUnlocks[siblingChainSlug_][receiver][identifier]
             );
+        } else if (execPayload.length > 0) {
+            // execute
+            bool success = _execute(receiver, execPayload);
+
+            if (!success)
+                _cachePayload(
+                    identifier,
+                    siblingChainSlug_,
+                    false,
+                    receiver,
+                    execPayload
+                );
         }
-        token__.safeTransfer(receiver, consumedAmount);
 
         emit TokensUnlocked(siblingChainSlug_, receiver, consumedAmount);
     }
