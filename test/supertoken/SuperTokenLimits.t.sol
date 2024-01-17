@@ -50,7 +50,7 @@ contract TestSuperTokenLimits is Test {
             _initialSupply,
             address(superTokenPlug)
         );
-        superTokenPlug.setSuperToken(address(_token));
+        superTokenPlug.setSuperTokenOrVault(address(_token));
         _token.transfer(_raju, _rajuInitialBal);
 
         vm.stopPrank();
