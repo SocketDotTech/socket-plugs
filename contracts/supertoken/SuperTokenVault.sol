@@ -2,17 +2,16 @@ pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
 
-import "./SocketPlug.sol";
 import {Gauge} from "../common/Gauge.sol";
 import {ISuperToken} from "./ISuperToken.sol";
-import {ISocketPlug} from "./ISocketPlug.sol";
+import {IMessageBridge} from "./IMessageBridge.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
 contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
     using SafeTransferLib for ERC20;
     ERC20 public immutable token__;
-    ISocketPlug public plug__;
+    IMessageBridge public plug__;
 
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
@@ -71,7 +70,7 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
         address plug_
     ) AccessControl(owner_) {
         token__ = ERC20(token_);
-        plug__ = ISocketPlug(plug_);
+        plug__ = IMessageBridge(plug_);
     }
 
     function updateLimitParams(
@@ -106,7 +105,8 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
         address receiver_,
         uint32 siblingChainSlug_,
         uint256 amount_,
-        uint256 msgGasLimit_
+        uint256 msgGasLimit_,
+        bytes calldata options_
     ) external payable {
         if (amount_ == 0) revert ZeroAmount();
 
@@ -121,7 +121,8 @@ contract SuperTokenVault is Gauge, ISuperToken, AccessControl {
         plug__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, amount_, messageId)
+            abi.encode(receiver_, amount_, messageId),
+            options_
         );
 
         emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);

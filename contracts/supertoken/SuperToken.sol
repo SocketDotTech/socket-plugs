@@ -1,11 +1,12 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./ISocketPlug.sol";
-import "../common/Gauge.sol";
+
+import "./IMessageBridge.sol";
 import {ISuperToken} from "./ISuperToken.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import "../common/Gauge.sol";
 
 contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
     struct UpdateLimitParams {
@@ -15,7 +16,7 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
         uint256 ratePerSecond;
     }
 
-    ISocketPlug public plug__;
+    IMessageBridge public bridge__;
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
@@ -38,7 +39,7 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
     error NotPlug();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
-
+    event PlugUpdated(address newPlug);
     event BridgeTokens(
         uint32 siblingChainSlug,
         address withdrawer,
@@ -79,7 +80,12 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
         address plug_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(user_, initialSupply_);
-        plug__ = ISocketPlug(plug_);
+        bridge__ = IMessageBridge(plug_);
+    }
+
+    function updatePlug(address plug_) external onlyOwner {
+        bridge__ = IMessageBridge(plug_);
+        emit PlugUpdated(plug_);
     }
 
     function updateLimitParams(
@@ -114,7 +120,8 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
         address receiver_,
         uint32 siblingChainSlug_,
         uint256 sendingAmount_,
-        uint256 msgGasLimit_
+        uint256 msgGasLimit_,
+        bytes calldata options_
     ) external payable {
         if (_sendingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
@@ -126,11 +133,12 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
         ); // reverts on limit hit
         _burn(msg.sender, sendingAmount_);
 
-        bytes32 messageId = plug__.getMessageId(siblingChainSlug_);
-        bytes32 returnedMessageId = plug__.outbound{value: msg.value}(
+        bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
+        bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, sendingAmount_, messageId)
+            abi.encode(receiver_, sendingAmount_, messageId),
+            options_
         );
 
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
@@ -177,7 +185,7 @@ contract SuperToken is ERC20, Gauge, ISuperToken, AccessControl {
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override {
-        if (msg.sender != address(plug__)) revert NotPlug();
+        if (msg.sender != address(bridge__)) revert NotPlug();
 
         if (_receivingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
