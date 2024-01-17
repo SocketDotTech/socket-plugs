@@ -6,8 +6,8 @@ import {
   SuperTokenAddresses,
   SuperTokenChainAddresses,
 } from "../../../src";
-import { mode } from "../../helpers/constants";
 import { BigNumber, utils } from "ethers";
+import { getMode } from "../../constants/config";
 
 export const getSuperTokenProjectAddresses = async (
   project: string
@@ -15,7 +15,7 @@ export const getSuperTokenProjectAddresses = async (
   let addresses: SuperTokenAddresses;
   try {
     addresses = await import(
-      `../../../deployments/supertoken/${mode}_${project}_addresses.json`
+      `../../../deployments/supertoken/${getMode()}_${project}_addresses.json`
     );
   } catch (e) {
     console.log("addresses not found", e);

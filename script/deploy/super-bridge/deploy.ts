@@ -1,20 +1,15 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
-import { Contract, Wallet, utils } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { getSignerFromChainSlug } from "../../helpers/networks";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 import {
-  integrationTypes,
-  isAppChain,
-  mode,
-  project,
-  projectConstants,
-  token,
-  tokenDecimals,
-  tokenName,
-  tokenSymbol,
-} from "../../helpers/constants";
+  getMode,
+  getProject,
+  getSocketOwner,
+  getToken,
+} from "../../constants/config";
 import {
   DeployParams,
   createObj,
@@ -29,6 +24,11 @@ import {
   ProjectAddresses,
   TokenAddresses,
 } from "../../../src";
+import {
+  integrationTypes,
+  isAppChain,
+  getProjectTokenConstants,
+} from "../../helpers/constants";
 
 export interface ReturnObj {
   allDeployed: boolean;
@@ -39,6 +39,16 @@ export interface ReturnObj {
  * Deploys contracts for all networks
  */
 export const main = async () => {
+  console.log("========================================================");
+  console.log("MODE", getMode());
+  console.log("PROJECT", getProject());
+  console.log("TOKEN", getToken());
+  console.log(
+    `Make sure ${getMode()}_${getProject()}_addresses.json and ${getMode()}_${getProject()}_verification.json is cleared for given networks if redeploying!!`
+  );
+  console.log(`Owner address configured to ${getSocketOwner()}`);
+  console.log("========================================================");
+
   try {
     let addresses: ProjectAddresses;
     try {
@@ -48,33 +58,34 @@ export const main = async () => {
     }
 
     await Promise.all(
-      [projectConstants.appChain, ...projectConstants.nonAppChains].map(
-        async (chain: ChainSlug) => {
-          let allDeployed = false;
-          const signer = getSignerFromChainSlug(chain);
+      [
+        getProjectTokenConstants().appChain,
+        ...getProjectTokenConstants().nonAppChains,
+      ].map(async (chain: ChainSlug) => {
+        let allDeployed = false;
+        const signer = getSignerFromChainSlug(chain);
 
-          let chainAddresses: TokenAddresses = addresses[chain]?.[token]
-            ? (addresses[chain]?.[token] as TokenAddresses)
-            : ({} as TokenAddresses);
+        let chainAddresses: TokenAddresses = addresses[chain]?.[getToken()]
+          ? (addresses[chain]?.[getToken()] as TokenAddresses)
+          : ({} as TokenAddresses);
 
-          const siblings = isAppChain(chain)
-            ? projectConstants.nonAppChains
-            : [projectConstants.appChain];
+        const siblings = isAppChain(chain)
+          ? getProjectTokenConstants().nonAppChains
+          : [getProjectTokenConstants().appChain];
 
-          while (!allDeployed) {
-            const results: ReturnObj = await deploy(
-              isAppChain(chain),
-              signer,
-              chain,
-              siblings,
-              chainAddresses
-            );
+        while (!allDeployed) {
+          const results: ReturnObj = await deploy(
+            isAppChain(chain),
+            signer,
+            chain,
+            siblings,
+            chainAddresses
+          );
 
-            allDeployed = results.allDeployed;
-            chainAddresses = results.deployedAddresses;
-          }
+          allDeployed = results.allDeployed;
+          chainAddresses = results.deployedAddresses;
         }
-      )
+      })
     );
   } catch (error) {
     console.log("Error in deploying contracts", error);
@@ -124,7 +135,7 @@ const deploy = async (
   await storeAddresses(
     deployUtils.addresses,
     deployUtils.currentChainSlug,
-    `${mode}_${project.toLowerCase()}_addresses.json`
+    `${getMode()}_${getProject().toLowerCase()}_addresses.json`
   );
   return {
     allDeployed,
@@ -141,7 +152,7 @@ const deployConnectors = async (
 
     const socket: string = getAddresses(
       deployParams.currentChainSlug,
-      mode
+      getMode()
     ).Socket;
     let hub: string;
     const addr: TokenAddresses = deployParams.addresses as TokenAddresses;
@@ -199,10 +210,10 @@ const deployAppChainContracts = async (
       throw new Error("Token not found on app chain");
 
     const controller: Contract = await getOrDeploy(
-      projectConstants.isFiatTokenV2_1
+      getProjectTokenConstants().isFiatTokenV2_1
         ? SuperBridgeContracts.FiatTokenV2_1_Controller
         : SuperBridgeContracts.Controller,
-      projectConstants.isFiatTokenV2_1
+      getProjectTokenConstants().isFiatTokenV2_1
         ? "contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
         : "contracts/superbridge/Controller.sol",
       [

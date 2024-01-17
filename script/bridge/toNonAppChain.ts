@@ -1,21 +1,24 @@
-import fs from "fs";
 import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
-import { tokenDecimals, token } from "../helpers/constants";
+
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket } from "./utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
   ChainAddresses,
+  tokenDecimals,
 } from "../../src";
+import { getToken } from "../constants/config";
 
 const srcChain = ChainSlug.LYRA_TESTNET;
 const dstChain = ChainSlug.SEPOLIA;
+const amount = "1";
+
+let amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
 const gasLimit = 500_000;
-let amount = utils.parseUnits("1", tokenDecimals[token]);
 
 export const main = async () => {
   try {
@@ -27,7 +30,7 @@ export const main = async () => {
       throw new Error("chain addresses not found");
 
     const addr: AppChainAddresses | undefined = srcAddresses[
-      token
+      getToken()
     ] as AppChainAddresses;
     if (!addr) throw new Error("Token addresses not found");
 
@@ -53,48 +56,41 @@ export const main = async () => {
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
     );
-    if (balance.lt(amount)) throw new Error("Not enough balance");
+    if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
     const limit: BigNumber = await controller.getCurrentBurnLimit(
       connectorAddr
     );
-    if (limit.lt(amount)) throw new Error("Exceeding max limit");
+    if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
 
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
       controller.address
     );
-    if (currentApproval.lt(amount)) {
-      const approveTx = await tokenContract.approve(controller.address, amount);
-      console.log("Tokens approved: ", approveTx.hash);
-      await approveTx.wait();
+    if (currentApproval.lt(amountBN)) {
+      // const approveTx = await tokenContract.approve(controller.address, amountBN);
+      // console.log("Tokens approved: ", approveTx.hash);
+      // await approveTx.wait();
     }
 
     // deposit
-    console.log(`withdrawing ${amount} from app chain to ${dstChain}`);
+    console.log(`withdrawing ${amountBN} from app chain to ${dstChain}`);
 
     const socket: Contract = getSocket(srcChain, socketSigner);
-    const value = await socket.getMinFees(
-      gasLimit,
-      100,
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "0x0000000000000000000000000000000000000000000000000000000000000000",
-      dstChain,
-      connectorAddr
-    );
+    const fees = await controller.getMinFees(connectorAddr, gasLimit);
 
-    const withdrawTx = await controller.withdrawFromAppChain(
-      socketSigner.address,
-      amount,
-      gasLimit,
-      connectorAddr,
-      { ...overrides[srcChain], value }
-    );
-    console.log("Tokens burnt", withdrawTx.hash);
-    console.log(
-      `Track message here: https://6il289myzb.execute-api.us-east-1.amazonaws.com/dev/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${withdrawTx.hash}`
-    );
-    await withdrawTx.wait();
+    // const withdrawTx = await controller.withdrawFromAppChain(
+    //   socketSigner.address,
+    //   amountBN,
+    //   gasLimit,
+    //   connectorAddr,
+    //   { ...overrides[srcChain], value: fees }
+    // );
+    // console.log("Tokens burnt", withdrawTx.hash);
+    // console.log(
+    //   `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${withdrawTx.hash}`
+    // );
+    // await withdrawTx.wait();
   } catch (error) {
     console.log("Error while sending transaction", error);
   }

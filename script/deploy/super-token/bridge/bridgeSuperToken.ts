@@ -1,11 +1,10 @@
 import { BigNumber, Contract } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
-import { getInstance } from "../../../helpers/utils";
 import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
 import { amount, config, dstChain, gasLimit, srcChain } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
-import { getSocket } from "./utils";
+import { getSocket, getInstance } from "./utils";
 
 export const main = async () => {
   try {
