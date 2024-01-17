@@ -240,6 +240,9 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
             bytes memory execPayload
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
+        if (receiver == address(this) || receiver == address(bridge__))
+            revert CannotExecuteOnBridgeContracts();
+
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             unlockAmount,
             _unlockLimitParams[siblingChainSlug_]

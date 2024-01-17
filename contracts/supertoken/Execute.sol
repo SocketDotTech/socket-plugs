@@ -25,6 +25,7 @@ contract Execute is ReentrancyGuard {
 
     error InvalidExecutionRetry();
     error PendingAmount();
+    error CannotExecuteOnBridgeContracts();
 
     function retryPayloadExecution(bytes32 msgId_) external nonReentrant {
         PendingExecutionDetails storage details = pendingExecutions[msgId_];

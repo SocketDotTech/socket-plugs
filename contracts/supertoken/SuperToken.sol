@@ -274,6 +274,9 @@ contract SuperToken is
             _receivingLimitParams[siblingChainSlug_]
         );
 
+        if (receiver == address(this) || receiver == address(bridge__))
+            revert CannotExecuteOnBridgeContracts();
+
         _mint(receiver, consumedAmount);
 
         if (pendingAmount > 0) {
