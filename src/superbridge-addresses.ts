@@ -11,7 +11,7 @@ import prod_mode_testnet_addresses from "../deployments/superbridge/prod_mode-te
 import prod_viction_testnet_addresses from "../deployments/superbridge/prod_viction-testnet_addresses.json";
 import prod_aevo_addresses from "../deployments/superbridge/prod_aevo_addresses.json";
 import prod_lyra_address from "../deployments/superbridge/prod_lyra_addresses.json";
-import prod_ancient8_testnet_addresses from "../deployments/superbridge/prod_ancient8-testnet_addresses.json";
+import prod_ancient8_testnet2_addresses from "../deployments/superbridge/prod_ancient8-testnet2_addresses.json";
 
 // export const getSuperbridgeAddresses = async (
 //   mode: DeploymentMode,
@@ -55,8 +55,8 @@ export const getSuperBridgeAddresses = async (
         return prod_aevo_addresses as ProjectAddresses;
       if (project === Project.LYRA)
         return prod_lyra_address as ProjectAddresses;
-      if (project === Project.ANCIENT8_TESTNET)
-        return prod_ancient8_testnet_addresses as ProjectAddresses;
+      if (project === Project.ANCIENT8_TESTNET2)
+        return prod_ancient8_testnet2_addresses as ProjectAddresses;
       throw new Error();
     } else throw new Error();
   } catch (e) {

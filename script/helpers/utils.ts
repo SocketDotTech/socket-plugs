@@ -12,6 +12,7 @@ import { getMode, getProject, getToken } from "../constants/config";
 import {
   ProjectAddresses,
   SuperTokenChainAddresses,
+  SuperBridgeContracts,
   TokenAddresses,
 } from "../../src";
 import { getIntegrationTypeConsts } from "./constants";
@@ -41,7 +42,12 @@ export const getOrDeploy = async (
     throw new Error("No addresses found");
 
   let contract: Contract;
-  if (!deployUtils.addresses[contractName]) {
+  let storedContactAddress = deployUtils.addresses[contractName];
+  if (contractName === SuperBridgeContracts.FiatTokenV2_1_Controller) {
+    storedContactAddress =
+      deployUtils.addresses[SuperBridgeContracts.Controller];
+  }
+  if (!storedContactAddress) {
     contract = await deployContractWithArgs(
       contractName,
       args,
@@ -59,10 +65,7 @@ export const getOrDeploy = async (
       deployUtils.currentChainSlug
     );
   } else {
-    contract = await getInstance(
-      contractName,
-      deployUtils.addresses[contractName]
-    );
+    contract = await getInstance(contractName, storedContactAddress);
     console.log(
       `${contractName} found on ${
         deployUtils.currentChainSlug
