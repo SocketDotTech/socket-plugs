@@ -132,7 +132,7 @@ export const getChainSlug = async (): Promise<number> => {
 };
 
 export const storeAddresses = async (
-  addresses: TokenAddresses | SuperTokenChainAddresses,
+  addresses: TokenAddresses,
   chainSlug: ChainSlug,
   fileName: string,
   tokenName = getToken().toString(),
