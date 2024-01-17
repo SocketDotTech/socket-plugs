@@ -8,18 +8,13 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import {
-  getIntegrationTypeConsts,
-  mode,
-  project,
-  projectConstants,
-  token,
-} from "./constants";
+import { getMode, getProject, getToken } from "../constants/config";
 import {
   ProjectAddresses,
   SuperTokenChainAddresses,
   TokenAddresses,
 } from "../../src";
+import { getIntegrationTypeConsts } from "./constants";
 
 export const deploymentsPath = path.join(
   __dirname,
@@ -27,7 +22,7 @@ export const deploymentsPath = path.join(
 );
 
 export const deployedAddressPath = () =>
-  deploymentsPath + `${mode}_${project}_addresses.json`;
+  deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
 
 export interface DeployParams {
   addresses: TokenAddresses | SuperTokenChainAddresses;
@@ -40,7 +35,7 @@ export const getOrDeploy = async (
   path: string,
   args: any[],
   deployUtils: DeployParams,
-  projectName = project.toString()
+  projectName = getProject().toString()
 ): Promise<Contract> => {
   if (!deployUtils || !deployUtils.addresses)
     throw new Error("No addresses found");
@@ -54,7 +49,9 @@ export const getOrDeploy = async (
     );
 
     console.log(
-      `${contractName} deployed on ${deployUtils.currentChainSlug} for ${mode}, ${projectName} at address ${contract.address}`
+      `${contractName} deployed on ${
+        deployUtils.currentChainSlug
+      } for ${getMode()}, ${getProject()} at address ${contract.address}`
     );
 
     await storeVerificationParams(
@@ -67,7 +64,9 @@ export const getOrDeploy = async (
       deployUtils.addresses[contractName]
     );
     console.log(
-      `${contractName} found on ${deployUtils.currentChainSlug} for ${mode}, ${projectName} at address ${contract.address}`
+      `${contractName} found on ${
+        deployUtils.currentChainSlug
+      } for ${getMode()}, ${getProject()} at address ${contract.address}`
     );
   }
 
@@ -133,14 +132,15 @@ export const storeAddresses = async (
   addresses: TokenAddresses | SuperTokenChainAddresses,
   chainSlug: ChainSlug,
   fileName: string,
-  tokenName = token.toString(),
+  tokenName = getToken().toString(),
   pathToDeployments = deploymentsPath
 ) => {
   if (!fs.existsSync(pathToDeployments)) {
     await fs.promises.mkdir(pathToDeployments, { recursive: true });
   }
 
-  const addressesPath = pathToDeployments + fileName;
+  const addressesPath =
+    deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
   const outputExists = fs.existsSync(addressesPath);
   let deploymentAddresses: ProjectAddresses = {};
   if (outputExists) {
@@ -150,7 +150,7 @@ export const storeAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    [chainSlug.toString(), tokenName],
+    [chainSlug.toString(), getToken()],
     addresses
   );
   // deploymentAddresses[chainSlug][token] = addresses;
@@ -162,7 +162,8 @@ export const storeAllAddresses = async (addresses: ProjectAddresses) => {
     await fs.promises.mkdir(deploymentsPath, { recursive: true });
   }
 
-  const addressesPath = deploymentsPath + `${mode}_${project}_addresses.json`;
+  const addressesPath =
+    deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
   fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
 };
 
@@ -171,7 +172,7 @@ export const getProjectAddresses = async (): Promise<ProjectAddresses> => {
   if (!addresses)
     try {
       addresses = await import(
-        `../../deployments/superbridge/${mode}_${project}_addresses.json`
+        `../../deployments/superbridge/${getMode()}_${getProject()}_addresses.json`
       );
     } catch (e) {
       console.log("addresses not found", e);
@@ -188,7 +189,7 @@ export const storeVerificationParams = async (
     await fs.promises.mkdir(deploymentsPath);
   }
   const verificationPath =
-    deploymentsPath + `${mode}_${project}_verification.json`;
+    deploymentsPath + `${getMode()}_${getProject()}_verification.json`;
   const outputExists = fs.existsSync(verificationPath);
   let verificationDetails: object = {};
   if (outputExists) {

@@ -3,7 +3,6 @@ dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
-import { mode } from "../../helpers/constants";
 import { DeployParams, getInstance, getOrDeploy } from "../../helpers/utils";
 import {
   SuperTokenContracts,
@@ -18,6 +17,7 @@ import {
   superTokenDeploymentsPath,
   storeSuperTokenAddresses,
 } from "./utils";
+import { getMode } from "../../constants/config";
 
 export interface ReturnObj {
   allDeployed: boolean;
@@ -145,7 +145,7 @@ const deploy = async (
   await storeSuperTokenAddresses(
     deployUtils.addresses as SuperTokenChainAddresses,
     deployUtils.currentChainSlug,
-    `${mode}_${config.projectName.toLowerCase()}_addresses.json`,
+    `${getMode()}_${config.projectName.toLowerCase()}_addresses.json`,
     superTokenDeploymentsPath
   );
   return {
@@ -282,7 +282,7 @@ const deployVault = async (
 };
 
 const getSocketAddress = (chain: ChainSlug) => {
-  return getAddresses(chain, mode).Socket;
+  return getAddresses(chain, getMode()).Socket;
 };
 main()
   .then(() => process.exit(0))

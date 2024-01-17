@@ -1,27 +1,26 @@
 pragma solidity 0.8.13;
 
-import {ISocket} from "../interfaces/ISocket.sol";
-import {IPlug} from "../interfaces/IPlug.sol";
-import {AccessControl} from "../common/AccessControl.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import {ISocketPlug} from "./ISocketPlug.sol";
-import {ISuperToken} from "./ISuperToken.sol";
+import {ISocket} from "../../interfaces/ISocket.sol";
+import {IPlug} from "../../interfaces/IPlug.sol";
+import {AccessControl} from "../../common/AccessControl.sol";
+import {RescueFundsLib} from "../../libraries/RescueFundsLib.sol";
+import {IMessageBridge} from "./../IMessageBridge.sol";
+import {ISuperTokenOrVault} from "./../ISuperTokenOrVault.sol";
 
-contract SocketPlug is IPlug, AccessControl, ISocketPlug {
-    ISocket public socket__;
-    ISuperToken public token__;
+contract SocketPlug is IPlug, AccessControl, IMessageBridge {
+    ISocket public immutable socket__;
+    ISuperTokenOrVault public tokenOrVault__;
 
     uint32 public immutable chainSlug;
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
     mapping(uint32 => address) public siblingPlugs;
 
     event SocketPlugDisconnected(uint32 siblingChainSlug);
-    event SocketUpdated();
-    event SuperTokenSet();
+    event SuperTokenOrVaultSet();
 
-    error NotSuperToken();
+    error NotSuperTokenOrVault();
     error NotSocket();
-    error TokenAlreadySet();
+    error TokenOrVaultAlreadySet();
 
     constructor(
         address socket_,
@@ -32,12 +31,15 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
         chainSlug = chainSlug_;
     }
 
+    // extra bytes memory can be used by other protocol plugs for additional options
     function outbound(
         uint32 siblingChainSlug_,
         uint256 msgGasLimit_,
-        bytes memory payload_
+        bytes memory payload_,
+        bytes memory
     ) external payable returns (bytes32 messageId_) {
-        if (msg.sender != address(token__)) revert NotSuperToken();
+        if (msg.sender != address(tokenOrVault__))
+            revert NotSuperTokenOrVault();
 
         return
             socket__.outbound{value: msg.value}(
@@ -54,7 +56,7 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
         bytes memory payload_
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
-        token__.inbound(siblingChainSlug_, payload_);
+        tokenOrVault__.inbound(siblingChainSlug_, payload_);
     }
 
     function getMinFees(
@@ -73,14 +75,10 @@ contract SocketPlug is IPlug, AccessControl, ISocketPlug {
     }
 
     function setSuperToken(address token) external onlyOwner {
-        if (address(token__) != address(0)) revert TokenAlreadySet();
-        token__ = ISuperToken(token);
-        emit SuperTokenSet();
-    }
-
-    function updateSocket(address socket_) external onlyOwner {
-        socket__ = ISocket(socket_);
-        emit SocketUpdated();
+        if (address(tokenOrVault__) != address(0))
+            revert TokenOrVaultAlreadySet();
+        tokenOrVault__ = ISuperTokenOrVault(token);
+        emit SuperTokenOrVaultSet();
     }
 
     function connect(

@@ -2,7 +2,7 @@ import hre from "hardhat";
 import fs from "fs";
 
 import { deploymentsPath, verify } from "./utils";
-import { mode, project } from "./constants";
+import { getMode, getProject } from "../constants/config";
 import {
   ChainSlug,
   ChainSlugToKey as ChainSlugToHardhatKey,
@@ -18,7 +18,8 @@ type VerifyArgs = [string, string, string, any[]];
  */
 export const main = async () => {
   try {
-    const path = deploymentsPath + `${mode}_${project}_verification.json`;
+    const path =
+      deploymentsPath + `${getMode()}_${getProject()}_verification.json`;
     if (!fs.existsSync(path)) {
       throw new Error("addresses.json not found");
     }
@@ -38,7 +39,11 @@ export const main = async () => {
         chain == ChainSlug.AEVO_TESTNET ||
         chain == ChainSlug.LYRA ||
         chain == ChainSlug.LYRA_TESTNET ||
-        chain == ChainSlug.SX_NETWORK_TESTNET
+        chain == ChainSlug.SX_NETWORK_TESTNET ||
+        chain == ChainSlug.MODE_TESTNET ||
+        chain == ChainSlug.VICTION_TESTNET ||
+        chain == ChainSlug.MODE ||
+        chain == ChainSlug.ANCIENT8_TESTNET
       )
         continue;
       // hre.changeNetwork(ChainSlugToHardhatKey[chain]);

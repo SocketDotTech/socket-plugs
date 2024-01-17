@@ -1,17 +1,10 @@
-import { BigNumber, Contract, utils } from "ethers";
-import { ChainSlug } from "@socket.tech/dl-core";
+import { BigNumber, Contract } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
-import { getInstance } from "../../../helpers/utils";
-import { getSocket } from "./utils";
 import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
-import { config } from "../config";
+import { amount, config, dstChain, gasLimit, srcChain } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
-
-const srcChain = ChainSlug.OPTIMISM_GOERLI;
-const dstChain = ChainSlug.POLYGON_MUMBAI;
-const gasLimit = 500_000;
-let amount = utils.parseUnits("5", config.tokenDecimal);
+import { getSocket, getInstance } from "./utils";
 
 export const main = async () => {
   try {
@@ -38,7 +31,7 @@ export const main = async () => {
     const limit: BigNumber = await tokenContract.getCurrentSendingLimit(
       dstChain
     );
-    if (limit.lt(amount)) throw new Error("Exceeding max limit");
+    if (limit.lt(amount)) throw new Error(`Exceeding max limit ${limit}`);
 
     // deposit
     console.log(`depositing ${amount} to app chain from ${srcChain}`);

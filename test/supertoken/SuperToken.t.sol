@@ -5,9 +5,10 @@ import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
 import "../mocks/NonMintableToken.sol";
 
-import "../../contracts/supertoken/SocketPlug.sol";
+import "../../contracts/supertoken/plugs/SocketPlug.sol";
 import "../../contracts/supertoken/SuperToken.sol";
 import "../../contracts/supertoken/SuperTokenVault.sol";
+import "../../contracts/common/Ownable.sol";
 import "../mocks/MockSocket.sol";
 
 contract TestSuperToken is Test {
@@ -243,7 +244,14 @@ contract TestSuperToken is Test {
         vm.startPrank(_raju);
         notSuperTokenArb.approve(address(arbLocker), depositAmount);
         _socket.setLocalSlug(arbChainSlug);
-        arbLocker.bridge(_ramu, chainSlug, depositAmount, MSG_GAS_LIMIT);
+        arbLocker.bridge(
+            _ramu,
+            chainSlug,
+            depositAmount,
+            MSG_GAS_LIMIT,
+            bytes(""),
+            bytes("")
+        );
 
         uint256 rajuBalAfter = notSuperTokenArb.balanceOf(_raju);
         uint256 ramuBalAfter = superToken.balanceOf(_ramu);
@@ -280,7 +288,14 @@ contract TestSuperToken is Test {
 
         vm.startPrank(_raju);
         _socket.setLocalSlug(chainSlug);
-        superToken.bridge(_ramu, arbChainSlug, depositAmount, MSG_GAS_LIMIT);
+        superToken.bridge(
+            _ramu,
+            arbChainSlug,
+            depositAmount,
+            MSG_GAS_LIMIT,
+            bytes(""),
+            bytes("")
+        );
 
         uint256 rajuBalAfter = superToken.balanceOf(_raju);
         uint256 ramuBalAfter = notSuperTokenArb.balanceOf(_ramu);
@@ -316,7 +331,14 @@ contract TestSuperToken is Test {
 
         vm.startPrank(_raju);
         _socket.setLocalSlug(chainSlug);
-        superToken.bridge(_ramu, otherChainSlug, depositAmount, MSG_GAS_LIMIT);
+        superToken.bridge(
+            _ramu,
+            otherChainSlug,
+            depositAmount,
+            MSG_GAS_LIMIT,
+            bytes(""),
+            bytes("")
+        );
 
         uint256 rajuBalAfter = superToken.balanceOf(_raju);
         uint256 ramuBalAfter = otherSuperToken.balanceOf(_ramu);
@@ -349,6 +371,31 @@ contract TestSuperToken is Test {
         superToken.approve(address(arbLocker), depositAmount);
 
         vm.expectRevert(SuperTokenVault.SiblingChainSlugUnavailable.selector);
-        arbLocker.bridge(_ramu, arbChainSlug, depositAmount, MSG_GAS_LIMIT);
+        arbLocker.bridge(
+            _ramu,
+            arbChainSlug,
+            depositAmount,
+            MSG_GAS_LIMIT,
+            bytes(""),
+            bytes("")
+        );
+    }
+
+    function testSetSuperToken() external {
+        SocketPlug newSuperTokenPlug = new SocketPlug(
+            address(_socket),
+            _admin,
+            chainSlug
+        );
+
+        vm.expectRevert(Ownable.OnlyOwner.selector);
+        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
+
+        hoax(_admin);
+        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
+
+        vm.expectRevert(SocketPlug.TokenOrVaultAlreadySet.selector);
+        hoax(_admin);
+        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
     }
 }

@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import { BigNumberish, Wallet, ethers } from "ethers";
 import { resolve } from "path";
 import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
-import { socketSignerKey } from "./constants";
+import { getSocketSignerKey } from "../constants/config";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -27,23 +27,23 @@ export const overrides: {
   },
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.OPTIMISM_GOERLI]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.OPTIMISM_SEPOLIA]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.SEPOLIA]: {
-    type: 1,
+    type,
     gasLimit,
-    gasPrice: 10_000_000_000,
+    gasPrice,
   },
   [ChainSlug.AEVO_TESTNET]: {
     type,
@@ -56,7 +56,7 @@ export const overrides: {
     gasPrice,
   },
   [ChainSlug.ARBITRUM]: {
-    type,
+    // type,
     // gasLimit: 2_000_000,
     gasPrice,
   },
@@ -76,14 +76,14 @@ export const overrides: {
     gasPrice: 100_000_000,
   },
   [ChainSlug.MAINNET]: {
-    type: 1,
-    gasLimit: 400_000,
-    gasPrice: 25_000_000_000,
+    // type: 1,
+    // gasLimit: 400_000,
+    gasPrice,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
     // type: 1,
     gasLimit: 10_000_000,
-    gasPrice: 20_000_000_000,
+    gasPrice,
   },
   [ChainSlug.POLYGON_MUMBAI]: {
     // type: 1,
@@ -93,7 +93,32 @@ export const overrides: {
   [ChainSlug.POLYGON_MAINNET]: {
     type: 1,
     gasLimit: 5_000_000,
-    gasPrice: 200_000_000_000,
+    gasPrice,
+  },
+  [ChainSlug.MODE_TESTNET]: {
+    type: 1,
+    gasLimit: 3_000_000,
+    gasPrice,
+  },
+  [ChainSlug.VICTION_TESTNET]: {
+    // type: 1,
+    gasLimit: 3_000_000,
+    gasPrice,
+  },
+  [ChainSlug.BASE]: {
+    // type: 1,
+    gasLimit,
+    gasPrice,
+  },
+  [ChainSlug.MODE]: {
+    type: 1,
+    gasLimit,
+    gasPrice: 10_000_000,
+  },
+  [ChainSlug.ANCIENT8_TESTNET]: {
+    type: 1,
+    gasLimit,
+    gasPrice: 10_000_000,
   },
 };
 
@@ -185,6 +210,29 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
         throw new Error("SX_NETWORK_TESTNET_RPC not configured");
       return process.env.SX_NETWORK_TESTNET_RPC;
 
+    case ChainSlug.MODE_TESTNET:
+      if (!process.env.MODE_TESTNET_RPC)
+        throw new Error("MODE_TESTNET_RPC not configured");
+      return process.env.MODE_TESTNET_RPC;
+
+    case ChainSlug.VICTION_TESTNET:
+      if (!process.env.VICTION_TESTNET_RPC)
+        throw new Error("VICTION_TESTNET_RPC not configured");
+      return process.env.VICTION_TESTNET_RPC;
+
+    case ChainSlug.BASE:
+      if (!process.env.BASE_RPC) throw new Error("BASE_RPC not configured");
+      return process.env.BASE_RPC;
+
+    case ChainSlug.MODE:
+      if (!process.env.MODE_RPC) throw new Error("MODE_RPC not configured");
+      return process.env.MODE_RPC;
+
+    case ChainSlug.ANCIENT8_TESTNET:
+      if (!process.env.ANCIENT8_TESTNET_RPC)
+        throw new Error("ANCIENT8_TESTNET_RPC not configured");
+      return process.env.ANCIENT8_TESTNET_RPC;
+
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";
 
@@ -201,5 +249,5 @@ export const getProviderFromChainSlug = (
 };
 
 export const getSignerFromChainSlug = (chainSlug: ChainSlug): Wallet => {
-  return new Wallet(socketSignerKey, getProviderFromChainSlug(chainSlug));
+  return new Wallet(getSocketSignerKey(), getProviderFromChainSlug(chainSlug));
 };

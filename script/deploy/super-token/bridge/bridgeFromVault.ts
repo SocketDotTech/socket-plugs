@@ -1,17 +1,11 @@
-import { BigNumber, Contract, utils } from "ethers";
+import { BigNumber, Contract } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
-import { getInstance } from "../../../helpers/utils";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { getSocket } from "./utils";
+import { getSocket, getInstance } from "./utils";
 import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
-import { config } from "../config";
+import { amount, config, dstChain, gasLimit, srcChain } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
-
-const srcChain = ChainSlug.POLYGON_MUMBAI;
-const dstChain = ChainSlug.ARBITRUM_GOERLI;
-const gasLimit = 500_000;
-let amount = utils.parseUnits("5", config.tokenDecimal);
 
 export const main = async () => {
   try {
@@ -48,7 +42,7 @@ export const main = async () => {
     if (balance.lt(amount)) throw new Error("Not enough balance");
 
     const limit: BigNumber = await vault.getCurrentLockLimit(dstChain);
-    if (limit.lt(amount)) throw new Error("Exceeding max limit");
+    if (limit.lt(amount)) throw new Error(`Exceeding max limit ${limit}`);
 
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
