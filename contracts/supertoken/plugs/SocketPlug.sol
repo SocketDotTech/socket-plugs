@@ -7,21 +7,49 @@ import {RescueFundsLib} from "../../libraries/RescueFundsLib.sol";
 import {IMessageBridge} from "./../IMessageBridge.sol";
 import {ISuperTokenOrVault} from "./../ISuperTokenOrVault.sol";
 
+/**
+ * @title SocketPlug
+ * @notice It enables message bridging in Super token and Super Token Vault.
+ * @dev This contract implements Socket's IPlug to enable message bridging and IMessageBridge
+ * to support any type of message bridge.
+ */
 contract SocketPlug is IPlug, AccessControl, IMessageBridge {
+    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+
+    // socket address
     ISocket public immutable socket__;
+    // super token or vault address
     ISuperTokenOrVault public tokenOrVault__;
 
+    // chain slug of current chain
     uint32 public immutable chainSlug;
-    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+
+    // map of sibling chain slugs with the plug addresses
     mapping(uint32 => address) public siblingPlugs;
 
+    ////////////////////////////////////////////////////////
+    ////////////////////// EVENTS //////////////////////////
+    ////////////////////////////////////////////////////////
+
+    // emitted when a plug is disconnected
     event SocketPlugDisconnected(uint32 siblingChainSlug);
+    // emitted when a super token or vault address is set
     event SuperTokenOrVaultSet();
+
+    ////////////////////////////////////////////////////////
+    ////////////////////// ERRORS //////////////////////////
+    ////////////////////////////////////////////////////////
 
     error NotSuperTokenOrVault();
     error NotSocket();
     error TokenOrVaultAlreadySet();
 
+    /**
+     * @notice constructor for creating a new SocketPlug.
+     * @param socket_ The address of the Socket contract used to transmit messages.
+     * @param owner_ The address of the owner who has the initial admin role.
+     * @param chainSlug_ The unique identifier of the chain this plug is deployed on.
+     */
     constructor(
         address socket_,
         address owner_,
@@ -31,7 +59,14 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
         chainSlug = chainSlug_;
     }
 
-    // extra bytes memory can be used by other protocol plugs for additional options
+    /**
+     * @notice calls socket's outbound function which transmits msg to `siblingChainSlug_`.
+     * @dev Only super token or vault can call this function
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param msgGasLimit_ min gas limit needed to execute the message on sibling
+     * @param payload_ payload which should be executed at the sibling chain.
+     * @return messageId_ identifier used to get message details from Socket.
+     */
     function outbound(
         uint32 siblingChainSlug_,
         uint256 msgGasLimit_,
@@ -51,6 +86,12 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
             );
     }
 
+    /**
+     * @notice this function receives the message from sibling chain.
+     * @dev Only socket can call this function.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param payload_ payload which should be executed at the super token or vault.
+     */
     function inbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
@@ -59,6 +100,11 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
         tokenOrVault__.inbound(siblingChainSlug_, payload_);
     }
 
+    /**
+     * @notice this function calculates the fees needed to send the message to Socket.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param msgGasLimit_ min gas limit needed at destination chain to execute the message.
+     */
     function getMinFees(
         uint32 siblingChainSlug_,
         uint256 msgGasLimit_
@@ -74,13 +120,27 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
             );
     }
 
-    function setSuperToken(address token) external onlyOwner {
+    /**
+     * @notice this function is used to set the Super token or Vault address
+     * @dev only owner can set the token address.
+     * @dev this can be called only once.
+     * @param tokenOrVault_ The super token or vault address connected to this plug.
+     */
+    function setSuperTokenOrVault(address tokenOrVault_) external onlyOwner {
         if (address(tokenOrVault__) != address(0))
             revert TokenOrVaultAlreadySet();
-        tokenOrVault__ = ISuperTokenOrVault(token);
+        tokenOrVault__ = ISuperTokenOrVault(tokenOrVault_);
         emit SuperTokenOrVaultSet();
     }
 
+    /**
+     * @notice this function is used to connect Socket for a `siblingChainSlug_`.
+     * @dev only owner can connect Socket with preferred switchboard address.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param siblingPlug_ address of plug present at siblingChainSlug_ to call at inbound
+     * @param inboundSwitchboard_ the address of switchboard to use for verifying messages at inbound
+     * @param outboundSwitchboard_ the address of switchboard to use for sending messages
+     */
     function connect(
         uint32 siblingChainSlug_,
         address siblingPlug_,
@@ -97,6 +157,13 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
         );
     }
 
+    /**
+     * @notice this function is used to disconnect Socket for a `siblingChainSlug_`.
+     * @dev only owner can disconnect Socket
+     * @dev it sets sibling plug as address(0) which makes it revert at `outbound()` hence
+     * @dev stopping it from sending any message.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     */
     function disconnect(uint32 siblingChainSlug_) external onlyOwner {
         (
             ,
@@ -116,6 +183,11 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
         emit SocketPlugDisconnected(siblingChainSlug_);
     }
 
+    /**
+     * @notice this function is used to calculate message id before sending outbound().
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @return message id
+     */
     function getMessageId(
         uint32 siblingChainSlug_
     ) public view returns (bytes32) {

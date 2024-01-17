@@ -2,14 +2,19 @@ pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
 
+import {AccessControl} from "../common/AccessControl.sol";
+import {Gauge} from "../common/Gauge.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+
+import "./Execute.sol";
 import "./IMessageBridge.sol";
 import "./ISuperTokenOrVault.sol";
 
-import {AccessControl} from "../common/AccessControl.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import "../common/Gauge.sol";
-import "./Execute.sol";
-
+/**
+ * @title SuperToken
+ * @notice An ERC20 contract which enables bridging a token to its sibling chains.
+ * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
+ */
 contract SuperToken is
     ERC20,
     Gauge,
@@ -17,17 +22,19 @@ contract SuperToken is
     AccessControl,
     Execute
 {
-    IMessageBridge public bridge__;
-
-    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
-    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
-
     struct UpdateLimitParams {
         bool isMint;
         uint32 siblingChainSlug;
         uint256 maxLimit;
         uint256 ratePerSecond;
     }
+
+    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
+
+    // bridge contract address which provides AMB support
+    IMessageBridge public bridge__;
+
     // siblingChainSlug => mintLimitParams
     mapping(uint32 => LimitParams) _receivingLimitParams;
 
@@ -41,13 +48,24 @@ contract SuperToken is
     // siblingChainSlug => amount
     mapping(uint32 => uint256) public siblingPendingMints;
 
+    ////////////////////////////////////////////////////////
+    ////////////////////// ERRORS //////////////////////////
+    ////////////////////////////////////////////////////////
+
     error SiblingNotSupported();
     error MessageIdMisMatched();
     error ZeroAmount();
-    error NotPlug();
+    error NotMessageBridge();
 
+    ////////////////////////////////////////////////////////
+    ////////////////////// EVENTS //////////////////////////
+    ////////////////////////////////////////////////////////
+
+    // emitted when limit params are updated
     event LimitParamsUpdated(UpdateLimitParams[] updates);
-    event PlugUpdated(address newPlug);
+    // emitted when message bridge is updated
+    event MessageBridgeUpdated(address newBridge);
+    // emitted at source when tokens are bridged to a sibling chain
     event BridgeTokens(
         uint32 siblingChainSlug,
         address withdrawer,
@@ -55,7 +73,7 @@ contract SuperToken is
         uint256 bridgedAmount,
         bytes32 identifier
     );
-
+    // emitted when pending tokens are minted to the receiver
     event PendingTokensBridged(
         uint32 siblingChainSlug,
         address receiver,
@@ -63,6 +81,7 @@ contract SuperToken is
         uint256 pendingAmount,
         bytes32 identifier
     );
+    // emitted when transfer reaches limit and token mint is added to pending queue
     event TokensPending(
         uint32 siblingChainSlug,
         address receiver,
@@ -70,6 +89,7 @@ contract SuperToken is
         uint256 totalPendingAmount,
         bytes32 identifier
     );
+    // emitted when pending tokens are minted as limits are replenished
     event TokensBridged(
         uint32 siblingChainSlug,
         address receiver,
@@ -78,22 +98,32 @@ contract SuperToken is
         bytes32 identifier
     );
 
+    /**
+     * @notice constructor for creating a new SuperToken.
+     * @param name_ token name
+     * @param symbol_ token symbol
+     * @param decimals_ token decimals (should be same on all chains)
+     * @param initialSupplyHolder_ address to which initial supply will be minted
+     * @param owner_ owner of this contract
+     * @param initialSupply_ initial supply of super token
+     * @param bridge_ message bridge address
+     */
     constructor(
         string memory name_,
         string memory symbol_,
         uint8 decimals_,
-        address user_,
+        address initialSupplyHolder_,
         address owner_,
         uint256 initialSupply_,
-        address plug_
+        address bridge_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
-        _mint(user_, initialSupply_);
-        bridge__ = IMessageBridge(plug_);
+        _mint(initialSupplyHolder_, initialSupply_);
+        bridge__ = IMessageBridge(bridge_);
     }
 
-    function updatePlug(address plug_) external onlyOwner {
-        bridge__ = IMessageBridge(plug_);
-        emit PlugUpdated(plug_);
+    function updateMessageBridge(address bridge_) external onlyOwner {
+        bridge__ = IMessageBridge(bridge_);
+        emit MessageBridgeUpdated(bridge_);
     }
 
     function updateLimitParams(
@@ -124,6 +154,16 @@ contract SuperToken is
         emit LimitParamsUpdated(updates_);
     }
 
+    /**
+     * @notice this function is called by users to bridge their funds to a sibling chain
+     * @dev it is payable to receive message bridge fees to be paid.
+     * @param receiver_ address receiving bridged tokens
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param sendingAmount_ amount bridged
+     * @param msgGasLimit_ min gas limit needed for execution at destination
+     * @param payload_ payload which is executed at destination with bridged amount at receiver address.
+     * @param options_ additional message bridge options can be provided using this param
+     */
     function bridge(
         address receiver_,
         uint32 siblingChainSlug_,
@@ -136,6 +176,7 @@ contract SuperToken is
             revert SiblingNotSupported();
 
         if (sendingAmount_ == 0) revert ZeroAmount();
+
         _consumeFullLimit(
             sendingAmount_,
             _sendingLimitParams[siblingChainSlug_]
@@ -143,6 +184,9 @@ contract SuperToken is
         _burn(msg.sender, sendingAmount_);
 
         bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
+
+        // important to get message id as it is used as an
+        // identifier for pending amount and payload caching
         bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
@@ -203,11 +247,17 @@ contract SuperToken is
         );
     }
 
+    /**
+     * @notice this function receives the message from message bridge
+     * @dev Only bridge can call this function.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param payload_ payload which is decoded to get `receiver`, `amount to mint`, `message id` and `payload` to execute after token transfer.
+     */
     function inbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override nonReentrant {
-        if (msg.sender != address(bridge__)) revert NotPlug();
+        if (msg.sender != address(bridge__)) revert NotMessageBridge();
 
         if (_receivingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
@@ -232,15 +282,7 @@ contract SuperToken is
             ] = pendingAmount;
             siblingPendingMints[siblingChainSlug_] += pendingAmount;
 
-            emit TokensPending(
-                siblingChainSlug_,
-                receiver,
-                pendingAmount,
-                pendingMints[siblingChainSlug_][receiver][identifier],
-                identifier
-            );
-
-            // cache payload
+            // if pending amount is more than 0, payload is cached
             if (execPayload.length > 0)
                 _cachePayload(
                     identifier,
@@ -249,6 +291,14 @@ contract SuperToken is
                     receiver,
                     execPayload
                 );
+
+            emit TokensPending(
+                siblingChainSlug_,
+                receiver,
+                pendingAmount,
+                pendingMints[siblingChainSlug_][receiver][identifier],
+                identifier
+            );
         } else if (execPayload.length > 0) {
             // execute
             bool success = _execute(receiver, execPayload);

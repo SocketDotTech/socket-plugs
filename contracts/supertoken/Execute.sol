@@ -3,8 +3,15 @@ pragma solidity 0.8.13;
 import "solmate/utils/ReentrancyGuard.sol";
 import "../libraries/ExcessivelySafeCall.sol";
 
+/**
+ * @title Execute
+ * @notice It enables payload execution and contains relevant storages.
+ * @dev This contract implements Socket's IPlug to enable message bridging and IMessageBridge
+ * to support any type of message bridge.
+ */
 contract Execute is ReentrancyGuard {
     using ExcessivelySafeCall for address;
+
     struct PendingExecutionDetails {
         address receiver;
         uint32 siblingChainSlug;

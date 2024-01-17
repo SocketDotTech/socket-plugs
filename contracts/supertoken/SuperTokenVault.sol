@@ -2,20 +2,21 @@ pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
 
+import {AccessControl} from "../common/AccessControl.sol";
 import {Gauge} from "../common/Gauge.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+
+import "./Execute.sol";
 import {ISuperTokenOrVault} from "./ISuperTokenOrVault.sol";
 import {IMessageBridge} from "./IMessageBridge.sol";
-import {AccessControl} from "../common/AccessControl.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import "./Execute.sol";
 
+/**
+ * @title SuperTokenVault
+ * @notice Vault contract which is used to lock/unlock token and enable bridging to its sibling chains.
+ * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
+ */
 contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     using SafeTransferLib for ERC20;
-    ERC20 public immutable token__;
-    IMessageBridge public bridge__;
-
-    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
-    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     struct UpdateLimitParams {
         bool isLock;
@@ -23,6 +24,12 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         uint256 maxLimit;
         uint256 ratePerSecond;
     }
+
+    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
+
+    ERC20 public immutable token__;
+    IMessageBridge public bridge__;
 
     // siblingChainSlug => receiver => identifier => pendingUnlock
     mapping(uint32 => mapping(address => mapping(bytes32 => uint256)))
@@ -37,48 +44,68 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     // siblingChainSlug => unlockLimitParams
     mapping(uint32 => LimitParams) _unlockLimitParams;
 
+    ////////////////////////////////////////////////////////
+    ////////////////////// ERRORS //////////////////////////
+    ////////////////////////////////////////////////////////
+
     error SiblingChainSlugUnavailable();
     error ZeroAmount();
-    error NotPlug();
+    error NotMessageBridge();
 
-    event PlugUpdated(address plug);
+    ////////////////////////////////////////////////////////
+    ////////////////////// EVENTS //////////////////////////
+    ////////////////////////////////////////////////////////
+
+    // emitted when a message bridge is updated
+    event MessageBridgeUpdated(address bridge);
+    // emitted when limit params are updated
     event LimitParamsUpdated(UpdateLimitParams[] updates);
+    // emitted at source when tokens are deposited to be bridged to a sibling chain
     event TokensDeposited(
         uint32 siblingChainSlug,
         address depositor,
         address receiver,
         uint256 depositAmount
     );
+    // emitted when pending tokens are transferred to the receiver
     event PendingTokensTransferred(
         uint32 siblingChainSlug,
         address receiver,
         uint256 unlockedAmount,
         uint256 pendingAmount
     );
+    // emitted when transfer reaches limit and token transfer is added to pending queue
     event TokensPending(
         uint32 siblingChainSlug,
         address receiver,
         uint256 pendingAmount,
         uint256 totalPendingAmount
     );
+    // emitted when pending tokens are unlocked as limits are replenished
     event TokensUnlocked(
         uint32 siblingChainSlug,
         address receiver,
         uint256 unlockedAmount
     );
 
+    /**
+     * @notice constructor for creating a new SuperTokenVault.
+     * @param token_ token contract address which is to be bridged.
+     * @param owner_ owner of this contract
+     * @param bridge_ message bridge address
+     */
     constructor(
         address token_,
         address owner_,
-        address plug_
+        address bridge_
     ) AccessControl(owner_) {
         token__ = ERC20(token_);
-        bridge__ = IMessageBridge(plug_);
+        bridge__ = IMessageBridge(bridge_);
     }
 
-    function updatePlug(address plug_) external onlyOwner {
-        bridge__ = IMessageBridge(plug_);
-        emit PlugUpdated(plug_);
+    function updateMessageBridge(address bridge_) external onlyOwner {
+        bridge__ = IMessageBridge(bridge_);
+        emit MessageBridgeUpdated(bridge_);
     }
 
     function updateLimitParams(
@@ -109,6 +136,16 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         emit LimitParamsUpdated(updates_);
     }
 
+    /**
+     * @notice this function is called by users to bridge their funds to a sibling chain
+     * @dev it is payable to receive message bridge fees to be paid.
+     * @param receiver_ address receiving bridged tokens
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param amount_ amount bridged
+     * @param msgGasLimit_ min gas limit needed for execution at destination
+     * @param payload_ payload which is executed at destination with bridged amount at receiver address.
+     * @param options_ additional message bridge options can be provided using this param
+     */
     function bridge(
         address receiver_,
         uint32 siblingChainSlug_,
@@ -181,11 +218,17 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         );
     }
 
+    /**
+     * @notice this function receives the message from message bridge
+     * @dev Only bridge can call this function.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param payload_ payload which is decoded to get `receiver`, `amount to mint`, `message id` and `payload` to execute after token transfer.
+     */
     function inbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override nonReentrant {
-        if (msg.sender != address(bridge__)) revert NotPlug();
+        if (msg.sender != address(bridge__)) revert NotMessageBridge();
 
         if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingChainSlugUnavailable();
