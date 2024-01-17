@@ -8,6 +8,7 @@ import "../mocks/NonMintableToken.sol";
 import "../../contracts/supertoken/plugs/SocketPlug.sol";
 import "../../contracts/supertoken/SuperToken.sol";
 import "../../contracts/supertoken/SuperTokenVault.sol";
+import "../../contracts/common/Ownable.sol";
 import "../mocks/MockSocket.sol";
 
 contract TestSuperToken is Test {
@@ -378,5 +379,23 @@ contract TestSuperToken is Test {
             bytes(""),
             bytes("")
         );
+    }
+
+    function testSetSuperToken() external {
+        SocketPlug newSuperTokenPlug = new SocketPlug(
+            address(_socket),
+            _admin,
+            chainSlug
+        );
+
+        vm.expectRevert(Ownable.OnlyOwner.selector);
+        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
+
+        hoax(_admin);
+        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
+
+        vm.expectRevert(SocketPlug.TokenOrVaultAlreadySet.selector);
+        hoax(_admin);
+        newSuperTokenPlug.setSuperToken(address(uint160(_c++)));
     }
 }

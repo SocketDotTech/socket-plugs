@@ -267,7 +267,6 @@ contract TestExecute is Test {
         notSuperTokenArb.mint(_raju, depositAmount);
 
         uint256 rajuBalBefore = notSuperTokenArb.balanceOf(_raju);
-        uint256 ramuBalBefore = superToken.balanceOf(_ramu);
         uint256 vaultBalBefore = notSuperTokenArb.balanceOf(address(arbLocker));
         uint256 tokenSupplyBefore = superToken.totalSupply();
 
@@ -332,13 +331,6 @@ contract TestExecute is Test {
         vm.prank(_admin);
         notSuperTokenArb.mint(_raju, depositAmount);
 
-        uint256 rajuBalBefore = notSuperTokenArb.balanceOf(_raju);
-        uint256 ramuBalBefore = superToken.balanceOf(_ramu);
-        uint256 vaultBalBefore = notSuperTokenArb.balanceOf(address(arbLocker));
-        uint256 tokenSupplyBefore = superToken.totalSupply();
-
-        assertTrue(rajuBalBefore >= depositAmount, "Raju got no balance");
-
         vm.startPrank(_raju);
         notSuperTokenArb.approve(address(arbLocker), depositAmount);
         _socket.setLocalSlug(arbChainSlug);
@@ -356,37 +348,26 @@ contract TestExecute is Test {
                 (uint256(uint160(address(superTokenPlug))) << 64) |
                 0
         );
-        (
-            address receiver,
-            ,
-            bytes memory payload,
-            bool isAmountPending
-        ) = superToken.pendingExecutions(messageId);
+        (address receiver, , , ) = superToken.pendingExecutions(messageId);
 
         assertEq(
             receiver,
             address(executableReceiver),
             "Wrong receiver cached"
         );
-        assertEq(payload, payloadToExecute, "Wrong payload cached");
-        assertFalse(isAmountPending, "Amount not transferred");
 
-        uint256 rajuBalAfter = notSuperTokenArb.balanceOf(_raju);
-        uint256 vaultBalAfter = notSuperTokenArb.balanceOf(address(arbLocker));
-        uint256 tokenSupplyAfter = superToken.totalSupply();
-
-        assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
-        assertEq(
-            vaultBalAfter,
-            vaultBalBefore + depositAmount,
-            "SuperTokenVault bal sus"
-        );
-        assertEq(
-            tokenSupplyAfter,
-            tokenSupplyBefore + depositAmount,
-            "token supply sus"
-        );
-
+        executableReceiver.incrementCounter();
         superToken.retryPayloadExecution(messageId);
+
+        (
+            address receiverAfterRetry,
+            uint32 siblingSlug,
+            bytes memory payload,
+            bool isAmountPending
+        ) = superToken.pendingExecutions(messageId);
+        assertEq(receiverAfterRetry, address(0), "receiver not cleared");
+        assertEq(siblingSlug, uint32(0), "sibling slug not cleared");
+        assertEq(payload, bytes(""), "payload not cleared");
+        assertFalse(isAmountPending, "isAmountPending not cleared");
     }
 }
