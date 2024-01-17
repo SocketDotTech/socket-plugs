@@ -55,6 +55,31 @@
       ["0x7F5c764cBc14f9669B88837ca1490cCa17c31607"]
     ]
   ],
+  "420": [
+    [
+      "0x89dFbBde140FCFE428E443e64244913DAe46021d",
+      "SuperToken",
+      "contracts/supertoken/SuperToken.sol",
+      [
+        "time",
+        "TIME",
+        18,
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        0,
+        "0x0d4c6fd645Ae536EDdE6688736Fa8c08295ce6f8"
+      ]
+    ],
+    [
+      "0x0d4c6fd645Ae536EDdE6688736Fa8c08295ce6f8",
+      "SocketPlug",
+      "contracts/supertoken/SocketPlug.sol",
+      [
+        "0x5054D6c7dF3048fFf6b148765b2d58e2803837e1",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa"
+      ]
+    ]
+  ],
   "2999": [
     [
       "0x0c0Ed11E55EFF4bb8324e2497e6CA34FD2D87f67",
@@ -189,6 +214,121 @@
       "Vault",
       "contracts/superbridge/Vault.sol",
       ["0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8"]
+    ]
+  ],
+  "80001": [
+    [
+      "0xF55327A3b9Ae930Ab4391df1a506d24160446620",
+      "SuperTokenVault",
+      "contracts/supertoken/SuperTokenVault.sol",
+      [
+        "0xB24d5ef4066Ba3eAF276313F6c476b82a5eDd780",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        "0x5Fa0244513bC80d2D7E64018f0c9177539640cf8"
+      ]
+    ],
+    [
+      "0x5Fa0244513bC80d2D7E64018f0c9177539640cf8",
+      "SocketPlug",
+      "contracts/supertoken/SocketPlug.sol",
+      [
+        "0x54FEAB3E649Ac262028996C6082F736182717abb",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa"
+      ]
+    ],
+    [
+      "0x30Ce98B91C0Da1e728d398f0B62B57948EBB19EC",
+      "SuperTokenVault",
+      "contracts/supertoken/SuperTokenVault.sol",
+      [
+        "0xB24d5ef4066Ba3eAF276313F6c476b82a5eDd780",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        "0x362F7D057384Ac0C37D6C2394bB9987a7D0d32e6"
+      ]
+    ],
+    [
+      "0x362F7D057384Ac0C37D6C2394bB9987a7D0d32e6",
+      "SocketPlug",
+      "contracts/supertoken/SocketPlug.sol",
+      [
+        "0x54FEAB3E649Ac262028996C6082F736182717abb",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa"
+      ]
+    ]
+  ],
+  "421613": [
+    [
+      "0xAcEFb125EBD5a6716856fbf58E2067660949f17C",
+      "SuperToken",
+      "contracts/supertoken/SuperToken.sol",
+      [
+        "time",
+        "TIME",
+        18,
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        0,
+        "0xe19877990491DAA2F18137CE578df1a009ed8333"
+      ]
+    ],
+    [
+      "0xe19877990491DAA2F18137CE578df1a009ed8333",
+      "SocketPlug",
+      "contracts/supertoken/SocketPlug.sol",
+      [
+        "0x7615Ddf5E1370dAf519F4EB9C9e2e5764B3031d2",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa"
+      ]
+    ]
+  ],
+  "421614": [
+    [
+      "0x0b44253e328AEb01BEEC818c88BDbe0eF67f64e4",
+      "SuperToken",
+      "contracts/supertoken/SuperToken.sol",
+      [
+        "time",
+        "TIME",
+        18,
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        0,
+        "0xf48EE36DF69FDE9d15e73395df0B39d9B015E064"
+      ]
+    ],
+    [
+      "0xf48EE36DF69FDE9d15e73395df0B39d9B015E064",
+      "SocketPlug",
+      "contracts/supertoken/SocketPlug.sol",
+      [
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa"
+      ]
+    ]
+  ],
+  "11155420": [
+    [
+      "0x75460e2492238c50A817c4176A247136D4946C3A",
+      "SuperToken",
+      "contracts/supertoken/SuperToken.sol",
+      [
+        "time",
+        "TIME",
+        18,
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa",
+        0,
+        "0x6c2B6C6E10cc024754618790161B3cAF1D44b6e0"
+      ]
+    ],
+    [
+      "0x6c2B6C6E10cc024754618790161B3cAF1D44b6e0",
+      "SocketPlug",
+      "contracts/supertoken/SocketPlug.sol",
+      [
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        "0x752B38FA38F53dF7fa60e6113CFd9094b7e040Aa"
+      ]
     ]
   ]
 }

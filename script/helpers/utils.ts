@@ -11,6 +11,7 @@ import { overrides } from "./networks";
 import { getMode, getProject, getToken } from "../constants/config";
 import {
   ProjectAddresses,
+  SuperTokenChainAddresses,
   SuperBridgeContracts,
   TokenAddresses,
 } from "../../src";
@@ -25,7 +26,7 @@ export const deployedAddressPath = () =>
   deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
 
 export interface DeployParams {
-  addresses: TokenAddresses;
+  addresses: TokenAddresses | SuperTokenChainAddresses;
   signer: Wallet;
   currentChainSlug: number;
 }
@@ -34,7 +35,8 @@ export const getOrDeploy = async (
   contractName: string,
   path: string,
   args: any[],
-  deployUtils: DeployParams
+  deployUtils: DeployParams,
+  projectName = getProject().toString()
 ): Promise<Contract> => {
   if (!deployUtils || !deployUtils.addresses)
     throw new Error("No addresses found");
@@ -131,10 +133,13 @@ export const getChainSlug = async (): Promise<number> => {
 
 export const storeAddresses = async (
   addresses: TokenAddresses,
-  chainSlug: ChainSlug
+  chainSlug: ChainSlug,
+  fileName: string,
+  tokenName = getToken().toString(),
+  pathToDeployments = deploymentsPath
 ) => {
-  if (!fs.existsSync(deploymentsPath)) {
-    await fs.promises.mkdir(deploymentsPath, { recursive: true });
+  if (!fs.existsSync(pathToDeployments)) {
+    await fs.promises.mkdir(pathToDeployments, { recursive: true });
   }
 
   const addressesPath =

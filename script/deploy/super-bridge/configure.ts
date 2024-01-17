@@ -7,18 +7,18 @@ import {
   getAddresses,
 } from "@socket.tech/dl-core";
 
-import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { getSignerFromChainSlug, overrides } from "../../helpers/networks";
 import {
   getInstance,
   getProjectAddresses,
   getPoolIdHex,
-} from "../helpers/utils";
+} from "../../helpers/utils";
 import {
   getProjectTokenConstants,
   getLimitBN,
   getRateBN,
-} from "../helpers/constants";
-import { getSocket } from "../bridge/utils";
+} from "../../helpers/constants";
+import { getSocket } from "../../bridge/utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
@@ -27,8 +27,8 @@ import {
   NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
-} from "../../src";
-import { getMode, getToken } from "../constants/config";
+} from "../../../src";
+import { getMode, getToken } from "../../constants/config";
 
 type UpdateLimitParams = [
   boolean,

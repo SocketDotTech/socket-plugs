@@ -1,17 +1,33 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./SuperPlug.sol";
-import "../common/Gauge.sol";
 
-contract SuperToken is ERC20, Gauge, SuperPlug {
+import "./IMessageBridge.sol";
+import "./ISuperTokenOrVault.sol";
+
+import {AccessControl} from "../common/AccessControl.sol";
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import "../common/Gauge.sol";
+import "./Execute.sol";
+
+contract SuperToken is
+    ERC20,
+    Gauge,
+    ISuperTokenOrVault,
+    AccessControl,
+    Execute
+{
+    IMessageBridge public bridge__;
+
+    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
+
     struct UpdateLimitParams {
         bool isMint;
         uint32 siblingChainSlug;
         uint256 maxLimit;
         uint256 ratePerSecond;
     }
-
     // siblingChainSlug => mintLimitParams
     mapping(uint32 => LimitParams) _receivingLimitParams;
 
@@ -28,9 +44,10 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
     error SiblingNotSupported();
     error MessageIdMisMatched();
     error ZeroAmount();
+    error NotPlug();
 
     event LimitParamsUpdated(UpdateLimitParams[] updates);
-
+    event PlugUpdated(address newPlug);
     event BridgeTokens(
         uint32 siblingChainSlug,
         address withdrawer,
@@ -68,14 +85,20 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         address user_,
         address owner_,
         uint256 initialSupply_,
-        address socket_
-    ) ERC20(name_, symbol_, decimals_) SuperPlug(socket_, owner_) {
+        address plug_
+    ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(user_, initialSupply_);
+        bridge__ = IMessageBridge(plug_);
+    }
+
+    function updatePlug(address plug_) external onlyOwner {
+        bridge__ = IMessageBridge(plug_);
+        emit PlugUpdated(plug_);
     }
 
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
-    ) external onlyOwner {
+    ) external onlyRole(LIMIT_UPDATER_ROLE) {
         for (uint256 i; i < updates_.length; i++) {
             if (updates_[i].isMint) {
                 _consumePartLimit(
@@ -105,7 +128,9 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         address receiver_,
         uint32 siblingChainSlug_,
         uint256 sendingAmount_,
-        uint256 msgGasLimit_
+        uint256 msgGasLimit_,
+        bytes calldata payload_,
+        bytes calldata options_
     ) external payable {
         if (_sendingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
@@ -117,11 +142,12 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         ); // reverts on limit hit
         _burn(msg.sender, sendingAmount_);
 
-        bytes32 messageId = getMessageId(siblingChainSlug_);
-        bytes32 returnedMessageId = _outbound(
+        bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
+        bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, sendingAmount_, messageId)
+            abi.encode(receiver_, sendingAmount_, messageId, payload_),
+            options_
         );
 
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
@@ -138,7 +164,7 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         address receiver_,
         uint32 siblingChainSlug_,
         bytes32 identifier
-    ) external {
+    ) external nonReentrant {
         if (_receivingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
 
@@ -155,6 +181,19 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
 
         _mint(receiver_, consumedAmount);
 
+        if (
+            pendingAmount == 0 &&
+            pendingExecutions[identifier].receiver != address(0)
+        ) {
+            // execute
+            pendingExecutions[identifier].isAmountPending = false;
+            bool success = _execute(
+                receiver_,
+                pendingExecutions[identifier].payload
+            );
+            if (success) _clearPayload(identifier);
+        }
+
         emit PendingTokensBridged(
             siblingChainSlug_,
             receiver_,
@@ -167,21 +206,25 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
     function inbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
-    ) external payable override {
-        if (msg.sender != address(socket__)) revert NotSocket();
+    ) external payable override nonReentrant {
+        if (msg.sender != address(bridge__)) revert NotPlug();
 
         if (_receivingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
 
-        (address receiver, uint256 mintAmount, bytes32 identifier) = abi.decode(
-            payload_,
-            (address, uint256, bytes32)
-        );
+        (
+            address receiver,
+            uint256 mintAmount,
+            bytes32 identifier,
+            bytes memory execPayload
+        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             mintAmount,
             _receivingLimitParams[siblingChainSlug_]
         );
+
+        _mint(receiver, consumedAmount);
 
         if (pendingAmount > 0) {
             pendingMints[siblingChainSlug_][receiver][
@@ -196,9 +239,29 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
                 pendingMints[siblingChainSlug_][receiver][identifier],
                 identifier
             );
-        }
 
-        _mint(receiver, consumedAmount);
+            // cache payload
+            if (execPayload.length > 0)
+                _cachePayload(
+                    identifier,
+                    siblingChainSlug_,
+                    true,
+                    receiver,
+                    execPayload
+                );
+        } else if (execPayload.length > 0) {
+            // execute
+            bool success = _execute(receiver, execPayload);
+
+            if (!success)
+                _cachePayload(
+                    identifier,
+                    siblingChainSlug_,
+                    false,
+                    receiver,
+                    execPayload
+                );
+        }
 
         emit TokensBridged(
             siblingChainSlug_,
@@ -243,7 +306,7 @@ contract SuperToken is ERC20, Gauge, SuperPlug {
         address token_,
         address rescueTo_,
         uint256 amount_
-    ) external onlyOwner {
+    ) external onlyRole(RESCUE_ROLE) {
         RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }

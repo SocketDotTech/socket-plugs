@@ -16,34 +16,34 @@ export const type = 2;
 export const overrides: {
   [chain in ChainSlug]?: {
     type?: number | undefined;
-    gasLimit: BigNumberish | undefined;
-    gasPrice: BigNumberish | undefined;
+    gasLimit?: BigNumberish | undefined;
+    gasPrice?: BigNumberish | undefined;
   };
 } = {
   [ChainSlug.ARBITRUM_GOERLI]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.OPTIMISM_GOERLI]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.OPTIMISM_SEPOLIA]: {
     type,
-    gasLimit: 20_000_000,
+    // gasLimit: 20_000_000,
     gasPrice,
   },
   [ChainSlug.SEPOLIA]: {
-    type: 1,
+    type,
     gasLimit,
-    gasPrice: 10_000_000_000,
+    gasPrice,
   },
   [ChainSlug.AEVO_TESTNET]: {
     type,
@@ -52,12 +52,12 @@ export const overrides: {
   },
   [ChainSlug.OPTIMISM]: {
     type,
-    gasLimit: 2_000_000,
+    // gasLimit: 2_000_000,
     gasPrice,
   },
   [ChainSlug.ARBITRUM]: {
-    type,
-    gasLimit: 20_000_000,
+    // type,
+    // gasLimit: 2_000_000,
     gasPrice,
   },
   [ChainSlug.AEVO]: {
@@ -76,29 +76,39 @@ export const overrides: {
     gasPrice: 100_000_000,
   },
   [ChainSlug.MAINNET]: {
-    type: 1,
-    gasLimit: 400_000,
-    gasPrice: 57_000_000_000,
+    // type: 1,
+    // gasLimit: 400_000,
+    gasPrice,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
     // type: 1,
     gasLimit: 10_000_000,
-    gasPrice: 20_000_000_000,
+    gasPrice,
+  },
+  [ChainSlug.POLYGON_MUMBAI]: {
+    // type: 1,
+    gasLimit: 5_000_000,
+    // gasPrice: 20_000_000_000,
+  },
+  [ChainSlug.POLYGON_MAINNET]: {
+    type: 1,
+    gasLimit: 5_000_000,
+    gasPrice,
   },
   [ChainSlug.MODE_TESTNET]: {
     type: 1,
     gasLimit: 3_000_000,
-    gasPrice: 100_000_000,
+    gasPrice,
   },
   [ChainSlug.VICTION_TESTNET]: {
     // type: 1,
     gasLimit: 3_000_000,
-    gasPrice: 2_000_000_000,
+    gasPrice,
   },
   [ChainSlug.BASE]: {
-    type: 1,
+    // type: 1,
     gasLimit,
-    gasPrice: 10_000_000,
+    gasPrice,
   },
   [ChainSlug.MODE]: {
     type: 1,

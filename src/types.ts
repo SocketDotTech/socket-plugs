@@ -22,6 +22,8 @@ export enum Project {
   ANCIENT8_TESTNET2 = "ancient8-testnet2",
 }
 
+////// **** SUPER BRIDGE TYPES **** //////
+
 export enum SuperBridgeContracts {
   MintableToken = "MintableToken",
   NonMintableToken = "NonMintableToken",
@@ -76,4 +78,24 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
   [ChainSlug.MODE]: Project.MODE,
   [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
+};
+
+////// **** SUPER TOKEN TYPES **** //////
+
+export enum SuperTokenContracts {
+  NonSuperToken = "NonSuperToken",
+  SuperToken = "SuperToken",
+  SuperTokenVault = "SuperTokenVault",
+  SocketPlug = "SocketPlug",
+}
+
+export type SuperTokenAddresses = {
+  [chainSlug in ChainSlug]?: SuperTokenChainAddresses;
+};
+
+export type SuperTokenChainAddresses = {
+  [SuperTokenContracts.NonSuperToken]?: string;
+  [SuperTokenContracts.SuperToken]?: string;
+  [SuperTokenContracts.SuperTokenVault]?: string;
+  [SuperTokenContracts.SocketPlug]: string;
 };

@@ -2,33 +2,33 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
-import { getSignerFromChainSlug } from "../helpers/networks";
+import { getSignerFromChainSlug } from "../../helpers/networks";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
 import {
   getMode,
   getProject,
   getSocketOwner,
   getToken,
-} from "../constants/config";
+} from "../../constants/config";
 import {
   DeployParams,
   createObj,
   getProjectAddresses,
   getOrDeploy,
   storeAddresses,
-} from "../helpers/utils";
+} from "../../helpers/utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
   NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
-} from "../../src";
+} from "../../../src";
 import {
   integrationTypes,
   isAppChain,
   getProjectTokenConstants,
-} from "../helpers/constants";
+} from "../../helpers/constants";
 
 export interface ReturnObj {
   allDeployed: boolean;
@@ -111,7 +111,8 @@ const deploy = async (
   };
 
   try {
-    deployUtils.addresses.isAppChain = isAppChain;
+    const addr = deployUtils.addresses as TokenAddresses;
+    addr.isAppChain = isAppChain;
     if (isAppChain) {
       deployUtils = await deployAppChainContracts(deployUtils);
     } else {
@@ -131,10 +132,14 @@ const deploy = async (
     );
   }
 
-  await storeAddresses(deployUtils.addresses, deployUtils.currentChainSlug);
+  await storeAddresses(
+    deployUtils.addresses,
+    deployUtils.currentChainSlug,
+    `${getMode()}_${getProject().toLowerCase()}_addresses.json`
+  );
   return {
     allDeployed,
-    deployedAddresses: deployUtils.addresses,
+    deployedAddresses: deployUtils.addresses as TokenAddresses,
   };
 };
 
@@ -150,7 +155,7 @@ const deployConnectors = async (
       getMode()
     ).Socket;
     let hub: string;
-    const addr: TokenAddresses = deployParams.addresses;
+    const addr: TokenAddresses = deployParams.addresses as TokenAddresses;
     if (addr.isAppChain) {
       const a = addr as AppChainAddresses;
       if (!a.Controller) throw new Error("Controller not found!");
