@@ -121,11 +121,22 @@ contract SuperToken is
         bridge__ = IMessageBridge(bridge_);
     }
 
+    /**
+     * @notice this function is used to update message bridge
+     * @dev it can only be updated by owner
+     * @dev should be carefully migrated as it can risk user funds
+     * @param bridge_ new bridge address
+     */
     function updateMessageBridge(address bridge_) external onlyOwner {
         bridge__ = IMessageBridge(bridge_);
         emit MessageBridgeUpdated(bridge_);
     }
 
+    /**
+     * @notice this function is used to set bridge limits
+     * @dev it can only be updated by owner
+     * @param updates_ can be used to set mint and burn limits for all siblings in one call.
+     */
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
     ) external onlyRole(LIMIT_UPDATER_ROLE) {
@@ -204,38 +215,44 @@ contract SuperToken is
         );
     }
 
+    /**
+     * @notice this function can be used to mint funds which were in pending state due to limits
+     * @param receiver_ address receiving bridged tokens
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param identifier_ message identifier where message was received to mint funds
+     */
     function mintPendingFor(
         address receiver_,
         uint32 siblingChainSlug_,
-        bytes32 identifier
+        bytes32 identifier_
     ) external nonReentrant {
         if (_receivingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
 
         uint256 pendingMint = pendingMints[siblingChainSlug_][receiver_][
-            identifier
+            identifier_
         ];
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             pendingMint,
             _receivingLimitParams[siblingChainSlug_]
         );
 
-        pendingMints[siblingChainSlug_][receiver_][identifier] = pendingAmount;
+        pendingMints[siblingChainSlug_][receiver_][identifier_] = pendingAmount;
         siblingPendingMints[siblingChainSlug_] -= consumedAmount;
 
         _mint(receiver_, consumedAmount);
 
         if (
             pendingAmount == 0 &&
-            pendingExecutions[identifier].receiver != address(0)
+            pendingExecutions[identifier_].receiver != address(0)
         ) {
             // execute
-            pendingExecutions[identifier].isAmountPending = false;
+            pendingExecutions[identifier_].isAmountPending = false;
             bool success = _execute(
                 receiver_,
-                pendingExecutions[identifier].payload
+                pendingExecutions[identifier_].payload
             );
-            if (success) _clearPayload(identifier);
+            if (success) _clearPayload(identifier_);
         }
 
         emit PendingTokensBridged(
@@ -243,7 +260,7 @@ contract SuperToken is
             receiver_,
             consumedAmount,
             pendingAmount,
-            identifier
+            identifier_
         );
     }
 

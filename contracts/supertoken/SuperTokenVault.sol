@@ -103,11 +103,22 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         bridge__ = IMessageBridge(bridge_);
     }
 
+    /**
+     * @notice this function is used to update message bridge
+     * @dev it can only be updated by owner
+     * @dev should be carefully migrated as it can risk user funds
+     * @param bridge_ new bridge address
+     */
     function updateMessageBridge(address bridge_) external onlyOwner {
         bridge__ = IMessageBridge(bridge_);
         emit MessageBridgeUpdated(bridge_);
     }
 
+    /**
+     * @notice this function is used to set bridge limits
+     * @dev it can only be updated by owner
+     * @param updates_ can be used to set mint and burn limits for all siblings in one call.
+     */
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
     ) external onlyRole(LIMIT_UPDATER_ROLE) {
@@ -174,6 +185,12 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);
     }
 
+    /**
+     * @notice this function can be used to unlock funds which were in pending state due to limits
+     * @param receiver_ address receiving bridged tokens
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param identifier_ message identifier where message was received to unlock funds
+     */
     function unlockPendingFor(
         address receiver_,
         uint32 siblingChainSlug_,

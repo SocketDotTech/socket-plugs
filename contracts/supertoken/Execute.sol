@@ -12,6 +12,13 @@ import "../libraries/ExcessivelySafeCall.sol";
 contract Execute is ReentrancyGuard {
     using ExcessivelySafeCall for address;
 
+    /**
+     * @notice this struct stores relevant details for a pending payload execution
+     * @param receiver address of receiver where payload executes.
+     * @param siblingChainSlug the unique identifier of the source chain.
+     * @param payload payload to be executed
+     * @param isAmountPending if amount to be bridged is pending
+     */
     struct PendingExecutionDetails {
         address receiver;
         uint32 siblingChainSlug;
@@ -23,10 +30,18 @@ contract Execute is ReentrancyGuard {
     // messageId => PendingExecutionDetails
     mapping(bytes32 => PendingExecutionDetails) public pendingExecutions;
 
+    ////////////////////////////////////////////////////////
+    ////////////////////// ERRORS //////////////////////////
+    ////////////////////////////////////////////////////////
+
     error InvalidExecutionRetry();
     error PendingAmount();
     error CannotExecuteOnBridgeContracts();
 
+    /**
+     * @notice this function can be used to retry a payload execution if it was not successful.
+     * @param msgId_ The unique identifier of the bridging message.
+     */
     function retryPayloadExecution(bytes32 msgId_) external nonReentrant {
         PendingExecutionDetails storage details = pendingExecutions[msgId_];
         if (details.isAmountPending) revert PendingAmount();
@@ -37,17 +52,27 @@ contract Execute is ReentrancyGuard {
         if (success) _clearPayload(msgId_);
     }
 
+    /**
+     * @notice this function is used to execute a payload at receiver
+     * @dev receiver address cannot be bridge address or this contract address.
+     * @param target_ address of target.
+     * @param payload_ payload to be executed at target.
+     */
     function _execute(
-        address receiver_,
+        address target_,
         bytes memory payload_
     ) internal returns (bool success) {
-        (success, ) = receiver_.excessivelySafeCall(
+        (success, ) = target_.excessivelySafeCall(
             gasleft(),
             MAX_COPY_BYTES,
             payload_
         );
     }
 
+    /**
+     * @notice this function caches the execution payload details if the amount to be bridged
+     * is not pending or execution is reverting
+     */
     function _cachePayload(
         bytes32 msgId_,
         uint32 siblingChainSlug_,
@@ -61,6 +86,9 @@ contract Execute is ReentrancyGuard {
         pendingExecutions[msgId_].isAmountPending = isAmountPending_;
     }
 
+    /**
+     * @notice this function clears the payload details once execution succeeds
+     */
     function _clearPayload(bytes32 msgId_) internal {
         pendingExecutions[msgId_].receiver = address(0);
         pendingExecutions[msgId_].siblingChainSlug = 0;
