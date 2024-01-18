@@ -233,6 +233,11 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
         throw new Error("ANCIENT8_TESTNET2_RPC not configured");
       return process.env.ANCIENT8_TESTNET2_RPC;
 
+    case ChainSlug.HOOK_TESTNET:
+      if (!process.env.HOOK_TESTNET_RPC)
+        throw new Error("HOOK_TESTNET_RPC not configured");
+      return process.env.HOOK_TESTNET_RPC;
+
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";
 

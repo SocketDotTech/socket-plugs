@@ -1,0 +1,20 @@
+{
+  "421614": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41"
+    }
+  },
+  "11155420": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf"
+    }
+  },
+  "46658378": {
+    "USDC": {
+      "isAppChain": true,
+      "MintableToken": "0x9605C7e9dC2c5ab715d5248a142b52a3D197b420"
+    }
+  }
+}

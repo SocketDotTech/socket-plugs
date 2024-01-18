@@ -20,6 +20,7 @@ export enum Project {
   VICTION_TESTNET = "viction-testnet",
   MODE = "mode",
   ANCIENT8_TESTNET2 = "ancient8-testnet2",
+  HOOK_TESTNET = "hook-testnet",
 }
 
 ////// **** SUPER BRIDGE TYPES **** //////
@@ -78,6 +79,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
   [ChainSlug.MODE]: Project.MODE,
   [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
+  [ChainSlug.HOOK_TESTNET]: Project.HOOK_TESTNET,
 };
 
 ////// **** SUPER TOKEN TYPES **** //////

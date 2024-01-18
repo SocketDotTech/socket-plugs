@@ -70,6 +70,7 @@ const liveNetworks = [
   HardhatChainName.BASE,
   HardhatChainName.MODE,
   HardhatChainName.ANCIENT8_TESTNET2,
+  HardhatChainName.HOOK_TESTNET,
 ];
 
 let hardhatNetworkDetails = {};
