@@ -292,8 +292,8 @@ contract TestExecute is Test {
         (
             address receiver,
             ,
-            bytes memory payload,
-            bool isAmountPending
+            bool isAmountPending,
+            bytes memory payload
         ) = superToken.pendingExecutions(messageId);
 
         assertEq(
@@ -362,8 +362,8 @@ contract TestExecute is Test {
         (
             address receiverAfterRetry,
             uint32 siblingSlug,
-            bytes memory payload,
-            bool isAmountPending
+            bool isAmountPending,
+            bytes memory payload
         ) = superToken.pendingExecutions(messageId);
         assertEq(receiverAfterRetry, address(0), "receiver not cleared");
         assertEq(siblingSlug, uint32(0), "sibling slug not cleared");

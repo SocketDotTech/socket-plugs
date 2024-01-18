@@ -8,7 +8,6 @@ import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
 import "./Execute.sol";
 import {ISuperTokenOrVault} from "./ISuperTokenOrVault.sol";
-import {IMessageBridge} from "./IMessageBridge.sol";
 
 /**
  * @title SuperTokenVault
@@ -29,7 +28,6 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     ERC20 public immutable token__;
-    IMessageBridge public bridge__;
 
     // siblingChainSlug => receiver => identifier => pendingUnlock
     mapping(uint32 => mapping(address => mapping(bytes32 => uint256)))
@@ -116,7 +114,7 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
 
     /**
      * @notice this function is used to set bridge limits
-     * @dev it can only be updated by owner
+     * @dev it can only be updated by address having LIMIT_UPDATER_ROLE
      * @param updates_ can be used to set mint and burn limits for all siblings in one call.
      */
     function updateLimitParams(
@@ -256,9 +254,6 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
             bytes32 identifier,
             bytes memory execPayload
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
-
-        if (receiver == address(this) || receiver == address(bridge__))
-            revert CannotExecuteOnBridgeContracts();
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             unlockAmount,

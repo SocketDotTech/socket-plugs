@@ -7,7 +7,6 @@ import {Gauge} from "../common/Gauge.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
 import "./Execute.sol";
-import "./IMessageBridge.sol";
 import "./ISuperTokenOrVault.sol";
 
 /**
@@ -31,9 +30,6 @@ contract SuperToken is
 
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
-
-    // bridge contract address which provides AMB support
-    IMessageBridge public bridge__;
 
     // siblingChainSlug => mintLimitParams
     mapping(uint32 => LimitParams) _receivingLimitParams;
@@ -134,7 +130,7 @@ contract SuperToken is
 
     /**
      * @notice this function is used to set bridge limits
-     * @dev it can only be updated by owner
+     * @dev it can only be updated by address having LIMIT_UPDATER_ROLE
      * @param updates_ can be used to set mint and burn limits for all siblings in one call.
      */
     function updateLimitParams(
@@ -290,9 +286,6 @@ contract SuperToken is
             mintAmount,
             _receivingLimitParams[siblingChainSlug_]
         );
-
-        if (receiver == address(this) || receiver == address(bridge__))
-            revert CannotExecuteOnBridgeContracts();
 
         _mint(receiver, consumedAmount);
 

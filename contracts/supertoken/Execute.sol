@@ -2,6 +2,7 @@ pragma solidity 0.8.13;
 
 import "solmate/utils/ReentrancyGuard.sol";
 import "../libraries/ExcessivelySafeCall.sol";
+import "./IMessageBridge.sol";
 
 /**
  * @title Execute
@@ -22,11 +23,15 @@ contract Execute is ReentrancyGuard {
     struct PendingExecutionDetails {
         address receiver;
         uint32 siblingChainSlug;
-        bytes payload;
         bool isAmountPending;
+        bytes payload;
     }
 
     uint16 private constant MAX_COPY_BYTES = 150;
+
+    // bridge contract address which provides AMB support
+    IMessageBridge public bridge__;
+
     // messageId => PendingExecutionDetails
     mapping(bytes32 => PendingExecutionDetails) public pendingExecutions;
 
@@ -36,7 +41,6 @@ contract Execute is ReentrancyGuard {
 
     error InvalidExecutionRetry();
     error PendingAmount();
-    error CannotExecuteOnBridgeContracts();
 
     /**
      * @notice this function can be used to retry a payload execution if it was not successful.
@@ -62,6 +66,9 @@ contract Execute is ReentrancyGuard {
         address target_,
         bytes memory payload_
     ) internal returns (bool success) {
+        if (target_ == address(this) || target_ == address(bridge__))
+            return false;
+
         (success, ) = target_.excessivelySafeCall(
             gasleft(),
             MAX_COPY_BYTES,
