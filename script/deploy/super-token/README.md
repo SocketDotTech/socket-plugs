@@ -39,12 +39,11 @@
 
 ### Bridge Tokens
 
-- In the file `script/deploy/super-token/config.ts`, set the src chain, dest chain and amount of tokens to be bridged.
 - If you want to Bridge the tokens from vault chain to a super token chain,
-  - config will have src chain as the chain which has vault and dst chain will be the chains where super token is deployed.
+  - In file `script/deploy/super-token/bridge/bridgeFromVault.ts`, update the src chain, dst chain and amount to bridge (src chain is chain having SuperTokenVault).
   - run this script: `npx hardhat run script/deploy/super-token/bridge/bridgeFromVault.ts`
 - If you want to Bridge the tokens from super token chain to a vault chain,
-  - config will have src chain as the chain which has super token and dst chain will be the chains where vault is deployed.
+  - In file `script/deploy/super-token/bridge/bridgeSuperToken.ts`, update the src chain, dst chain and amount to bridge (src chain is chain having SuperToken).
   - run this script: `npx hardhat run script/deploy/super-token/bridge/bridgeSuperToken.ts`
 
 On running the scripts, you will get the socket dl tracking API url which can be used track the message execution status.
