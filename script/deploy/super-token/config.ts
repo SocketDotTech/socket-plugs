@@ -3,9 +3,9 @@ import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { getSocketOwner } from "../../constants/config";
 
 export const config = {
-  projectName: "looks",
-  tokenName: "looks",
-  tokenSymbol: "LOOKS",
+  projectName: "test",
+  tokenName: "test",
+  tokenSymbol: "TEST",
   tokenDecimal: 18,
   initialSupplyOwner: getSocketOwner(),
   owner: getSocketOwner(),
@@ -13,14 +13,12 @@ export const config = {
   superTokenChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
   vaultTokens: {
     [ChainSlug.SEPOLIA]: {
-      token: "0xa68c2CaA3D45fa6EBB95aA706c70f49D3356824E",
+      token: "0xFD093e2a4d3190b2020C95846dBe5fD073721e89",
     },
   },
   integrationType: IntegrationTypes.fast,
-  depositLimit: "150000",
-  depositRate: "1.7361",
-  withdrawLimit: "150000",
-  withdrawRate: "1.7361",
+  bridgeLimit: "150000",
+  bridgeRate: "1.7361",
 };
 
 export const srcChain = ChainSlug.ARBITRUM_SEPOLIA;

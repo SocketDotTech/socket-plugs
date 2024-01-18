@@ -130,7 +130,7 @@ const deploy = async (
       superToken = deployUtils.addresses[SuperTokenContracts.SuperTokenVault];
     }
 
-    await setSuperToken(superToken, deployUtils);
+    await setSuperTokenOrVault(superToken, deployUtils);
 
     allDeployed = true;
     console.log(deployUtils.addresses);
@@ -154,7 +154,7 @@ const deploy = async (
   };
 };
 
-const setSuperToken = async (
+const setSuperTokenOrVault = async (
   superToken: string,
   deployParams: DeployParams
 ) => {
@@ -165,7 +165,7 @@ const setSuperToken = async (
     );
 
     socketPlug = socketPlug.connect(deployParams.signer);
-    const contractState = await socketPlug.token__();
+    const contractState = await socketPlug.tokenOrVault__();
     console.log(
       `contract state: ${contractState}, superToken: ${superToken}, ${deployParams.currentChainSlug}`
     );
@@ -174,7 +174,7 @@ const setSuperToken = async (
       return;
     }
 
-    let tx = await socketPlug.setSuperToken(superToken, {
+    let tx = await socketPlug.setSuperTokenOrVault(superToken, {
       ...overrides[deployParams.currentChainSlug],
     });
     console.log(deployParams.currentChainSlug, tx.hash);

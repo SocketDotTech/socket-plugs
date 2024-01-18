@@ -51,61 +51,7 @@ export const main = async () => {
         const socketSigner = getSignerFromChainSlug(chain);
         await connect(addresses, chain, siblingSlugs, socketSigner);
         await grantRoles(addr, chain, socketSigner);
-
-        const updateLimitParams: UpdateLimitParams[] = [];
-        for (let sibling of siblingSlugs) {
-          // mint/lock/deposit limits
-          updateLimitParams.push([
-            true,
-            sibling,
-            getSuperTokenLimitBN(
-              config.depositLimit,
-              true,
-              config.tokenDecimal
-            ),
-            getSuperTokenRateBN(config.depositRate, true, config.tokenDecimal),
-          ]);
-
-          // burn/unlock/withdraw limits
-          updateLimitParams.push([
-            false,
-            sibling,
-            getSuperTokenLimitBN(
-              config.withdrawLimit,
-              false,
-              config.tokenDecimal
-            ),
-            getSuperTokenRateBN(
-              config.withdrawRate,
-              false,
-              config.tokenDecimal
-            ),
-          ]);
-        }
-
-        if (!updateLimitParams.length) return;
-
-        let contract: Contract;
-        if (addr[SuperTokenContracts.SuperToken]) {
-          contract = await getInstance(
-            SuperTokenContracts.SuperToken,
-            addr[SuperTokenContracts.SuperToken]
-          );
-        } else if (addr[SuperTokenContracts.SuperTokenVault]) {
-          contract = await getInstance(
-            SuperTokenContracts.SuperTokenVault,
-            addr[SuperTokenContracts.SuperTokenVault]
-          );
-        } else throw new Error(`Not a super token address config, ${addr}`);
-
-        contract = contract.connect(socketSigner);
-        let tx = await contract.updateLimitParams(updateLimitParams, {
-          ...overrides[chain],
-        });
-        console.log(chain, tx.hash);
-        await tx.wait();
-
-        console.log(`Setting vault limits for ${chain} - COMPLETED`);
+        await setLimits(addr, chain, siblingSlugs, socketSigner);
       })
     );
   } catch (error) {
@@ -227,6 +173,56 @@ const connect = async (
   } catch (error) {
     console.log("error while connecting plugs: ", error);
   }
+};
+
+export const setLimits = async (
+  addr: SuperTokenChainAddresses,
+  chain: ChainSlug,
+  siblingSlugs: ChainSlug[],
+  socketSigner: Wallet
+) => {
+  const updateLimitParams: UpdateLimitParams[] = [];
+  for (let sibling of siblingSlugs) {
+    // mint/lock/deposit limits
+    updateLimitParams.push([
+      true,
+      sibling,
+      getSuperTokenLimitBN(config.bridgeLimit, true, config.tokenDecimal),
+      getSuperTokenRateBN(config.bridgeRate, true, config.tokenDecimal),
+    ]);
+
+    // burn/unlock/withdraw limits
+    updateLimitParams.push([
+      false,
+      sibling,
+      getSuperTokenLimitBN(config.bridgeLimit, false, config.tokenDecimal),
+      getSuperTokenRateBN(config.bridgeRate, false, config.tokenDecimal),
+    ]);
+  }
+
+  if (!updateLimitParams.length) return;
+
+  let contract: Contract;
+  if (addr[SuperTokenContracts.SuperToken]) {
+    contract = await getInstance(
+      SuperTokenContracts.SuperToken,
+      addr[SuperTokenContracts.SuperToken]
+    );
+  } else if (addr[SuperTokenContracts.SuperTokenVault]) {
+    contract = await getInstance(
+      SuperTokenContracts.SuperTokenVault,
+      addr[SuperTokenContracts.SuperTokenVault]
+    );
+  } else throw new Error(`Not a super token address config, ${addr}`);
+
+  contract = contract.connect(socketSigner);
+  let tx = await contract.updateLimitParams(updateLimitParams, {
+    ...overrides[chain],
+  });
+  console.log(chain, tx.hash);
+  await tx.wait();
+
+  console.log(`Setting vault limits for ${chain} - COMPLETED`);
 };
 
 main()
