@@ -28,7 +28,8 @@
           "FAST": "0xeb03440702bB6de23C63ad1c5A24598433F59F86"
         },
         "11155111": {
-          "FAST": "0xB9A7f821396DafF8b07b846ac46e561C00F870E5"
+          "FAST": "0xAD1d1CB08A0a6f758136A41E218c7C35B62A25Ac",
+          "NATIVE_BRIDGE": "0xec4f19e2F2251F1E24a9275551Eb82367c65A03f"
         },
         "11155420": {
           "FAST": "0x23ddd3beC944cdB16Cacf3039e389324Df598B89"
@@ -72,11 +73,12 @@
     },
     "WETH": {
       "isAppChain": false,
-      "NonMintableToken": "0x771d1Ae208377453D478dF08BbC38034F72aC833",
-      "Vault": "0xB3F7C40bAb3d9200655fB439433E19173a8428C1",
+      "NonMintableToken": "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa",
+      "Vault": "0xd9cB39b5ad36C6D2ec4E8d5337B62a1C1B71BAcc",
       "connectors": {
         "901": {
-          "FAST": "0x14aC5b3580dD1e546CD7287Cd1faDba9A8736628"
+          "FAST": "0x2d7F2B4CEe097F08ed8d30D928A40eB1379071Fe",
+          "NATIVE_BRIDGE": "0x0Fcfee220f4e3FA1e3fA361525Cee0334DdDB8a3"
         }
       }
     }

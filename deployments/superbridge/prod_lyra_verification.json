@@ -24,9 +24,7 @@
       "0x5e98A25d8d6FF69A8992d6Aa57948dFB77D4ECBa",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0xdac17f958d2ee523a2206206994597c13d831ec7"
-      ]
+      ["0xdac17f958d2ee523a2206206994597c13d831ec7"]
     ]
   ],
   "10": [
@@ -44,9 +42,7 @@
       "0x44343AE5e9319b61c9DaD7876919eFdB03241b02",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58"
-      ]
+      ["0x94b008aa00579c1307b0ef2c499ad98a8ce58e58"]
     ]
   ],
   "957": [
@@ -125,9 +121,7 @@
       "0xb2Cb9aDA6e00118dA8E83a6A53dF1EC6331A60a6",
       "Vault",
       "contracts/superbridge/Vault.sol",
-      [
-        "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
-      ]
+      ["0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"]
     ]
   ]
 }
