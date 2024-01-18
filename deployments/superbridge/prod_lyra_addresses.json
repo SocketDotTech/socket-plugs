@@ -35,7 +35,14 @@
     },
     "USDT": {
       "isAppChain": false,
-      "NonMintableToken": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+      "NonMintableToken": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "Vault": "0x5e98A25d8d6FF69A8992d6Aa57948dFB77D4ECBa",
+      "connectors": {
+        "957": {
+          "FAST": "0x02D53793b18d032Cd94d745F7586C6F66F83f8e3",
+          "NATIVE_BRIDGE": "0x3553c0102684c20e2f8192d6F013c7242710b4b3"
+        }
+      }
     }
   },
   "10": {
@@ -81,7 +88,13 @@
     },
     "USDT": {
       "isAppChain": false,
-      "NonMintableToken": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58"
+      "NonMintableToken": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
+      "Vault": "0x44343AE5e9319b61c9DaD7876919eFdB03241b02",
+      "connectors": {
+        "957": {
+          "FAST": "0x242b28863Be371D5EB9B32692DC642e446064aA5"
+        }
+      }
     }
   },
   "957": {
@@ -155,8 +168,21 @@
     },
     "USDT": {
       "isAppChain": true,
-      "MintableToken": "",
-      "ExchangeRate": "0x64107EB9DC50E79Fb3977b9D6C927f9B9C5Bd218"
+      "MintableToken": "0x954bE1803546150bfd887c9ff70fd221F2F505d3",
+      "ExchangeRate": "0x64107EB9DC50E79Fb3977b9D6C927f9B9C5Bd218",
+      "Controller": "0xF64010ACE8f7333dF61F6D0ae3d08C5d4704D69A",
+      "connectors": {
+        "1": {
+          "FAST": "0x0e276315EB155d28C7Aebd78AC118F967277a265",
+          "NATIVE_BRIDGE": "0xA78426325b5e32Affd5f4Bc8ab6575B24DCB1762"
+        },
+        "10": {
+          "FAST": "0xfD6d6D95eC911b2415F34C93d1a74e0c67E49370"
+        },
+        "42161": {
+          "FAST": "0x56aDAD63615A2605aF3F00C34DC4caD1AFaed5bF"
+        }
+      }
     }
   },
   "42161": {
@@ -202,7 +228,13 @@
     },
     "USDT": {
       "isAppChain": false,
-      "NonMintableToken": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+      "NonMintableToken": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+      "Vault": "0xb2Cb9aDA6e00118dA8E83a6A53dF1EC6331A60a6",
+      "connectors": {
+        "957": {
+          "FAST": "0xDC56509f941884a0C047413d6973E2F00D763288"
+        }
+      }
     }
   }
 }
