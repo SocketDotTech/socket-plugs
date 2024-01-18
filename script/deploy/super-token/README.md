@@ -40,10 +40,14 @@
 ### Bridge Tokens
 
 - If you want to Bridge the tokens from vault chain to a super token chain,
+
   - In file `script/deploy/super-token/bridge/bridgeFromVault.ts`, update the src chain, dst chain and amount to bridge (src chain is chain having SuperTokenVault).
   - run this script: `npx hardhat run script/deploy/super-token/bridge/bridgeFromVault.ts`
+  - This is an example txn from vault: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=11155111&srcTxHash=0x638cc80e15722caed0681a5c440794ad33b87664b45010ec6b307e5b78b6e663
+
 - If you want to Bridge the tokens from super token chain to a vault chain,
   - In file `script/deploy/super-token/bridge/bridgeSuperToken.ts`, update the src chain, dst chain and amount to bridge (src chain is chain having SuperToken).
   - run this script: `npx hardhat run script/deploy/super-token/bridge/bridgeSuperToken.ts`
+  - This is an example txn from vault: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=421614&srcTxHash=0xd543779cedada6f386f3038836ef6685eeceeb2851bc1c8ddda7b96e69b6cb13
 
 On running the scripts, you will get the socket dl tracking API url which can be used track the message execution status.
