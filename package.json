@@ -49,6 +49,6 @@
     "compile"
   ],
   "dependencies": {
-    "@socket.tech/dl-core": "2.4.19"
+    "@socket.tech/dl-core": "^2.4.20"
   }
 }

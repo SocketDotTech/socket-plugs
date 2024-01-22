@@ -58,7 +58,3 @@ export const getRateBN = (
     );
   }
 };
-
-export const integrationTypes: IntegrationTypes = Object.keys(
-  getProjectTokenConstants().integrationTypes
-) as unknown as IntegrationTypes;

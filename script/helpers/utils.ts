@@ -22,9 +22,6 @@ export const deploymentsPath = path.join(
   `/../../deployments/superbridge/`
 );
 
-export const deployedAddressPath = () =>
-  deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
-
 export interface DeployParams {
   addresses: TokenAddresses | SuperTokenChainAddresses;
   signer: Wallet;
@@ -35,8 +32,7 @@ export const getOrDeploy = async (
   contractName: string,
   path: string,
   args: any[],
-  deployUtils: DeployParams,
-  projectName = getProject().toString()
+  deployUtils: DeployParams
 ): Promise<Contract> => {
   if (!deployUtils || !deployUtils.addresses)
     throw new Error("No addresses found");
