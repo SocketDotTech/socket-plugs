@@ -23,6 +23,7 @@ contract TestSuperTokenLimits is Test {
     uint256 constant _initialSupply = 100000;
     uint256 constant _rajuInitialBal = 1000;
 
+    ExecutionHelper _executionHelper;
     SocketPlug superTokenPlug;
     SuperToken _token;
     address _socket;
@@ -40,6 +41,7 @@ contract TestSuperTokenLimits is Test {
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
+        _executionHelper = new ExecutionHelper();
         superTokenPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
         _token = new SuperToken(
             "Moon",
@@ -48,7 +50,8 @@ contract TestSuperTokenLimits is Test {
             _admin,
             _admin,
             _initialSupply,
-            address(superTokenPlug)
+            address(superTokenPlug),
+            address(_executionHelper)
         );
         superTokenPlug.setSuperTokenOrVault(address(_token));
         _token.transfer(_raju, _rajuInitialBal);
