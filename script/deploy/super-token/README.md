@@ -2,7 +2,7 @@
 
 ### PROJECT SETUP
 
-- Clone the Repo and checkout to branch `looks-supertoken`
+- Clone the Repo and checkout to branch `main`
 - Install dependencies: `yarn`
 - Install contract dependencies: `forge install`
 - Environment variables: copy `.env.example` to `.env` and fill in the needed RPCs. Rest can be ignored. Also update `SOCKET_SIGNER_KEY` and `SOCKET_OWNER_ADDRESS`.
