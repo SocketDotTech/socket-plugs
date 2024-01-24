@@ -204,7 +204,6 @@ contract SuperToken is
             abi.encode(receiver_, sendingAmount_, messageId, payload_),
             options_
         );
-
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
         emit BridgeTokens(
             siblingChainSlug_,
