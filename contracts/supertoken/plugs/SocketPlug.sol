@@ -165,6 +165,8 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
      */
     function disconnect(uint32 siblingChainSlug_) external onlyOwner {
+        delete siblingPlugs[siblingChainSlug_];
+
         (
             ,
             address inboundSwitchboard,
