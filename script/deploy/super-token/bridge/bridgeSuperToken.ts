@@ -1,10 +1,19 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
-import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
-import { amount, config, dstChain, gasLimit, srcChain } from "../config";
+import {
+  ChainSlug,
+  SuperTokenChainAddresses,
+  SuperTokenContracts,
+} from "../../../../src";
+import { config } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
 import { getSocket, getInstance } from "./utils";
+
+export const srcChain = ChainSlug.ARBITRUM_SEPOLIA;
+export const dstChain = ChainSlug.SEPOLIA;
+export const gasLimit = 500_000;
+export const amount = utils.parseUnits("1", config.tokenDecimal);
 
 export const main = async () => {
   try {
@@ -51,6 +60,8 @@ export const main = async () => {
       dstChain,
       amount,
       gasLimit,
+      "0x",
+      "0x",
       { ...overrides[srcChain], value }
     );
     console.log("Tokens deposited: ", depositTx.hash);

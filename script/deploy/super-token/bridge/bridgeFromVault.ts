@@ -1,11 +1,16 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { getSocket, getInstance } from "./utils";
 import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
-import { amount, config, dstChain, gasLimit, srcChain } from "../config";
+import { config } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
+
+export const srcChain = ChainSlug.SEPOLIA;
+export const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
+export const gasLimit = 500_000;
+export const amount = utils.parseUnits("1", config.tokenDecimal);
 
 export const main = async () => {
   try {
@@ -74,6 +79,8 @@ export const main = async () => {
       dstChain,
       amount,
       gasLimit,
+      "0x",
+      "0x",
       { ...overrides[srcChain as ChainSlug], value }
     );
     console.log("Tokens locked", withdrawTx.hash);

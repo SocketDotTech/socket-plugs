@@ -1,0 +1,15 @@
+{
+  "421614": {
+    "SocketPlug": "0x59Df31F941d94beDFAd9719d445e34a5E005bead",
+    "SuperToken": "0x4Aac41fe2C94A0576C159790bF981C34041c937f"
+  },
+  "11155111": {
+    "NonSuperToken": "0xFD093e2a4d3190b2020C95846dBe5fD073721e89",
+    "SocketPlug": "0xFcB963e4889b19a6319d2D339724c20a0aF3f12a",
+    "SuperTokenVault": "0xBA78C1db03a2feB1Ca391AE3C1f429fc5e3646C0"
+  },
+  "11155420": {
+    "SocketPlug": "0x1467403F17Ff4BF949910163bA8D5f9C346cDd5D",
+    "SuperToken": "0xd815E43a3Fc4428E646c25f4181cCBF91D376C9F"
+  }
+}

@@ -3,7 +3,11 @@ dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
 import { getSignerFromChainSlug } from "../../helpers/networks";
-import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
+import {
+  ChainSlug,
+  IntegrationTypes,
+  getAddresses,
+} from "@socket.tech/dl-core";
 import {
   getMode,
   getProject,
@@ -24,11 +28,7 @@ import {
   ProjectAddresses,
   TokenAddresses,
 } from "../../../src";
-import {
-  integrationTypes,
-  isAppChain,
-  getProjectTokenConstants,
-} from "../../helpers/constants";
+import { isAppChain, getProjectTokenConstants } from "../../helpers/constants";
 
 export interface ReturnObj {
   allDeployed: boolean;
@@ -165,6 +165,10 @@ const deployConnectors = async (
       if (!a.Vault) throw new Error("Vault not found!");
       hub = a.Vault;
     }
+
+    const integrationTypes: IntegrationTypes = Object.keys(
+      getProjectTokenConstants().integrationTypes
+    ) as unknown as IntegrationTypes;
 
     for (let intType of integrationTypes) {
       console.log(hub, socket, sibling);
