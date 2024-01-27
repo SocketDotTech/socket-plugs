@@ -26,7 +26,7 @@ contract Execute is ReentrancyGuard {
         bool isAmountPending;
     }
 
-    uint16 private constant MAX_COPY_BYTES = 150;
+    uint16 private constant MAX_COPY_BYTES = 0;
     // messageId => PendingExecutionDetails
     mapping(bytes32 => PendingExecutionDetails) public pendingExecutions;
 
