@@ -107,12 +107,13 @@ contract SocketPlug is IPlug, AccessControl, IMessageBridge {
      */
     function getMinFees(
         uint32 siblingChainSlug_,
-        uint256 msgGasLimit_
+        uint256 msgGasLimit_,
+        uint256 payloadSize_
     ) external view returns (uint256 totalFees) {
         return
             socket__.getMinFees(
                 msgGasLimit_,
-                96,
+                payloadSize_,
                 bytes32(0),
                 bytes32(0),
                 siblingChainSlug_,
