@@ -8,7 +8,7 @@ import "../libraries/ExcessivelySafeCall.sol";
  */
 contract ExecutionHelper {
     using ExcessivelySafeCall for address;
-    uint16 private constant MAX_COPY_BYTES = 150;
+    uint16 private constant MAX_COPY_BYTES = 0;
 
     /**
      * @notice this function is used to execute a payload at target_

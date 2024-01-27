@@ -35,7 +35,6 @@ abstract contract Base is
         bytes payload;
     }
 
-    uint16 private constant MAX_COPY_BYTES = 0;
     ExecutionHelper public executionHelper__;
 
     // messageId => PendingExecutionDetails
