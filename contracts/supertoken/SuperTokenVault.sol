@@ -51,6 +51,7 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     error SiblingChainSlugUnavailable();
     error ZeroAmount();
     error NotMessageBridge();
+    error MessageIdMisMatched();
     error InvalidTokenContract();
 
     ////////////////////////////////////////////////////////
@@ -177,13 +178,13 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
         bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
-        bridge__.outbound{value: msg.value}(
+        bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
             abi.encode(receiver_, amount_, messageId, payload_),
             options_
         );
-
+        if (returnedMessageId != messageId) revert MessageIdMisMatched();
         emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);
     }
 
