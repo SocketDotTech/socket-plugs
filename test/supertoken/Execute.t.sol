@@ -14,7 +14,6 @@ import "../mocks/MockExecutableReceiver.sol";
 // bridge with a failing payload, should transfer and fail execution, cache payload, should be able to retry, is success clear else let it be stored
 
 contract TestExecute is Test {
-    MockSocket _socket;
     uint256 _c;
     address _admin;
     address _raju;
@@ -26,6 +25,9 @@ contract TestExecute is Test {
     uint32 arbChainSlug;
 
     address switchboard;
+
+    MockSocket _socket;
+    ExecutionHelper _executionHelper;
 
     SocketPlug superTokenPlug;
     SuperToken superToken;
@@ -65,6 +67,7 @@ contract TestExecute is Test {
         vm.startPrank(_admin);
 
         _socket = new MockSocket();
+        _executionHelper = new ExecutionHelper();
 
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
 
@@ -76,7 +79,8 @@ contract TestExecute is Test {
             _admin,
             _admin,
             100000,
-            address(superTokenPlug)
+            address(superTokenPlug),
+            address(_executionHelper)
         );
         superTokenPlug.setSuperTokenOrVault(address(superToken));
         executableReceiver = new MockExecutableReceiver(
@@ -96,7 +100,8 @@ contract TestExecute is Test {
             _admin,
             _admin,
             100000,
-            address(otherSuperTokenPlug)
+            address(otherSuperTokenPlug),
+            address(_executionHelper)
         );
         otherSuperTokenPlug.setSuperTokenOrVault(address(otherSuperToken));
 
@@ -104,7 +109,8 @@ contract TestExecute is Test {
         arbLocker = new SuperTokenVault(
             address(notSuperTokenArb),
             _admin,
-            address(arbLockerPlug)
+            address(arbLockerPlug),
+            address(_executionHelper)
         );
         arbLockerPlug.setSuperTokenOrVault(address(arbLocker));
 
@@ -290,10 +296,10 @@ contract TestExecute is Test {
                 0
         );
         (
+            bool isAmountPending,
+            uint32 siblingSlug,
             address receiver,
-            ,
-            bytes memory payload,
-            bool isAmountPending
+            bytes memory payload
         ) = superToken.pendingExecutions(messageId);
 
         assertEq(
@@ -348,7 +354,7 @@ contract TestExecute is Test {
                 (uint256(uint160(address(superTokenPlug))) << 64) |
                 0
         );
-        (address receiver, , , ) = superToken.pendingExecutions(messageId);
+        (, , address receiver, ) = superToken.pendingExecutions(messageId);
 
         assertEq(
             receiver,
@@ -360,14 +366,14 @@ contract TestExecute is Test {
         superToken.retryPayloadExecution(messageId);
 
         (
-            address receiverAfterRetry,
+            bool isAmountPending,
             uint32 siblingSlug,
-            bytes memory payload,
-            bool isAmountPending
+            address receiverAfterRetry,
+            bytes memory payload
         ) = superToken.pendingExecutions(messageId);
         assertEq(receiverAfterRetry, address(0), "receiver not cleared");
-        assertEq(siblingSlug, uint32(0), "sibling slug not cleared");
         assertEq(payload, bytes(""), "payload not cleared");
+        assertEq(siblingSlug, 0, "siblingSlug not cleared");
         assertFalse(isAmountPending, "isAmountPending not cleared");
     }
 }

@@ -12,7 +12,6 @@ import "../../contracts/common/Ownable.sol";
 import "../mocks/MockSocket.sol";
 
 contract TestSuperToken is Test {
-    MockSocket _socket;
     uint256 _c;
     address _admin;
     address _raju;
@@ -24,6 +23,9 @@ contract TestSuperToken is Test {
     uint32 arbChainSlug;
 
     address switchboard;
+
+    MockSocket _socket;
+    ExecutionHelper _executionHelper;
 
     SocketPlug superTokenPlug;
     SuperToken superToken;
@@ -64,6 +66,7 @@ contract TestSuperToken is Test {
         vm.startPrank(_admin);
 
         _socket = new MockSocket();
+        _executionHelper = new ExecutionHelper();
 
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
         notSuperTokenOpt = new MintableToken("Moon", "MOON", 18);
@@ -76,7 +79,8 @@ contract TestSuperToken is Test {
             _admin,
             _admin,
             100000,
-            address(superTokenPlug)
+            address(superTokenPlug),
+            address(_executionHelper)
         );
         superTokenPlug.setSuperTokenOrVault(address(superToken));
 
@@ -92,7 +96,8 @@ contract TestSuperToken is Test {
             _admin,
             _admin,
             100000,
-            address(otherSuperTokenPlug)
+            address(otherSuperTokenPlug),
+            address(_executionHelper)
         );
         otherSuperTokenPlug.setSuperTokenOrVault(address(otherSuperToken));
 
@@ -100,7 +105,8 @@ contract TestSuperToken is Test {
         arbLocker = new SuperTokenVault(
             address(notSuperTokenArb),
             _admin,
-            address(arbLockerPlug)
+            address(arbLockerPlug),
+            address(_executionHelper)
         );
         arbLockerPlug.setSuperTokenOrVault(address(arbLocker));
 
@@ -108,7 +114,8 @@ contract TestSuperToken is Test {
         optLocker = new SuperTokenVault(
             address(notSuperTokenOpt),
             _admin,
-            address(optLockerPlug)
+            address(optLockerPlug),
+            address(_executionHelper)
         );
         optLockerPlug.setSuperTokenOrVault(address(optLocker));
 

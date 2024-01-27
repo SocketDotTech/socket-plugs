@@ -1,21 +1,14 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
-
-import {AccessControl} from "../common/AccessControl.sol";
-import {Gauge} from "../common/Gauge.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-
-import "./Execute.sol";
-import {ISuperTokenOrVault} from "./ISuperTokenOrVault.sol";
-import {IMessageBridge} from "./IMessageBridge.sol";
+import "./Base.sol";
 
 /**
  * @title SuperTokenVault
  * @notice Vault contract which is used to lock/unlock token and enable bridging to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
+contract SuperTokenVault is Base {
     using SafeTransferLib for ERC20;
 
     struct UpdateLimitParams {
@@ -51,6 +44,10 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     error SiblingChainSlugUnavailable();
     error ZeroAmount();
     error NotMessageBridge();
+    error InvalidReceiver();
+    error InvalidSiblingChainSlug();
+    error MessageIdMisMatched();
+    error InvalidTokenContract();
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -97,10 +94,13 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     constructor(
         address token_,
         address owner_,
-        address bridge_
+        address bridge_,
+        address executionHelper_
     ) AccessControl(owner_) {
+        if (token_.code.length == 0) revert InvalidTokenContract();
         token__ = ERC20(token_);
         bridge__ = IMessageBridge(bridge_);
+        executionHelper__ = ExecutionHelper(executionHelper_);
     }
 
     /**
@@ -175,13 +175,13 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
         bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
-        bridge__.outbound{value: msg.value}(
+        bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
             abi.encode(receiver_, amount_, messageId, payload_),
             options_
         );
-
+        if (returnedMessageId != messageId) revert MessageIdMisMatched();
         emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);
     }
 
@@ -214,13 +214,18 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
 
         token__.safeTransfer(receiver_, consumedAmount);
 
-        if (
-            pendingAmount == 0 &&
-            pendingExecutions[identifier_].receiver != address(0)
-        ) {
+        address receiver = pendingExecutions[identifier_].receiver;
+        if (pendingAmount == 0 && receiver != address(0)) {
+            if (receiver_ != receiver) revert InvalidReceiver();
+
+            uint32 siblingChainSlug = pendingExecutions[identifier_]
+                .siblingChainSlug;
+            if (siblingChainSlug != siblingChainSlug_)
+                revert InvalidSiblingChainSlug();
+
             // execute
             pendingExecutions[identifier_].isAmountPending = false;
-            bool success = _execute(
+            bool success = executionHelper__.execute(
                 receiver_,
                 pendingExecutions[identifier_].payload
             );
@@ -257,8 +262,11 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
             bytes memory execPayload
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
-        if (receiver == address(this) || receiver == address(bridge__))
-            revert CannotExecuteOnBridgeContracts();
+        if (
+            receiver == address(this) ||
+            receiver == address(bridge__) ||
+            receiver == address(token__)
+        ) revert CannotExecuteOnBridgeContracts();
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             unlockAmount,
@@ -278,8 +286,8 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
             if (execPayload.length > 0)
                 _cachePayload(
                     identifier,
-                    siblingChainSlug_,
                     true,
+                    siblingChainSlug_,
                     receiver,
                     execPayload
                 );
@@ -292,13 +300,13 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
             );
         } else if (execPayload.length > 0) {
             // execute
-            bool success = _execute(receiver, execPayload);
+            bool success = executionHelper__.execute(receiver, execPayload);
 
             if (!success)
                 _cachePayload(
                     identifier,
-                    siblingChainSlug_,
                     false,
+                    siblingChainSlug_,
                     receiver,
                     execPayload
                 );
