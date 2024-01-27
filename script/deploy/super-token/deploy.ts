@@ -3,7 +3,7 @@ dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
 import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
-import { DeployParams, getInstance, getOrDeploy } from "../../helpers/utils";
+import { DeployParams, getInstance } from "../../helpers/utils";
 import {
   SuperTokenContracts,
   SuperTokenChainAddresses,
@@ -16,6 +16,7 @@ import {
   getSuperTokenProjectAddresses,
   superTokenDeploymentsPath,
   storeSuperTokenAddresses,
+  getOrDeployContract
 } from "./utils";
 import { getMode } from "../../constants/config";
 
@@ -112,6 +113,7 @@ const deploy = async (
 
   try {
     deployUtils = await deployPlug(deployUtils, socketAddress);
+    deployUtils = await deployExecutionHelper(deployUtils);
 
     let superToken;
     if (isSuperTokenChain) {
@@ -194,17 +196,41 @@ const deployPlug = async (
     if (deployParams.addresses[SuperTokenContracts.SocketPlug])
       return deployParams;
 
-    const socketPlug: Contract = await getOrDeploy(
+    const socketPlug: Contract = await getOrDeployContract(
       SuperTokenContracts.SocketPlug,
       "contracts/supertoken/SocketPlug.sol",
       [socketAddress, config.owner, deployParams.currentChainSlug],
       deployParams,
-      config.projectName.toLowerCase()
+      `${getMode()}_${config.projectName.toLowerCase()}`
     );
 
     deployParams.addresses[SuperTokenContracts.SocketPlug] = socketPlug.address;
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
+  } catch (error) {
+    console.log("Error in deploying chain contracts", error);
+  }
+  return deployParams;
+};
+
+const deployExecutionHelper = async (
+  deployParams: DeployParams,
+): Promise<DeployParams> => {
+  try {
+    if (deployParams.addresses[SuperTokenContracts.ExecutionHelper])
+      return deployParams;
+
+    const executionHelper: Contract = await getOrDeployContract(
+      SuperTokenContracts.ExecutionHelper,
+      "contracts/supertoken/ExecutionHelper.sol",
+      [],
+      deployParams,
+      `${getMode()}_${config.projectName.toLowerCase()}`
+    );
+
+    deployParams.addresses[SuperTokenContracts.ExecutionHelper] = executionHelper.address;
+    console.log(deployParams.addresses);
+    console.log("ExecutionHelper Contract deployed!");
   } catch (error) {
     console.log("Error in deploying chain contracts", error);
   }
@@ -221,7 +247,7 @@ const deploySuperToken = async (
     )
       return deployParams;
 
-    const superToken: Contract = await getOrDeploy(
+    const superToken: Contract = await getOrDeployContract(
       SuperTokenContracts.SuperToken,
       "contracts/supertoken/SuperToken.sol",
       [
@@ -234,7 +260,7 @@ const deploySuperToken = async (
         deployParams.addresses[SuperTokenContracts.SocketPlug],
       ],
       deployParams,
-      config.projectName.toLowerCase()
+      `${getMode()}_${config.projectName.toLowerCase()}`
     );
     deployParams.addresses[SuperTokenContracts.SuperToken] = superToken.address;
     console.log(deployParams.addresses);
@@ -260,7 +286,7 @@ const deployVault = async (
     if (!deployParams.addresses[SuperTokenContracts.NonSuperToken])
       throw new Error("Token not found on chain");
 
-    const vault: Contract = await getOrDeploy(
+    const vault: Contract = await getOrDeployContract(
       SuperTokenContracts.SuperTokenVault,
       "contracts/supertoken/SuperTokenVault.sol",
       [
@@ -269,7 +295,7 @@ const deployVault = async (
         deployParams.addresses[SuperTokenContracts.SocketPlug],
       ],
       deployParams,
-      config.projectName.toLowerCase()
+      `${getMode()}_${config.projectName.toLowerCase()}`
     );
     deployParams.addresses[SuperTokenContracts.SuperTokenVault] = vault.address;
 
