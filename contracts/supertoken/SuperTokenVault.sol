@@ -52,6 +52,7 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     error ZeroAmount();
     error NotMessageBridge();
     error MessageIdMisMatched();
+    error InvalidTokenContract();
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -100,6 +101,7 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
         address owner_,
         address bridge_
     ) AccessControl(owner_) {
+        if (token_.code.length == 0) revert InvalidTokenContract();
         token__ = ERC20(token_);
         bridge__ = IMessageBridge(bridge_);
     }
