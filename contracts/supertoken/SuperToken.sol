@@ -56,6 +56,8 @@ contract SuperToken is
     error MessageIdMisMatched();
     error ZeroAmount();
     error NotMessageBridge();
+    error InvalidReceiver();
+    error InvalidSiblingChainSlug();
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -241,10 +243,15 @@ contract SuperToken is
 
         _mint(receiver_, consumedAmount);
 
-        if (
-            pendingAmount == 0 &&
-            pendingExecutions[identifier_].receiver != address(0)
-        ) {
+        address receiver = pendingExecutions[identifier_].receiver;
+        if (pendingAmount == 0 && receiver != address(0)) {
+            if (receiver_ != receiver) revert InvalidReceiver();
+
+            uint32 siblingChainSlug = pendingExecutions[identifier_]
+                .siblingChainSlug;
+            if (siblingChainSlug != siblingChainSlug_)
+                revert InvalidSiblingChainSlug();
+
             // execute
             pendingExecutions[identifier_].isAmountPending = false;
             bool success = _execute(

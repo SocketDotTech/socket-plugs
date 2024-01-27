@@ -51,6 +51,8 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
     error SiblingChainSlugUnavailable();
     error ZeroAmount();
     error NotMessageBridge();
+    error InvalidReceiver();
+    error InvalidSiblingChainSlug();
     error MessageIdMisMatched();
     error InvalidTokenContract();
 
@@ -217,10 +219,15 @@ contract SuperTokenVault is Gauge, ISuperTokenOrVault, AccessControl, Execute {
 
         token__.safeTransfer(receiver_, consumedAmount);
 
-        if (
-            pendingAmount == 0 &&
-            pendingExecutions[identifier_].receiver != address(0)
-        ) {
+        address receiver = pendingExecutions[identifier_].receiver;
+        if (pendingAmount == 0 && receiver != address(0)) {
+            if (receiver_ != receiver) revert InvalidReceiver();
+
+            uint32 siblingChainSlug = pendingExecutions[identifier_]
+                .siblingChainSlug;
+            if (siblingChainSlug != siblingChainSlug_)
+                revert InvalidSiblingChainSlug();
+
             // execute
             pendingExecutions[identifier_].isAmountPending = false;
             bool success = _execute(
