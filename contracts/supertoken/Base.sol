@@ -29,12 +29,13 @@ abstract contract Base is
      * @param isAmountPending if amount to be bridged is pending
      */
     struct PendingExecutionDetails {
+        bool isAmountPending;
+        uint32 siblingChainSlug;
         address receiver;
         bytes payload;
-        bool isAmountPending;
     }
 
-    uint16 private constant MAX_COPY_BYTES = 150;
+    uint16 private constant MAX_COPY_BYTES = 0;
     ExecutionHelper public executionHelper__;
 
     // messageId => PendingExecutionDetails
@@ -87,11 +88,13 @@ abstract contract Base is
     function _cachePayload(
         bytes32 msgId_,
         bool isAmountPending_,
+        uint32 siblingChainSlug_,
         address receiver_,
         bytes memory payload_
     ) internal {
         pendingExecutions[msgId_].receiver = receiver_;
         pendingExecutions[msgId_].payload = payload_;
+        pendingExecutions[msgId_].siblingChainSlug = siblingChainSlug_;
         pendingExecutions[msgId_].isAmountPending = isAmountPending_;
     }
 
@@ -101,6 +104,7 @@ abstract contract Base is
     function _clearPayload(bytes32 msgId_) internal {
         pendingExecutions[msgId_].receiver = address(0);
         pendingExecutions[msgId_].payload = bytes("");
+        pendingExecutions[msgId_].siblingChainSlug = 0;
         pendingExecutions[msgId_].isAmountPending = false;
     }
 }

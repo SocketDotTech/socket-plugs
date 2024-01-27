@@ -296,9 +296,10 @@ contract TestExecute is Test {
                 0
         );
         (
+            bool isAmountPending,
+            uint32 siblingSlug,
             address receiver,
-            bytes memory payload,
-            bool isAmountPending
+            bytes memory payload
         ) = superToken.pendingExecutions(messageId);
 
         assertEq(
@@ -353,7 +354,7 @@ contract TestExecute is Test {
                 (uint256(uint160(address(superTokenPlug))) << 64) |
                 0
         );
-        (address receiver, , ) = superToken.pendingExecutions(messageId);
+        (, , address receiver, ) = superToken.pendingExecutions(messageId);
 
         assertEq(
             receiver,
@@ -365,12 +366,14 @@ contract TestExecute is Test {
         superToken.retryPayloadExecution(messageId);
 
         (
+            bool isAmountPending,
+            uint32 siblingSlug,
             address receiverAfterRetry,
-            bytes memory payload,
-            bool isAmountPending
+            bytes memory payload
         ) = superToken.pendingExecutions(messageId);
         assertEq(receiverAfterRetry, address(0), "receiver not cleared");
         assertEq(payload, bytes(""), "payload not cleared");
+        assertEq(siblingSlug, 0, "siblingSlug not cleared");
         assertFalse(isAmountPending, "isAmountPending not cleared");
     }
 }

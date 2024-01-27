@@ -44,6 +44,10 @@ contract SuperTokenVault is Base {
     error SiblingChainSlugUnavailable();
     error ZeroAmount();
     error NotMessageBridge();
+    error InvalidReceiver();
+    error InvalidSiblingChainSlug();
+    error MessageIdMisMatched();
+    error InvalidTokenContract();
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -93,6 +97,7 @@ contract SuperTokenVault is Base {
         address bridge_,
         address executionHelper_
     ) AccessControl(owner_) {
+        if (token_.code.length == 0) revert InvalidTokenContract();
         token__ = ERC20(token_);
         bridge__ = IMessageBridge(bridge_);
         executionHelper__ = ExecutionHelper(executionHelper_);
@@ -170,13 +175,13 @@ contract SuperTokenVault is Base {
         token__.safeTransferFrom(msg.sender, address(this), amount_);
 
         bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
-        bridge__.outbound{value: msg.value}(
+        bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
             abi.encode(receiver_, amount_, messageId, payload_),
             options_
         );
-
+        if (returnedMessageId != messageId) revert MessageIdMisMatched();
         emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);
     }
 
@@ -209,10 +214,15 @@ contract SuperTokenVault is Base {
 
         token__.safeTransfer(receiver_, consumedAmount);
 
-        if (
-            pendingAmount == 0 &&
-            pendingExecutions[identifier_].receiver != address(0)
-        ) {
+        address receiver = pendingExecutions[identifier_].receiver;
+        if (pendingAmount == 0 && receiver != address(0)) {
+            if (receiver_ != receiver) revert InvalidReceiver();
+
+            uint32 siblingChainSlug = pendingExecutions[identifier_]
+                .siblingChainSlug;
+            if (siblingChainSlug != siblingChainSlug_)
+                revert InvalidSiblingChainSlug();
+
             // execute
             pendingExecutions[identifier_].isAmountPending = false;
             bool success = executionHelper__.execute(
@@ -274,7 +284,13 @@ contract SuperTokenVault is Base {
 
             // cache payload
             if (execPayload.length > 0)
-                _cachePayload(identifier, true, receiver, execPayload);
+                _cachePayload(
+                    identifier,
+                    true,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
 
             emit TokensPending(
                 siblingChainSlug_,
@@ -287,7 +303,13 @@ contract SuperTokenVault is Base {
             bool success = executionHelper__.execute(receiver, execPayload);
 
             if (!success)
-                _cachePayload(identifier, false, receiver, execPayload);
+                _cachePayload(
+                    identifier,
+                    false,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
         }
 
         emit TokensUnlocked(siblingChainSlug_, receiver, consumedAmount);

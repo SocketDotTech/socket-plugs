@@ -43,6 +43,8 @@ contract SuperToken is ERC20, Base {
     error MessageIdMisMatched();
     error ZeroAmount();
     error NotMessageBridge();
+    error InvalidReceiver();
+    error InvalidSiblingChainSlug();
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -193,7 +195,6 @@ contract SuperToken is ERC20, Base {
             abi.encode(receiver_, sendingAmount_, messageId, payload_),
             options_
         );
-
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
         emit BridgeTokens(
             siblingChainSlug_,
@@ -231,10 +232,15 @@ contract SuperToken is ERC20, Base {
 
         _mint(receiver_, consumedAmount);
 
-        if (
-            pendingAmount == 0 &&
-            pendingExecutions[identifier_].receiver != address(0)
-        ) {
+        address receiver = pendingExecutions[identifier_].receiver;
+        if (pendingAmount == 0 && receiver != address(0)) {
+            if (receiver_ != receiver) revert InvalidReceiver();
+
+            uint32 siblingChainSlug = pendingExecutions[identifier_]
+                .siblingChainSlug;
+            if (siblingChainSlug != siblingChainSlug_)
+                revert InvalidSiblingChainSlug();
+
             // execute
             pendingExecutions[identifier_].isAmountPending = false;
             bool success = executionHelper__.execute(
@@ -293,7 +299,13 @@ contract SuperToken is ERC20, Base {
 
             // if pending amount is more than 0, payload is cached
             if (execPayload.length > 0)
-                _cachePayload(identifier, true, receiver, execPayload);
+                _cachePayload(
+                    identifier,
+                    true,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
 
             emit TokensPending(
                 siblingChainSlug_,
@@ -307,7 +319,13 @@ contract SuperToken is ERC20, Base {
             bool success = executionHelper__.execute(receiver, execPayload);
 
             if (!success)
-                _cachePayload(identifier, false, receiver, execPayload);
+                _cachePayload(
+                    identifier,
+                    false,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
         }
 
         emit TokensBridged(
