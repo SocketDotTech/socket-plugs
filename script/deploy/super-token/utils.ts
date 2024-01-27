@@ -58,7 +58,7 @@ export const getOrDeployContract = async (
   path: string,
   args: any[],
   deployUtils: DeployParams,
-  fileName: string,
+  fileName: string
 ): Promise<Contract> => {
   if (!deployUtils || !deployUtils.addresses)
     throw new Error("No addresses found");
@@ -71,7 +71,9 @@ export const getOrDeployContract = async (
       args,
       deployUtils.signer
     );
-    console.log(`${contractName} deployed on ${deployUtils.currentChainSlug} at address ${contract.address}`);
+    console.log(
+      `${contractName} deployed on ${deployUtils.currentChainSlug} at address ${contract.address}`
+    );
 
     await storeVerificationParamsForSuperToken(
       [contract.address, contractName, path, args],
@@ -80,7 +82,9 @@ export const getOrDeployContract = async (
     );
   } else {
     contract = await getInstance(contractName, storedContactAddress);
-    console.log(`${contractName} found on ${deployUtils.currentChainSlug} at address ${contract.address}`);
+    console.log(
+      `${contractName} found on ${deployUtils.currentChainSlug} at address ${contract.address}`
+    );
   }
 
   return contract;
@@ -94,7 +98,8 @@ export const storeVerificationParamsForSuperToken = async (
   if (!fs.existsSync(superTokenDeploymentsPath)) {
     await fs.promises.mkdir(superTokenDeploymentsPath);
   }
-  const verificationPath = superTokenDeploymentsPath + `${fileName}_verification.json`;
+  const verificationPath =
+    superTokenDeploymentsPath + `${fileName}_verification.json`;
   const outputExists = fs.existsSync(verificationPath);
   let verificationDetails: object = {};
   if (outputExists) {

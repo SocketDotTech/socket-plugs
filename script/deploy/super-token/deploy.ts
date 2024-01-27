@@ -16,7 +16,7 @@ import {
   getSuperTokenProjectAddresses,
   superTokenDeploymentsPath,
   storeSuperTokenAddresses,
-  getOrDeployContract
+  getOrDeployContract,
 } from "./utils";
 import { getMode } from "../../constants/config";
 
@@ -214,7 +214,7 @@ const deployPlug = async (
 };
 
 const deployExecutionHelper = async (
-  deployParams: DeployParams,
+  deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
     if (deployParams.addresses[SuperTokenContracts.ExecutionHelper])
@@ -228,7 +228,8 @@ const deployExecutionHelper = async (
       `${getMode()}_${config.projectName.toLowerCase()}`
     );
 
-    deployParams.addresses[SuperTokenContracts.ExecutionHelper] = executionHelper.address;
+    deployParams.addresses[SuperTokenContracts.ExecutionHelper] =
+      executionHelper.address;
     console.log(deployParams.addresses);
     console.log("ExecutionHelper Contract deployed!");
   } catch (error) {
@@ -258,6 +259,7 @@ const deploySuperToken = async (
         config.owner,
         config.initialSupply,
         deployParams.addresses[SuperTokenContracts.SocketPlug],
+        deployParams.addresses[SuperTokenContracts.ExecutionHelper],
       ],
       deployParams,
       `${getMode()}_${config.projectName.toLowerCase()}`
@@ -293,6 +295,7 @@ const deployVault = async (
         deployParams.addresses[SuperTokenContracts.NonSuperToken],
         config.owner,
         deployParams.addresses[SuperTokenContracts.SocketPlug],
+        deployParams.addresses[SuperTokenContracts.ExecutionHelper],
       ],
       deployParams,
       `${getMode()}_${config.projectName.toLowerCase()}`

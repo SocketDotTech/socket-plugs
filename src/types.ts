@@ -87,7 +87,7 @@ export enum SuperTokenContracts {
   SuperToken = "SuperToken",
   SuperTokenVault = "SuperTokenVault",
   SocketPlug = "SocketPlug",
-  ExecutionHelper = "ExecutionHelper"
+  ExecutionHelper = "ExecutionHelper",
 }
 
 export type SuperTokenAddresses = {
