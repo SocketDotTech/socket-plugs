@@ -25,6 +25,7 @@ contract TestSuperTokenVaultLimits is Test {
     MintableToken _token;
     SuperTokenVault _locker;
     SocketPlug _lockerPlug;
+    ExecutionHelper _executionHelper;
     address _socket;
 
     uint32 _siblingSlug;
@@ -42,10 +43,13 @@ contract TestSuperTokenVaultLimits is Test {
         _token = new MintableToken("Moon", "MOON", 18);
 
         _lockerPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
+        _executionHelper = new ExecutionHelper();
+
         _locker = new SuperTokenVault(
             address(_token),
             _admin,
-            address(_lockerPlug)
+            address(_lockerPlug),
+            address(_executionHelper)
         );
         _lockerPlug.setSuperTokenOrVault(address(_locker));
 

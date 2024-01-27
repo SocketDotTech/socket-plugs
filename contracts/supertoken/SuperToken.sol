@@ -1,27 +1,14 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-
-import {AccessControl} from "../common/AccessControl.sol";
-import {Gauge} from "../common/Gauge.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-
-import "./Execute.sol";
-import "./IMessageBridge.sol";
-import "./ISuperTokenOrVault.sol";
+import "./Base.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperToken is
-    ERC20,
-    Gauge,
-    ISuperTokenOrVault,
-    AccessControl,
-    Execute
-{
+contract SuperToken is ERC20, Base {
     struct UpdateLimitParams {
         bool isMint;
         uint32 siblingChainSlug;
@@ -117,10 +104,12 @@ contract SuperToken is
         address initialSupplyHolder_,
         address owner_,
         uint256 initialSupply_,
-        address bridge_
+        address bridge_,
+        address executionHelper_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(initialSupplyHolder_, initialSupply_);
         bridge__ = IMessageBridge(bridge_);
+        executionHelper__ = ExecutionHelper(executionHelper_);
     }
 
     /**
@@ -254,7 +243,7 @@ contract SuperToken is
 
             // execute
             pendingExecutions[identifier_].isAmountPending = false;
-            bool success = _execute(
+            bool success = executionHelper__.execute(
                 receiver_,
                 pendingExecutions[identifier_].payload
             );
@@ -312,8 +301,8 @@ contract SuperToken is
             if (execPayload.length > 0)
                 _cachePayload(
                     identifier,
-                    siblingChainSlug_,
                     true,
+                    siblingChainSlug_,
                     receiver,
                     execPayload
                 );
@@ -327,13 +316,13 @@ contract SuperToken is
             );
         } else if (execPayload.length > 0) {
             // execute
-            bool success = _execute(receiver, execPayload);
+            bool success = executionHelper__.execute(receiver, execPayload);
 
             if (!success)
                 _cachePayload(
                     identifier,
-                    siblingChainSlug_,
                     false,
+                    siblingChainSlug_,
                     receiver,
                     execPayload
                 );
