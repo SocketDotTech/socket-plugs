@@ -24,7 +24,7 @@
     [
       "0x5627a04773f39204834D7bc8afdF0a27dA990c3A",
       "SocketPlug",
-      "contracts/supertoken/SocketPlug.sol",
+      "contracts/supertoken/plugs/SocketPlug.sol",
       [
         "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
         "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
@@ -53,7 +53,7 @@
     [
       "0xca2e2C77Caa0a958693DB4E8C0f4Ca7D9fCD71be",
       "SocketPlug",
-      "contracts/supertoken/SocketPlug.sol",
+      "contracts/supertoken/plugs/SocketPlug.sol",
       [
         "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
         "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
@@ -86,7 +86,7 @@
     [
       "0xbF8E0eB3d74159F14B0D0f60C11eD36Ca1AC7a71",
       "SocketPlug",
-      "contracts/supertoken/SocketPlug.sol",
+      "contracts/supertoken/plugs/SocketPlug.sol",
       [
         "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
         "0x86Ab95d2c6200b798CA382740597cE715aD0D727",

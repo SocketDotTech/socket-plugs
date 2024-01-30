@@ -198,7 +198,7 @@ const deployPlug = async (
 
     const socketPlug: Contract = await getOrDeployContract(
       SuperTokenContracts.SocketPlug,
-      "contracts/supertoken/SocketPlug.sol",
+      "contracts/supertoken/plugs/SocketPlug.sol",
       [socketAddress, config.owner, deployParams.currentChainSlug],
       deployParams,
       `${getMode()}_${config.projectName.toLowerCase()}`
