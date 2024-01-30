@@ -2,17 +2,17 @@ import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { getSocketOwner } from "../../constants/config";
 
 export const config = {
-  projectName: "test",
-  tokenName: "test",
-  tokenSymbol: "TEST",
+  projectName: "ethena",
+  tokenName: "USDe",
+  tokenSymbol: "USDe",
   tokenDecimal: 18,
   initialSupplyOwner: getSocketOwner(),
   owner: getSocketOwner(),
   initialSupply: 0,
-  superTokenChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
+  superTokenChains: [ChainSlug.OPTIMISM_SEPOLIA],
   vaultTokens: {
     [ChainSlug.SEPOLIA]: {
-      token: "0xFD093e2a4d3190b2020C95846dBe5fD073721e89",
+      token: "0x9458CaACa74249AbBE9E964b3Ce155B98EC88EF2",
     },
   },
   integrationType: IntegrationTypes.fast,

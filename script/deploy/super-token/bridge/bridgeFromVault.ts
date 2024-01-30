@@ -8,9 +8,9 @@ import { config } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
 
 export const srcChain = ChainSlug.SEPOLIA;
-export const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
+export const dstChain = ChainSlug.OPTIMISM_SEPOLIA;
 export const gasLimit = 500_000;
-export const amount = utils.parseUnits("1", config.tokenDecimal);
+export const amount = utils.parseUnits("10", config.tokenDecimal);
 
 export const main = async () => {
   try {
