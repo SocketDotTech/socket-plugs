@@ -25,7 +25,6 @@ contract TestSuperTokenVaultLimits is Test {
     MintableToken _token;
     SuperTokenVault _locker;
     SocketPlug _lockerPlug;
-    ExecutionHelper _executionHelper;
     address _socket;
 
     uint32 _siblingSlug;
@@ -43,13 +42,11 @@ contract TestSuperTokenVaultLimits is Test {
         _token = new MintableToken("Moon", "MOON", 18);
 
         _lockerPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
-        _executionHelper = new ExecutionHelper();
 
         _locker = new SuperTokenVault(
             address(_token),
             _admin,
-            address(_lockerPlug),
-            address(_executionHelper)
+            address(_lockerPlug)
         );
         _lockerPlug.setSuperTokenOrVault(address(_locker));
 
@@ -172,7 +169,6 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             depositAmount,
             _msgGasLimit,
-            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -195,7 +191,6 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             depositAmount,
             _msgGasLimit,
-            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -228,8 +223,7 @@ contract TestSuperTokenVaultLimits is Test {
         bytes memory payload = abi.encode(
             _raju,
             depositAmount,
-            messageId,
-            bytes("")
+            messageId
         );
 
         vm.mockCall(
@@ -259,7 +253,6 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             depositAmount,
             _msgGasLimit,
-            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -296,7 +289,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(""), bytes(""))
+            abi.encode(_raju, usedLimit, bytes32(""))
         );
 
         bytes32 messageId = bytes32(
@@ -307,8 +300,7 @@ contract TestSuperTokenVaultLimits is Test {
         bytes memory payload = abi.encode(
             _raju,
             usedLimit,
-            messageId,
-            bytes("")
+            messageId
         );
         vm.startPrank(_raju);
         vm.mockCall(
@@ -340,7 +332,6 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             usedLimit,
             _msgGasLimit,
-            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -374,7 +365,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(""), bytes(""))
+            abi.encode(_raju, usedLimit, bytes32(""))
         );
 
         bytes32 messageId = bytes32(
@@ -385,8 +376,7 @@ contract TestSuperTokenVaultLimits is Test {
         bytes memory payload = abi.encode(
             _raju,
             usedLimit,
-            messageId,
-            bytes("")
+            messageId
         );
         vm.startPrank(_raju);
         vm.mockCall(
@@ -418,7 +408,6 @@ contract TestSuperTokenVaultLimits is Test {
             _siblingSlug1,
             usedLimit,
             _msgGasLimit,
-            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -461,7 +450,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(""), bytes(""))
+            abi.encode(_raju, withdrawAmount, bytes32(""))
         );
 
         uint256 vaultBalAfter = _token.balanceOf(address(_locker));
@@ -528,7 +517,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(0), bytes(""))
+            abi.encode(_raju, withdrawAmount, bytes32(0))
         );
 
         uint256 vaultBalAfter = _token.balanceOf(address(_locker));
@@ -576,7 +565,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(0), bytes(""))
+            abi.encode(_raju, usedLimit, bytes32(0))
         );
 
         uint256 unlockLimitBefore = _locker.getCurrentUnlockLimit(
@@ -608,7 +597,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(0), bytes(""))
+            abi.encode(_raju, usedLimit, bytes32(0))
         );
 
         uint256 unlockLimitBefore = _locker.getCurrentUnlockLimit(
@@ -637,7 +626,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(0), bytes(""))
+            abi.encode(_raju, withdrawAmount, bytes32(0))
         );
 
         uint256 vaultBalBefore = _token.balanceOf(address(_locker));
@@ -713,7 +702,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.prank(address(_lockerPlug));
         _locker.inbound(
             _siblingSlug1,
-            abi.encode(_raju, withdrawAmount, bytes32(0), bytes(""))
+            abi.encode(_raju, withdrawAmount, bytes32(0))
         );
 
         uint256 vaultBalBefore = _token.balanceOf(address(_locker));

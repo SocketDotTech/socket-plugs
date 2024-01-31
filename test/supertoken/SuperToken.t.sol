@@ -25,7 +25,6 @@ contract TestSuperToken is Test {
     address switchboard;
 
     MockSocket _socket;
-    ExecutionHelper _executionHelper;
 
     SocketPlug superTokenPlug;
     SuperToken superToken;
@@ -66,7 +65,6 @@ contract TestSuperToken is Test {
         vm.startPrank(_admin);
 
         _socket = new MockSocket();
-        _executionHelper = new ExecutionHelper();
 
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
         notSuperTokenOpt = new MintableToken("Moon", "MOON", 18);
@@ -79,8 +77,7 @@ contract TestSuperToken is Test {
             _admin,
             _admin,
             100000,
-            address(superTokenPlug),
-            address(_executionHelper)
+            address(superTokenPlug)
         );
         superTokenPlug.setSuperTokenOrVault(address(superToken));
 
@@ -96,8 +93,7 @@ contract TestSuperToken is Test {
             _admin,
             _admin,
             100000,
-            address(otherSuperTokenPlug),
-            address(_executionHelper)
+            address(otherSuperTokenPlug)
         );
         otherSuperTokenPlug.setSuperTokenOrVault(address(otherSuperToken));
 
@@ -105,8 +101,7 @@ contract TestSuperToken is Test {
         arbLocker = new SuperTokenVault(
             address(notSuperTokenArb),
             _admin,
-            address(arbLockerPlug),
-            address(_executionHelper)
+            address(arbLockerPlug)
         );
         arbLockerPlug.setSuperTokenOrVault(address(arbLocker));
 
@@ -114,8 +109,7 @@ contract TestSuperToken is Test {
         optLocker = new SuperTokenVault(
             address(notSuperTokenOpt),
             _admin,
-            address(optLockerPlug),
-            address(_executionHelper)
+            address(optLockerPlug)
         );
         optLockerPlug.setSuperTokenOrVault(address(optLocker));
 
@@ -256,7 +250,6 @@ contract TestSuperToken is Test {
             chainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
-            bytes(""),
             bytes("")
         );
 
@@ -300,7 +293,6 @@ contract TestSuperToken is Test {
             arbChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
-            bytes(""),
             bytes("")
         );
 
@@ -343,7 +335,6 @@ contract TestSuperToken is Test {
             otherChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
-            bytes(""),
             bytes("")
         );
 
@@ -383,7 +374,6 @@ contract TestSuperToken is Test {
             arbChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
-            bytes(""),
             bytes("")
         );
     }
