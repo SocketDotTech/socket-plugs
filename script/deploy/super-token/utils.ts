@@ -6,8 +6,10 @@ import {
   SuperTokenAddresses,
   SuperTokenChainAddresses,
 } from "../../../src";
-import { BigNumber, utils } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 import { getMode } from "../../constants/config";
+import { DeployParams, deployContractWithArgs } from "../../helpers/utils";
+import { getInstance } from "./bridge/utils";
 
 export const getSuperTokenProjectAddresses = async (
   project: string
@@ -49,6 +51,75 @@ export const storeSuperTokenAddresses = async (
 
   deploymentAddresses[chainSlug.toString()] = addresses;
   fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
+};
+
+export const getOrDeployContract = async (
+  contractName: string,
+  path: string,
+  args: any[],
+  deployUtils: DeployParams,
+  fileName: string
+): Promise<Contract> => {
+  if (!deployUtils || !deployUtils.addresses)
+    throw new Error("No addresses found");
+
+  let contract: Contract;
+  const storedContactAddress = deployUtils.addresses[contractName];
+  if (!storedContactAddress) {
+    contract = await deployContractWithArgs(
+      contractName,
+      args,
+      deployUtils.signer
+    );
+    console.log(
+      `${contractName} deployed on ${deployUtils.currentChainSlug} at address ${contract.address}`
+    );
+
+    await storeVerificationParamsForSuperToken(
+      [contract.address, contractName, path, args],
+      deployUtils.currentChainSlug,
+      fileName
+    );
+  } else {
+    contract = await getInstance(contractName, storedContactAddress);
+    console.log(
+      `${contractName} found on ${deployUtils.currentChainSlug} at address ${contract.address}`
+    );
+  }
+
+  return contract;
+};
+
+export const storeVerificationParamsForSuperToken = async (
+  verificationDetail: any[],
+  chainSlug: ChainSlug,
+  fileName: string
+) => {
+  if (!fs.existsSync(superTokenDeploymentsPath)) {
+    await fs.promises.mkdir(superTokenDeploymentsPath);
+  }
+  const verificationPath =
+    superTokenDeploymentsPath + `${fileName}_verification.json`;
+  const outputExists = fs.existsSync(verificationPath);
+  let verificationDetails: object = {};
+  if (outputExists) {
+    const verificationDetailsString = fs.readFileSync(
+      verificationPath,
+      "utf-8"
+    );
+    verificationDetails = JSON.parse(verificationDetailsString);
+  }
+
+  if (!verificationDetails[chainSlug]) verificationDetails[chainSlug] = [];
+  verificationDetails[chainSlug] = [
+    verificationDetail,
+    ...verificationDetails[chainSlug],
+  ];
+
+  fs.writeFileSync(
+    verificationPath,
+    JSON.stringify(verificationDetails, null, 2)
+  );
 };
 
 export const getSuperTokenLimitBN = (

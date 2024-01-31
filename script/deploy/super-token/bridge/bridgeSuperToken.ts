@@ -10,10 +10,10 @@ import { config } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
 import { getSocket, getInstance } from "./utils";
 
-export const srcChain = ChainSlug.ARBITRUM_SEPOLIA;
+export const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
 export const dstChain = ChainSlug.SEPOLIA;
 export const gasLimit = 500_000;
-export const amount = utils.parseUnits("1", config.tokenDecimal);
+export const amount = utils.parseUnits("2", config.tokenDecimal);
 
 export const main = async () => {
   try {
