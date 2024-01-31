@@ -2,7 +2,7 @@ import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { getSocketOwner } from "../../constants/config";
 
 export const config = {
-  projectName: "ethena",
+  projectName: "ethena-testnet",
   tokenName: "USDe",
   tokenSymbol: "USDe",
   tokenDecimal: 18,
