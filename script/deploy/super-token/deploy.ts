@@ -113,7 +113,6 @@ const deploy = async (
 
   try {
     deployUtils = await deployPlug(deployUtils, socketAddress);
-    deployUtils = await deployExecutionHelper(deployUtils);
 
     let superToken;
     if (isSuperTokenChain) {
@@ -213,31 +212,6 @@ const deployPlug = async (
   return deployParams;
 };
 
-const deployExecutionHelper = async (
-  deployParams: DeployParams
-): Promise<DeployParams> => {
-  try {
-    if (deployParams.addresses[SuperTokenContracts.ExecutionHelper])
-      return deployParams;
-
-    const executionHelper: Contract = await getOrDeployContract(
-      SuperTokenContracts.ExecutionHelper,
-      "contracts/supertoken/ExecutionHelper.sol",
-      [],
-      deployParams,
-      `${getMode()}_${config.projectName.toLowerCase()}`
-    );
-
-    deployParams.addresses[SuperTokenContracts.ExecutionHelper] =
-      executionHelper.address;
-    console.log(deployParams.addresses);
-    console.log("ExecutionHelper Contract deployed!");
-  } catch (error) {
-    console.log("Error in deploying chain contracts", error);
-  }
-  return deployParams;
-};
-
 const deploySuperToken = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
@@ -259,7 +233,6 @@ const deploySuperToken = async (
         config.owner,
         config.initialSupply,
         deployParams.addresses[SuperTokenContracts.SocketPlug],
-        deployParams.addresses[SuperTokenContracts.ExecutionHelper],
       ],
       deployParams,
       `${getMode()}_${config.projectName.toLowerCase()}`
@@ -295,7 +268,6 @@ const deployVault = async (
         deployParams.addresses[SuperTokenContracts.NonSuperToken],
         config.owner,
         deployParams.addresses[SuperTokenContracts.SocketPlug],
-        deployParams.addresses[SuperTokenContracts.ExecutionHelper],
       ],
       deployParams,
       `${getMode()}_${config.projectName.toLowerCase()}`

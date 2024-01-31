@@ -2,9 +2,9 @@ import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { getSocketOwner } from "../../constants/config";
 
 export const config = {
-  projectName: "ethena-testnet",
-  tokenName: "USDe",
-  tokenSymbol: "USDe",
+  projectName: "test-without-payload-execution",
+  tokenName: "test",
+  tokenSymbol: "TEST",
   tokenDecimal: 18,
   initialSupplyOwner: getSocketOwner(),
   owner: getSocketOwner(),
@@ -12,7 +12,7 @@ export const config = {
   superTokenChains: [ChainSlug.OPTIMISM_SEPOLIA],
   vaultTokens: {
     [ChainSlug.SEPOLIA]: {
-      token: "0x9458CaACa74249AbBE9E964b3Ce155B98EC88EF2",
+      token: "0xFD093e2a4d3190b2020C95846dBe5fD073721e89",
     },
   },
   integrationType: IntegrationTypes.fast,

@@ -80,7 +80,6 @@ export const main = async () => {
       amount,
       gasLimit,
       "0x",
-      "0x",
       { ...overrides[srcChain as ChainSlug], value }
     );
     console.log("Tokens locked", withdrawTx.hash);

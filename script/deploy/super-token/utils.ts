@@ -20,8 +20,7 @@ export const getSuperTokenProjectAddresses = async (
       `../../../deployments/supertoken/${getMode()}_${project}_addresses.json`
     );
   } catch (e) {
-    console.log("addresses not found", e);
-    throw new Error("addresses not found");
+    throw new Error(`addresses not found, ${e}`);
   }
   return addresses;
 };

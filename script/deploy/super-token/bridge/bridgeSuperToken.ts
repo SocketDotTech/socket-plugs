@@ -61,7 +61,6 @@ export const main = async () => {
       amount,
       gasLimit,
       "0x",
-      "0x",
       { ...overrides[srcChain], value }
     );
     console.log("Tokens deposited: ", depositTx.hash);
