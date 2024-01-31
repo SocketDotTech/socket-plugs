@@ -219,11 +219,7 @@ contract TestSuperTokenLimits is Test {
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(
-            _raju,
-            withdrawAmount,
-            messageId
-        );
+        bytes memory payload = abi.encode(_raju, withdrawAmount, messageId);
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
@@ -295,11 +291,7 @@ contract TestSuperTokenLimits is Test {
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(
-            _raju,
-            usedLimit,
-            messageId
-        );
+        bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
@@ -358,21 +350,14 @@ contract TestSuperTokenLimits is Test {
         uint256 time = 100;
         deal(_raju, _fees);
         vm.prank(address(superTokenPlug));
-        _token.inbound(
-            _siblingSlug1,
-            abi.encode(_raju, usedLimit, bytes32(0))
-        );
+        _token.inbound(_siblingSlug1, abi.encode(_raju, usedLimit, bytes32(0)));
 
         bytes32 messageId = bytes32(
             (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(
-            _raju,
-            usedLimit,
-            messageId
-        );
+        bytes memory payload = abi.encode(_raju, usedLimit, messageId);
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
