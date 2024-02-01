@@ -23,6 +23,9 @@ abstract contract Base is
 {
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
+    error ZeroAddressReceiver();
+    error ZeroAmount();
+
     /**
      * @notice Rescues funds from the contract if they are locked by mistake.
      * @param token_ The address of the token contract.

@@ -185,7 +185,7 @@ contract TestSuperTokenVaultLimits is Test {
         vm.startPrank(_raju);
         _token.approve(address(_locker), depositAmount);
 
-        vm.expectRevert(SuperTokenVault.ZeroAmount.selector);
+        vm.expectRevert(Base.ZeroAmount.selector);
         _locker.bridge{value: _fees}(
             _raju,
             _siblingSlug1,
