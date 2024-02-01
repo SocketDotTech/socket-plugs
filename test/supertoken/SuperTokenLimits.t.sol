@@ -187,7 +187,7 @@ contract TestSuperTokenLimits is Test {
         deal(_raju, _fees);
 
         vm.startPrank(_raju);
-        vm.expectRevert(SuperToken.ZeroAmount.selector);
+        vm.expectRevert(Base.ZeroAmount.selector);
         _token.bridge{value: _fees}(
             _raju,
             _siblingSlug1,

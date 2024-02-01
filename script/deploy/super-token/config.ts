@@ -16,6 +16,6 @@ export const config = {
     },
   },
   integrationType: IntegrationTypes.fast,
-  bridgeLimit: "150000",
-  bridgeRate: "1.7361",
+  bridgeLimit: "1000000",
+  bridgeRate: "11.5741",
 };

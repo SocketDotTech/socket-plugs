@@ -41,7 +41,6 @@ contract SuperToken is ERC20, Base {
 
     error SiblingNotSupported();
     error MessageIdMisMatched();
-    error ZeroAmount();
     error NotMessageBridge();
     error InvalidReceiver();
     error InvalidSiblingChainSlug();
@@ -174,10 +173,11 @@ contract SuperToken is ERC20, Base {
         bytes calldata payload_,
         bytes calldata options_
     ) external payable {
+        if (receiver_ == address(0)) revert ZeroAddressReceiver();
+        if (sendingAmount_ == 0) revert ZeroAmount();
+
         if (_sendingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
-
-        if (sendingAmount_ == 0) revert ZeroAmount();
 
         _consumeFullLimit(
             sendingAmount_,
