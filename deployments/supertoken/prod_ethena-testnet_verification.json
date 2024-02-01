@@ -1,6 +1,16 @@
 {
   "11155111": [
     [
+      "0x7228F7CEaaF9dD32eA8e059902E32CAE363f2569",
+      "SocketPlug",
+      "contracts/supertoken/plugs/SocketPlug.sol",
+      [
+        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
+        "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
+        11155111
+      ]
+    ],
+    [
       "0x50067fdc8A561bD1fA71A7Db74cA3E3b3Eed15D2",
       "SuperTokenVault",
       "contracts/supertoken/SuperTokenVault.sol",
