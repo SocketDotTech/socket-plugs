@@ -297,7 +297,7 @@ contract TestExecute is Test {
         );
         (
             bool isAmountPending,
-            uint32 siblingSlug,
+            ,
             address receiver,
             bytes memory payload
         ) = superToken.pendingExecutions(messageId);

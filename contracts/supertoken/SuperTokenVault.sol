@@ -42,7 +42,6 @@ contract SuperTokenVault is Base {
     ////////////////////////////////////////////////////////
 
     error SiblingChainSlugUnavailable();
-    error ZeroAmount();
     error NotMessageBridge();
     error InvalidReceiver();
     error InvalidSiblingChainSlug();
@@ -62,27 +61,31 @@ contract SuperTokenVault is Base {
         uint32 siblingChainSlug,
         address depositor,
         address receiver,
-        uint256 depositAmount
+        uint256 depositAmount,
+        bytes32 identifier
     );
     // emitted when pending tokens are transferred to the receiver
     event PendingTokensTransferred(
         uint32 siblingChainSlug,
         address receiver,
         uint256 unlockedAmount,
-        uint256 pendingAmount
+        uint256 pendingAmount,
+        bytes32 identifier
     );
     // emitted when transfer reaches limit and token transfer is added to pending queue
     event TokensPending(
         uint32 siblingChainSlug,
         address receiver,
         uint256 pendingAmount,
-        uint256 totalPendingAmount
+        uint256 totalPendingAmount,
+        bytes32 identifier
     );
     // emitted when pending tokens are unlocked as limits are replenished
     event TokensUnlocked(
         uint32 siblingChainSlug,
         address receiver,
-        uint256 unlockedAmount
+        uint256 unlockedAmount,
+        bytes32 identifier
     );
 
     /**
@@ -165,6 +168,7 @@ contract SuperTokenVault is Base {
         bytes calldata payload_,
         bytes calldata options_
     ) external payable {
+        if (receiver_ == address(0)) revert ZeroAddressReceiver();
         if (amount_ == 0) revert ZeroAmount();
 
         if (_lockLimitParams[siblingChainSlug_].maxLimit == 0)
@@ -182,7 +186,13 @@ contract SuperTokenVault is Base {
             options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
-        emit TokensDeposited(siblingChainSlug_, msg.sender, receiver_, amount_);
+        emit TokensDeposited(
+            siblingChainSlug_,
+            msg.sender,
+            receiver_,
+            amount_,
+            messageId
+        );
     }
 
     /**
@@ -236,7 +246,8 @@ contract SuperTokenVault is Base {
             siblingChainSlug_,
             receiver_,
             consumedAmount,
-            pendingAmount
+            pendingAmount,
+            identifier_
         );
     }
 
@@ -276,10 +287,9 @@ contract SuperTokenVault is Base {
         token__.safeTransfer(receiver, consumedAmount);
 
         if (pendingAmount > 0) {
-            // add instead of overwrite to handle case where already pending amount is left
             pendingUnlocks[siblingChainSlug_][receiver][
                 identifier
-            ] += pendingAmount;
+            ] = pendingAmount;
             siblingPendingUnlocks[siblingChainSlug_] += pendingAmount;
 
             // cache payload
@@ -296,7 +306,8 @@ contract SuperTokenVault is Base {
                 siblingChainSlug_,
                 receiver,
                 pendingAmount,
-                pendingUnlocks[siblingChainSlug_][receiver][identifier]
+                pendingUnlocks[siblingChainSlug_][receiver][identifier],
+                identifier
             );
         } else if (execPayload.length > 0) {
             // execute
@@ -312,7 +323,12 @@ contract SuperTokenVault is Base {
                 );
         }
 
-        emit TokensUnlocked(siblingChainSlug_, receiver, consumedAmount);
+        emit TokensUnlocked(
+            siblingChainSlug_,
+            receiver,
+            consumedAmount,
+            identifier
+        );
     }
 
     function getCurrentLockLimit(

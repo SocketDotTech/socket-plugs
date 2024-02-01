@@ -47,6 +47,8 @@ abstract contract Base is
     error InvalidExecutionRetry();
     error PendingAmount();
     error CannotExecuteOnBridgeContracts();
+    error ZeroAddressReceiver();
+    error ZeroAmount();
 
     // emitted when a execution helper is updated
     event ExecutionHelperUpdated(address executionHelper);
