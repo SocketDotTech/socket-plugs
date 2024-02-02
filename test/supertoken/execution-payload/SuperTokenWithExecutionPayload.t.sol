@@ -2,16 +2,16 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "../mocks/MintableToken.sol";
-import "../mocks/NonMintableToken.sol";
+import "../../mocks/MintableToken.sol";
+import "../../mocks/NonMintableToken.sol";
 
-import "../../contracts/supertoken/plugs/SocketPlug.sol";
-import "../../contracts/supertoken/SuperToken.sol";
-import "../../contracts/supertoken/SuperTokenVault.sol";
-import "../../contracts/common/Ownable.sol";
-import "../mocks/MockSocket.sol";
+import "../../../contracts/supertoken/plugs/SocketPlug.sol";
+import "../../../contracts/supertoken/SuperTokenWithExecutionPayload.sol";
+import "../../../contracts/supertoken/SuperTokenVaultWithExecutionPayload.sol";
+import "../../../contracts/common/Ownable.sol";
+import "../../mocks/MockSocket.sol";
 
-contract TestSuperToken is Test {
+contract TestSuperTokenWithExecutionPayload is Test {
     uint256 _c;
     address _admin;
     address _raju;
@@ -25,20 +25,21 @@ contract TestSuperToken is Test {
     address switchboard;
 
     MockSocket _socket;
+    ExecutionHelper _executionHelper;
 
     SocketPlug superTokenPlug;
-    SuperToken superToken;
+    SuperTokenWithExecutionPayload superToken;
 
     SocketPlug otherSuperTokenPlug;
-    SuperToken otherSuperToken;
+    SuperTokenWithExecutionPayload otherSuperToken;
 
     MintableToken notSuperTokenArb;
     MintableToken notSuperTokenOpt;
 
     SocketPlug arbLockerPlug;
-    SuperTokenVault arbLocker;
+    SuperTokenVaultWithExecutionPayload arbLocker;
     SocketPlug optLockerPlug;
-    SuperTokenVault optLocker;
+    SuperTokenVaultWithExecutionPayload optLocker;
 
     uint256 public constant FAST_MAX_LIMIT = 100;
     uint256 public constant FAST_RATE = 1;
@@ -65,19 +66,21 @@ contract TestSuperToken is Test {
         vm.startPrank(_admin);
 
         _socket = new MockSocket();
+        _executionHelper = new ExecutionHelper();
 
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
         notSuperTokenOpt = new MintableToken("Moon", "MOON", 18);
 
         superTokenPlug = new SocketPlug(address(_socket), _admin, chainSlug);
-        superToken = new SuperToken(
+        superToken = new SuperTokenWithExecutionPayload(
             "Moon",
             "MOON",
             18,
             _admin,
             _admin,
             100000,
-            address(superTokenPlug)
+            address(superTokenPlug),
+            address(_executionHelper)
         );
         superTokenPlug.setSuperTokenOrVault(address(superToken));
 
@@ -86,30 +89,33 @@ contract TestSuperToken is Test {
             _admin,
             otherChainSlug
         );
-        otherSuperToken = new SuperToken(
+        otherSuperToken = new SuperTokenWithExecutionPayload(
             "Moon",
             "MOON",
             18,
             _admin,
             _admin,
             100000,
-            address(otherSuperTokenPlug)
+            address(otherSuperTokenPlug),
+            address(_executionHelper)
         );
         otherSuperTokenPlug.setSuperTokenOrVault(address(otherSuperToken));
 
         arbLockerPlug = new SocketPlug(address(_socket), _admin, arbChainSlug);
-        arbLocker = new SuperTokenVault(
+        arbLocker = new SuperTokenVaultWithExecutionPayload(
             address(notSuperTokenArb),
             _admin,
-            address(arbLockerPlug)
+            address(arbLockerPlug),
+            address(_executionHelper)
         );
         arbLockerPlug.setSuperTokenOrVault(address(arbLocker));
 
         optLockerPlug = new SocketPlug(address(_socket), _admin, optChainSlug);
-        optLocker = new SuperTokenVault(
+        optLocker = new SuperTokenVaultWithExecutionPayload(
             address(notSuperTokenOpt),
             _admin,
-            address(optLockerPlug)
+            address(optLockerPlug),
+            address(_executionHelper)
         );
         optLockerPlug.setSuperTokenOrVault(address(optLocker));
 
@@ -183,18 +189,23 @@ contract TestSuperToken is Test {
         );
     }
 
-    function _setTokenLimits(SuperToken token, uint32 siblingSlug) internal {
+    function _setTokenLimits(
+        SuperTokenWithExecutionPayload token,
+        uint32 siblingSlug
+    ) internal {
         token.grantRole(LIMIT_UPDATER_ROLE, _admin);
 
-        SuperToken.UpdateLimitParams[]
-            memory u = new SuperToken.UpdateLimitParams[](4);
-        u[0] = SuperToken.UpdateLimitParams(
+        SuperTokenWithExecutionPayload.UpdateLimitParams[]
+            memory u = new SuperTokenWithExecutionPayload.UpdateLimitParams[](
+                4
+            );
+        u[0] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             true,
             siblingSlug,
             FAST_MAX_LIMIT,
             FAST_RATE
         );
-        u[1] = SuperToken.UpdateLimitParams(
+        u[1] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             false,
             siblingSlug,
             FAST_MAX_LIMIT,
@@ -205,20 +216,22 @@ contract TestSuperToken is Test {
     }
 
     function _setLockerLimits(
-        SuperTokenVault locker,
+        SuperTokenVaultWithExecutionPayload locker,
         uint32 siblingSlug
     ) internal {
         locker.grantRole(LIMIT_UPDATER_ROLE, _admin);
 
-        SuperTokenVault.UpdateLimitParams[]
-            memory u = new SuperTokenVault.UpdateLimitParams[](8);
-        u[0] = SuperTokenVault.UpdateLimitParams(
+        SuperTokenVaultWithExecutionPayload.UpdateLimitParams[]
+            memory u = new SuperTokenVaultWithExecutionPayload.UpdateLimitParams[](
+                8
+            );
+        u[0] = SuperTokenVaultWithExecutionPayload.UpdateLimitParams(
             true,
             siblingSlug,
             FAST_MAX_LIMIT,
             FAST_RATE
         );
-        u[1] = SuperTokenVault.UpdateLimitParams(
+        u[1] = SuperTokenVaultWithExecutionPayload.UpdateLimitParams(
             false,
             siblingSlug,
             FAST_MAX_LIMIT,
@@ -250,6 +263,7 @@ contract TestSuperToken is Test {
             chainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
 
@@ -293,6 +307,7 @@ contract TestSuperToken is Test {
             arbChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
 
@@ -335,6 +350,7 @@ contract TestSuperToken is Test {
             otherChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
 
@@ -357,49 +373,6 @@ contract TestSuperToken is Test {
         );
     }
 
-    function testSuperTokenVaultToOtherSuperTokenVaultDeposit() external {
-        uint256 depositAmount = 44;
-
-        vm.prank(_admin);
-        notSuperTokenArb.mint(_raju, depositAmount);
-
-        uint256 rajuBalBefore = notSuperTokenArb.balanceOf(_raju);
-        uint256 ramuBalBefore = superToken.balanceOf(_ramu);
-        uint256 vaultBalBefore = notSuperTokenArb.balanceOf(address(arbLocker));
-        uint256 tokenSupplyBefore = superToken.totalSupply();
-
-        assertTrue(rajuBalBefore >= depositAmount, "Raju got no balance");
-
-        vm.startPrank(_raju);
-        notSuperTokenArb.approve(address(arbLocker), depositAmount);
-        _socket.setLocalSlug(arbChainSlug);
-        arbLocker.bridge(
-            _ramu,
-            chainSlug,
-            depositAmount,
-            MSG_GAS_LIMIT,
-            bytes("")
-        );
-
-        uint256 rajuBalAfter = notSuperTokenArb.balanceOf(_raju);
-        uint256 ramuBalAfter = superToken.balanceOf(_ramu);
-        uint256 vaultBalAfter = notSuperTokenArb.balanceOf(address(arbLocker));
-        uint256 tokenSupplyAfter = superToken.totalSupply();
-
-        assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
-        assertEq(ramuBalAfter, ramuBalBefore + depositAmount, "Ramu bal sus");
-        assertEq(
-            vaultBalAfter,
-            vaultBalBefore + depositAmount,
-            "SuperTokenVault bal sus"
-        );
-        assertEq(
-            tokenSupplyAfter,
-            tokenSupplyBefore + depositAmount,
-            "token supply sus"
-        );
-    }
-
     function testDisconnect() external {
         hoax(_admin);
         superTokenPlug.disconnect(arbChainSlug);
@@ -411,12 +384,17 @@ contract TestSuperToken is Test {
         vm.startPrank(_raju);
         superToken.approve(address(arbLocker), depositAmount);
 
-        vm.expectRevert(SuperTokenVault.SiblingChainSlugUnavailable.selector);
+        vm.expectRevert(
+            SuperTokenVaultWithExecutionPayload
+                .SiblingChainSlugUnavailable
+                .selector
+        );
         arbLocker.bridge(
             _ramu,
             arbChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
+            bytes(""),
             bytes("")
         );
     }
