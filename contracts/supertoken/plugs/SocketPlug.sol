@@ -4,8 +4,8 @@ import {ISocket} from "../../interfaces/ISocket.sol";
 import {IPlug} from "../../interfaces/IPlug.sol";
 import {AccessControl} from "../../common/AccessControl.sol";
 import {RescueFundsLib} from "../../libraries/RescueFundsLib.sol";
-import {IMessageBridge} from "./../IMessageBridge.sol";
-import {ISuperTokenOrVault} from "./../ISuperTokenOrVault.sol";
+import {IMessageBridge} from "../interfaces/IMessageBridge.sol";
+import {ISuperTokenOrVault} from "../interfaces/ISuperTokenOrVault.sol";
 
 /**
  * @title SocketPlug
