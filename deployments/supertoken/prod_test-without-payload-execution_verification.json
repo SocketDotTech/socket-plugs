@@ -1,0 +1,50 @@
+{
+  "11155111": [
+    [
+      "0xA302605d147b6EBee1b709fF6B29b7Ae9C4dA143",
+      "SuperTokenVault",
+      "contracts/supertoken/SuperTokenVault.sol",
+      [
+        "0xFD093e2a4d3190b2020C95846dBe5fD073721e89",
+        "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
+        "0xA7119Bc609F173fAd34071fdbB86B0A94808cbf5"
+      ]
+    ],
+    [
+      "0xA7119Bc609F173fAd34071fdbB86B0A94808cbf5",
+      "SocketPlug",
+      "contracts/supertoken/plugs/SocketPlug.sol",
+      [
+        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
+        "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
+        11155111
+      ]
+    ]
+  ],
+  "11155420": [
+    [
+      "0xAC819D8Fe12334a894c417DFb9A11a6548822c86",
+      "SuperToken",
+      "contracts/supertoken/SuperToken.sol",
+      [
+        "test",
+        "TEST",
+        18,
+        "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
+        "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
+        0,
+        "0x8FbB20A548b15C8c154010C7F94C03A7B8414B9B"
+      ]
+    ],
+    [
+      "0x8FbB20A548b15C8c154010C7F94C03A7B8414B9B",
+      "SocketPlug",
+      "contracts/supertoken/plugs/SocketPlug.sol",
+      [
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        "0x86Ab95d2c6200b798CA382740597cE715aD0D727",
+        11155420
+      ]
+    ]
+  ]
+}

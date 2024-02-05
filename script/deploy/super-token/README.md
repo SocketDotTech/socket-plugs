@@ -5,13 +5,18 @@
 - Clone the Repo and checkout to branch `main`
 - Install dependencies: `yarn`
 - Install contract dependencies: `forge install`
-- Environment variables: copy `.env.example` to `.env` and fill in the needed RPCs. Rest can be ignored. Also update `SOCKET_SIGNER_KEY` and `SOCKET_OWNER_ADDRESS`.
+- Environment variables: copy `.env.example` to `.env`.
+  - Fill in the needed RPCs, others can be ignored.
+  - Update `SOCKET_SIGNER_KEY` and `SOCKET_OWNER_ADDRESS`.
+  - Add `TOKEN_PROJECT` with the token name
 - Compile: `yarn build`
 
 ### DEPLOYMENT
 
-- Setup Config file: To configure the token, update the `config.ts` file present in this folder.
+- Setup Config file: To configure the token, add a file inside `script/constants/token-constants` with the same name as `TOKEN_PROJECT` in your .env.
+  Add following things in the file. (You can refer test file for more or just copy and edit it)
 
+  - type - Select super token type with or without execution payload
   - projectName - Name of project
   - tokenName - Token Name
   - tokenSymbol - Token Symbol
@@ -24,9 +29,7 @@
 
   ```
   For example: {
-      [ChainSlug.SEPOLIA]: {
-          token: "0xFD093e2a4d3190b2020C95846dBe5fD073721e89",
-      },
+      [ChainSlug.SEPOLIA]: "0xFD093e2a4d3190b2020C95846dBe5fD073721e89"
   }
   ```
 

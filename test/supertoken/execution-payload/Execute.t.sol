@@ -2,14 +2,14 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "../mocks/MintableToken.sol";
-import "../mocks/NonMintableToken.sol";
+import "../../mocks/MintableToken.sol";
+import "../../mocks/NonMintableToken.sol";
 
-import "../../contracts/supertoken/plugs/SocketPlug.sol";
-import "../../contracts/supertoken/SuperToken.sol";
-import "../../contracts/supertoken/SuperTokenVault.sol";
-import "../mocks/MockSocket.sol";
-import "../mocks/MockExecutableReceiver.sol";
+import "../../../contracts/supertoken/plugs/SocketPlug.sol";
+import "../../../contracts/supertoken/SuperTokenWithExecutionPayload.sol";
+import "../../../contracts/supertoken/SuperTokenVaultWithExecutionPayload.sol";
+import "../../mocks/MockSocket.sol";
+import "../../mocks/MockExecutableReceiver.sol";
 
 // bridge with a failing payload, should transfer and fail execution, cache payload, should be able to retry, is success clear else let it be stored
 
@@ -30,15 +30,15 @@ contract TestExecute is Test {
     ExecutionHelper _executionHelper;
 
     SocketPlug superTokenPlug;
-    SuperToken superToken;
+    SuperTokenWithExecutionPayload superToken;
 
     SocketPlug otherSuperTokenPlug;
-    SuperToken otherSuperToken;
+    SuperTokenWithExecutionPayload otherSuperToken;
 
     MintableToken notSuperTokenArb;
 
     SocketPlug arbLockerPlug;
-    SuperTokenVault arbLocker;
+    SuperTokenVaultWithExecutionPayload arbLocker;
 
     MockExecutableReceiver executableReceiver;
 
@@ -72,7 +72,7 @@ contract TestExecute is Test {
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
 
         superTokenPlug = new SocketPlug(address(_socket), _admin, chainSlug);
-        superToken = new SuperToken(
+        superToken = new SuperTokenWithExecutionPayload(
             "Moon",
             "MOON",
             18,
@@ -93,7 +93,7 @@ contract TestExecute is Test {
             _admin,
             otherChainSlug
         );
-        otherSuperToken = new SuperToken(
+        otherSuperToken = new SuperTokenWithExecutionPayload(
             "Moon",
             "MOON",
             18,
@@ -106,7 +106,7 @@ contract TestExecute is Test {
         otherSuperTokenPlug.setSuperTokenOrVault(address(otherSuperToken));
 
         arbLockerPlug = new SocketPlug(address(_socket), _admin, arbChainSlug);
-        arbLocker = new SuperTokenVault(
+        arbLocker = new SuperTokenVaultWithExecutionPayload(
             address(notSuperTokenArb),
             _admin,
             address(arbLockerPlug),
@@ -168,18 +168,23 @@ contract TestExecute is Test {
         );
     }
 
-    function _setTokenLimits(SuperToken token, uint32 siblingSlug) internal {
+    function _setTokenLimits(
+        SuperTokenWithExecutionPayload token,
+        uint32 siblingSlug
+    ) internal {
         token.grantRole(LIMIT_UPDATER_ROLE, _admin);
 
-        SuperToken.UpdateLimitParams[]
-            memory u = new SuperToken.UpdateLimitParams[](4);
-        u[0] = SuperToken.UpdateLimitParams(
+        SuperTokenWithExecutionPayload.UpdateLimitParams[]
+            memory u = new SuperTokenWithExecutionPayload.UpdateLimitParams[](
+                4
+            );
+        u[0] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             true,
             siblingSlug,
             FAST_MAX_LIMIT,
             FAST_RATE
         );
-        u[1] = SuperToken.UpdateLimitParams(
+        u[1] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             false,
             siblingSlug,
             FAST_MAX_LIMIT,
@@ -190,20 +195,22 @@ contract TestExecute is Test {
     }
 
     function _setLockerLimits(
-        SuperTokenVault locker,
+        SuperTokenVaultWithExecutionPayload locker,
         uint32 siblingSlug
     ) internal {
         locker.grantRole(LIMIT_UPDATER_ROLE, _admin);
 
-        SuperTokenVault.UpdateLimitParams[]
-            memory u = new SuperTokenVault.UpdateLimitParams[](8);
-        u[0] = SuperTokenVault.UpdateLimitParams(
+        SuperTokenVaultWithExecutionPayload.UpdateLimitParams[]
+            memory u = new SuperTokenVaultWithExecutionPayload.UpdateLimitParams[](
+                8
+            );
+        u[0] = SuperTokenVaultWithExecutionPayload.UpdateLimitParams(
             true,
             siblingSlug,
             FAST_MAX_LIMIT,
             FAST_RATE
         );
-        u[1] = SuperTokenVault.UpdateLimitParams(
+        u[1] = SuperTokenVaultWithExecutionPayload.UpdateLimitParams(
             false,
             siblingSlug,
             FAST_MAX_LIMIT,

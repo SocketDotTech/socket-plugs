@@ -82,12 +82,19 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
 
 ////// **** SUPER TOKEN TYPES **** //////
 
+export enum SuperTokenType {
+  WITH_LIMIT_AND_PAYLOAD_EXECUTION = "WITH_LIMIT_AND_PAYLOAD_EXECUTION",
+  WITH_LIMIT = "WITH_LIMIT",
+}
+
 export enum SuperTokenContracts {
   NonSuperToken = "NonSuperToken",
   SuperToken = "SuperToken",
   SuperTokenVault = "SuperTokenVault",
   SocketPlug = "SocketPlug",
   ExecutionHelper = "ExecutionHelper",
+  SuperTokenWithExecutionPayload = "SuperTokenWithExecutionPayload",
+  SuperTokenVaultWithExecutionPayload = "SuperTokenVaultWithExecutionPayload",
 }
 
 export type SuperTokenAddresses = {
@@ -98,5 +105,8 @@ export type SuperTokenChainAddresses = {
   [SuperTokenContracts.NonSuperToken]?: string;
   [SuperTokenContracts.SuperToken]?: string;
   [SuperTokenContracts.SuperTokenVault]?: string;
+  [SuperTokenContracts.SuperTokenWithExecutionPayload]?: string;
+  [SuperTokenContracts.SuperTokenVaultWithExecutionPayload]?: string;
   [SuperTokenContracts.SocketPlug]: string;
+  [SuperTokenContracts.ExecutionHelper]?: string;
 };

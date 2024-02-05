@@ -14,8 +14,10 @@ import {
   getSuperTokenProjectAddresses,
   getSuperTokenRateBN,
 } from "./utils";
-import { config } from "./config";
 import { getMode } from "../../constants/config";
+import { getTokenConstants } from "../../helpers/constants";
+import { TokenConfigs } from "../../constants/types";
+import { getToken, getVault } from "./bridge/utils";
 
 type UpdateLimitParams = [
   boolean,
@@ -33,8 +35,9 @@ const RESCUE_ROLE = utils
 
 export const main = async () => {
   try {
+    const config = getTokenConstants();
     const addresses: SuperTokenAddresses = await getSuperTokenProjectAddresses(
-      config.projectName.toLowerCase()
+      config.projectName.toLowerCase() + "_" + config.type.toLowerCase()
     );
     const chains = Object.keys(addresses)
       .filter((c) => c !== "default")
@@ -49,9 +52,9 @@ export const main = async () => {
         console.log(`Configuring ${chain} for ${siblingSlugs}`);
 
         const socketSigner = getSignerFromChainSlug(chain);
-        await connect(addresses, chain, siblingSlugs, socketSigner);
-        await grantRoles(addr, chain, socketSigner);
-        await setLimits(addr, chain, siblingSlugs, socketSigner);
+        await connect(addresses, chain, siblingSlugs, socketSigner, config);
+        await grantRoles(addr, chain, socketSigner, config);
+        await setLimits(addr, chain, siblingSlugs, socketSigner, config);
       })
     );
   } catch (error) {
@@ -62,20 +65,18 @@ export const main = async () => {
 const grantRoles = async (
   addresses: SuperTokenChainAddresses,
   chain: ChainSlug,
-  socketSigner: Wallet
+  socketSigner: Wallet,
+  config: TokenConfigs
 ) => {
   try {
-    const addr = addresses[SuperTokenContracts.SuperToken]
-      ? addresses[SuperTokenContracts.SuperToken]
-      : addresses[SuperTokenContracts.SuperTokenVault];
-    let tokenOrVault: Contract = await getInstance(
-      SuperTokenContracts.SuperToken,
-      addr
-    );
+    let tokenOrVault: Contract = addresses[SuperTokenContracts.NonSuperToken]
+      ? await getVault(config, addresses)
+      : await getToken(config, addresses);
     tokenOrVault = tokenOrVault.connect(socketSigner);
 
     // limit updater
     {
+      console.log(tokenOrVault.address, chain);
       const contractState = await tokenOrVault.hasRole(
         LIMIT_UPDATER_ROLE,
         socketSigner.address
@@ -125,7 +126,8 @@ const connect = async (
   addresses: SuperTokenAddresses,
   chain: ChainSlug,
   siblingSlugs: ChainSlug[],
-  socketSigner: Wallet
+  socketSigner: Wallet,
+  config: TokenConfigs
 ) => {
   try {
     console.log("connecting plugs for ", chain, siblingSlugs);
@@ -179,7 +181,8 @@ export const setLimits = async (
   addr: SuperTokenChainAddresses,
   chain: ChainSlug,
   siblingSlugs: ChainSlug[],
-  socketSigner: Wallet
+  socketSigner: Wallet,
+  config: TokenConfigs
 ) => {
   const updateLimitParams: UpdateLimitParams[] = [];
   for (let sibling of siblingSlugs) {
@@ -203,16 +206,16 @@ export const setLimits = async (
   if (!updateLimitParams.length) return;
 
   let contract: Contract;
-  if (addr[SuperTokenContracts.SuperToken]) {
-    contract = await getInstance(
-      SuperTokenContracts.SuperToken,
-      addr[SuperTokenContracts.SuperToken]
-    );
-  } else if (addr[SuperTokenContracts.SuperTokenVault]) {
-    contract = await getInstance(
-      SuperTokenContracts.SuperTokenVault,
-      addr[SuperTokenContracts.SuperTokenVault]
-    );
+  if (
+    addr[SuperTokenContracts.SuperToken] ||
+    addr[SuperTokenContracts.SuperTokenWithExecutionPayload]
+  ) {
+    contract = await getToken(config, addr);
+  } else if (
+    addr[SuperTokenContracts.SuperTokenVault] ||
+    addr[SuperTokenContracts.SuperTokenVaultWithExecutionPayload]
+  ) {
+    contract = await getVault(config, addr);
   } else throw new Error(`Not a super token address config, ${addr}`);
 
   contract = contract.connect(socketSigner);
