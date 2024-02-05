@@ -8,10 +8,10 @@ import {
   SuperTokenContracts,
   SuperTokenChainAddresses,
   SuperTokenAddresses,
+  SuperTokenType,
 } from "../../../src";
 import { getSignerFromChainSlug, overrides } from "../../helpers/networks";
 
-import { config } from "./config";
 import {
   getSuperTokenProjectAddresses,
   superTokenDeploymentsPath,
@@ -19,11 +19,15 @@ import {
   getOrDeployContract,
 } from "./utils";
 import { getMode } from "../../constants/config";
+import { getTokenConstants } from "../../helpers/constants";
+import { TokenConfigs } from "../../constants/types";
 
 export interface ReturnObj {
   allDeployed: boolean;
   deployedAddresses: SuperTokenChainAddresses;
 }
+
+let fileName: string;
 
 /**
  * Deploys contracts for all networks
@@ -31,14 +35,17 @@ export interface ReturnObj {
 export const main = async () => {
   try {
     let addresses: SuperTokenAddresses;
+    const config = getTokenConstants();
+
     try {
       addresses = await getSuperTokenProjectAddresses(
-        config.projectName.toLowerCase()
+        config.projectName.toLowerCase() + "_" + config.type.toLowerCase()
       );
     } catch (error) {
       addresses = {} as SuperTokenAddresses;
     }
 
+    fileName = `${getMode()}_${config.projectName.toLowerCase()}_${config.type.toLowerCase()}`;
     const vaultChains = Object.keys(config.vaultTokens);
     await Promise.all(
       [...vaultChains].map(async (chain: string) => {
@@ -56,7 +63,8 @@ export const main = async () => {
             signer,
             chainSlug,
             chainAddresses,
-            getSocketAddress(chainSlug)
+            getSocketAddress(chainSlug),
+            config
           );
 
           allDeployed = results.allDeployed;
@@ -80,7 +88,8 @@ export const main = async () => {
             signer,
             chainSlug,
             chainAddresses,
-            getSocketAddress(chainSlug)
+            getSocketAddress(chainSlug),
+            config
           );
 
           allDeployed = results.allDeployed;
@@ -101,7 +110,8 @@ const deploy = async (
   socketSigner: Wallet,
   chainSlug: number,
   deployedAddresses: SuperTokenChainAddresses,
-  socketAddress: string
+  socketAddress: string,
+  config: TokenConfigs
 ): Promise<ReturnObj> => {
   let allDeployed = false;
 
@@ -112,22 +122,22 @@ const deploy = async (
   };
 
   try {
-    deployUtils = await deployPlug(deployUtils, socketAddress);
+    deployUtils = await deployPlug(deployUtils, socketAddress, config);
+    if (config.type === SuperTokenType.WITH_LIMIT_AND_PAYLOAD_EXECUTION) {
+      deployUtils = await deployExecutionHelper(deployUtils, config);
+    }
 
     let superToken;
     if (isSuperTokenChain) {
-      deployUtils = await deploySuperToken(deployUtils);
+      deployUtils = await deploySuperToken(deployUtils, config);
       superToken = deployUtils.addresses[SuperTokenContracts.SuperToken];
     } else {
-      if (
-        !config.vaultTokens[chainSlug] &&
-        !config.vaultTokens[chainSlug].token
-      )
-        throw new Error("Token not found!");
-      deployUtils.addresses[SuperTokenContracts.NonSuperToken] =
-        config.vaultTokens[chainSlug].token;
+      if (!config.vaultTokens[chainSlug]) throw new Error("Token not found!");
 
-      deployUtils = await deployVault(deployUtils);
+      deployUtils.addresses[SuperTokenContracts.NonSuperToken] =
+        config.vaultTokens[chainSlug];
+
+      deployUtils = await deployVault(deployUtils, config);
       superToken = deployUtils.addresses[SuperTokenContracts.SuperTokenVault];
     }
 
@@ -146,7 +156,7 @@ const deploy = async (
   await storeSuperTokenAddresses(
     deployUtils.addresses as SuperTokenChainAddresses,
     deployUtils.currentChainSlug,
-    `${getMode()}_${config.projectName.toLowerCase()}_addresses.json`,
+    `${fileName}_addresses.json`,
     superTokenDeploymentsPath
   );
   return {
@@ -189,7 +199,8 @@ const setSuperTokenOrVault = async (
 
 const deployPlug = async (
   deployParams: DeployParams,
-  socketAddress: string
+  socketAddress: string,
+  config: TokenConfigs
 ): Promise<DeployParams> => {
   try {
     if (deployParams.addresses[SuperTokenContracts.SocketPlug])
@@ -200,7 +211,7 @@ const deployPlug = async (
       "contracts/supertoken/plugs/SocketPlug.sol",
       [socketAddress, config.owner, deployParams.currentChainSlug],
       deployParams,
-      `${getMode()}_${config.projectName.toLowerCase()}`
+      fileName
     );
 
     deployParams.addresses[SuperTokenContracts.SocketPlug] = socketPlug.address;
@@ -213,31 +224,37 @@ const deployPlug = async (
 };
 
 const deploySuperToken = async (
-  deployParams: DeployParams
+  deployParams: DeployParams,
+  config: TokenConfigs
 ): Promise<DeployParams> => {
   try {
-    if (
-      deployParams.addresses &&
-      deployParams.addresses[SuperTokenContracts.SuperToken]
-    )
+    let contractName = SuperTokenContracts.SuperToken;
+    const args = [
+      config.tokenName,
+      config.tokenSymbol,
+      config.tokenDecimal,
+      config.initialSupplyOwner,
+      config.owner,
+      config.initialSupply,
+      deployParams.addresses[SuperTokenContracts.SocketPlug],
+    ];
+    if (config.type === SuperTokenType.WITH_LIMIT_AND_PAYLOAD_EXECUTION) {
+      contractName = SuperTokenContracts.SuperTokenWithExecutionPayload;
+      args.push(deployParams.addresses[SuperTokenContracts.ExecutionHelper]);
+    }
+
+    if (deployParams.addresses && deployParams.addresses[contractName])
       return deployParams;
 
     const superToken: Contract = await getOrDeployContract(
-      SuperTokenContracts.SuperToken,
-      "contracts/supertoken/SuperToken.sol",
-      [
-        config.tokenName,
-        config.tokenSymbol,
-        config.tokenDecimal,
-        config.initialSupplyOwner,
-        config.owner,
-        config.initialSupply,
-        deployParams.addresses[SuperTokenContracts.SocketPlug],
-      ],
+      contractName,
+      `contracts/supertoken/${contractName}.sol`,
+      args,
       deployParams,
-      `${getMode()}_${config.projectName.toLowerCase()}`
+      fileName
     );
-    deployParams.addresses[SuperTokenContracts.SuperToken] = superToken.address;
+
+    deployParams.addresses[contractName] = superToken.address;
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
   } catch (error) {
@@ -247,14 +264,23 @@ const deploySuperToken = async (
 };
 
 const deployVault = async (
-  deployParams: DeployParams
+  deployParams: DeployParams,
+  config: TokenConfigs
 ): Promise<DeployParams> => {
   console.log("deploying vault.......");
 
-  if (
-    deployParams.addresses &&
-    deployParams.addresses[SuperTokenContracts.SuperTokenVault]
-  )
+  let contractName = SuperTokenContracts.SuperTokenVault;
+  const args = [
+    deployParams.addresses[SuperTokenContracts.NonSuperToken],
+    config.owner,
+    deployParams.addresses[SuperTokenContracts.SocketPlug],
+  ];
+  if (config.type === SuperTokenType.WITH_LIMIT_AND_PAYLOAD_EXECUTION) {
+    contractName = SuperTokenContracts.SuperTokenVaultWithExecutionPayload;
+    args.push(deployParams.addresses[SuperTokenContracts.ExecutionHelper]);
+  }
+
+  if (deployParams.addresses && deployParams.addresses[contractName])
     return deployParams;
 
   try {
@@ -262,17 +288,13 @@ const deployVault = async (
       throw new Error("Token not found on chain");
 
     const vault: Contract = await getOrDeployContract(
-      SuperTokenContracts.SuperTokenVault,
-      "contracts/supertoken/SuperTokenVault.sol",
-      [
-        deployParams.addresses[SuperTokenContracts.NonSuperToken],
-        config.owner,
-        deployParams.addresses[SuperTokenContracts.SocketPlug],
-      ],
+      contractName,
+      `contracts/supertoken/${contractName}.sol`,
+      args,
       deployParams,
-      `${getMode()}_${config.projectName.toLowerCase()}`
+      fileName
     );
-    deployParams.addresses[SuperTokenContracts.SuperTokenVault] = vault.address;
+    deployParams.addresses[contractName] = vault.address;
 
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");
@@ -282,9 +304,36 @@ const deployVault = async (
   return deployParams;
 };
 
+const deployExecutionHelper = async (
+  deployParams: DeployParams,
+  config: TokenConfigs
+): Promise<DeployParams> => {
+  try {
+    if (deployParams.addresses[SuperTokenContracts.ExecutionHelper])
+      return deployParams;
+
+    const executionHelper: Contract = await getOrDeployContract(
+      SuperTokenContracts.ExecutionHelper,
+      "contracts/supertoken/plugins/ExecutionHelper.sol",
+      [],
+      deployParams,
+      fileName
+    );
+
+    deployParams.addresses[SuperTokenContracts.ExecutionHelper] =
+      executionHelper.address;
+    console.log(deployParams.addresses);
+    console.log("ExecutionHelper Contract deployed!");
+  } catch (error) {
+    console.log("Error in deploying chain contracts", error);
+  }
+  return deployParams;
+};
+
 const getSocketAddress = (chain: ChainSlug) => {
   return getAddresses(chain, getMode()).Socket;
 };
+
 main()
   .then(() => process.exit(0))
   .catch((error: Error) => {

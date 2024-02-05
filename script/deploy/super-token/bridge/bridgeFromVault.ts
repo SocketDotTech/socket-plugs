@@ -2,20 +2,21 @@ import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { getSocket, getInstance } from "./utils";
+import { getSocket, getInstance, getVault } from "./utils";
 import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
-import { config } from "../config";
 import { getSuperTokenProjectAddresses } from "../utils";
+import { getTokenConstants } from "../../../helpers/constants";
 
-export const srcChain = ChainSlug.SEPOLIA;
-export const dstChain = ChainSlug.OPTIMISM_SEPOLIA;
-export const gasLimit = 500_000;
-export const amount = utils.parseUnits("10", config.tokenDecimal);
+const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
+const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
+const gasLimit = 500_000;
+const amount = "10";
 
 export const main = async () => {
   try {
+    const config = getTokenConstants();
     const addresses = await getSuperTokenProjectAddresses(
-      config.projectName.toLowerCase()
+      config.projectName.toLowerCase() + "_" + config.type.toLowerCase()
     );
 
     const srcAddresses: SuperTokenChainAddresses | undefined =
@@ -25,17 +26,14 @@ export const main = async () => {
     if (!srcAddresses || !dstAddresses)
       throw new Error("chain addresses not found");
 
-    const vaultAddr = srcAddresses[SuperTokenContracts.SuperTokenVault];
     const tokenAddr = srcAddresses[SuperTokenContracts.NonSuperToken];
-    if (!vaultAddr || !tokenAddr)
-      throw new Error("Some contract addresses missing");
 
     const socketSigner = getSignerFromChainSlug(srcChain);
+    const amountToBridge = utils.parseUnits(amount, config.tokenDecimal);
 
-    const vault: Contract = (
-      await getInstance(SuperTokenContracts.SuperTokenVault, vaultAddr)
-    ).connect(socketSigner);
-
+    const vault: Contract = (await getVault(config, srcAddresses)).connect(
+      socketSigner
+    );
     const tokenContract: Contract = (
       await getInstance("ERC20", tokenAddr)
     ).connect(socketSigner);
@@ -44,25 +42,30 @@ export const main = async () => {
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
     );
-    if (balance.lt(amount)) throw new Error("Not enough balance");
+    if (balance.lt(amountToBridge)) throw new Error("Not enough balance");
 
     const limit: BigNumber = await vault.getCurrentLockLimit(dstChain);
-    if (limit.lt(amount)) throw new Error(`Exceeding max limit ${limit}`);
+    if (limit.lt(amountToBridge))
+      throw new Error(`Exceeding max limit ${limit}`);
 
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
       vault.address
     );
-    if (currentApproval.lt(amount)) {
-      const approveTx = await tokenContract.approve(vault.address, amount, {
-        ...overrides[srcChain as ChainSlug],
-      });
+    if (currentApproval.lt(amountToBridge)) {
+      const approveTx = await tokenContract.approve(
+        vault.address,
+        amountToBridge,
+        {
+          ...overrides[srcChain as ChainSlug],
+        }
+      );
       console.log("Tokens approved: ", approveTx.hash);
       await approveTx.wait();
     }
 
     // deposit
-    console.log(`withdrawing ${amount} from app chain to ${dstChain}`);
+    console.log(`withdrawing ${amountToBridge} from app chain to ${dstChain}`);
 
     const socket: Contract = getSocket(srcChain, socketSigner);
     const value = await socket.getMinFees(
@@ -77,7 +80,7 @@ export const main = async () => {
     const withdrawTx = await vault.bridge(
       socketSigner.address,
       dstChain,
-      amount,
+      amountToBridge,
       gasLimit,
       "0x",
       { ...overrides[srcChain as ChainSlug], value }
