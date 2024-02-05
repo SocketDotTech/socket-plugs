@@ -3,6 +3,7 @@ import {
   DeploymentMode,
   IntegrationTypes,
   Project,
+  SuperTokenType,
   Tokens,
 } from "../../src";
 
@@ -29,4 +30,26 @@ export type ProjectTokenConstants = {
       poolCount: number;
     };
   };
+};
+
+export type TokenConstants = {
+  [key in DeploymentMode]?: TokenConfigs;
+};
+
+export type TokenConfigs = {
+  type: SuperTokenType;
+  projectName: string;
+  tokenName: string;
+  tokenSymbol: string;
+  tokenDecimal: number;
+  initialSupplyOwner: string;
+  owner: string;
+  initialSupply: number;
+  superTokenChains: ChainSlug[];
+  vaultTokens?: {
+    [key in ChainSlug]?: string;
+  };
+  integrationType: IntegrationTypes;
+  bridgeLimit: string;
+  bridgeRate: string;
 };

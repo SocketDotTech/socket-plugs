@@ -6,8 +6,8 @@ import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import {Gauge} from "../common/Gauge.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 
-import "./ISuperTokenOrVault.sol";
-import "./IMessageBridge.sol";
+import "./interfaces/ISuperTokenOrVault.sol";
+import "./interfaces/IMessageBridge.sol";
 
 /**
  * @title Base contract for super token and vault

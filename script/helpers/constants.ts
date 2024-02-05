@@ -1,8 +1,17 @@
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { BigNumber, utils } from "ethers";
 import { tokenDecimals } from "../../src";
-import { ProjectTokenConstants } from "../constants/types";
-import { getMode, getProject, getToken } from "../constants/config";
+import {
+  ProjectTokenConstants,
+  TokenConfigs,
+  TokenConstants,
+} from "../constants/types";
+import {
+  getMode,
+  getProject,
+  getToken,
+  getTokenProject,
+} from "../constants/config";
 
 export const isAppChain = (chain: ChainSlug) =>
   getProjectTokenConstants().appChain === chain;
@@ -17,6 +26,16 @@ export const getProjectTokenConstants = (): ProjectTokenConstants => {
       `config not found for ${getProject()}, ${getMode()}, ${getToken()}`
     );
   return pc;
+};
+
+let tc: TokenConfigs;
+export const getTokenConstants = (): TokenConfigs => {
+  if (tc) return tc;
+  const _tc = require(`../constants/token-constants/${getTokenProject()}`);
+  tc = _tc?.[getMode()];
+  if (!tc)
+    throw new Error(`config not found for ${getTokenProject()}, ${getMode()}}`);
+  return tc;
 };
 
 export const getIntegrationTypeConsts = (it: IntegrationTypes) => {
