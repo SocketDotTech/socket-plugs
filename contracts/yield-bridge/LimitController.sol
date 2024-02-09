@@ -5,29 +5,29 @@ import "../common/AccessControl.sol";
 
 /**
  * @title LimitController
- * @notice Maintains lock and unlock limits for each sibling
+ * @notice Maintains burn/lock and mint/unlock limits for each sibling
  */
 abstract contract LimitController is Gauge, AccessControl {
     struct UpdateLimitParams {
-        bool isOutbound;
+        bool isMintOrUnlock;
         address connector;
         uint256 maxLimit;
         uint256 ratePerSecond;
     }
-
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
-    // connector => receiver => pendingInbound
-    mapping(address => mapping(address => uint256)) public pendingInbound;
+    // connector => receiver => pendingMintAndUnlocks
+    mapping(address => mapping(address => uint256))
+        public pendingMintAndUnlocks;
 
     // connector => amount
-    mapping(address => uint256) public connectorPendingInbound;
+    mapping(address => uint256) public connectorPendingMintAndUnlocks;
 
-    // siblingChainSlug => outboundLimitParams
-    mapping(address => LimitParams) _outboundLimitParams;
+    // siblingChainSlug => mintAndUnlockLimitParams
+    mapping(address => LimitParams) _mintAndUnlockLimitParams;
 
-    // siblingChainSlug => inboundLimitParams
-    mapping(address => LimitParams) _inboundLimitParams;
+    // siblingChainSlug => burnAndLockLimitParams
+    mapping(address => LimitParams) _burnAndLockLimitParams;
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -64,25 +64,23 @@ abstract contract LimitController is Gauge, AccessControl {
         UpdateLimitParams[] calldata updates_
     ) external onlyRole(LIMIT_UPDATER_ROLE) {
         for (uint256 i; i < updates_.length; i++) {
-            if (updates_[i].isOutbound) {
+            if (updates_[i].isMintOrUnlock) {
                 _consumePartLimit(
                     0,
-                    _outboundLimitParams[updates_[i].connector]
+                    _mintAndUnlockLimitParams[updates_[i].connector]
                 ); // to keep current limit in sync
-                _outboundLimitParams[updates_[i].connector].maxLimit = updates_[
-                    i
-                ].maxLimit;
-                _outboundLimitParams[updates_[i].connector]
+                _mintAndUnlockLimitParams[updates_[i].connector]
+                    .maxLimit = updates_[i].maxLimit;
+                _mintAndUnlockLimitParams[updates_[i].connector]
                     .ratePerSecond = updates_[i].ratePerSecond;
             } else {
                 _consumePartLimit(
                     0,
-                    _inboundLimitParams[updates_[i].connector]
+                    _burnAndLockLimitParams[updates_[i].connector]
                 ); // to keep current limit in sync
-                _inboundLimitParams[updates_[i].connector].maxLimit = updates_[
-                    i
-                ].maxLimit;
-                _inboundLimitParams[updates_[i].connector]
+                _burnAndLockLimitParams[updates_[i].connector]
+                    .maxLimit = updates_[i].maxLimit;
+                _burnAndLockLimitParams[updates_[i].connector]
                     .ratePerSecond = updates_[i].ratePerSecond;
             }
         }
@@ -90,18 +88,23 @@ abstract contract LimitController is Gauge, AccessControl {
         emit LimitParamsUpdated(updates_);
     }
 
-    function _unlockPendingFor(address receiver_, address connector_) internal {
-        if (_inboundLimitParams[connector_].maxLimit == 0)
+    function _mintOrUnlockPendingFor(
+        address receiver_,
+        address connector_
+    ) internal {
+        if (_burnAndLockLimitParams[connector_].maxLimit == 0)
             revert ConnectorUnavailable();
 
-        uint256 pendingInboundAmount = pendingInbound[connector_][receiver_];
+        uint256 pendingMintAndUnlocksAmount = pendingMintAndUnlocks[connector_][
+            receiver_
+        ];
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
-            pendingInboundAmount,
-            _inboundLimitParams[connector_]
+            pendingMintAndUnlocksAmount,
+            _burnAndLockLimitParams[connector_]
         );
 
-        pendingInbound[connector_][receiver_] = pendingAmount;
-        connectorPendingInbound[connector_] -= consumedAmount;
+        pendingMintAndUnlocks[connector_][receiver_] = pendingAmount;
+        connectorPendingMintAndUnlocks[connector_] -= consumedAmount;
 
         emit PendingTokensTransferred(
             connector_,
@@ -111,63 +114,66 @@ abstract contract LimitController is Gauge, AccessControl {
         );
     }
 
-    function _depositLimitHook(uint256 amount_, address connector_) internal {
-        if (_outboundLimitParams[connector_].maxLimit == 0)
+    // used for burn and lock actions
+    function _checkLimitAndRevert(
+        uint256 amount_,
+        address connector_
+    ) internal {
+        if (_mintAndUnlockLimitParams[connector_].maxLimit == 0)
             revert ConnectorUnavailable();
 
         // reverts on limit hit
-        _consumeFullLimit(amount_, _outboundLimitParams[connector_]);
+        _consumeFullLimit(amount_, _mintAndUnlockLimitParams[connector_]);
     }
 
-    function _withdrawLimitHook(
+    // used for mint and unlock actions
+    function _checkLimitAndQueue(
         address receiver_,
         uint256 unlockAmount_
     ) internal returns (uint256) {
-        if (_inboundLimitParams[msg.sender].maxLimit == 0)
+        if (_burnAndLockLimitParams[msg.sender].maxLimit == 0)
             revert ConnectorUnavailable();
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             unlockAmount_,
-            _inboundLimitParams[msg.sender]
+            _burnAndLockLimitParams[msg.sender]
         );
 
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left
-            pendingInbound[msg.sender][receiver_] += pendingAmount;
-            connectorPendingInbound[msg.sender] += pendingAmount;
+            pendingMintAndUnlocks[msg.sender][receiver_] += pendingAmount;
+            connectorPendingMintAndUnlocks[msg.sender] += pendingAmount;
             emit TokensPending(
                 msg.sender,
                 receiver_,
                 pendingAmount,
-                pendingInbound[msg.sender][receiver_]
+                pendingMintAndUnlocks[msg.sender][receiver_]
             );
         }
-        emit TokensUnlocked(msg.sender, receiver_, consumedAmount);
-
         return consumedAmount;
     }
 
-    function getCurrentOutboundLimit(
+    function getCurrentMintAndUnlockLimit(
         address connector_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_outboundLimitParams[connector_]);
+        return _getCurrentLimit(_mintAndUnlockLimitParams[connector_]);
     }
 
-    function getCurrentInboundLimit(
+    function getCurrentBurnAndLockLimit(
         address connector_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_inboundLimitParams[connector_]);
+        return _getCurrentLimit(_burnAndLockLimitParams[connector_]);
     }
 
-    function getOutboundLimitParams(
+    function getMintAndUnlockLimitParams(
         address connector_
     ) external view returns (LimitParams memory) {
-        return _outboundLimitParams[connector_];
+        return _mintAndUnlockLimitParams[connector_];
     }
 
-    function getInboundLimitParams(
+    function getBurnAndLockLimitParams(
         address connector_
     ) external view returns (LimitParams memory) {
-        return _inboundLimitParams[connector_];
+        return _burnAndLockLimitParams[connector_];
     }
 }
