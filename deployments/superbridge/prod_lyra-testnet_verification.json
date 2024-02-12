@@ -1,6 +1,26 @@
 {
   "901": [
     [
+      "0xec4f19e2F2251F1E24a9275551Eb82367c65A03f",
+      "ConnectorPlug",
+      "contracts/superbridge/ConnectorPlug.sol",
+      [
+        "0xdcABb6d7E88396498FFF4CD987F60e354BF2a44b",
+        "0xFDC28fA368c33DEC7853d63B65FC5Cfe01B212fc",
+        11155111
+      ]
+    ],
+    [
+      "0xAD1d1CB08A0a6f758136A41E218c7C35B62A25Ac",
+      "ConnectorPlug",
+      "contracts/superbridge/ConnectorPlug.sol",
+      [
+        "0xdcABb6d7E88396498FFF4CD987F60e354BF2a44b",
+        "0xFDC28fA368c33DEC7853d63B65FC5Cfe01B212fc",
+        11155111
+      ]
+    ],
+    [
       "0xB9A7f821396DafF8b07b846ac46e561C00F870E5",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
@@ -190,6 +210,32 @@
     ]
   ],
   "11155111": [
+    [
+      "0x0Fcfee220f4e3FA1e3fA361525Cee0334DdDB8a3",
+      "ConnectorPlug",
+      "contracts/superbridge/ConnectorPlug.sol",
+      [
+        "0xd9cB39b5ad36C6D2ec4E8d5337B62a1C1B71BAcc",
+        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
+        901
+      ]
+    ],
+    [
+      "0x2d7F2B4CEe097F08ed8d30D928A40eB1379071Fe",
+      "ConnectorPlug",
+      "contracts/superbridge/ConnectorPlug.sol",
+      [
+        "0xd9cB39b5ad36C6D2ec4E8d5337B62a1C1B71BAcc",
+        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
+        901
+      ]
+    ],
+    [
+      "0xd9cB39b5ad36C6D2ec4E8d5337B62a1C1B71BAcc",
+      "Vault",
+      "contracts/superbridge/Vault.sol",
+      ["0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa"]
+    ],
     [
       "0x14aC5b3580dD1e546CD7287Cd1faDba9A8736628",
       "ConnectorPlug",
