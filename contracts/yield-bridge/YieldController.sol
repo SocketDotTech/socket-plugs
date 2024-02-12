@@ -10,6 +10,7 @@ import {IConnector} from "../superbridge/ConnectorPlug.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import "./LimitController.sol";
 
+// add shutdown
 contract YieldController is ERC4626, LimitController, ReentrancyGuard {
     uint128 public lastSyncTimestamp; // Timestamp of last rebalance
     uint256 public rewardsPerShare;

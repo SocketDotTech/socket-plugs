@@ -21,6 +21,10 @@
 ## App chain:
 
 - controller
+
   - limit controller
   - erc4626 without external asset (only withdraw and redeem possible)
     - rebase token
+
+- vault
+  - limit controller

@@ -7,7 +7,7 @@ import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
 import {IStrategy} from "./interfaces/IStrategy.sol";
 import "../libraries/RescueFundsLib.sol";
-import {IConnector, IHub} from "../superbridge/ConnectorPlug.sol";
+import {IConnector} from "../superbridge/ConnectorPlug.sol";
 import "./LimitController.sol";
 
 contract YieldVault is LimitController, ReentrancyGuard {
@@ -28,18 +28,8 @@ contract YieldVault is LimitController, ReentrancyGuard {
 
     error ZeroAmount();
     error DebtRatioTooHigh();
-    error InvestingAboveThreshold();
     error NotEnoughAssets();
     error VaultShutdown();
-
-    event TokensDeposited(address depositor, uint256 depositAmount);
-    event TokensInvested(uint256 amount);
-    event TokensHarvested(uint256 amount);
-    event TokensWithdrawn(
-        address depositor,
-        address receiver,
-        uint256 depositAmount
-    );
     event WithdrawFromStrategy(uint256 withdrawn);
     event Rebalanced(
         uint256 totalIdle,
@@ -69,25 +59,8 @@ contract YieldVault is LimitController, ReentrancyGuard {
         _;
     }
 
-    constructor(
-        address asset_,
-        string memory name_,
-        string memory symbol_
-    ) AccessControl(msg.sender) {
+    constructor(address asset_) AccessControl(msg.sender) {
         asset__ = ERC20(asset_);
-    }
-
-    function setDebtRatio(uint256 debtRatio_) external onlyOwner {
-        if (debtRatio_ > MAX_BPS) revert DebtRatioTooHigh();
-        debtRatio = debtRatio_;
-    }
-
-    function setStrategy(address strategy_) external onlyOwner {
-        strategy = IStrategy(strategy_);
-    }
-
-    function setRebalanceDelay(uint128 rebalanceDelay_) external onlyOwner {
-        rebalanceDelay = rebalanceDelay_;
     }
 
     function updateEmergencyShutdownState(
@@ -106,14 +79,8 @@ contract YieldVault is LimitController, ReentrancyGuard {
     /// @notice Returns the total quantity of all assets under control of this
     ///    Vault, whether they're loaned out to a Strategy, or currently held in
     /// the Vault.
-    /// @dev Explain to a developer any extra details
-    /// @return total quantity of all assets under control of this
-    ///    Vault
+    /// @return total quantity of all assets under control of this Vault
     function totalAssets() public view returns (uint256) {
-        return _totalAssets();
-    }
-
-    function _totalAssets() internal view returns (uint256) {
         return totalIdle + totalDebt;
     }
 
@@ -122,7 +89,7 @@ contract YieldVault is LimitController, ReentrancyGuard {
         uint256 amount_,
         uint256 msgGasLimit_,
         address connector_
-    ) external payable nonReentrant notShutdown returns (uint256 deposited) {
+    ) external payable nonReentrant notShutdown {
         if (receiver_ == address(0)) revert ZeroAddress();
         if (amount_ == 0) revert ZeroAmount();
 
@@ -146,6 +113,7 @@ contract YieldVault is LimitController, ReentrancyGuard {
         uint256 msgGasLimit_,
         address connector_
     ) external payable nonReentrant notShutdown {
+        _checkDelayAndRebalance();
         uint256 expectedReturn = strategy.estimatedTotalAssets();
 
         _depositToAppChain(
@@ -167,22 +135,23 @@ contract YieldVault is LimitController, ReentrancyGuard {
     }
 
     function receiveInbound(
-        uint32 siblingChainSlug_,
+        uint32,
         bytes memory payload_
-    ) public nonReentrant notShutdown returns (uint256 amount) {
-        (address receiver, uint256 unlockAmount) = _beforeWithdraw(payload_);
-        return _withdraw(receiver, receiver, unlockAmount);
+    ) public nonReentrant notShutdown returns (uint256 unlockAmount) {
+        address receiver;
+        (receiver, unlockAmount) = _beforeWithdraw(payload_);
+        _withdraw(receiver, receiver, unlockAmount);
     }
 
     function withdrawPending(
         address receiver_,
-        address connector_
-    ) external nonReentrant notShutdown returns (uint256) {
-        uint256 unlockAmount = _checkLimitAndQueue(
+        address
+    ) external nonReentrant notShutdown returns (uint256 unlockAmount) {
+        unlockAmount = _checkLimitAndQueue(
             receiver_,
             pendingMintAndUnlocks[msg.sender][receiver_]
         );
-        return _withdraw(receiver_, receiver_, unlockAmount);
+        _withdraw(receiver_, receiver_, unlockAmount);
     }
 
     // receive inbound assuming connector called
@@ -193,11 +162,7 @@ contract YieldVault is LimitController, ReentrancyGuard {
         unlockAmount = _checkLimitAndQueue(receiver, unlockAmount);
     }
 
-    function _withdraw(
-        address receiver_,
-        address owner_,
-        uint256 amount_
-    ) internal returns (uint256) {
+    function _withdraw(address receiver_, address, uint256 amount_) internal {
         if (receiver_ == address(0)) revert ZeroAddress();
         if (amount_ > totalIdle) revert NotEnoughAssets();
 
@@ -211,17 +176,18 @@ contract YieldVault is LimitController, ReentrancyGuard {
     function withdrawFromStrategy(
         uint256 assets_
     ) external onlyOwner returns (uint256) {
-        _withdrawFromStrategy(assets_);
+        return _withdrawFromStrategy(assets_);
     }
 
-    function _withdrawFromStrategy(uint256 assets_) internal returns (uint256) {
+    function _withdrawFromStrategy(
+        uint256 assets_
+    ) internal returns (uint256 withdrawn) {
         uint256 preBalance = asset__.balanceOf(address(this));
         strategy.withdraw(assets_);
-        uint256 withdrawn = asset__.balanceOf(address(this)) - preBalance;
+        withdrawn = asset__.balanceOf(address(this)) - preBalance;
         totalIdle += withdrawn;
         totalDebt -= withdrawn;
         emit WithdrawFromStrategy(withdrawn);
-        return withdrawn;
     }
 
     function _withdrawAllFromStrategy() internal returns (uint256) {
@@ -271,7 +237,7 @@ contract YieldVault is LimitController, ReentrancyGuard {
     }
 
     function _creditAvailable() internal view returns (uint256) {
-        uint256 vaultTotalAssets = _totalAssets();
+        uint256 vaultTotalAssets = totalAssets();
         uint256 vaultDebtLimit = (debtRatio * vaultTotalAssets) / MAX_BPS;
         uint256 vaultTotalDebt = totalDebt;
 
@@ -288,11 +254,9 @@ contract YieldVault is LimitController, ReentrancyGuard {
     function creditAvailable() external view returns (uint256) {
         // @notice
         //     Amount of tokens in Vault a Strategy has access to as a credit line.
-
         //     This will check the Strategy's debt limit, as well as the tokens
         //     available in the Vault, and determine the maximum amount of tokens
         //     (if any) the Strategy may draw on.
-
         //     In the rare case the Vault is in emergency shutdown this will return 0.
         // @param strategy The Strategy to check. Defaults to caller.
         // @return The quantity of tokens available for the Strategy to draw on.
@@ -306,7 +270,7 @@ contract YieldVault is LimitController, ReentrancyGuard {
             return totalDebt;
         }
 
-        uint256 debtLimit = ((debtRatio * _totalAssets()) / MAX_BPS);
+        uint256 debtLimit = ((debtRatio * totalAssets()) / MAX_BPS);
 
         if (totalDebt <= debtLimit) return 0;
         else return totalDebt - debtLimit;
@@ -316,7 +280,6 @@ contract YieldVault is LimitController, ReentrancyGuard {
         // @notice
         //     Determines if `strategy` is past its debt limit and if any tokens
         //     should be withdrawn to the Vault.
-        // @param strategy The Strategy to check. Defaults to the caller.
         // @return The quantity of tokens to withdraw.
 
         return _debtOutstanding();
@@ -327,6 +290,24 @@ contract YieldVault is LimitController, ReentrancyGuard {
         uint256 msgGasLimit_
     ) external view returns (uint256 totalFees) {
         return IConnector(connector_).getMinFees(msgGasLimit_);
+    }
+
+    ////////////////////////////////////////////////////////
+    ////////////////////// SETTERS //////////////////////////
+    ////////////////////////////////////////////////////////
+
+    // todo: add events
+    function setDebtRatio(uint256 debtRatio_) external onlyOwner {
+        if (debtRatio_ > MAX_BPS) revert DebtRatioTooHigh();
+        debtRatio = debtRatio_;
+    }
+
+    function setStrategy(address strategy_) external onlyOwner {
+        strategy = IStrategy(strategy_);
+    }
+
+    function setRebalanceDelay(uint128 rebalanceDelay_) external onlyOwner {
+        rebalanceDelay = rebalanceDelay_;
     }
 
     /**
