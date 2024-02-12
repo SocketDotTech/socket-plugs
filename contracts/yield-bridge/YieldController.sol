@@ -1,36 +1,37 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.8.13;
 
-import "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 
-import {IStrategy} from "./interfaces/IStrategy.sol";
-import "../libraries/RescueFundsLib.sol";
-import {IConnector, IHub} from "../superbridge/ConnectorPlug.sol";
-import "./LimitController.sol";
 import "./erc4626/ERC4626.sol";
+import {IStrategy} from "./interfaces/IStrategy.sol";
+import {IConnector} from "../superbridge/ConnectorPlug.sol";
+
+import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import "./LimitController.sol";
 
 contract YieldController is ERC4626, LimitController, ReentrancyGuard {
-    using SafeTransferLib for ERC20;
-
-    uint128 public lastSyncTimestamp; // Timstamp of last rebalance
-
-    uint256 public totalMinted;
+    uint128 public lastSyncTimestamp; // Timestamp of last rebalance
     uint256 public rewardsPerShare;
 
     error ZeroAmount();
+    error ZeroAddress();
 
-    constructor() Token(name_, symbol_, decimals_) AccessControl(msg.sender) {}
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        uint8 decimals_
+    ) Token(name_, symbol_, decimals_) AccessControl(msg.sender) {}
 
-    /// @notice Returns the total quantity of all assets under control of this
-    ///    Vault, whether they're loaned out to a Strategy, or currently held in
-    /// the Vault.
-    /// @dev Explain to a developer any extra details
-    /// @return total quantity of all assets under control of this
-    ///    Vault
-    function balanceOf(address user_) external view returns (uint256) {
-        uint256 balance = token__.balanceOf(user_);
-        return balance * rewardsPerShare + balance;
+    function balanceOf(address user_) external view override returns (uint256) {
+        uint256 balance = _balanceOf[user_];
+        return _calculateBalanceWithYield(balance);
+    }
+
+    function _calculateBalanceWithYield(
+        uint256 balance_
+    ) internal view returns (uint256) {
+        return balance_ * rewardsPerShare + balance_;
     }
 
     function withdraw(
@@ -49,14 +50,6 @@ contract YieldController is ERC4626, LimitController, ReentrancyGuard {
             connector_,
             abi.encode(receiver_, amount_)
         );
-    }
-
-    function syncFromVaults(
-        uint32 siblingChainSlug_,
-        uint256 totalYield_
-    ) internal {
-        lastSyncTimestamp = uint128(block.timestamp);
-        rewardsPerShare = totalMinted / totalYield_;
     }
 
     function _depositToAppChain(
@@ -81,19 +74,29 @@ contract YieldController is ERC4626, LimitController, ReentrancyGuard {
         ) = _beforeMint(payload_);
 
         syncFromVaults(siblingChainSlug_, totalYield);
-        if (receiver != address(0))
-            return super.deposit(receiver, unlockAmount);
+        if (receiver != address(0)) {
+            amount = _calculateBalanceWithYield(unlockAmount);
+            _mint(receiver, amount);
+        }
     }
 
     function mintPending(
         address receiver_,
         address connector_
-    ) external nonReentrant returns (uint256) {
+    ) external nonReentrant returns (uint256 amount) {
         uint256 mintAmount = _checkLimitAndQueue(
             receiver_,
             pendingMintAndUnlocks[msg.sender][receiver_]
         );
-        return _mint(receiver_, mintAmount);
+
+        amount = _calculateBalanceWithYield(mintAmount);
+        _mint(receiver_, amount);
+    }
+
+    function syncFromVaults(uint32, uint256 totalYield_) internal {
+        lastSyncTimestamp = uint128(block.timestamp);
+        //validate logic: yield on yield
+        rewardsPerShare = totalSupply / totalYield_;
     }
 
     // receive inbound assuming connector called
@@ -109,6 +112,18 @@ contract YieldController is ERC4626, LimitController, ReentrancyGuard {
         );
         if (receiver != address(0))
             unlockAmount = _checkLimitAndQueue(receiver, unlockAmount);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    function maxWithdraw(address owner) public view virtual returns (uint256) {
+        return convertToAssets(_calculateBalanceWithYield(_balanceOf[owner]));
+    }
+
+    function maxRedeem(address owner) public view virtual returns (uint256) {
+        return _calculateBalanceWithYield(_balanceOf[owner]);
     }
 
     function getMinFees(

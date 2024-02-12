@@ -17,3 +17,10 @@
 - Cases:
   - what if strategy faces loss and total funds reduce on non app chain?
     As tokens are rebasing, it will reduce the amount in all wallets
+
+## App chain:
+
+- controller
+  - limit controller
+  - erc4626 without external asset (only withdraw and redeem possible)
+    - rebase token
