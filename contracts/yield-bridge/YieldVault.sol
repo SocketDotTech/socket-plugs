@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.8.13;
 
-import "solmate/mixins/ERC4626.sol";
 import "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
 import {IStrategy} from "./interfaces/IStrategy.sol";
 import "../libraries/RescueFundsLib.sol";
 import {IConnector, IHub} from "../superbridge/ConnectorPlug.sol";
 import "./LimitController.sol";
 
-contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
+contract YieldVault is LimitController, ReentrancyGuard {
     using SafeTransferLib for ERC20;
+    using FixedPointMathLib for uint256;
 
-    ERC20 public immutable token__;
+    ERC20 public immutable asset__;
     uint256 public constant MAX_BPS = 10_000;
 
     IStrategy public strategy; // address of the strategy contract
@@ -48,17 +49,32 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
     );
     event ShutdownStateUpdated(bool shutdownState);
 
+    // erc4626
+    event Deposit(
+        address indexed caller,
+        address indexed owner,
+        uint256 assets,
+        uint256 shares
+    );
+    event Withdraw(
+        address indexed caller,
+        address indexed receiver,
+        address indexed owner,
+        uint256 assets,
+        uint256 shares
+    );
+
     modifier notShutdown() {
         if (emergencyShutdown) revert VaultShutdown();
         _;
     }
 
     constructor(
-        address token_,
+        address asset_,
         string memory name_,
         string memory symbol_
-    ) ERC4626(ERC20(token_), name_, symbol_) AccessControl(msg.sender) {
-        token__ = ERC20(token_);
+    ) AccessControl(msg.sender) {
+        asset__ = ERC20(asset_);
     }
 
     function setDebtRatio(uint256 debtRatio_) external onlyOwner {
@@ -93,7 +109,7 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
     /// @dev Explain to a developer any extra details
     /// @return total quantity of all assets under control of this
     ///    Vault
-    function totalAssets() public view override returns (uint256) {
+    function totalAssets() public view returns (uint256) {
         return _totalAssets();
     }
 
@@ -113,15 +129,17 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
         totalIdle += amount_;
 
         _checkDelayAndRebalance();
-        _depositLimitHook(amount_, connector_);
+        _checkLimitAndRevert(amount_, connector_);
         uint256 expectedReturn = strategy.estimatedTotalAssets();
 
-        deposited = super.deposit(amount_, receiver_);
+        asset__.safeTransferFrom(msg.sender, address(this), amount_);
         _depositToAppChain(
             msgGasLimit_,
             connector_,
             abi.encode(receiver_, amount_, expectedReturn)
         );
+
+        emit Deposit(msg.sender, receiver_, amount_, amount_);
     }
 
     function syncToAppChain(
@@ -160,9 +178,9 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
         address receiver_,
         address connector_
     ) external nonReentrant notShutdown returns (uint256) {
-        uint256 unlockAmount = _withdrawLimitHook(
+        uint256 unlockAmount = _checkLimitAndQueue(
             receiver_,
-            pendingInbound[msg.sender][receiver_]
+            pendingMintAndUnlocks[msg.sender][receiver_]
         );
         return _withdraw(receiver_, receiver_, unlockAmount);
     }
@@ -172,7 +190,7 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
         bytes memory payload_
     ) internal returns (address receiver, uint256 unlockAmount) {
         (receiver, unlockAmount) = abi.decode(payload_, (address, uint256));
-        unlockAmount = _withdrawLimitHook(receiver, unlockAmount);
+        unlockAmount = _checkLimitAndQueue(receiver, unlockAmount);
     }
 
     function _withdraw(
@@ -185,7 +203,9 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
 
         totalIdle -= amount_;
         _checkDelayAndRebalance();
-        return super.withdraw(amount_, receiver_, owner_);
+        asset__.safeTransfer(receiver_, amount_);
+
+        emit Withdraw(msg.sender, receiver_, receiver_, amount_, amount_);
     }
 
     function withdrawFromStrategy(
@@ -195,9 +215,9 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
     }
 
     function _withdrawFromStrategy(uint256 assets_) internal returns (uint256) {
-        uint256 preBalance = token__.balanceOf(address(this));
+        uint256 preBalance = asset__.balanceOf(address(this));
         strategy.withdraw(assets_);
-        uint256 withdrawn = token__.balanceOf(address(this)) - preBalance;
+        uint256 withdrawn = asset__.balanceOf(address(this)) - preBalance;
         totalIdle += withdrawn;
         totalDebt -= withdrawn;
         emit WithdrawFromStrategy(withdrawn);
@@ -205,9 +225,9 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
     }
 
     function _withdrawAllFromStrategy() internal returns (uint256) {
-        uint256 preBalance = token__.balanceOf(address(this));
+        uint256 preBalance = asset__.balanceOf(address(this));
         strategy.withdrawAll();
-        uint256 withdrawn = token__.balanceOf(address(this)) - preBalance;
+        uint256 withdrawn = asset__.balanceOf(address(this)) - preBalance;
         totalIdle += withdrawn;
         totalDebt = 0;
         emit WithdrawFromStrategy(withdrawn);
@@ -215,7 +235,7 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
     }
 
     function maxAvailableShares() public view returns (uint256) {
-        return convertToShares(_totalAssets());
+        return totalAssets();
     }
 
     function rebalance() external notShutdown {
@@ -240,7 +260,7 @@ contract YieldVault is ERC4626, LimitController, ReentrancyGuard {
             // Credit surplus, give to Strategy
             totalIdle -= credit;
             totalDebt += credit;
-            token__.safeTransfer(address(strategy), credit);
+            asset__.safeTransfer(address(strategy), credit);
             strategy.invest();
         } else if (pendingDebt > 0) {
             // Credit deficit, take from Strategy
