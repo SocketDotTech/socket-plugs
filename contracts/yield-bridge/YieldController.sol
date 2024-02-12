@@ -8,11 +8,11 @@ import {IStrategy} from "./interfaces/IStrategy.sol";
 import "../libraries/RescueFundsLib.sol";
 import {IConnector, IHub} from "../superbridge/ConnectorPlug.sol";
 import "./LimitController.sol";
+import "./erc4626/ERC4626.sol";
 
-contract YieldController is LimitController, ReentrancyGuard {
+contract YieldController is ERC4626, LimitController, ReentrancyGuard {
     using SafeTransferLib for ERC20;
 
-    ERC20 public immutable token__;
     uint128 public lastSyncTimestamp; // Timstamp of last rebalance
 
     uint256 public totalMinted;
@@ -20,9 +20,7 @@ contract YieldController is LimitController, ReentrancyGuard {
 
     error ZeroAmount();
 
-    constructor(address token_) AccessControl(msg.sender) {
-        token__ = ERC20(token_);
-    }
+    constructor() Token(name_, symbol_, decimals_) AccessControl(msg.sender) {}
 
     /// @notice Returns the total quantity of all assets under control of this
     ///    Vault, whether they're loaned out to a Strategy, or currently held in
@@ -30,8 +28,8 @@ contract YieldController is LimitController, ReentrancyGuard {
     /// @dev Explain to a developer any extra details
     /// @return total quantity of all assets under control of this
     ///    Vault
-    function balanceOf(address user_) external view override returns (uint256) {
-        uint256 balance = token.balanceOf(user_);
+    function balanceOf(address user_) external view returns (uint256) {
+        uint256 balance = token__.balanceOf(user_);
         return balance * rewardsPerShare + balance;
     }
 
@@ -40,14 +38,12 @@ contract YieldController is LimitController, ReentrancyGuard {
         uint256 amount_,
         uint256 msgGasLimit_,
         address connector_
-    ) external payable nonReentrant notShutdown returns (uint256 deposited) {
+    ) external payable nonReentrant returns (uint256 deposited) {
         if (receiver_ == address(0)) revert ZeroAddress();
         if (amount_ == 0) revert ZeroAmount();
 
-        // rename
-        _depositLimitHook(amount_, connector_);
-
-        token.burn(receiver_, amount_);
+        _checkLimitAndRevert(amount_, connector_);
+        super.withdraw(receiver_, amount_);
         _depositToAppChain(
             msgGasLimit_,
             connector_,
@@ -57,10 +53,10 @@ contract YieldController is LimitController, ReentrancyGuard {
 
     function syncFromVaults(
         uint32 siblingChainSlug_,
-        bytes memory payload_
+        uint256 totalYield_
     ) internal {
-        lastSyncTimestamp = block.timestamp;
-        rewardsPerShare = totalMinted / totalYield;
+        lastSyncTimestamp = uint128(block.timestamp);
+        rewardsPerShare = totalMinted / totalYield_;
     }
 
     function _depositToAppChain(
@@ -77,7 +73,7 @@ contract YieldController is LimitController, ReentrancyGuard {
     function receiveInbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
-    ) public nonReentrant notShutdown returns (uint256 amount) {
+    ) public nonReentrant returns (uint256 amount) {
         (
             address receiver,
             uint256 unlockAmount,
@@ -86,16 +82,16 @@ contract YieldController is LimitController, ReentrancyGuard {
 
         syncFromVaults(siblingChainSlug_, totalYield);
         if (receiver != address(0))
-            return _mint(receiver, receiver, unlockAmount);
+            return super.deposit(receiver, unlockAmount);
     }
 
     function mintPending(
         address receiver_,
         address connector_
-    ) external nonReentrant notShutdown returns (uint256) {
-        uint256 mintAmount = _withdrawLimitHook(
+    ) external nonReentrant returns (uint256) {
+        uint256 mintAmount = _checkLimitAndQueue(
             receiver_,
-            pendingInbound[msg.sender][receiver_]
+            pendingMintAndUnlocks[msg.sender][receiver_]
         );
         return _mint(receiver_, mintAmount);
     }
@@ -112,19 +108,7 @@ contract YieldController is LimitController, ReentrancyGuard {
             (address, uint256, uint256)
         );
         if (receiver != address(0))
-            unlockAmount = _withdrawLimitHook(receiver, unlockAmount);
-    }
-
-    function _mint(
-        address receiver_,
-        uint256 amount_
-    ) internal returns (uint256) {
-        if (receiver_ == address(0)) revert ZeroAddress();
-        token.mint(receiver_, amount_);
-    }
-
-    function maxAvailableShares() public view returns (uint256) {
-        return convertToShares(_totalAssets());
+            unlockAmount = _checkLimitAndQueue(receiver, unlockAmount);
     }
 
     function getMinFees(
