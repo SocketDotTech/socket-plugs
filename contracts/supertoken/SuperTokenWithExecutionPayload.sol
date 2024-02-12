@@ -1,14 +1,14 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./Base.sol";
+import "./plugins/ExecutablePayloadBase.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperToken is ERC20, Base {
+contract SuperTokenWithExecutionPayload is ERC20, ExecutablePayloadBase {
     struct UpdateLimitParams {
         bool isMint;
         uint32 siblingChainSlug;
@@ -41,6 +41,7 @@ contract SuperToken is ERC20, Base {
     error SiblingNotSupported();
     error MessageIdMisMatched();
     error NotMessageBridge();
+    error InvalidReceiver();
     error InvalidSiblingChainSlug();
 
     ////////////////////////////////////////////////////////
@@ -101,10 +102,12 @@ contract SuperToken is ERC20, Base {
         address initialSupplyHolder_,
         address owner_,
         uint256 initialSupply_,
-        address bridge_
+        address bridge_,
+        address executionHelper_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(initialSupplyHolder_, initialSupply_);
         bridge__ = IMessageBridge(bridge_);
+        executionHelper__ = ExecutionHelper(executionHelper_);
     }
 
     /**
@@ -158,6 +161,7 @@ contract SuperToken is ERC20, Base {
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
      * @param sendingAmount_ amount bridged
      * @param msgGasLimit_ min gas limit needed for execution at destination
+     * @param payload_ payload which is executed at destination with bridged amount at receiver address.
      * @param options_ additional message bridge options can be provided using this param
      */
     function bridge(
@@ -165,6 +169,7 @@ contract SuperToken is ERC20, Base {
         uint32 siblingChainSlug_,
         uint256 sendingAmount_,
         uint256 msgGasLimit_,
+        bytes calldata payload_,
         bytes calldata options_
     ) external payable {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
@@ -186,7 +191,7 @@ contract SuperToken is ERC20, Base {
         bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, sendingAmount_, messageId),
+            abi.encode(receiver_, sendingAmount_, messageId, payload_),
             options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
@@ -226,6 +231,24 @@ contract SuperToken is ERC20, Base {
 
         _mint(receiver_, consumedAmount);
 
+        address receiver = pendingExecutions[identifier_].receiver;
+        if (pendingAmount == 0 && receiver != address(0)) {
+            if (receiver_ != receiver) revert InvalidReceiver();
+
+            uint32 siblingChainSlug = pendingExecutions[identifier_]
+                .siblingChainSlug;
+            if (siblingChainSlug != siblingChainSlug_)
+                revert InvalidSiblingChainSlug();
+
+            // execute
+            pendingExecutions[identifier_].isAmountPending = false;
+            bool success = executionHelper__.execute(
+                receiver_,
+                pendingExecutions[identifier_].payload
+            );
+            if (success) _clearPayload(identifier_);
+        }
+
         emit PendingTokensBridged(
             siblingChainSlug_,
             receiver_,
@@ -250,15 +273,20 @@ contract SuperToken is ERC20, Base {
         if (_receivingLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingNotSupported();
 
-        (address receiver, uint256 mintAmount, bytes32 identifier) = abi.decode(
-            payload_,
-            (address, uint256, bytes32)
-        );
+        (
+            address receiver,
+            uint256 mintAmount,
+            bytes32 identifier,
+            bytes memory execPayload
+        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             mintAmount,
             _receivingLimitParams[siblingChainSlug_]
         );
+
+        if (receiver == address(this) || receiver == address(bridge__))
+            revert CannotExecuteOnBridgeContracts();
 
         _mint(receiver, consumedAmount);
 
@@ -268,6 +296,16 @@ contract SuperToken is ERC20, Base {
             ] = pendingAmount;
             siblingPendingMints[siblingChainSlug_] += pendingAmount;
 
+            // if pending amount is more than 0, payload is cached
+            if (execPayload.length > 0)
+                _cachePayload(
+                    identifier,
+                    true,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
+
             emit TokensPending(
                 siblingChainSlug_,
                 receiver,
@@ -275,6 +313,18 @@ contract SuperToken is ERC20, Base {
                 pendingMints[siblingChainSlug_][receiver][identifier],
                 identifier
             );
+        } else if (execPayload.length > 0) {
+            // execute
+            bool success = executionHelper__.execute(receiver, execPayload);
+
+            if (!success)
+                _cachePayload(
+                    identifier,
+                    false,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
         }
 
         emit TokensBridged(

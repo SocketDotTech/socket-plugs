@@ -1,17 +1,28 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
-import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
-import { amount, config, dstChain, gasLimit, srcChain } from "../config";
+import {
+  ChainSlug,
+  SuperTokenChainAddresses,
+  SuperTokenContracts,
+} from "../../../../src";
 import { getSuperTokenProjectAddresses } from "../utils";
-import { getSocket, getInstance } from "./utils";
+import { getSocket, getInstance, getToken } from "./utils";
+import { getTokenConstants } from "../../../helpers/constants";
+
+const srcChain = ChainSlug.ARBITRUM_SEPOLIA;
+const dstChain = ChainSlug.OPTIMISM_SEPOLIA;
+const gasLimit = 500_000;
+const amount = "2";
 
 export const main = async () => {
   try {
+    const config = getTokenConstants();
     const addresses = await getSuperTokenProjectAddresses(
-      config.projectName.toLowerCase()
+      config.projectName.toLowerCase() + "_" + config.type.toLowerCase()
     );
 
+    const amountToBridge = utils.parseUnits(amount, config.tokenDecimal);
     const srcAddresses: SuperTokenChainAddresses | undefined =
       addresses[srcChain];
     const dstAddresses: SuperTokenChainAddresses | undefined =
@@ -19,22 +30,19 @@ export const main = async () => {
     if (!srcAddresses || !dstAddresses)
       throw new Error("chain addresses not found");
 
-    const tokenAddr = srcAddresses[SuperTokenContracts.SuperToken];
-    if (!tokenAddr) throw new Error("Some contract addresses missing");
-
     const socketSigner = getSignerFromChainSlug(srcChain);
-
     const tokenContract: Contract = (
-      await getInstance(SuperTokenContracts.SuperToken, tokenAddr)
+      await getToken(config, srcAddresses)
     ).connect(socketSigner);
 
     const limit: BigNumber = await tokenContract.getCurrentSendingLimit(
       dstChain
     );
-    if (limit.lt(amount)) throw new Error(`Exceeding max limit ${limit}`);
+    if (limit.lt(amountToBridge))
+      throw new Error(`Exceeding max limit ${limit}`);
 
     // deposit
-    console.log(`depositing ${amount} to app chain from ${srcChain}`);
+    console.log(`depositing ${amountToBridge} to app chain from ${srcChain}`);
 
     const socket: Contract = getSocket(srcChain, socketSigner);
     const value = await socket.getMinFees(
@@ -49,8 +57,9 @@ export const main = async () => {
     const depositTx = await tokenContract.bridge(
       socketSigner.address,
       dstChain,
-      amount,
+      amountToBridge,
       gasLimit,
+      "0x",
       { ...overrides[srcChain], value }
     );
     console.log("Tokens deposited: ", depositTx.hash);

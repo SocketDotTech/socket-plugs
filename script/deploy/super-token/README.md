@@ -2,16 +2,21 @@
 
 ### PROJECT SETUP
 
-- Clone the Repo and checkout to branch `looks-supertoken`
+- Clone the Repo and checkout to branch `main`
 - Install dependencies: `yarn`
 - Install contract dependencies: `forge install`
-- Environment variables: copy `.env.example` to `.env` and fill in the needed RPCs. Rest can be ignored. Also update `SOCKET_SIGNER_KEY` and `SOCKET_OWNER_ADDRESS`.
+- Environment variables: copy `.env.example` to `.env`.
+  - Fill in the needed RPCs, others can be ignored.
+  - Update `SOCKET_SIGNER_KEY` and `SOCKET_OWNER_ADDRESS`.
+  - Add `TOKEN_PROJECT` with the token name
 - Compile: `yarn build`
 
 ### DEPLOYMENT
 
-- Setup Config file: To configure the token, update the `config.ts` file present in this folder.
+- Setup Config file: To configure the token, add a file inside `script/constants/token-constants` with the same name as `TOKEN_PROJECT` in your .env.
+  Add following things in the file. (You can refer test file for more or just copy and edit it)
 
+  - type - Select super token type with or without execution payload
   - projectName - Name of project
   - tokenName - Token Name
   - tokenSymbol - Token Symbol
@@ -24,9 +29,7 @@
 
   ```
   For example: {
-      [ChainSlug.SEPOLIA]: {
-          token: "0xFD093e2a4d3190b2020C95846dBe5fD073721e89",
-      },
+      [ChainSlug.SEPOLIA]: "0xFD093e2a4d3190b2020C95846dBe5fD073721e89"
   }
   ```
 
@@ -39,12 +42,15 @@
 
 ### Bridge Tokens
 
-- In the file `script/deploy/super-token/config.ts`, set the src chain, dest chain and amount of tokens to be bridged.
 - If you want to Bridge the tokens from vault chain to a super token chain,
-  - config will have src chain as the chain which has vault and dst chain will be the chains where super token is deployed.
+
+  - In file `script/deploy/super-token/bridge/bridgeFromVault.ts`, update the src chain, dst chain and amount to bridge (src chain is chain having SuperTokenVault).
   - run this script: `npx hardhat run script/deploy/super-token/bridge/bridgeFromVault.ts`
+  - This is an example txn from vault: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=11155111&srcTxHash=0x638cc80e15722caed0681a5c440794ad33b87664b45010ec6b307e5b78b6e663
+
 - If you want to Bridge the tokens from super token chain to a vault chain,
-  - config will have src chain as the chain which has super token and dst chain will be the chains where vault is deployed.
+  - In file `script/deploy/super-token/bridge/bridgeSuperToken.ts`, update the src chain, dst chain and amount to bridge (src chain is chain having SuperToken).
   - run this script: `npx hardhat run script/deploy/super-token/bridge/bridgeSuperToken.ts`
+  - This is an example txn from vault: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=421614&srcTxHash=0xd543779cedada6f386f3038836ef6685eeceeb2851bc1c8ddda7b96e69b6cb13
 
 On running the scripts, you will get the socket dl tracking API url which can be used track the message execution status.

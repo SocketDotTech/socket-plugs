@@ -2,13 +2,13 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "../mocks/MintableToken.sol";
+import "../../mocks/MintableToken.sol";
 
-import "../../contracts/supertoken/plugs/SocketPlug.sol";
-import "../../contracts/supertoken/SuperToken.sol";
-import "../mocks/MockSocket.sol";
+import "../../../contracts/supertoken/plugs/SocketPlug.sol";
+import "../../../contracts/supertoken/SuperTokenWithExecutionPayload.sol";
+import "../../mocks/MockSocket.sol";
 
-contract TestSuperTokenLimits is Test {
+contract TestSuperTokenWithExecutionPayloadWithLimits is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
@@ -23,8 +23,9 @@ contract TestSuperTokenLimits is Test {
     uint256 constant _initialSupply = 100000;
     uint256 constant _rajuInitialBal = 1000;
 
+    ExecutionHelper _executionHelper;
     SocketPlug superTokenPlug;
-    SuperToken _token;
+    SuperTokenWithExecutionPayload _token;
     address _socket;
 
     uint32 _siblingSlug;
@@ -40,15 +41,17 @@ contract TestSuperTokenLimits is Test {
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
+        _executionHelper = new ExecutionHelper();
         superTokenPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
-        _token = new SuperToken(
+        _token = new SuperTokenWithExecutionPayload(
             "Moon",
             "MOON",
             18,
             _admin,
             _admin,
             _initialSupply,
-            address(superTokenPlug)
+            address(superTokenPlug),
+            address(_executionHelper)
         );
         superTokenPlug.setSuperTokenOrVault(address(_token));
         _token.transfer(_raju, _rajuInitialBal);
@@ -57,28 +60,30 @@ contract TestSuperTokenLimits is Test {
     }
 
     function _setLimits() internal {
-        SuperToken.UpdateLimitParams[]
-            memory u = new SuperToken.UpdateLimitParams[](4);
-        u[0] = SuperToken.UpdateLimitParams(
+        SuperTokenWithExecutionPayload.UpdateLimitParams[]
+            memory u = new SuperTokenWithExecutionPayload.UpdateLimitParams[](
+                4
+            );
+        u[0] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             true,
             _siblingSlug1,
             _mintMaxLimit,
             _mintRate
         );
-        u[1] = SuperToken.UpdateLimitParams(
+        u[1] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             false,
             _siblingSlug1,
             _burnMaxLimit,
             _burnRate
         );
 
-        u[2] = SuperToken.UpdateLimitParams(
+        u[2] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             true,
             _siblingSlug2,
             _mintMaxLimit,
             _mintRate
         );
-        u[3] = SuperToken.UpdateLimitParams(
+        u[3] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             false,
             _siblingSlug2,
             _burnMaxLimit,
@@ -96,10 +101,14 @@ contract TestSuperTokenLimits is Test {
     function testUpdateLimitParams() external {
         _setLimits();
 
-        SuperToken.LimitParams memory burnLimitParams = _token
-            .getSendingLimitParams(_siblingSlug1);
-        SuperToken.LimitParams memory mintLimitParams = _token
-            .getReceivingLimitParams(_siblingSlug1);
+        SuperTokenWithExecutionPayload.LimitParams
+            memory burnLimitParams = _token.getSendingLimitParams(
+                _siblingSlug1
+            );
+        SuperTokenWithExecutionPayload.LimitParams
+            memory mintLimitParams = _token.getReceivingLimitParams(
+                _siblingSlug1
+            );
 
         assertEq(
             burnLimitParams.maxLimit,
@@ -125,15 +134,17 @@ contract TestSuperTokenLimits is Test {
     }
 
     function testUpdateLimitParamsRaju() external {
-        SuperToken.UpdateLimitParams[]
-            memory u = new SuperToken.UpdateLimitParams[](2);
-        u[0] = SuperToken.UpdateLimitParams(
+        SuperTokenWithExecutionPayload.UpdateLimitParams[]
+            memory u = new SuperTokenWithExecutionPayload.UpdateLimitParams[](
+                2
+            );
+        u[0] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             true,
             _siblingSlug1,
             _mintMaxLimit,
             _mintRate
         );
-        u[1] = SuperToken.UpdateLimitParams(
+        u[1] = SuperTokenWithExecutionPayload.UpdateLimitParams(
             false,
             _siblingSlug1,
             _burnMaxLimit,
@@ -169,6 +180,7 @@ contract TestSuperTokenLimits is Test {
             _siblingSlug1,
             withdrawAmount,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -189,6 +201,7 @@ contract TestSuperTokenLimits is Test {
             _siblingSlug1,
             withdrawAmount,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -219,7 +232,12 @@ contract TestSuperTokenLimits is Test {
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(_raju, withdrawAmount, messageId);
+        bytes memory payload = abi.encode(
+            _raju,
+            withdrawAmount,
+            messageId,
+            bytes("")
+        );
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
@@ -249,6 +267,7 @@ contract TestSuperTokenLimits is Test {
             _siblingSlug1,
             withdrawAmount,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -291,7 +310,12 @@ contract TestSuperTokenLimits is Test {
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(_raju, usedLimit, messageId);
+        bytes memory payload = abi.encode(
+            _raju,
+            usedLimit,
+            messageId,
+            bytes("")
+        );
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
@@ -321,6 +345,7 @@ contract TestSuperTokenLimits is Test {
             _siblingSlug1,
             usedLimit,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -350,14 +375,22 @@ contract TestSuperTokenLimits is Test {
         uint256 time = 100;
         deal(_raju, _fees);
         vm.prank(address(superTokenPlug));
-        _token.inbound(_siblingSlug1, abi.encode(_raju, usedLimit, bytes32(0)));
+        _token.inbound(
+            _siblingSlug1,
+            abi.encode(_raju, usedLimit, bytes32(0), bytes(""))
+        );
 
         bytes32 messageId = bytes32(
             (uint256(_siblingSlug) << 224) |
                 (uint256(uint160(address(0))) << 64) |
                 (0)
         );
-        bytes memory payload = abi.encode(_raju, usedLimit, messageId);
+        bytes memory payload = abi.encode(
+            _raju,
+            usedLimit,
+            messageId,
+            bytes("")
+        );
         vm.startPrank(_raju);
         vm.mockCall(
             _socket,
@@ -387,6 +420,7 @@ contract TestSuperTokenLimits is Test {
             _siblingSlug1,
             usedLimit,
             _msgGasLimit,
+            bytes(""),
             bytes("")
         );
         vm.stopPrank();
@@ -429,7 +463,7 @@ contract TestSuperTokenLimits is Test {
         vm.prank(address(superTokenPlug));
         _token.inbound(
             _siblingSlug1,
-            abi.encode(_raju, depositAmount, bytes32(""))
+            abi.encode(_raju, depositAmount, bytes32(""), bytes(""))
         );
 
         uint256 totalSupplyAfter = _token.totalSupply();

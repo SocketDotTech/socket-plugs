@@ -48,6 +48,29 @@ const pc: ProjectConstants = {
         },
       },
     },
+    [Tokens.USDT]: {
+      appChain: ChainSlug.LYRA,
+      nonAppChains: [ChainSlug.MAINNET, ChainSlug.OPTIMISM, ChainSlug.ARBITRUM],
+      integrationTypes: {
+        [IntegrationTypes.fast]: {
+          depositLimit: "10000000",
+          // depositRate: "10000000",
+          depositRate: "115.74",
+          withdrawLimit: "1000000",
+          // withdrawRate: "1000000",
+          withdrawRate: "11.574",
+          poolCount: 0,
+        },
+        [IntegrationTypes.native]: {
+          depositLimit: "10000000",
+          // depositRate: "10000000",
+          depositRate: "115.74",
+          withdrawLimit: "0",
+          withdrawRate: "0",
+          poolCount: 0,
+        },
+      },
+    },
     [Tokens.WETH]: {
       appChain: ChainSlug.LYRA,
       nonAppChains: [ChainSlug.MAINNET, ChainSlug.OPTIMISM, ChainSlug.ARBITRUM],

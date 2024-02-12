@@ -41,3 +41,9 @@ export const getToken = () => {
     throw new Error("Token is invalid");
   return process.env.TOKEN as Tokens;
 };
+
+export const getTokenProject = () => {
+  if (!process.env.TOKEN_PROJECT)
+    throw new Error("Token project not mentioned");
+  return process.env.TOKEN_PROJECT as Project;
+};

@@ -1,14 +1,14 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
-import "./Base.sol";
+import "./plugins/ExecutablePayloadBase.sol";
 
 /**
  * @title SuperTokenVault
  * @notice Vault contract which is used to lock/unlock token and enable bridging to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperTokenVault is Base {
+contract SuperTokenVaultWithExecutionPayload is ExecutablePayloadBase {
     using SafeTransferLib for ERC20;
 
     struct UpdateLimitParams {
@@ -42,6 +42,7 @@ contract SuperTokenVault is Base {
 
     error SiblingChainSlugUnavailable();
     error NotMessageBridge();
+    error InvalidReceiver();
     error InvalidSiblingChainSlug();
     error MessageIdMisMatched();
     error InvalidTokenContract();
@@ -95,11 +96,13 @@ contract SuperTokenVault is Base {
     constructor(
         address token_,
         address owner_,
-        address bridge_
+        address bridge_,
+        address executionHelper_
     ) AccessControl(owner_) {
         if (token_.code.length == 0) revert InvalidTokenContract();
         token__ = ERC20(token_);
         bridge__ = IMessageBridge(bridge_);
+        executionHelper__ = ExecutionHelper(executionHelper_);
     }
 
     /**
@@ -153,6 +156,7 @@ contract SuperTokenVault is Base {
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
      * @param amount_ amount bridged
      * @param msgGasLimit_ min gas limit needed for execution at destination
+     * @param payload_ payload which is executed at destination with bridged amount at receiver address.
      * @param options_ additional message bridge options can be provided using this param
      */
     function bridge(
@@ -160,6 +164,7 @@ contract SuperTokenVault is Base {
         uint32 siblingChainSlug_,
         uint256 amount_,
         uint256 msgGasLimit_,
+        bytes calldata payload_,
         bytes calldata options_
     ) external payable {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
@@ -176,7 +181,7 @@ contract SuperTokenVault is Base {
         bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, amount_, messageId),
+            abi.encode(receiver_, amount_, messageId, payload_),
             options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
@@ -218,6 +223,24 @@ contract SuperTokenVault is Base {
 
         token__.safeTransfer(receiver_, consumedAmount);
 
+        address receiver = pendingExecutions[identifier_].receiver;
+        if (pendingAmount == 0 && receiver != address(0)) {
+            if (receiver_ != receiver) revert InvalidReceiver();
+
+            uint32 siblingChainSlug = pendingExecutions[identifier_]
+                .siblingChainSlug;
+            if (siblingChainSlug != siblingChainSlug_)
+                revert InvalidSiblingChainSlug();
+
+            // execute
+            pendingExecutions[identifier_].isAmountPending = false;
+            bool success = executionHelper__.execute(
+                receiver_,
+                pendingExecutions[identifier_].payload
+            );
+            if (success) _clearPayload(identifier_);
+        }
+
         emit PendingTokensTransferred(
             siblingChainSlug_,
             receiver_,
@@ -242,8 +265,18 @@ contract SuperTokenVault is Base {
         if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
             revert SiblingChainSlugUnavailable();
 
-        (address receiver, uint256 unlockAmount, bytes32 identifier) = abi
-            .decode(payload_, (address, uint256, bytes32));
+        (
+            address receiver,
+            uint256 unlockAmount,
+            bytes32 identifier,
+            bytes memory execPayload
+        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
+
+        if (
+            receiver == address(this) ||
+            receiver == address(bridge__) ||
+            receiver == address(token__)
+        ) revert CannotExecuteOnBridgeContracts();
 
         (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
             unlockAmount,
@@ -258,6 +291,16 @@ contract SuperTokenVault is Base {
             ] = pendingAmount;
             siblingPendingUnlocks[siblingChainSlug_] += pendingAmount;
 
+            // cache payload
+            if (execPayload.length > 0)
+                _cachePayload(
+                    identifier,
+                    true,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
+
             emit TokensPending(
                 siblingChainSlug_,
                 receiver,
@@ -265,6 +308,18 @@ contract SuperTokenVault is Base {
                 pendingUnlocks[siblingChainSlug_][receiver][identifier],
                 identifier
             );
+        } else if (execPayload.length > 0) {
+            // execute
+            bool success = executionHelper__.execute(receiver, execPayload);
+
+            if (!success)
+                _cachePayload(
+                    identifier,
+                    false,
+                    siblingChainSlug_,
+                    receiver,
+                    execPayload
+                );
         }
 
         emit TokensUnlocked(
