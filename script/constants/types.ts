@@ -18,16 +18,17 @@ export type ProjectConstants = {
 };
 
 export type ProjectTokenConstants = {
-  appChain: ChainSlug;
-  nonAppChains: ChainSlug[];
   isFiatTokenV2_1?: boolean;
-  integrationTypes: {
-    [key in IntegrationTypes]?: {
-      depositLimit: string;
-      depositRate: string;
-      withdrawLimit: string;
-      withdrawRate: string;
-      poolCount: number;
+  appChain: ChainSlug;
+  nonAppChains: {
+    [key in ChainSlug]?: {
+      [key in IntegrationTypes]?: {
+        depositLimit: string;
+        depositRate: string;
+        withdrawLimit: string;
+        withdrawRate: string;
+        poolCount: number;
+      };
     };
   };
 };
