@@ -38,24 +38,28 @@ export const getTokenConstants = (): TokenConfigs => {
   return tc;
 };
 
-export const getIntegrationTypeConsts = (it: IntegrationTypes) => {
-  const pci = getProjectTokenConstants().integrationTypes[it];
+export const getIntegrationTypeConsts = (
+  it: IntegrationTypes,
+  nonAppChain: ChainSlug
+) => {
+  const pci = getProjectTokenConstants().nonAppChains[nonAppChain]?.[it];
   if (!pci) throw new Error("invalid integration for mode and project");
   return pci;
 };
 
 export const getLimitBN = (
   it: IntegrationTypes,
+  nonAppChain: ChainSlug,
   isDeposit: boolean
 ): BigNumber => {
   if (isDeposit) {
     return utils.parseUnits(
-      getIntegrationTypeConsts(it).depositLimit,
+      getIntegrationTypeConsts(it, nonAppChain).depositLimit,
       tokenDecimals[getToken()]
     );
   } else {
     return utils.parseUnits(
-      getIntegrationTypeConsts(it).withdrawLimit,
+      getIntegrationTypeConsts(it, nonAppChain).withdrawLimit,
       tokenDecimals[getToken()]
     );
   }
@@ -63,16 +67,17 @@ export const getLimitBN = (
 
 export const getRateBN = (
   it: IntegrationTypes,
+  nonAppChain: ChainSlug,
   isDeposit: boolean
 ): BigNumber => {
   if (isDeposit) {
     return utils.parseUnits(
-      getIntegrationTypeConsts(it).depositRate,
+      getIntegrationTypeConsts(it, nonAppChain).depositRate,
       tokenDecimals[getToken()]
     );
   } else {
     return utils.parseUnits(
-      getIntegrationTypeConsts(it).withdrawRate,
+      getIntegrationTypeConsts(it, nonAppChain).withdrawRate,
       tokenDecimals[getToken()]
     );
   }
