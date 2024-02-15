@@ -17,6 +17,7 @@ import {
   getProjectTokenConstants,
   getLimitBN,
   getRateBN,
+  isAppChain,
 } from "../../helpers/constants";
 import { getSocket } from "../../bridge/utils";
 import {
@@ -29,6 +30,7 @@ import {
   TokenAddresses,
 } from "../../../src";
 import { getMode, getToken } from "../../constants/config";
+import { ProjectTokenConstants } from "../../constants/types";
 
 type UpdateLimitParams = [
   boolean,
@@ -37,24 +39,27 @@ type UpdateLimitParams = [
   string | number | BigNumber
 ];
 
+let pc: ProjectTokenConstants;
+
 export const main = async () => {
   try {
     const addresses = await getProjectAddresses();
+    pc = getProjectTokenConstants();
 
+    const nonAppChainsList: ChainSlug[] = Object.keys(pc.nonAppChains).map(
+      (k) => parseInt(k)
+    );
     await Promise.all(
-      [
-        getProjectTokenConstants().appChain,
-        ...getProjectTokenConstants().nonAppChains,
-      ].map(async (chain) => {
+      [pc.appChain, ...nonAppChainsList].map(async (chain) => {
         const addr: TokenAddresses | undefined = addresses[chain]?.[getToken()];
         const connectors: Connectors | undefined = addr?.connectors;
         if (!addr || !connectors) return;
 
         const socketSigner = getSignerFromChainSlug(chain);
 
-        let siblingSlugs: ChainSlug[] = Object.keys(
-          connectors
-        ) as unknown as ChainSlug[];
+        let siblingSlugs: ChainSlug[] = Object.keys(connectors).map((k) =>
+          parseInt(k)
+        ) as ChainSlug[];
         console.log(`Configuring ${chain} for ${siblingSlugs}`);
 
         await connect(addr, addresses, chain, siblingSlugs, socketSigner);
@@ -80,19 +85,19 @@ export const main = async () => {
             updateLimitParams.push([
               true,
               itConnectorAddress,
-              getLimitBN(it, true),
-              getRateBN(it, true),
+              getLimitBN(it, isAppChain(sibling) ? chain : sibling, true),
+              getRateBN(it, isAppChain(sibling) ? chain : sibling, true),
             ]);
 
             // burn/unlock/withdraw limits
             updateLimitParams.push([
               false,
               itConnectorAddress,
-              getLimitBN(it, false),
-              getRateBN(it, false),
+              getLimitBN(it, isAppChain(sibling) ? chain : sibling, false),
+              getRateBN(it, isAppChain(sibling) ? chain : sibling, false),
             ]);
 
-            if (chain === getProjectTokenConstants().appChain) {
+            if (chain === pc.appChain) {
               connectorAddresses.push(itConnectorAddress);
               connectorPoolIds.push(getPoolIdHex(sibling, it));
             }
@@ -154,12 +159,12 @@ export const main = async () => {
   }
 };
 
-const switchboardName = (it: IntegrationTypes) =>
-  it === IntegrationTypes.fast
-    ? CORE_CONTRACTS.FastSwitchboard
-    : it === IntegrationTypes.optimistic
-    ? CORE_CONTRACTS.OptimisticSwitchboard
-    : CORE_CONTRACTS.NativeSwitchboard;
+// const switchboardName = (it: IntegrationTypes) =>
+//   it === IntegrationTypes.fast
+//     ? CORE_CONTRACTS.FastSwitchboard
+//     : it === IntegrationTypes.optimistic
+//     ? CORE_CONTRACTS.OptimisticSwitchboard
+//     : CORE_CONTRACTS.NativeSwitchboard;
 
 const connect = async (
   addr: TokenAddresses,

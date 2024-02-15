@@ -71,6 +71,55 @@ export const getOrDeploy = async (
 
   return contract;
 };
+export const getOrDeployConnector = async (
+  args: any[],
+  deployUtils: DeployParams,
+  sibling: ChainSlug,
+  integrationType: IntegrationTypes
+): Promise<Contract> => {
+  if (!deployUtils || !deployUtils.addresses)
+    throw new Error("No addresses found");
+
+  let contract: Contract;
+  let storedContactAddress = (deployUtils.addresses as TokenAddresses)
+    .connectors?.[sibling]?.[integrationType];
+
+  if (!storedContactAddress) {
+    contract = await deployContractWithArgs(
+      SuperBridgeContracts.ConnectorPlug,
+      args,
+      deployUtils.signer
+    );
+
+    console.log(
+      `${SuperBridgeContracts.ConnectorPlug} deployed on ${
+        deployUtils.currentChainSlug
+      } for ${getMode()}, ${getProject()} at address ${contract.address}`
+    );
+
+    await storeVerificationParams(
+      [
+        contract.address,
+        SuperBridgeContracts.ConnectorPlug,
+        "contracts/superbridge/ConnectorPlug.sol",
+        args,
+      ],
+      deployUtils.currentChainSlug
+    );
+  } else {
+    contract = await getInstance(
+      SuperBridgeContracts.ConnectorPlug,
+      storedContactAddress
+    );
+    console.log(
+      `${SuperBridgeContracts.ConnectorPlug} found on ${
+        deployUtils.currentChainSlug
+      } for ${getMode()}, ${getProject()} at address ${contract.address}`
+    );
+  }
+
+  return contract;
+};
 
 export async function deployContractWithArgs(
   contractName: string,
@@ -238,5 +287,8 @@ export const getPoolIdHex = (
   chainSlug: ChainSlug,
   it: IntegrationTypes
 ): string => {
-  return encodePoolId(chainSlug, getIntegrationTypeConsts(it).poolCount);
+  return encodePoolId(
+    chainSlug,
+    getIntegrationTypeConsts(it, chainSlug).poolCount
+  );
 };

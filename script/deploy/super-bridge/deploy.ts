@@ -20,6 +20,7 @@ import {
   getProjectAddresses,
   getOrDeploy,
   storeAddresses,
+  getOrDeployConnector,
 } from "../../helpers/utils";
 import {
   AppChainAddresses,
@@ -29,11 +30,14 @@ import {
   TokenAddresses,
 } from "../../../src";
 import { isAppChain, getProjectTokenConstants } from "../../helpers/constants";
+import { ProjectTokenConstants } from "../../constants/types";
 
 export interface ReturnObj {
   allDeployed: boolean;
   deployedAddresses: TokenAddresses;
 }
+
+let pc: ProjectTokenConstants;
 
 /**
  * Deploys contracts for all networks
@@ -48,7 +52,7 @@ export const main = async () => {
   );
   console.log(`Owner address configured to ${getSocketOwner()}`);
   console.log("========================================================");
-
+  pc = getProjectTokenConstants();
   try {
     let addresses: ProjectAddresses;
     try {
@@ -56,12 +60,11 @@ export const main = async () => {
     } catch (error) {
       addresses = {} as ProjectAddresses;
     }
-
+    const nonAppChainsList: ChainSlug[] = Object.keys(pc.nonAppChains).map(
+      (k) => parseInt(k)
+    );
     await Promise.all(
-      [
-        getProjectTokenConstants().appChain,
-        ...getProjectTokenConstants().nonAppChains,
-      ].map(async (chain: ChainSlug) => {
+      [pc.appChain, ...nonAppChainsList].map(async (chain: ChainSlug) => {
         let allDeployed = false;
         const signer = getSignerFromChainSlug(chain);
 
@@ -69,9 +72,7 @@ export const main = async () => {
           ? (addresses[chain]?.[getToken()] as TokenAddresses)
           : ({} as TokenAddresses);
 
-        const siblings = isAppChain(chain)
-          ? getProjectTokenConstants().nonAppChains
-          : [getProjectTokenConstants().appChain];
+        const siblings = isAppChain(chain) ? nonAppChainsList : [pc.appChain];
 
         while (!allDeployed) {
           const results: ReturnObj = await deploy(
@@ -133,7 +134,7 @@ const deploy = async (
   }
 
   await storeAddresses(
-    deployUtils.addresses,
+    deployUtils.addresses as TokenAddresses,
     deployUtils.currentChainSlug,
     `${getMode()}_${getProject().toLowerCase()}_addresses.json`
   );
@@ -150,6 +151,7 @@ const deployConnectors = async (
   try {
     if (!deployParams.addresses) throw new Error("Addresses not found!");
 
+    let integrationTypes: IntegrationTypes[];
     const socket: string = getAddresses(
       deployParams.currentChainSlug,
       getMode()
@@ -160,23 +162,25 @@ const deployConnectors = async (
       const a = addr as AppChainAddresses;
       if (!a.Controller) throw new Error("Controller not found!");
       hub = a.Controller;
+      integrationTypes = Object.keys(
+        pc.nonAppChains[sibling]
+      ) as IntegrationTypes[];
     } else {
       const a = addr as NonAppChainAddresses;
       if (!a.Vault) throw new Error("Vault not found!");
       hub = a.Vault;
+      integrationTypes = Object.keys(
+        pc.nonAppChains[deployParams.currentChainSlug]
+      ) as IntegrationTypes[];
     }
-
-    const integrationTypes: IntegrationTypes = Object.keys(
-      getProjectTokenConstants().integrationTypes
-    ) as unknown as IntegrationTypes;
 
     for (let intType of integrationTypes) {
       console.log(hub, socket, sibling);
-      const connector: Contract = await getOrDeploy(
-        SuperBridgeContracts.ConnectorPlug,
-        "contracts/superbridge/ConnectorPlug.sol",
+      const connector: Contract = await getOrDeployConnector(
         [hub, socket, sibling],
-        deployParams
+        deployParams,
+        sibling,
+        intType
       );
 
       console.log("connectors", sibling.toString(), intType, connector.address);
@@ -214,10 +218,10 @@ const deployAppChainContracts = async (
       throw new Error("Token not found on app chain");
 
     const controller: Contract = await getOrDeploy(
-      getProjectTokenConstants().isFiatTokenV2_1
+      pc.isFiatTokenV2_1
         ? SuperBridgeContracts.FiatTokenV2_1_Controller
         : SuperBridgeContracts.Controller,
-      getProjectTokenConstants().isFiatTokenV2_1
+      pc.isFiatTokenV2_1
         ? "contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
         : "contracts/superbridge/Controller.sol",
       [

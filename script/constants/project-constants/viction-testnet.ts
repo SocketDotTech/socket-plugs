@@ -10,14 +10,15 @@ const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       appChain: ChainSlug.VICTION_TESTNET,
-      nonAppChains: [ChainSlug.SEPOLIA],
-      integrationTypes: {
-        [IntegrationTypes.fast]: {
-          depositLimit: "10000",
-          depositRate: "0.11574",
-          withdrawLimit: "10000",
-          withdrawRate: "0.11574",
-          poolCount: 0,
+      nonAppChains: {
+        [ChainSlug.SEPOLIA]: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
         },
       },
     },

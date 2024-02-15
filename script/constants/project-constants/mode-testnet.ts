@@ -10,14 +10,31 @@ const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       appChain: ChainSlug.MODE_TESTNET,
-      nonAppChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
-      integrationTypes: {
-        [IntegrationTypes.fast]: {
-          depositLimit: "10000",
-          depositRate: "0.11574",
-          withdrawLimit: "10000",
-          withdrawRate: "0.11574",
-          poolCount: 0,
+      nonAppChains: {
+        [ChainSlug.OPTIMISM_SEPOLIA]: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
+          [IntegrationTypes.optimistic]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
+        },
+        [ChainSlug.ARBITRUM_SEPOLIA]: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
         },
       },
     },
