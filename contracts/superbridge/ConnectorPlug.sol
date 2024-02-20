@@ -13,19 +13,22 @@ interface IConnector {
     function outbound(
         uint256 msgGasLimit_,
         bytes memory payload_
-    ) external payable;
+    ) external payable returns (bytes32 messageId_);
 
     function siblingChainSlug() external view returns (uint32);
 
     function getMinFees(
         uint256 msgGasLimit_
     ) external view returns (uint256 totalFees);
+
+    function getMessageId() external view returns (bytes32);
 }
 
 contract ConnectorPlug is IConnector, IPlug, Ownable {
     IHub public immutable hub__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
+    uint256 public messageIdPart;
 
     error NotHub();
     error NotSocket();
@@ -45,16 +48,17 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
     function outbound(
         uint256 msgGasLimit_,
         bytes memory payload_
-    ) external payable override {
+    ) external payable override returns (bytes32 messageId_) {
         if (msg.sender != address(hub__)) revert NotHub();
 
-        socket__.outbound{value: msg.value}(
-            siblingChainSlug,
-            msgGasLimit_,
-            bytes32(0),
-            bytes32(0),
-            payload_
-        );
+        return
+            socket__.outbound{value: msg.value}(
+                siblingChainSlug,
+                msgGasLimit_,
+                bytes32(0),
+                bytes32(0),
+                payload_
+            );
     }
 
     function inbound(
@@ -83,6 +87,9 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
         address siblingPlug_,
         address switchboard_
     ) external onlyOwner {
+        messageIdPart =
+            (uint256(socket__.chainSlug()) << 224) |
+            (uint256(uint160(siblingPlug_)) << 64);
         socket__.connect(
             siblingChainSlug,
             siblingPlug_,
@@ -108,6 +115,14 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
         );
 
         emit ConnectorPlugDisconnected();
+    }
+
+    /**
+     * @notice this function is used to calculate message id before sending outbound().
+     * @return messageId
+     */
+    function getMessageId() external view returns (bytes32) {
+        return bytes32(messageIdPart | (socket__.globalMessageCount()));
     }
 
     /**
