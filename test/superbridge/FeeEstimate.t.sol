@@ -1,10 +1,10 @@
 pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
-import "../contracts/superbridge/ConnectorPlug.sol";
-import "../contracts/superbridge/Controller.sol";
-import "../contracts/superbridge/Vault.sol";
-import "../contracts/superbridge/ExchangeRate.sol";
+import "../../contracts/superbridge/ConnectorPlug.sol";
+import "../../contracts/superbridge/Controller.sol";
+import "../../contracts/superbridge/Vault.sol";
+import "../../contracts/superbridge/ExchangeRate.sol";
 
 contract TestFeesEstimate is Test {
     uint256 _c = 1;

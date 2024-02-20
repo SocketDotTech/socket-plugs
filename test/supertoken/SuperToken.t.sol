@@ -163,6 +163,8 @@ contract TestSuperToken is Test {
 
         _setLockerLimits(arbLocker, chainSlug);
         _setLockerLimits(optLocker, chainSlug);
+        _setLockerLimits(arbLocker, optChainSlug);
+        _setLockerLimits(optLocker, arbChainSlug);
 
         vm.stopPrank();
     }
@@ -360,13 +362,34 @@ contract TestSuperToken is Test {
     function testSuperTokenVaultToOtherSuperTokenVaultDeposit() external {
         uint256 depositAmount = 44;
 
-        vm.prank(_admin);
+        vm.startPrank(_admin);
         notSuperTokenArb.mint(_raju, depositAmount);
+        notSuperTokenOpt.mint(address(optLocker), depositAmount);
+
+        _connectPlugs(
+            optLockerPlug,
+            optChainSlug,
+            arbChainSlug,
+            address(arbLockerPlug),
+            switchboard
+        );
+        _connectPlugs(
+            arbLockerPlug,
+            arbChainSlug,
+            optChainSlug,
+            address(optLockerPlug),
+            switchboard
+        );
+        vm.stopPrank();
 
         uint256 rajuBalBefore = notSuperTokenArb.balanceOf(_raju);
-        uint256 ramuBalBefore = superToken.balanceOf(_ramu);
-        uint256 vaultBalBefore = notSuperTokenArb.balanceOf(address(arbLocker));
-        uint256 tokenSupplyBefore = superToken.totalSupply();
+        uint256 ramuBalBefore = notSuperTokenOpt.balanceOf(_ramu);
+        uint256 arbVaultBalBefore = notSuperTokenArb.balanceOf(
+            address(arbLocker)
+        );
+        uint256 optVaultBalBefore = notSuperTokenOpt.balanceOf(
+            address(optLocker)
+        );
 
         assertTrue(rajuBalBefore >= depositAmount, "Raju got no balance");
 
@@ -375,27 +398,31 @@ contract TestSuperToken is Test {
         _socket.setLocalSlug(arbChainSlug);
         arbLocker.bridge(
             _ramu,
-            chainSlug,
+            optChainSlug,
             depositAmount,
             MSG_GAS_LIMIT,
             bytes("")
         );
 
         uint256 rajuBalAfter = notSuperTokenArb.balanceOf(_raju);
-        uint256 ramuBalAfter = superToken.balanceOf(_ramu);
-        uint256 vaultBalAfter = notSuperTokenArb.balanceOf(address(arbLocker));
-        uint256 tokenSupplyAfter = superToken.totalSupply();
+        uint256 ramuBalAfter = notSuperTokenOpt.balanceOf(_ramu);
+        uint256 arbVaultBalAfter = notSuperTokenArb.balanceOf(
+            address(arbLocker)
+        );
+        uint256 optVaultBalAfter = notSuperTokenOpt.balanceOf(
+            address(optLocker)
+        );
 
         assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
         assertEq(ramuBalAfter, ramuBalBefore + depositAmount, "Ramu bal sus");
         assertEq(
-            vaultBalAfter,
-            vaultBalBefore + depositAmount,
+            arbVaultBalAfter,
+            arbVaultBalBefore + depositAmount,
             "SuperTokenVault bal sus"
         );
         assertEq(
-            tokenSupplyAfter,
-            tokenSupplyBefore + depositAmount,
+            optVaultBalAfter,
+            optVaultBalBefore - depositAmount,
             "token supply sus"
         );
     }
