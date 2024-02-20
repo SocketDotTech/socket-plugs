@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
 import "../mocks/NonMintableToken.sol";

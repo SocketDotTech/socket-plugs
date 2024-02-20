@@ -1,13 +1,12 @@
 pragma solidity 0.8.13;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
 import "../../contracts/superbridge/Controller.sol";
 import "../../contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
 import "../../contracts/superbridge/ConnectorPlug.sol";
 import "../../contracts/superbridge/ExchangeRate.sol";
-import "forge-std/console.sol";
 
 interface IMintable {
     function configureMinter(address minter, uint256 amount) external;
