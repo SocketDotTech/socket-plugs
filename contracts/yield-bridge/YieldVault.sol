@@ -19,11 +19,13 @@ contract YieldVault is LimitController, ReentrancyGuard {
 
     IStrategy public strategy; // address of the strategy contract
 
+    uint256 public totalLockedInStrategy; // total funds deposited in strategy
+
     uint256 public totalIdle; // Amount of tokens that are in the vault
     uint256 public totalDebt; // Amount of tokens that strategy have borrowed
     uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
-    uint128 public lastRebalanceTimestamp; // Timstamp of last rebalance
-    uint128 public rebalanceDelay; // Delay between rebalances
+    uint128 public lastRebalanceTimestamp; // Timestamp of last rebalance
+    uint128 public rebalanceDelay; // Delay between rebalance
     bool public emergencyShutdown; // if true, no funds can be invested in the strategy
 
     error ZeroAmount();
@@ -59,8 +61,16 @@ contract YieldVault is LimitController, ReentrancyGuard {
         _;
     }
 
-    constructor(address asset_) AccessControl(msg.sender) {
+    constructor(
+        uint256 debtRatio_,
+        uint128 rebalanceDelay_,
+        address strategy_,
+        address asset_
+    ) AccessControl(msg.sender) {
         asset__ = ERC20(asset_);
+        debtRatio = debtRatio_;
+        rebalanceDelay = rebalanceDelay_;
+        strategy = IStrategy(strategy_);
     }
 
     function updateEmergencyShutdownState(
@@ -81,7 +91,7 @@ contract YieldVault is LimitController, ReentrancyGuard {
     /// the Vault.
     /// @return total quantity of all assets under control of this Vault
     function totalAssets() public view returns (uint256) {
-        return totalIdle + totalDebt;
+        return strategy.estimatedTotalAssets() + totalIdle;
     }
 
     function deposit(
@@ -95,11 +105,11 @@ contract YieldVault is LimitController, ReentrancyGuard {
 
         totalIdle += amount_;
 
-        _checkDelayAndRebalance();
         _checkLimitAndRevert(amount_, connector_);
-        uint256 expectedReturn = strategy.estimatedTotalAssets();
-
         asset__.safeTransferFrom(msg.sender, address(this), amount_);
+
+        _checkDelayAndRebalance();
+        uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
         _depositToAppChain(
             msgGasLimit_,
             connector_,
@@ -135,7 +145,6 @@ contract YieldVault is LimitController, ReentrancyGuard {
     }
 
     function receiveInbound(
-        uint32,
         bytes memory payload_
     ) public nonReentrant notShutdown returns (uint256 unlockAmount) {
         address receiver;
@@ -164,9 +173,13 @@ contract YieldVault is LimitController, ReentrancyGuard {
 
     function _withdraw(address receiver_, address, uint256 amount_) internal {
         if (receiver_ == address(0)) revert ZeroAddress();
-        if (amount_ > totalIdle) revert NotEnoughAssets();
+        if (amount_ > totalAssets()) revert NotEnoughAssets();
 
-        totalIdle -= amount_;
+        if (amount_ > totalIdle) {
+            _withdrawFromStrategy(amount_ - totalIdle);
+            totalIdle = 0;
+        } else totalIdle -= amount_;
+
         _checkDelayAndRebalance();
         asset__.safeTransfer(receiver_, amount_);
 
@@ -226,6 +239,7 @@ contract YieldVault is LimitController, ReentrancyGuard {
             // Credit surplus, give to Strategy
             totalIdle -= credit;
             totalDebt += credit;
+            totalLockedInStrategy += credit;
             asset__.safeTransfer(address(strategy), credit);
             strategy.invest();
         } else if (pendingDebt > 0) {

@@ -13,6 +13,7 @@ abstract contract ERC4626 is Token {
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
 
+    error NotOwner();
     event Deposit(
         address indexed caller,
         address indexed owner,
@@ -36,12 +37,7 @@ abstract contract ERC4626 is Token {
         address owner,
         uint256 assets
     ) internal returns (uint256) {
-        if (msg.sender != owner) {
-            uint256 allowed = allowance[owner][msg.sender]; // Saves gas for limited approvals.
-            if (allowed != type(uint256).max)
-                allowance[owner][msg.sender] = allowed - assets;
-        }
-
+        if (msg.sender != owner) revert NotOwner();
         _burn(owner, assets);
         return assets;
     }

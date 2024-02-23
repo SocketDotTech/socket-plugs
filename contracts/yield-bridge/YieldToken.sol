@@ -6,14 +6,13 @@ import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import "./erc4626/ERC4626.sol";
 import {IStrategy} from "./interfaces/IStrategy.sol";
 import {IConnector} from "../superbridge/ConnectorPlug.sol";
-
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import "./LimitController.sol";
 
 // add shutdown
-contract YieldController is ERC4626, LimitController, ReentrancyGuard {
+contract YieldToken is ERC4626, LimitController, ReentrancyGuard {
     uint128 public lastSyncTimestamp; // Timestamp of last rebalance
-    uint256 public rewardsPerShare;
+    uint256 public totalYield;
 
     error ZeroAmount();
     error ZeroAddress();
@@ -26,13 +25,28 @@ contract YieldController is ERC4626, LimitController, ReentrancyGuard {
 
     function balanceOf(address user_) external view override returns (uint256) {
         uint256 balance = _balanceOf[user_];
+        if (balance == 0) return 0;
         return _calculateBalanceWithYield(balance);
     }
 
     function _calculateBalanceWithYield(
         uint256 balance_
     ) internal view returns (uint256) {
-        return balance_ * rewardsPerShare + balance_;
+        return (balance_ * totalYield) / totalSupply;
+    }
+
+    function _calculateMintAmount(
+        uint256 amount_
+    ) internal view returns (uint256) {
+        if (totalSupply == 0) return amount_;
+        // yield sent from src chain includes new amount hence subtracted here
+        return (amount_ * totalSupply) / (totalYield - amount_);
+    }
+
+    function _calculateBurnAmount(
+        uint256 amount_
+    ) internal view returns (uint256) {
+        return (amount_ * totalSupply) / totalYield;
     }
 
     function withdraw(
@@ -44,8 +58,12 @@ contract YieldController is ERC4626, LimitController, ReentrancyGuard {
         if (receiver_ == address(0)) revert ZeroAddress();
         if (amount_ == 0) revert ZeroAmount();
 
-        _checkLimitAndRevert(amount_, connector_);
-        super.withdraw(receiver_, amount_);
+        uint256 sharesToBurn = _calculateBurnAmount(amount_);
+        totalYield -= amount_;
+
+        _checkLimitAndRevert(sharesToBurn, connector_);
+        super.withdraw(msg.sender, sharesToBurn);
+
         _depositToAppChain(
             msgGasLimit_,
             connector_,
@@ -64,19 +82,22 @@ contract YieldController is ERC4626, LimitController, ReentrancyGuard {
         );
     }
 
+    // receive inbound assuming connector called
+    //  todo: validate msg.sender
     function receiveInbound(
-        uint32 siblingChainSlug_,
         bytes memory payload_
     ) public nonReentrant returns (uint256 amount) {
-        (
-            address receiver,
-            uint256 unlockAmount,
-            uint256 totalYield
-        ) = _beforeMint(payload_);
+        (address receiver, uint256 mintAmount, uint256 newYield) = abi.decode(
+            payload_,
+            (address, uint256, uint256)
+        );
 
-        syncFromVaults(siblingChainSlug_, totalYield);
+        lastSyncTimestamp = uint128(block.timestamp);
+        totalYield = newYield;
+
         if (receiver != address(0)) {
-            amount = _calculateBalanceWithYield(unlockAmount);
+            amount = _calculateMintAmount(mintAmount);
+            amount = _checkLimitAndQueue(receiver, amount);
             _mint(receiver, amount);
         }
     }
@@ -92,27 +113,6 @@ contract YieldController is ERC4626, LimitController, ReentrancyGuard {
 
         amount = _calculateBalanceWithYield(mintAmount);
         _mint(receiver_, amount);
-    }
-
-    function syncFromVaults(uint32, uint256 totalYield_) internal {
-        lastSyncTimestamp = uint128(block.timestamp);
-        //validate logic: yield on yield
-        rewardsPerShare = totalSupply / totalYield_;
-    }
-
-    // receive inbound assuming connector called
-    function _beforeMint(
-        bytes memory payload_
-    )
-        internal
-        returns (address receiver, uint256 unlockAmount, uint256 totalYield)
-    {
-        (receiver, unlockAmount, totalYield) = abi.decode(
-            payload_,
-            (address, uint256, uint256)
-        );
-        if (receiver != address(0))
-            unlockAmount = _checkLimitAndQueue(receiver, unlockAmount);
     }
 
     /*//////////////////////////////////////////////////////////////
