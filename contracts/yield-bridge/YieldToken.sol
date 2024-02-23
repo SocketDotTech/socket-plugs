@@ -11,9 +11,14 @@ import "./LimitController.sol";
 
 // add shutdown
 contract YieldToken is ERC4626, LimitController, ReentrancyGuard {
-    uint128 public lastSyncTimestamp; // Timestamp of last rebalance
+    // connector => timestamp
+    mapping(address => uint128) public lastSyncTimestamp; // Timestamp of last rebalance
+    // connector => total yield
+    mapping(address => uint256) public siblingTotalYield;
+    // total yield from all siblings
     uint256 public totalYield;
 
+    error InsufficientFunds();
     error ZeroAmount();
     error ZeroAddress();
 
@@ -57,9 +62,11 @@ contract YieldToken is ERC4626, LimitController, ReentrancyGuard {
     ) external payable nonReentrant returns (uint256 deposited) {
         if (receiver_ == address(0)) revert ZeroAddress();
         if (amount_ == 0) revert ZeroAmount();
+        if (amount_ > siblingTotalYield[connector_]) revert InsufficientFunds();
 
         uint256 sharesToBurn = _calculateBurnAmount(amount_);
         totalYield -= amount_;
+        siblingTotalYield[connector_] -= amount_;
 
         _checkLimitAndRevert(sharesToBurn, connector_);
         super.withdraw(msg.sender, sharesToBurn);
@@ -92,8 +99,9 @@ contract YieldToken is ERC4626, LimitController, ReentrancyGuard {
             (address, uint256, uint256)
         );
 
-        lastSyncTimestamp = uint128(block.timestamp);
-        totalYield = newYield;
+        lastSyncTimestamp[msg.sender] = uint128(block.timestamp);
+        totalYield = totalYield + newYield - siblingTotalYield[msg.sender];
+        siblingTotalYield[msg.sender] = newYield;
 
         if (receiver != address(0)) {
             amount = _calculateMintAmount(mintAmount);
@@ -110,8 +118,6 @@ contract YieldToken is ERC4626, LimitController, ReentrancyGuard {
             receiver_,
             pendingMintAndUnlocks[msg.sender][receiver_]
         );
-
-        amount = _calculateBalanceWithYield(mintAmount);
         _mint(receiver_, amount);
     }
 
