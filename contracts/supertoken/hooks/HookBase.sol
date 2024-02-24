@@ -1,9 +1,9 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/ReentrancyGuard.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import {Gauge} from "../common/Gauge.sol";
-import {AccessControl} from "../common/AccessControl.sol";
+import {RescueFundsLib} from "../../libraries/RescueFundsLib.sol";
+import {Gauge} from "../../common/Gauge.sol";
+import {AccessControl} from "../../common/AccessControl.sol";
 
 /**
  * @title Base contract for super token and vault

@@ -76,18 +76,16 @@ interface IHook {
         );
 
     /**
-     * @dev This function calls the dstPostHookCall function of the connector contract,
-     * passing in the receiver, amount, connector, and extradata, and updates
-     * the token supply.
+     * @notice Handles pre-retry hook logic before execution.
+     * @dev This function can be used to mint funds which were in a pending state due to limits.
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
      * @param identifierCache_ Identifier cache containing pending mint information.
      * @param siblingChainCache_ Sibling chain cache containing pending amount information.
-     * @return receiver The receiver of the funds.
-     * @return amount The amount of funds.
-     * @return newIdentifierCache The updated identifier cache.
-     * @return newSiblingChainCache The updated sibling chain cache.
+     * @return receiver The updated receiver of the funds.
+     * @return consumedAmount The amount consumed from the limit.
+     * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
      */
-    function retry(
+    function preRetryHook(
         uint32 siblingChainSlug_,
         bytes memory identifierCache_,
         bytes memory siblingChainCache_
@@ -95,7 +93,28 @@ interface IHook {
         external
         returns (
             address receiver,
-            uint256 amount,
+            uint256 consumedAmount,
+            bytes memory postRetryHookData
+        );
+
+    /**
+     * @notice Handles post-retry hook logic after execution.
+     * @dev This function can be used to update caches after retrying a hook.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param identifierCache_ Identifier cache containing pending mint information.
+     * @param siblingChainCache_ Sibling chain cache containing pending amount information.
+     * @param postRetryHookData_ The post-hook data to be processed after the retry hook execution.
+     * @return newIdentifierCache The updated identifier cache.
+     * @return newSiblingChainCache The updated sibling chain cache.
+     */
+    function postRetryHook(
+        uint32 siblingChainSlug_,
+        bytes memory identifierCache_,
+        bytes memory siblingChainCache_,
+        bytes memory postRetryHookData_
+    )
+        external
+        returns (
             bytes memory newIdentifierCache,
             bytes memory newSiblingChainCache
         );
