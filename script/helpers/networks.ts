@@ -120,6 +120,11 @@ export const overrides: {
     gasLimit,
     gasPrice: 10_000_000,
   },
+  [ChainSlug.REYA_CRONOS_ORBIT]: {
+    type: 1,
+    // gasLimit,
+    gasPrice: 100_000_000,
+  },
 };
 
 export function getJsonRpcUrl(chain: ChainSlug): string {
@@ -232,6 +237,11 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
       if (!process.env.ANCIENT8_TESTNET2_RPC)
         throw new Error("ANCIENT8_TESTNET2_RPC not configured");
       return process.env.ANCIENT8_TESTNET2_RPC;
+
+    case ChainSlug.REYA_CRONOS_ORBIT:
+      if (!process.env.REYA_CRONOS_ORBIT_RPC)
+        throw new Error("REYA_CRONOS_ORBIT_RPC not configured");
+      return process.env.REYA_CRONOS_ORBIT_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";

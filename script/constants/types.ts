@@ -20,6 +20,7 @@ export type ProjectConstants = {
 export type ProjectTokenConstants = {
   isFiatTokenV2_1?: boolean;
   appChain: ChainSlug;
+  nativeVaultChains?: Array<ChainSlug>;
   nonAppChains: {
     [key in ChainSlug]?: {
       [key in IntegrationTypes]?: {

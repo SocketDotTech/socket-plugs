@@ -42,7 +42,12 @@ export const getOrDeploy = async (
   if (contractName === SuperBridgeContracts.FiatTokenV2_1_Controller) {
     storedContactAddress =
       deployUtils.addresses[SuperBridgeContracts.Controller];
+  } else if (contractName === SuperBridgeContracts.ERC20VaultWithPayload) {
+    storedContactAddress = deployUtils.addresses[SuperBridgeContracts.Vault];
+  } else if (contractName === SuperBridgeContracts.NativeVaultWithPayload) {
+    storedContactAddress = deployUtils.addresses[SuperBridgeContracts.Vault];
   }
+
   if (!storedContactAddress) {
     contract = await deployContractWithArgs(
       contractName,

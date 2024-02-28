@@ -244,15 +244,25 @@ const deployNonAppChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
-    if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])
-      throw new Error("Token not found on chain");
+    let vault: Contract;
+    if (pc.nativeVaultChains?.includes(deployParams.currentChainSlug)) {
+      vault = await getOrDeploy(
+        SuperBridgeContracts.NativeVaultWithPayload,
+        "contracts/superbridge/Vault.sol",
+        [],
+        deployParams
+      );
+    } else {
+      if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])
+        throw new Error("Token not found on chain");
 
-    const vault: Contract = await getOrDeploy(
-      SuperBridgeContracts.Vault,
-      "contracts/superbridge/Vault.sol",
-      [deployParams.addresses[SuperBridgeContracts.NonMintableToken]],
-      deployParams
-    );
+      vault = await getOrDeploy(
+        SuperBridgeContracts.ERC20VaultWithPayload,
+        "contracts/superbridge/Vault.sol",
+        [deployParams.addresses[SuperBridgeContracts.NonMintableToken]],
+        deployParams
+      );
+    }
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
     console.log(deployParams.addresses);
     console.log("Chain Contracts deployed!");

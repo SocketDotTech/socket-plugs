@@ -20,6 +20,7 @@ export enum Project {
   VICTION_TESTNET = "viction-testnet",
   MODE = "mode",
   ANCIENT8_TESTNET2 = "ancient8-testnet2",
+  REYA_CRONOS_ORBIT = "reya-cronos-orbit",
 }
 
 ////// **** SUPER BRIDGE TYPES **** //////
@@ -32,6 +33,8 @@ export enum SuperBridgeContracts {
   FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
   ExchangeRate = "ExchangeRate",
   ConnectorPlug = "ConnectorPlug",
+  ERC20VaultWithPayload = "ERC20VaultWithPayload",
+  NativeVaultWithPayload = "NativeVaultWithPayload",
 }
 
 export type ProjectAddresses = {
@@ -78,6 +81,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
   [ChainSlug.MODE]: Project.MODE,
   [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
+  [ChainSlug.REYA_CRONOS_ORBIT]: Project.REYA_CRONOS_ORBIT,
 };
 
 ////// **** SUPER TOKEN TYPES **** //////
