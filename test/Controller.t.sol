@@ -16,6 +16,7 @@ abstract contract TestController is Test {
     address immutable _connector = address(uint160(_c++));
     address immutable _connector2 = address(uint160(_c++));
     address immutable _wrongConnector = address(uint160(_c++));
+    bytes _messageId = abi.encode(_c++);
 
     uint256 immutable _connectorPoolId = _c++;
 
@@ -289,7 +290,7 @@ abstract contract TestController is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, withdrawAmount))
             ),
-            new bytes(0)
+            _messageId
         );
 
         _controller.withdrawFromAppChain{value: _fees}(
@@ -313,7 +314,7 @@ abstract contract TestController is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, withdrawAmount2))
             ),
-            new bytes(0)
+            _messageId
         );
 
         _controller.withdrawFromAppChain{value: _fees}(
@@ -372,7 +373,7 @@ abstract contract TestController is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, withdrawAmount))
             ),
-            bytes("0")
+            _messageId
         );
         vm.expectCall(
             _connector,
@@ -437,7 +438,7 @@ abstract contract TestController is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, usedLimit))
             ),
-            bytes("0")
+            _messageId
         );
         _controller.withdrawFromAppChain{value: _fees}(
             _raju,
@@ -483,7 +484,7 @@ abstract contract TestController is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, usedLimit))
             ),
-            bytes("0")
+            _messageId
         );
         _controller.withdrawFromAppChain{value: _fees}(
             _raju,

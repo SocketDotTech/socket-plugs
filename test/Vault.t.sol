@@ -12,6 +12,7 @@ contract TestVault is Test {
     address immutable _raju = address(uint160(_c++));
     address immutable _connector = address(uint160(_c++));
     address immutable _wrongConnector = address(uint160(_c++));
+    bytes _messageId = abi.encode(_c++);
 
     uint256 constant _lockMaxLimit = 200 ether;
     uint256 constant _lockRate = 2 ether;
@@ -184,7 +185,7 @@ contract TestVault is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, depositAmount))
             ),
-            bytes("0")
+            _messageId
         );
         vm.expectCall(
             _connector,
@@ -236,7 +237,7 @@ contract TestVault is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, usedLimit))
             ),
-            bytes("0")
+            _messageId
         );
         _vault.depositToAppChain{value: _fees}(
             _raju,
@@ -278,7 +279,7 @@ contract TestVault is Test {
                 IConnector.outbound,
                 (_msgGasLimit, abi.encode(_raju, usedLimit))
             ),
-            bytes("0")
+            _messageId
         );
         _vault.depositToAppChain{value: _fees}(
             _raju,
