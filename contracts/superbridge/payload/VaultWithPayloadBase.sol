@@ -1,16 +1,11 @@
 pragma solidity 0.8.13;
 
-import "solmate/utils/SafeTransferLib.sol";
 import {Gauge} from "../../common/Gauge.sol";
 import {IConnector, IHub} from "../ConnectorPlug.sol";
 import {RescueFundsLib} from "../../libraries/RescueFundsLib.sol";
 import {SuperBridgePayloadBase} from "./SuperBridgePayloadBase.sol";
 
-// @todo: separate our connecter plugs
-contract Vault is Gauge, IHub, SuperBridgePayloadBase {
-    using SafeTransferLib for ERC20;
-    ERC20 public immutable token__;
-
+abstract contract VaultWithPayloadBase is Gauge, IHub, SuperBridgePayloadBase {
     struct UpdateLimitParams {
         bool isLock;
         address connector;
@@ -63,10 +58,6 @@ contract Vault is Gauge, IHub, SuperBridgePayloadBase {
         bytes32 messageId
     );
 
-    constructor(address token_) {
-        token__ = ERC20(token_);
-    }
-
     function updateLimitParams(
         UpdateLimitParams[] calldata updates_
     ) external onlyOwner {
@@ -89,6 +80,10 @@ contract Vault is Gauge, IHub, SuperBridgePayloadBase {
         emit LimitParamsUpdated(updates_);
     }
 
+    function _receiveTokens(
+        uint256 amount_
+    ) internal virtual returns (uint256 fees);
+
     function depositToAppChain(
         address receiver_,
         uint256 amount_,
@@ -103,11 +98,11 @@ contract Vault is Gauge, IHub, SuperBridgePayloadBase {
 
         _consumeFullLimit(amount_, _lockLimitParams[connector_]); // reverts on limit hit
 
-        token__.safeTransferFrom(msg.sender, address(this), amount_);
+        uint256 fees = _receiveTokens(amount_);
 
         bytes32 messageId = IConnector(connector_).getMessageId();
         bytes32 returnedMessageId = IConnector(connector_).outbound{
-            value: msg.value
+            value: fees
         }(
             msgGasLimit_,
             abi.encode(receiver_, amount_, messageId, execPayload_)
@@ -122,6 +117,8 @@ contract Vault is Gauge, IHub, SuperBridgePayloadBase {
             messageId
         );
     }
+
+    function _sendTokens(address receiver_, uint256 amount_) internal virtual;
 
     function unlockPendingFor(
         address receiver_,
@@ -142,7 +139,7 @@ contract Vault is Gauge, IHub, SuperBridgePayloadBase {
         pendingUnlocks[connector_][receiver_][messageId_] = pendingAmount;
         connectorPendingUnlocks[connector_] -= consumedAmount;
 
-        token__.safeTransfer(receiver_, consumedAmount);
+        _sendTokens(receiver_, consumedAmount);
 
         address receiver = pendingExecutions[messageId_].receiver;
         if (pendingAmount == 0 && receiver != address(0)) {
@@ -186,7 +183,7 @@ contract Vault is Gauge, IHub, SuperBridgePayloadBase {
             _unlockLimitParams[msg.sender]
         );
 
-        token__.safeTransfer(receiver, consumedAmount);
+        _sendTokens(receiver, consumedAmount);
 
         if (pendingAmount > 0) {
             // add instead of overwrite to handle case where already pending amount is left

@@ -7,7 +7,7 @@ import {IMintableERC20} from "../IMintableERC20.sol";
 import {RescueFundsLib} from "../../libraries/RescueFundsLib.sol";
 import {SuperBridgePayloadBase} from "./SuperBridgePayloadBase.sol";
 
-contract Controller is IHub, Gauge, SuperBridgePayloadBase {
+contract ControllerWithPayload is IHub, Gauge, SuperBridgePayloadBase {
     IMintableERC20 public immutable token__;
     IExchangeRate public exchangeRate__;
 
