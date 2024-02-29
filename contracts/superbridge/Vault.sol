@@ -87,8 +87,9 @@ contract Vault is SuperBridgeBase {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(address hook_) external onlyOwner {
+    function updateHook(address hook_, bool approveToken_) external onlyOwner {
         hook__ = IHook(hook_);
+        if (approveToken_) token__.approve(hook_, uint256(-1));
         emit HookUpdated(hook_);
     }
 
@@ -143,7 +144,7 @@ contract Vault is SuperBridgeBase {
             value: msg.value
         }(
             msgGasLimit_,
-            abi.encode(finalReceiver, finalAmount, messageId, execPayload_)
+            abi.encode(finalReceiver, finalAmount, messageId, extraData)
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
 
