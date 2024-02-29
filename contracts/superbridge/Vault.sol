@@ -21,7 +21,7 @@ contract Vault is SuperBridgeBase {
     // sibling chain => cache
     mapping(address => bytes) public connectorCache;
 
-    mapping (address => bool) public validConnectors;
+    mapping(address => bool) public validConnectors;
     // // siblingChainSlug => amount
     // mapping(uint32 => uint256) public siblingPendingMints;
 
@@ -43,7 +43,7 @@ contract Vault is SuperBridgeBase {
     event MessageBridgeUpdated(address newBridge);
     // emitted when message hook is updated
     event HookUpdated(address newHook);
-    event ConnectorStatusUpdated(address connector, bool  status);
+    event ConnectorStatusUpdated(address connector, bool status);
     // emitted at source when tokens are bridged to a sibling chain
     event BridgeTokens(
         uint32 siblingChainSlug,
@@ -164,7 +164,6 @@ contract Vault is SuperBridgeBase {
     function receiveInbound(
         bytes memory payload_
     ) external override nonReentrant {
-
         if (!validConnectors[msg.sender]) revert NotMessageBridge();
         (
             address receiver,
