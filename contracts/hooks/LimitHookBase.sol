@@ -2,13 +2,14 @@ pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
 import "./HookBase.sol";
+import {Gauge} from "../common/Gauge.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract enabling bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-abstract contract LimitHookBase is HookBase {
+abstract contract LimitHookBase is HookBase, Gauge {
     struct UpdateLimitParams {
         bool isMint;
         address connector;
