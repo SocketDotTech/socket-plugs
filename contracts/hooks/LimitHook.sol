@@ -9,10 +9,12 @@ import "./LimitHookBase.sol";
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
 contract LimitHook is LimitHookBase {
+    address public immutable vaultOrToken;
+
     ////////////////////////////////////////////////////////
     ////////////////////// ERRORS //////////////////////////
     ////////////////////////////////////////////////////////
-
+    error NotAuthorized();
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
@@ -38,7 +40,9 @@ contract LimitHook is LimitHookBase {
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.
      */
-    constructor(address owner_) AccessControl(owner_) {}
+    constructor(address owner_, address vaultOrToken_) AccessControl(owner_) {
+        vaultOrToken = vaultOrToken_;
+    }
 
     /**
      * @dev This function calls the srcHookCall function of the connector contract,
@@ -67,6 +71,8 @@ contract LimitHook is LimitHookBase {
             bytes memory updatedExtradata
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         if (_sendingLimitParams[connector_].maxLimit == 0)
             revert SiblingNotSupported();
 
@@ -103,6 +109,8 @@ contract LimitHook is LimitHookBase {
             bytes memory postHookData
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         if (_receivingLimitParams[connector_].maxLimit == 0)
             revert SiblingNotSupported();
         uint256 pendingAmount;
@@ -146,6 +154,8 @@ contract LimitHook is LimitHookBase {
             bytes memory newConnectorCache
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             postHookData_,
             (uint256, uint256)
@@ -187,6 +197,8 @@ contract LimitHook is LimitHookBase {
             bytes memory postRetryHookData
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         if (_receivingLimitParams[connector_].maxLimit == 0)
             revert SiblingNotSupported();
 
@@ -232,6 +244,8 @@ contract LimitHook is LimitHookBase {
             bytes memory newConnectorCache
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         (
             address updatedReceiver,
             uint256 consumedAmount,

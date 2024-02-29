@@ -21,6 +21,7 @@ contract Vault is SuperBridgeBase {
     // sibling chain => cache
     mapping(address => bytes) public connectorCache;
 
+    mapping (address => bool) public validConnectors;
     // // siblingChainSlug => amount
     // mapping(uint32 => uint256) public siblingPendingMints;
 
@@ -42,6 +43,7 @@ contract Vault is SuperBridgeBase {
     event MessageBridgeUpdated(address newBridge);
     // emitted when message hook is updated
     event HookUpdated(address newHook);
+    event ConnectorStatusUpdated(address connector, bool  status);
     // emitted at source when tokens are bridged to a sibling chain
     event BridgeTokens(
         uint32 siblingChainSlug,
@@ -90,6 +92,17 @@ contract Vault is SuperBridgeBase {
         emit HookUpdated(hook_);
     }
 
+    function updateConnectorStatus(
+        address[] calldata connectors,
+        uint256[] calldata statuses
+    ) external onlyOwner {
+        uint256 length = connectors.length;
+        for (uint256 i; i < length; i++) {
+            validConnectors[connectors[i]] = statuses[i];
+            emit ConnectorStatusUpdated(connectors[i], statuses[i]);
+        }
+    }
+
     // /**
     //  * @notice this function is called by users to bridge their funds to a sibling chain
     //  * @dev it is payable to receive message bridge fees to be paid.
@@ -105,7 +118,7 @@ contract Vault is SuperBridgeBase {
         uint256 msgGasLimit_,
         address connector_,
         bytes calldata execPayload_
-    ) external payable {
+    ) external payable nonReentrant {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
         if (amount_ == 0) revert ZeroAmount();
 
@@ -151,8 +164,8 @@ contract Vault is SuperBridgeBase {
     function receiveInbound(
         bytes memory payload_
     ) external override nonReentrant {
-        // if (msg.sender != address(bridge__)) revert NotMessageBridge();
-        // TODO replace this check
+
+        if (!validConnectors[msg.sender]) revert NotMessageBridge();
         (
             address receiver,
             uint256 unlockAmount,
@@ -202,7 +215,10 @@ contract Vault is SuperBridgeBase {
         }
     }
 
-    function retry(address connector_, bytes32 identifier_) external {
+    function retry(
+        address connector_,
+        bytes32 identifier_
+    ) external nonReentrant {
         bytes memory idCache = identifierCache[identifier_];
         bytes memory connCache = connectorCache[connector_];
 
@@ -220,20 +236,19 @@ contract Vault is SuperBridgeBase {
 
         token__.safeTransfer(receiver, consumedAmount);
 
-        if (postRetryHookData.length > 0) {
-            (
-                bytes memory newIdentifierCache,
-                bytes memory newConnectorCache
-            ) = hook__.postRetryHook(
-                    IConnector(msg.sender).siblingChainSlug(),
-                    connector_,
-                    idCache,
-                    connCache,
-                    postRetryHookData
-                );
-            identifierCache[identifier_] = newIdentifierCache;
-            connectorCache[connector_] = newConnectorCache;
-        }
+        (
+            bytes memory newIdentifierCache,
+            bytes memory newConnectorCache
+        ) = hook__.postRetryHook(
+                IConnector(msg.sender).siblingChainSlug(),
+                connector_,
+                idCache,
+                connCache,
+                postRetryHookData
+            );
+        identifierCache[identifier_] = newIdentifierCache;
+        connectorCache[connector_] = newConnectorCache;
+
         // emit PendingTokensBridged(
         //     siblingChainSlug_,
         //     receiver,

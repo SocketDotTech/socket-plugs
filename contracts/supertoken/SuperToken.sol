@@ -129,7 +129,7 @@ contract SuperToken is ERC20, Base {
         uint256 msgGasLimit_,
         bytes calldata payload_,
         bytes calldata options_
-    ) external payable {
+    ) external payable nonReentrant {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
         if (amount_ == 0) revert ZeroAmount();
 
@@ -234,7 +234,10 @@ contract SuperToken is ERC20, Base {
         // );
     }
 
-    function retry(uint32 siblingChainSlug_, bytes32 identifier) external {
+    function retry(
+        uint32 siblingChainSlug_,
+        bytes32 identifier
+    ) external nonReentrant {
         bytes memory idCache = identifierCache[identifier];
         bytes memory connCache = connectorCache[address(bridge__)];
 

@@ -10,12 +10,14 @@ import "../common/ExecutionHelper.sol";
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
 contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
+    address public immutable vaultOrToken;
+
     ////////////////////////////////////////////////////////
     ////////////////////// ERRORS //////////////////////////
     ////////////////////////////////////////////////////////
 
     error InvalidSiblingChainSlug();
-
+    error NotAuthorized();
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
@@ -41,7 +43,9 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.
      */
-    constructor(address owner_) AccessControl(owner_) {}
+    constructor(address owner_, address vaultOrToken_) AccessControl(owner_) {
+        vaultOrToken = vaultOrToken_;
+    }
 
     /**
      * @dev This function calls the srcHookCall function of the connector contract,
@@ -70,6 +74,7 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
             bytes memory updatedExtradata
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
         if (_sendingLimitParams[connector_].maxLimit == 0)
             revert SiblingNotSupported();
 
@@ -106,6 +111,8 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
             bytes memory postHookData
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         if (_receivingLimitParams[connector_].maxLimit == 0)
             revert SiblingNotSupported();
         uint256 pendingAmount;
@@ -149,6 +156,8 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
             bytes memory newConnectorCache
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             postHookData_,
             (uint256, uint256)
@@ -218,13 +227,14 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory connectorCache_
     )
         external
-        nonReentrant
         returns (
             address updatedReceiver,
             uint256 consumedAmount,
             bytes memory postRetryHookData
         )
     {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+
         (
             address receiver,
             uint256 pendingMint,
@@ -270,7 +280,6 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory postRetryHookData_
     )
         external
-        nonReentrant
         returns (
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache

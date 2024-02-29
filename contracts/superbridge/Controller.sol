@@ -148,8 +148,7 @@ contract Controller is SuperBridgeBase {
     function receiveInbound(
         bytes memory payload_
     ) external override nonReentrant {
-        // if (_mintLimitParams[msg.sender].maxLimit == 0)
-        //     revert ConnectorUnavailable();
+        // no need of source check here, as if invalid caller, will revert with InvalidPoolId
 
         (
             address receiver,
@@ -235,20 +234,19 @@ contract Controller is SuperBridgeBase {
         totalMinted += consumedAmount;
         token__.mint(receiver, consumedAmount);
 
-        if (postRetryHookData.length > 0) {
-            (
-                bytes memory newIdentifierCache,
-                bytes memory newConnectorCache
-            ) = hook__.postRetryHook(
-                    IConnector(msg.sender).siblingChainSlug(),
-                    connector_,
-                    idCache,
-                    connCache,
-                    postRetryHookData
-                );
-            identifierCache[identifier_] = newIdentifierCache;
-            connectorCache[connector_] = newConnectorCache;
-        }
+        (
+            bytes memory newIdentifierCache,
+            bytes memory newConnectorCache
+        ) = hook__.postRetryHook(
+                IConnector(msg.sender).siblingChainSlug(),
+                connector_,
+                idCache,
+                connCache,
+                postRetryHookData
+            );
+        identifierCache[identifier_] = newIdentifierCache;
+        connectorCache[connector_] = newConnectorCache;
+
         // emit PendingTokensBridged(
         //     siblingChainSlug_,
         //     receiver,
