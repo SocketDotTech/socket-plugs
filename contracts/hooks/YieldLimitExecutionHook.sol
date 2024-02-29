@@ -4,16 +4,21 @@ pragma solidity 0.8.13;
 import "openzeppelin-contracts/contracts/utils/math/Math.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {IStrategy} from "../interfaces/IStrategy.sol";
+import "solmate/utils/SafeTransferLib.sol";
+import {IConnector} from "../superbridge/ConnectorPlug.sol";
 
 import "./LimitHookBase.sol";
+import "../common/ExecutionHelper.sol";
 
-contract YieldLimitExecutionHook is LimitHookBase {
+contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
     uint256 public constant MAX_BPS = 10_000;
 
     IStrategy public strategy; // address of the strategy contract
+    ERC20 public immutable asset__;
+    address public immutable vaultOrToken;
 
     uint256 public totalLockedInStrategy; // total funds deposited in strategy
 
@@ -27,6 +32,9 @@ contract YieldLimitExecutionHook is LimitHookBase {
     error DebtRatioTooHigh();
     error NotEnoughAssets();
     error VaultShutdown();
+    error NotAuthorized();
+    error InvalidSiblingChainSlug();
+
     event WithdrawFromStrategy(uint256 withdrawn);
     event Rebalanced(
         uint256 totalIdle,
@@ -45,12 +53,14 @@ contract YieldLimitExecutionHook is LimitHookBase {
         uint256 debtRatio_,
         uint128 rebalanceDelay_,
         address strategy_,
-        address asset_
+        address asset_,
+        address vaultOrToken_
     ) AccessControl(msg.sender) {
         asset__ = ERC20(asset_);
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
         strategy = IStrategy(strategy_);
+        vaultOrToken = vaultOrToken_;
     }
 
     /**

@@ -89,13 +89,13 @@ contract Vault is SuperBridgeBase {
      */
     function updateHook(address hook_, bool approveToken_) external onlyOwner {
         hook__ = IHook(hook_);
-        if (approveToken_) token__.approve(hook_, uint256(-1));
+        if (approveToken_) token__.approve(hook_, type(uint256).max);
         emit HookUpdated(hook_);
     }
 
     function updateConnectorStatus(
         address[] calldata connectors,
-        uint256[] calldata statuses
+        bool[] calldata statuses
     ) external onlyOwner {
         uint256 length = connectors.length;
         for (uint256 i; i < length; i++) {

@@ -5,11 +5,14 @@ import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 
 import "./erc4626/ERC4626.sol";
 import {IStrategy} from "../interfaces/IStrategy.sol";
+import {IHook} from "../interfaces/IHook.sol";
+
 import {IConnector} from "../superbridge/ConnectorPlug.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import {AccessControl} from "../common/AccessControl.sol";
 
 // add shutdown
-contract YieldToken is ERC4626, ReentrancyGuard {
+contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
     IHook public hook__;
 
     // connector => timestamp
@@ -19,13 +22,26 @@ contract YieldToken is ERC4626, ReentrancyGuard {
     // total yield from all siblings
     uint256 public totalYield;
 
+    // message identifier => cache
+    mapping(bytes32 => bytes) public identifierCache;
+
+    // sibling chain => cache
+    mapping(address => bytes) public connectorCache;
+
+    mapping(address => bool) public validConnectors;
+
     error InsufficientFunds();
     error ZeroAmount();
     error ZeroAddressReceiver();
+    error NoPendingData();
+    error CannotTransferOrExecuteOnBridgeContracts();
+
+    event HookUpdated(address hook_);
 
     constructor(
         string memory name_,
         string memory symbol_,
+        address hook_,
         uint8 decimals_
     ) Token(name_, symbol_, decimals_) AccessControl(msg.sender) {
         hook__ = IHook(hook_);
@@ -86,8 +102,8 @@ contract YieldToken is ERC4626, ReentrancyGuard {
             (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
                 receiver_,
                 amount_,
-                siblingChainSlug_,
-                address(bridge__),
+                IConnector(connector_).siblingChainSlug(),
+                connector_,
                 msg.sender,
                 payload_
             );
@@ -120,7 +136,7 @@ contract YieldToken is ERC4626, ReentrancyGuard {
     ) public nonReentrant returns (uint256 amount) {
         (
             address receiver,
-            uint256 lockAmount,
+            uint256 mintAmount,
             bytes32 messageId,
             bytes memory extraData
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
@@ -128,16 +144,17 @@ contract YieldToken is ERC4626, ReentrancyGuard {
         (uint256 newYield, ) = abi.decode(extraData, (uint256, bytes));
 
         if (
-            receiver == address(this) ||
-            // receiver == address(bridge__) ||
-            receiver == address(token__)
+            receiver == address(this)
+            // ||
+            // receiver == address()
+            // receiver == address(token__)
         ) revert CannotTransferOrExecuteOnBridgeContracts();
 
         lastSyncTimestamp[msg.sender] = uint128(block.timestamp);
         totalYield = totalYield + newYield - siblingTotalYield[msg.sender];
         siblingTotalYield[msg.sender] = newYield;
 
-        if (receiver == address(0)) return;
+        if (receiver == address(0)) return 0;
 
         address finalReceiver = receiver;
         uint256 finalAmount = _calculateMintAmount(mintAmount);
@@ -146,14 +163,14 @@ contract YieldToken is ERC4626, ReentrancyGuard {
         if (address(hook__) != address(0)) {
             (finalReceiver, finalAmount, postHookData) = hook__.dstPreHookCall(
                 receiver,
-                lockAmount,
+                finalAmount,
                 IConnector(msg.sender).siblingChainSlug(),
                 msg.sender,
                 extraData,
                 connectorCache[msg.sender]
             );
         }
-        _mint(receiver, amount);
+        _mint(receiver, finalAmount);
     }
 
     function retry(
@@ -175,8 +192,8 @@ contract YieldToken is ERC4626, ReentrancyGuard {
                 connCache
             );
 
-        totalMinted += consumedAmount;
-        token__.mint(receiver, consumedAmount);
+        // totalMinted += consumedAmount;
+        _mint(receiver, consumedAmount);
 
         (
             bytes memory newIdentifierCache,
