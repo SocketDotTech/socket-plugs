@@ -2,87 +2,72 @@ pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
 import "./Base.sol";
+import "../interfaces/IHook.sol";
 
 /**
- * @title SuperTokenVault
- * @notice Vault contract which is used to lock/unlock token and enable bridging to its sibling chains.
+ * @title SuperToken
+ * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
 contract SuperTokenVault is Base {
     using SafeTransferLib for ERC20;
 
-    struct UpdateLimitParams {
-        bool isLock;
-        uint32 siblingChainSlug;
-        uint256 maxLimit;
-        uint256 ratePerSecond;
-    }
-
-    bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
-
     ERC20 public immutable token__;
+
+    // bridge contract address which provides AMB support
     IMessageBridge public bridge__;
+    IHook public hook__;
 
-    // siblingChainSlug => receiver => identifier => pendingUnlock
-    mapping(uint32 => mapping(address => mapping(bytes32 => uint256)))
-        public pendingUnlocks;
+    // message identifier => cache
+    mapping(bytes32 => bytes) public identifierCache;
 
-    // siblingChainSlug => amount
-    mapping(uint32 => uint256) public siblingPendingUnlocks;
+    // connector => cache
+    mapping(address => bytes) public connectorCache;
 
-    // siblingChainSlug => lockLimitParams
-    mapping(uint32 => LimitParams) _lockLimitParams;
-
-    // siblingChainSlug => unlockLimitParams
-    mapping(uint32 => LimitParams) _unlockLimitParams;
+    // // siblingChainSlug => amount
+    // mapping(uint32 => uint256) public siblingPendingMints;
 
     ////////////////////////////////////////////////////////
     ////////////////////// ERRORS //////////////////////////
     ////////////////////////////////////////////////////////
 
-    error SiblingChainSlugUnavailable();
+    error MessageIdMisMatched();
     error NotMessageBridge();
     error InvalidSiblingChainSlug();
-    error MessageIdMisMatched();
+    error NoPendingData();
+    error CannotTransferOrExecuteOnBridgeContracts();
     error InvalidTokenContract();
-
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
 
-    // emitted when a message bridge is updated
-    event MessageBridgeUpdated(address bridge);
-    // emitted when limit params are updated
-    event LimitParamsUpdated(UpdateLimitParams[] updates);
-    // emitted at source when tokens are deposited to be bridged to a sibling chain
-    event TokensDeposited(
+    // emitted when message bridge is updated
+    event MessageBridgeUpdated(address newBridge);
+    // emitted when message hook is updated
+    event HookUpdated(address newHook);
+    // emitted at source when tokens are bridged to a sibling chain
+    event BridgeTokens(
         uint32 siblingChainSlug,
-        address depositor,
+        address withdrawer,
         address receiver,
-        uint256 depositAmount,
+        uint256 bridgedAmount,
         bytes32 identifier
     );
-    // emitted when pending tokens are transferred to the receiver
-    event PendingTokensTransferred(
+
+    // emitted when pending tokens are minted as limits are replenished
+    event TokensBridged(
         uint32 siblingChainSlug,
         address receiver,
-        uint256 unlockedAmount,
-        uint256 pendingAmount,
+        uint256 unlockAmount,
+        uint256 totalAmount,
         bytes32 identifier
     );
-    // emitted when transfer reaches limit and token transfer is added to pending queue
-    event TokensPending(
+
+    event PendingTokensBridged(
         uint32 siblingChainSlug,
         address receiver,
-        uint256 pendingAmount,
-        uint256 totalPendingAmount,
-        bytes32 identifier
-    );
-    // emitted when pending tokens are unlocked as limits are replenished
-    event TokensUnlocked(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 unlockedAmount,
+        uint256 unlockAmount,
+        // uint256 pendingAmount,
         bytes32 identifier
     );
 
@@ -95,11 +80,13 @@ contract SuperTokenVault is Base {
     constructor(
         address token_,
         address owner_,
-        address bridge_
+        address bridge_,
+        address hook_
     ) AccessControl(owner_) {
         if (token_.code.length == 0) revert InvalidTokenContract();
         token__ = ERC20(token_);
         bridge__ = IMessageBridge(bridge_);
+        hook__ = IHook(hook_);
     }
 
     /**
@@ -114,36 +101,14 @@ contract SuperTokenVault is Base {
     }
 
     /**
-     * @notice this function is used to set bridge limits
+     * @notice this function is used to update hook
      * @dev it can only be updated by owner
-     * @param updates_ can be used to set mint and burn limits for all siblings in one call.
+     * @dev should be carefully migrated as it can risk user funds
+     * @param hook_ new hook address
      */
-    function updateLimitParams(
-        UpdateLimitParams[] calldata updates_
-    ) external onlyRole(LIMIT_UPDATER_ROLE) {
-        for (uint256 i; i < updates_.length; i++) {
-            if (updates_[i].isLock) {
-                _consumePartLimit(
-                    0,
-                    _lockLimitParams[updates_[i].siblingChainSlug]
-                ); // to keep current limit in sync
-                _lockLimitParams[updates_[i].siblingChainSlug]
-                    .maxLimit = updates_[i].maxLimit;
-                _lockLimitParams[updates_[i].siblingChainSlug]
-                    .ratePerSecond = updates_[i].ratePerSecond;
-            } else {
-                _consumePartLimit(
-                    0,
-                    _unlockLimitParams[updates_[i].siblingChainSlug]
-                ); // to keep current limit in sync
-                _unlockLimitParams[updates_[i].siblingChainSlug]
-                    .maxLimit = updates_[i].maxLimit;
-                _unlockLimitParams[updates_[i].siblingChainSlug]
-                    .ratePerSecond = updates_[i].ratePerSecond;
-            }
-        }
-
-        emit LimitParamsUpdated(updates_);
+    function updateHook(address hook_) external onlyOwner {
+        hook__ = IHook(hook_);
+        emit HookUpdated(hook_);
     }
 
     /**
@@ -160,71 +125,46 @@ contract SuperTokenVault is Base {
         uint32 siblingChainSlug_,
         uint256 amount_,
         uint256 msgGasLimit_,
+        bytes calldata payload_,
         bytes calldata options_
-    ) external payable {
+    ) external payable nonReentrant {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
         if (amount_ == 0) revert ZeroAmount();
 
-        if (_lockLimitParams[siblingChainSlug_].maxLimit == 0)
-            revert SiblingChainSlugUnavailable();
+        address finalReceiver = receiver_;
+        uint256 finalAmount = amount_;
+        bytes memory extraData = payload_;
 
-        _consumeFullLimit(amount_, _lockLimitParams[siblingChainSlug_]); // reverts on limit hit
-
-        token__.safeTransferFrom(msg.sender, address(this), amount_);
+        if (address(hook__) != address(0)) {
+            (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
+                receiver_,
+                amount_,
+                siblingChainSlug_,
+                address(bridge__),
+                msg.sender,
+                payload_
+            );
+        }
+        token__.safeTransferFrom(msg.sender, address(this), finalAmount);
 
         bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
+
+        // important to get message id as it is used as an
+        // identifier for pending amount and payload caching
         bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, amount_, messageId),
+            abi.encode(finalReceiver, finalAmount, messageId, extraData),
             options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
-        emit TokensDeposited(
-            siblingChainSlug_,
-            msg.sender,
-            receiver_,
-            amount_,
-            messageId
-        );
-    }
-
-    /**
-     * @notice this function can be used to unlock funds which were in pending state due to limits
-     * @param receiver_ address receiving bridged tokens
-     * @param siblingChainSlug_ The unique identifier of the sibling chain.
-     * @param identifier_ message identifier where message was received to unlock funds
-     */
-    function unlockPendingFor(
-        address receiver_,
-        uint32 siblingChainSlug_,
-        bytes32 identifier_
-    ) external nonReentrant {
-        if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
-            revert SiblingChainSlugUnavailable();
-
-        uint256 pendingUnlock = pendingUnlocks[siblingChainSlug_][receiver_][
-            identifier_
-        ];
-        (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
-            pendingUnlock,
-            _unlockLimitParams[siblingChainSlug_]
-        );
-
-        pendingUnlocks[siblingChainSlug_][receiver_][
-            identifier_
-        ] = pendingAmount;
-        siblingPendingUnlocks[siblingChainSlug_] -= consumedAmount;
-
-        token__.safeTransfer(receiver_, consumedAmount);
-
-        emit PendingTokensTransferred(
-            siblingChainSlug_,
-            receiver_,
-            consumedAmount,
-            pendingAmount,
-            identifier_
-        );
+        // emit TokensDeposited(
+        //     siblingChainSlug_,
+        //     msg.sender,
+        //     receiver_,
+        //     amount_,
+        //     messageId
+        // );
     }
 
     /**
@@ -239,63 +179,98 @@ contract SuperTokenVault is Base {
     ) external payable override nonReentrant {
         if (msg.sender != address(bridge__)) revert NotMessageBridge();
 
-        if (_unlockLimitParams[siblingChainSlug_].maxLimit == 0)
-            revert SiblingChainSlugUnavailable();
+        (
+            address receiver,
+            uint256 unlockAmount,
+            bytes32 identifier,
+            bytes memory extraData
+        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
-        (address receiver, uint256 unlockAmount, bytes32 identifier) = abi
-            .decode(payload_, (address, uint256, bytes32));
+        if (
+            receiver == address(this) ||
+            receiver == address(bridge__) ||
+            receiver == address(token__)
+        ) revert CannotTransferOrExecuteOnBridgeContracts();
 
-        (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
-            unlockAmount,
-            _unlockLimitParams[siblingChainSlug_]
-        );
+        address finalReceiver = receiver;
+        uint256 finalAmount = unlockAmount;
+        bytes memory postHookData = new bytes(0);
+        if (address(hook__) != address(0)) {
+            (finalReceiver, finalAmount, postHookData) = hook__.dstPreHookCall(
+                receiver,
+                unlockAmount,
+                siblingChainSlug_,
+                address(bridge__),
+                extraData,
+                connectorCache[address(bridge__)]
+            );
+        }
+        token__.safeTransfer(receiver, finalAmount);
+        if (address(hook__) != address(0)) {
+            (
+                bytes memory newIdentifierCache,
+                bytes memory newSiblingCache
+            ) = hook__.dstPostHookCall(
+                    finalReceiver,
+                    unlockAmount,
+                    siblingChainSlug_,
+                    address(bridge__),
+                    extraData,
+                    postHookData,
+                    connectorCache[address(bridge__)]
+                );
+
+            identifierCache[identifier] = newIdentifierCache;
+            connectorCache[address(bridge__)] = newSiblingCache;
+        }
+        // emit TokensBridged(
+        //     siblingChainSlug_,
+        //     receiver,
+        //     amount,
+        //     unlockAmount,
+        //     identifier
+        // );
+    }
+
+    function retry(
+        uint32 siblingChainSlug_,
+        bytes32 identifier_
+    ) external nonReentrant {
+        bytes memory idCache = identifierCache[identifier_];
+        bytes memory connCache = connectorCache[address(bridge__)];
+
+        if (idCache.length == 0) revert NoPendingData();
+        (
+            address receiver,
+            uint256 consumedAmount,
+            bytes memory postRetryHookData
+        ) = hook__.preRetryHook(
+                siblingChainSlug_,
+                address(bridge__),
+                idCache,
+                connCache
+            );
 
         token__.safeTransfer(receiver, consumedAmount);
 
-        if (pendingAmount > 0) {
-            pendingUnlocks[siblingChainSlug_][receiver][
-                identifier
-            ] = pendingAmount;
-            siblingPendingUnlocks[siblingChainSlug_] += pendingAmount;
-
-            emit TokensPending(
+        (
+            bytes memory newIdentifierCache,
+            bytes memory newConnectorCache
+        ) = hook__.postRetryHook(
                 siblingChainSlug_,
-                receiver,
-                pendingAmount,
-                pendingUnlocks[siblingChainSlug_][receiver][identifier],
-                identifier
+                address(bridge__),
+                idCache,
+                connCache,
+                postRetryHookData
             );
-        }
+        identifierCache[identifier_] = newIdentifierCache;
+        connectorCache[address(bridge__)] = newConnectorCache;
 
-        emit TokensUnlocked(
-            siblingChainSlug_,
-            receiver,
-            consumedAmount,
-            identifier
-        );
-    }
-
-    function getCurrentLockLimit(
-        uint32 siblingChainSlug_
-    ) external view returns (uint256) {
-        return _getCurrentLimit(_lockLimitParams[siblingChainSlug_]);
-    }
-
-    function getCurrentUnlockLimit(
-        uint32 siblingChainSlug_
-    ) external view returns (uint256) {
-        return _getCurrentLimit(_unlockLimitParams[siblingChainSlug_]);
-    }
-
-    function getLockLimitParams(
-        uint32 siblingChainSlug_
-    ) external view returns (LimitParams memory) {
-        return _lockLimitParams[siblingChainSlug_];
-    }
-
-    function getUnlockLimitParams(
-        uint32 siblingChainSlug_
-    ) external view returns (LimitParams memory) {
-        return _unlockLimitParams[siblingChainSlug_];
+        // emit PendingTokensBridged(
+        //     siblingChainSlug_,
+        //     receiver,
+        //     consumedAmount,
+        //     identifier
+        // );
     }
 }

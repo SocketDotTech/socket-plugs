@@ -11,18 +11,18 @@ import "./HookBase.sol";
 abstract contract LimitHookBase is HookBase {
     struct UpdateLimitParams {
         bool isMint;
-        uint32 siblingChainSlug;
+        address connector;
         uint256 maxLimit;
         uint256 ratePerSecond;
     }
 
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
-    // siblingChainSlug => receivingLimitParams
-    mapping(uint32 => LimitParams) _receivingLimitParams;
+    // connector => receivingLimitParams
+    mapping(address => LimitParams) _receivingLimitParams;
 
-    // siblingChainSlug => sendingLimitParams
-    mapping(uint32 => LimitParams) _sendingLimitParams;
+    // connector => sendingLimitParams
+    mapping(address => LimitParams) _sendingLimitParams;
 
     ////////////////////////////////////////////////////////
     ////////////////////// ERRORS //////////////////////////
@@ -49,20 +49,18 @@ abstract contract LimitHookBase is HookBase {
             if (updates[i].isMint) {
                 _consumePartLimit(
                     0,
-                    _receivingLimitParams[updates[i].siblingChainSlug]
+                    _receivingLimitParams[updates[i].connector]
                 ); // To keep the current limit in sync
-                _receivingLimitParams[updates[i].siblingChainSlug]
-                    .maxLimit = updates[i].maxLimit;
-                _receivingLimitParams[updates[i].siblingChainSlug]
+                _receivingLimitParams[updates[i].connector].maxLimit = updates[
+                    i
+                ].maxLimit;
+                _receivingLimitParams[updates[i].connector]
                     .ratePerSecond = updates[i].ratePerSecond;
             } else {
-                _consumePartLimit(
-                    0,
-                    _sendingLimitParams[updates[i].siblingChainSlug]
-                ); // To keep the current limit in sync
-                _sendingLimitParams[updates[i].siblingChainSlug]
-                    .maxLimit = updates[i].maxLimit;
-                _sendingLimitParams[updates[i].siblingChainSlug]
+                _consumePartLimit(0, _sendingLimitParams[updates[i].connector]); // To keep the current limit in sync
+                _sendingLimitParams[updates[i].connector].maxLimit = updates[i]
+                    .maxLimit;
+                _sendingLimitParams[updates[i].connector]
                     .ratePerSecond = updates[i].ratePerSecond;
             }
         }
@@ -71,26 +69,26 @@ abstract contract LimitHookBase is HookBase {
     }
 
     function getCurrentReceivingLimit(
-        uint32 siblingChainSlug
+        address connector_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_receivingLimitParams[siblingChainSlug]);
+        return _getCurrentLimit(_receivingLimitParams[connector_]);
     }
 
     function getCurrentSendingLimit(
-        uint32 siblingChainSlug
+        address connector_
     ) external view returns (uint256) {
-        return _getCurrentLimit(_sendingLimitParams[siblingChainSlug]);
+        return _getCurrentLimit(_sendingLimitParams[connector_]);
     }
 
     function getReceivingLimitParams(
-        uint32 siblingChainSlug
+        address connector_
     ) external view returns (LimitParams memory) {
-        return _receivingLimitParams[siblingChainSlug];
+        return _receivingLimitParams[connector_];
     }
 
     function getSendingLimitParams(
-        uint32 siblingChainSlug
+        address connector_
     ) external view returns (LimitParams memory) {
-        return _sendingLimitParams[siblingChainSlug];
+        return _sendingLimitParams[connector_];
     }
 }

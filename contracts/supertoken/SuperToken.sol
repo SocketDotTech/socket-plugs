@@ -2,7 +2,7 @@ pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
 import "./Base.sol";
-import "./interfaces/IHook.sol";
+import "../interfaces/IHook.sol";
 
 /**
  * @title SuperToken
@@ -17,8 +17,8 @@ contract SuperToken is ERC20, Base {
     // message identifier => cache
     mapping(bytes32 => bytes) public identifierCache;
 
-    // sibling chain => cache
-    mapping(uint32 => bytes) public siblingChainCache;
+    // connector => cache
+    mapping(address => bytes) public connectorCache;
 
     // // siblingChainSlug => amount
     // mapping(uint32 => uint256) public siblingPendingMints;
@@ -118,31 +118,37 @@ contract SuperToken is ERC20, Base {
      * @dev it is payable to receive message bridge fees to be paid.
      * @param receiver_ address receiving bridged tokens
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
-     * @param sendingAmount_ amount bridged
+     * @param amount_ amount bridged
      * @param msgGasLimit_ min gas limit needed for execution at destination
      * @param options_ additional message bridge options can be provided using this param
      */
     function bridge(
         address receiver_,
         uint32 siblingChainSlug_,
-        uint256 sendingAmount_,
+        uint256 amount_,
         uint256 msgGasLimit_,
         bytes calldata payload_,
         bytes calldata options_
     ) external payable {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
-        if (sendingAmount_ == 0) revert ZeroAmount();
+        if (amount_ == 0) revert ZeroAmount();
 
-        (address receiver, uint256 amount, bytes memory extraData) = hook__
-            .srcHookCall(
+        address finalReceiver = receiver_;
+        uint256 finalAmount = amount_;
+        bytes memory extraData = payload_;
+
+        if (address(hook__) != address(0)) {
+            (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
                 receiver_,
-                sendingAmount_,
+                amount_,
                 siblingChainSlug_,
                 address(bridge__),
                 msg.sender,
                 payload_
             );
-        _burn(msg.sender, amount);
+        }
+
+        _burn(msg.sender, finalAmount);
 
         bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
 
@@ -151,15 +157,15 @@ contract SuperToken is ERC20, Base {
         bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
             siblingChainSlug_,
             msgGasLimit_,
-            abi.encode(receiver_, sendingAmount_, messageId, extraData),
+            abi.encode(finalReceiver, finalAmount, messageId, extraData),
             options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
         emit BridgeTokens(
             siblingChainSlug_,
             msg.sender,
-            receiver_,
-            sendingAmount_,
+            finalReceiver,
+            finalAmount,
             messageId
         );
     }
@@ -186,34 +192,39 @@ contract SuperToken is ERC20, Base {
         if (receiver == address(this) || receiver == address(bridge__))
             revert CannotTransferOrExecuteOnBridgeContracts();
 
-        (
-            address newReceiver,
-            uint256 newAmount,
-            bytes memory postHookData
-        ) = hook__.dstPreHookCall(
+        address finalReceiver = receiver;
+        uint256 finalAmount = mintAmount;
+        bytes memory postHookData = new bytes(0);
+        if (address(hook__) != address(0)) {
+            (finalReceiver, finalAmount, postHookData) = hook__.dstPreHookCall(
                 receiver,
                 mintAmount,
                 siblingChainSlug_,
                 address(bridge__),
                 extraData,
-                siblingChainCache[siblingChainSlug_]
+                connectorCache[address(bridge__)]
             );
+        }
 
-        _mint(newReceiver, newAmount);
+        _mint(finalReceiver, finalAmount);
 
-        (bytes memory newIdentifierCache, bytes memory newSiblingCache) = hook__
-            .dstPostHookCall(
-                newReceiver,
-                mintAmount,
-                siblingChainSlug_,
-                address(bridge__),
-                extraData,
-                postHookData,
-                siblingChainCache[siblingChainSlug_]
-            );
+        if (address(hook__) != address(0)) {
+            (
+                bytes memory newIdentifierCache,
+                bytes memory newSiblingCache
+            ) = hook__.dstPostHookCall(
+                    finalReceiver,
+                    mintAmount,
+                    siblingChainSlug_,
+                    address(bridge__),
+                    extraData,
+                    postHookData,
+                    connectorCache[address(bridge__)]
+                );
 
-        identifierCache[identifier] = newIdentifierCache;
-        siblingChainCache[siblingChainSlug_] = newSiblingCache;
+            identifierCache[identifier] = newIdentifierCache;
+            connectorCache[address(bridge__)] = newSiblingCache;
+        }
         // emit TokensBridged(
         //     siblingChainSlug_,
         //     receiver,
@@ -225,30 +236,36 @@ contract SuperToken is ERC20, Base {
 
     function retry(uint32 siblingChainSlug_, bytes32 identifier) external {
         bytes memory idCache = identifierCache[identifier];
-        bytes memory siblingCache = siblingChainCache[siblingChainSlug_];
+        bytes memory connCache = connectorCache[address(bridge__)];
 
         if (idCache.length == 0) revert NoPendingData();
+
         (
             address receiver,
             uint256 consumedAmount,
             bytes memory postRetryHookData
-        ) = hook__.preRetryHook(siblingChainSlug_, idCache, siblingCache);
+        ) = hook__.preRetryHook(
+                siblingChainSlug_,
+                address(bridge__),
+                idCache,
+                connCache
+            );
 
         _mint(receiver, consumedAmount);
 
-        if (postRetryHookData.length) {
-            (
-                bytes memory newIdentifierCache,
-                bytes memory newSiblingChainCache
-            ) = hook__.postRetryHook(
-                    siblingChainSlug_,
-                    idCache,
-                    siblingCache,
-                    postRetryHookData
-                );
-            identifierCache[identifier] = newIdentifierCache;
-            siblingChainCache[siblingChainSlug_] = newSiblingChainCache;
-        }
+        (
+            bytes memory newIdentifierCache,
+            bytes memory newConnectorCache
+        ) = hook__.postRetryHook(
+                siblingChainSlug_,
+                address(bridge__),
+                idCache,
+                connCache,
+                postRetryHookData
+            );
+        identifierCache[identifier] = newIdentifierCache;
+        connectorCache[address(bridge__)] = newConnectorCache;
+
         // emit PendingTokensBridged(
         //     siblingChainSlug_,
         //     receiver,

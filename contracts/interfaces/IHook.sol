@@ -33,7 +33,7 @@ interface IHook {
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
      * @param connector_ The address of the connector contract.
      * @param extradata_ Additional data to be passed to the connector contract.
-     * @param siblingChainCache_ Sibling chain cache containing pending amount information.
+     * @param connectorCache_ Sibling chain cache containing pending amount information.
      * @return receiver The updated receiver of the funds.
      * @return consumedAmount The current minted amount of funds.
      * @return postHookData The postHookData.
@@ -44,7 +44,7 @@ interface IHook {
         uint32 siblingChainSlug_,
         address connector_,
         bytes memory extradata_,
-        bytes memory siblingChainCache_
+        bytes memory connectorCache_
     )
         external
         returns (
@@ -67,12 +67,12 @@ interface IHook {
         address connector_,
         bytes memory extradata_,
         bytes memory postHookData_,
-        bytes memory siblingChainCache_
+        bytes memory connectorCache_
     )
         external
         returns (
             bytes memory newIdentifierCache,
-            bytes memory newSiblingChainCache_
+            bytes memory newConnectorCache_
         );
 
     /**
@@ -80,15 +80,16 @@ interface IHook {
      * @dev This function can be used to mint funds which were in a pending state due to limits.
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
      * @param identifierCache_ Identifier cache containing pending mint information.
-     * @param siblingChainCache_ Sibling chain cache containing pending amount information.
+     * @param connectorCache_ Sibling chain cache containing pending amount information.
      * @return receiver The updated receiver of the funds.
      * @return consumedAmount The amount consumed from the limit.
      * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
      */
     function preRetryHook(
         uint32 siblingChainSlug_,
+        address connector_,
         bytes memory identifierCache_,
-        bytes memory siblingChainCache_
+        bytes memory connectorCache_
     )
         external
         returns (
@@ -102,20 +103,21 @@ interface IHook {
      * @dev This function can be used to update caches after retrying a hook.
      * @param siblingChainSlug_ The unique identifier of the sibling chain.
      * @param identifierCache_ Identifier cache containing pending mint information.
-     * @param siblingChainCache_ Sibling chain cache containing pending amount information.
+     * @param connectorCache_ Sibling chain cache containing pending amount information.
      * @param postRetryHookData_ The post-hook data to be processed after the retry hook execution.
      * @return newIdentifierCache The updated identifier cache.
-     * @return newSiblingChainCache The updated sibling chain cache.
+     * @return newConnectorCache The updated sibling chain cache.
      */
     function postRetryHook(
         uint32 siblingChainSlug_,
+        address connector_,
         bytes memory identifierCache_,
-        bytes memory siblingChainCache_,
+        bytes memory connectorCache_,
         bytes memory postRetryHookData_
     )
         external
         returns (
             bytes memory newIdentifierCache,
-            bytes memory newSiblingChainCache
+            bytes memory newConnectorCache
         );
 }

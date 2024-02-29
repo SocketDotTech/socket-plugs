@@ -1,22 +1,21 @@
 pragma solidity 0.8.13;
 
 import {IExchangeRate} from "./ExchangeRate.sol";
-import {Ownable} from "../common/Ownable.sol";
-import {Gauge} from "../common/Gauge.sol";
-import {IConnector, IHub} from "./ConnectorPlug.sol";
 import {IMintableERC20} from "./IMintableERC20.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import "solmate/utils/SafeTransferLib.sol";
+import "./SuperBridgeBase.sol";
+import "../interfaces/IHook.sol";
 
-contract Controller is IHub, Gauge, Ownable(msg.sender) {
+contract Controller is SuperBridgeBase {
     IMintableERC20 public immutable token__;
     IExchangeRate public exchangeRate__;
+    IHook public hook__;
 
-    struct UpdateLimitParams {
-        bool isMint;
-        address connector;
-        uint256 maxLimit;
-        uint256 ratePerSecond;
-    }
+    // message identifier => cache
+    mapping(bytes32 => bytes) public identifierCache;
+
+    // connector => cache
+    mapping(address => bytes) public connectorCache;
 
     // connectorPoolId => totalLockedAmount
     mapping(uint256 => uint256) public poolLockedAmounts;
@@ -24,54 +23,55 @@ contract Controller is IHub, Gauge, Ownable(msg.sender) {
     // connector => connectorPoolId
     mapping(address => uint256) public connectorPoolIds;
 
-    // connector => mintLimitParams
-    mapping(address => LimitParams) _mintLimitParams;
-
-    // connector => burnLimitParams
-    mapping(address => LimitParams) _burnLimitParams;
-
-    // connector => receiver => amount
-    mapping(address => mapping(address => uint256)) public pendingMints;
-
-    // connector => amount
-    mapping(address => uint256) public connectorPendingMints;
-
     uint256 public totalMinted;
 
     error ConnectorUnavailable();
     error InvalidPoolId();
-    error ZeroAmount();
+    error CannotTransferOrExecuteOnBridgeContracts();
+    error NoPendingData();
+    error MessageIdMisMatched();
     event ExchangeRateUpdated(address exchangeRate);
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
-    event LimitParamsUpdated(UpdateLimitParams[] updates);
+    // emitted when message hook is updated
+    event HookUpdated(address newHook);
     event TokensWithdrawn(
         address connector,
         address withdrawer,
         address receiver,
-        uint256 burnAmount
+        uint256 burnAmount,
+        bytes32 messageId
     );
-    event PendingTokensMinted(
-        address connector,
-        address receiver,
-        uint256 mintAmount,
-        uint256 pendingAmount
-    );
-    event TokensPending(
+    event TokensMinted(
         address connecter,
         address receiver,
-        uint256 pendingAmount,
-        uint256 totalPendingAmount
+        uint256 mintAmount,
+        bytes32 messageId
     );
-    event TokensMinted(address connecter, address receiver, uint256 mintAmount);
 
-    constructor(address token_, address exchangeRate_) {
+    constructor(
+        address token_,
+        address exchangeRate_,
+        address hook_
+    ) AccessControl(msg.sender) {
         token__ = IMintableERC20(token_);
         exchangeRate__ = IExchangeRate(exchangeRate_);
+        hook__ = IHook(hook_);
     }
 
     function updateExchangeRate(address exchangeRate_) external onlyOwner {
         exchangeRate__ = IExchangeRate(exchangeRate_);
         emit ExchangeRateUpdated(exchangeRate_);
+    }
+
+    /**
+     * @notice this function is used to update hook
+     * @dev it can only be updated by owner
+     * @dev should be carefully migrated as it can risk user funds
+     * @param hook_ new hook address
+     */
+    function updateHook(address hook_) external onlyOwner {
+        hook__ = IHook(hook_);
+        emit HookUpdated(hook_);
     }
 
     function updateConnectorPoolId(
@@ -86,127 +86,175 @@ contract Controller is IHub, Gauge, Ownable(msg.sender) {
         }
     }
 
-    function updateLimitParams(
-        UpdateLimitParams[] calldata updates_
-    ) external onlyOwner {
-        for (uint256 i; i < updates_.length; i++) {
-            if (updates_[i].isMint) {
-                _consumePartLimit(0, _mintLimitParams[updates_[i].connector]); // to keep current limit in sync
-                _mintLimitParams[updates_[i].connector].maxLimit = updates_[i]
-                    .maxLimit;
-                _mintLimitParams[updates_[i].connector]
-                    .ratePerSecond = updates_[i].ratePerSecond;
-            } else {
-                _consumePartLimit(0, _burnLimitParams[updates_[i].connector]); // to keep current limit in sync
-                _burnLimitParams[updates_[i].connector].maxLimit = updates_[i]
-                    .maxLimit;
-                _burnLimitParams[updates_[i].connector]
-                    .ratePerSecond = updates_[i].ratePerSecond;
-            }
-        }
-
-        emit LimitParamsUpdated(updates_);
-    }
-
-    // do we throttle burn amount or unlock amount? burn for now
     function withdrawFromAppChain(
         address receiver_,
         uint256 burnAmount_,
         uint256 msgGasLimit_,
-        address connector_
-    ) external payable {
+        address connector_,
+        bytes calldata execPayload_
+    ) external payable nonReentrant {
         if (burnAmount_ == 0) revert ZeroAmount();
+        if (receiver_ == address(0)) revert ZeroAddressReceiver();
 
-        if (_burnLimitParams[connector_].maxLimit == 0)
-            revert ConnectorUnavailable();
+        address finalReceiver = receiver_;
+        uint256 finalAmount = burnAmount_;
+        bytes memory extraData = execPayload_;
 
-        _consumeFullLimit(burnAmount_, _burnLimitParams[connector_]); // reverts on limit hit
+        if (address(hook__) != address(0)) {
+            (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
+                receiver_,
+                burnAmount_,
+                IConnector(connector_).siblingChainSlug(),
+                connector_,
+                msg.sender,
+                execPayload_
+            );
+        }
 
-        totalMinted -= burnAmount_;
-        _burn(msg.sender, burnAmount_);
+        totalMinted -= finalAmount;
+        _burn(msg.sender, finalAmount);
 
         uint256 connectorPoolId = connectorPoolIds[connector_];
         if (connectorPoolId == 0) revert InvalidPoolId();
-        uint256 unlockAmount = exchangeRate__.getUnlockAmount(
-            burnAmount_,
+        finalAmount = exchangeRate__.getUnlockAmount(
+            finalAmount,
             poolLockedAmounts[connectorPoolId]
         );
-        poolLockedAmounts[connectorPoolId] -= unlockAmount; // underflow revert expected
+        poolLockedAmounts[connectorPoolId] -= finalAmount; // underflow revert expected
 
-        IConnector(connector_).outbound{value: msg.value}(
+        bytes32 messageId = IConnector(connector_).getMessageId();
+        bytes32 returnedMessageId = IConnector(connector_).outbound{
+            value: msg.value
+        }(
             msgGasLimit_,
-            abi.encode(receiver_, unlockAmount)
+            abi.encode(finalReceiver, finalAmount, messageId, execPayload_)
         );
+        if (returnedMessageId != messageId) revert MessageIdMisMatched();
 
-        emit TokensWithdrawn(connector_, msg.sender, receiver_, burnAmount_);
+        emit TokensWithdrawn(
+            connector_,
+            msg.sender,
+            finalReceiver,
+            finalAmount,
+            messageId
+        );
     }
 
     function _burn(address user_, uint256 burnAmount_) internal virtual {
         token__.burn(user_, burnAmount_);
     }
 
-    function mintPendingFor(address receiver_, address connector_) external {
-        if (_mintLimitParams[connector_].maxLimit == 0)
-            revert ConnectorUnavailable();
-
-        uint256 pendingMint = pendingMints[connector_][receiver_];
-        (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
-            pendingMint,
-            _mintLimitParams[connector_]
-        );
-
-        pendingMints[connector_][receiver_] = pendingAmount;
-        connectorPendingMints[connector_] -= consumedAmount;
-        totalMinted += consumedAmount;
-
-        token__.mint(receiver_, consumedAmount);
-
-        emit PendingTokensMinted(
-            connector_,
-            receiver_,
-            consumedAmount,
-            pendingAmount
-        );
-    }
-
     // receive inbound assuming connector called
-    function receiveInbound(bytes memory payload_) external override {
-        if (_mintLimitParams[msg.sender].maxLimit == 0)
-            revert ConnectorUnavailable();
+    function receiveInbound(
+        bytes memory payload_
+    ) external override nonReentrant {
+        // if (_mintLimitParams[msg.sender].maxLimit == 0)
+        //     revert ConnectorUnavailable();
 
-        (address receiver, uint256 lockAmount) = abi.decode(
-            payload_,
-            (address, uint256)
-        );
+        (
+            address receiver,
+            uint256 lockAmount,
+            bytes32 messageId,
+            bytes memory extraData
+        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
+
+        if (
+            receiver == address(this) ||
+            // receiver == address(bridge__) ||
+            receiver == address(token__)
+        ) revert CannotTransferOrExecuteOnBridgeContracts();
+
         uint256 connectorPoolId = connectorPoolIds[msg.sender];
         if (connectorPoolId == 0) revert InvalidPoolId();
-        poolLockedAmounts[connectorPoolId] += lockAmount;
 
-        uint256 mintAmount = exchangeRate__.getMintAmount(
-            lockAmount,
-            poolLockedAmounts[connectorPoolId]
-        );
-        (uint256 consumedAmount, uint256 pendingAmount) = _consumePartLimit(
-            mintAmount,
-            _mintLimitParams[msg.sender]
-        );
+        address finalReceiver = receiver;
+        uint256 finalAmount = lockAmount;
+        bytes memory postHookData = new bytes(0);
 
-        if (pendingAmount > 0) {
-            // add instead of overwrite to handle case where already pending amount is left
-            pendingMints[msg.sender][receiver] += pendingAmount;
-            connectorPendingMints[msg.sender] += pendingAmount;
-            emit TokensPending(
-                msg.sender,
+        if (address(hook__) != address(0)) {
+            (finalReceiver, finalAmount, postHookData) = hook__.dstPreHookCall(
                 receiver,
-                pendingAmount,
-                pendingMints[msg.sender][receiver]
+                lockAmount,
+                IConnector(msg.sender).siblingChainSlug(),
+                msg.sender,
+                extraData,
+                connectorCache[msg.sender]
             );
         }
+
+        poolLockedAmounts[connectorPoolId] += finalAmount;
+
+        finalAmount = exchangeRate__.getMintAmount(
+            finalAmount,
+            poolLockedAmounts[connectorPoolId]
+        );
+
+        totalMinted += finalAmount;
+        token__.mint(receiver, finalAmount);
+
+        if (address(hook__) != address(0)) {
+            (
+                bytes memory newIdentifierCache,
+                bytes memory newSiblingCache
+            ) = hook__.dstPostHookCall(
+                    finalReceiver,
+                    lockAmount,
+                    IConnector(msg.sender).siblingChainSlug(),
+                    msg.sender,
+                    extraData,
+                    postHookData,
+                    connectorCache[msg.sender]
+                );
+
+            identifierCache[messageId] = newIdentifierCache;
+            connectorCache[msg.sender] = newSiblingCache;
+        }
+
+        emit TokensMinted(msg.sender, finalReceiver, finalAmount, messageId);
+    }
+
+    function retry(
+        address connector_,
+        bytes32 identifier_
+    ) external nonReentrant {
+        bytes memory idCache = identifierCache[identifier_];
+        bytes memory connCache = connectorCache[connector_];
+
+        if (idCache.length == 0) revert NoPendingData();
+        (
+            address receiver,
+            uint256 consumedAmount,
+            bytes memory postRetryHookData
+        ) = hook__.preRetryHook(
+                IConnector(msg.sender).siblingChainSlug(),
+                connector_,
+                idCache,
+                connCache
+            );
 
         totalMinted += consumedAmount;
         token__.mint(receiver, consumedAmount);
 
-        emit TokensMinted(msg.sender, receiver, consumedAmount);
+        if (postRetryHookData.length > 0) {
+            (
+                bytes memory newIdentifierCache,
+                bytes memory newConnectorCache
+            ) = hook__.postRetryHook(
+                    IConnector(msg.sender).siblingChainSlug(),
+                    connector_,
+                    idCache,
+                    connCache,
+                    postRetryHookData
+                );
+            identifierCache[identifier_] = newIdentifierCache;
+            connectorCache[connector_] = newConnectorCache;
+        }
+        // emit PendingTokensBridged(
+        //     siblingChainSlug_,
+        //     receiver,
+        //     consumedAmount,
+        //     identifier
+        // );
     }
 
     function getMinFees(
@@ -214,43 +262,5 @@ contract Controller is IHub, Gauge, Ownable(msg.sender) {
         uint256 msgGasLimit_
     ) external view returns (uint256 totalFees) {
         return IConnector(connector_).getMinFees(msgGasLimit_);
-    }
-
-    function getCurrentMintLimit(
-        address connector_
-    ) external view returns (uint256) {
-        return _getCurrentLimit(_mintLimitParams[connector_]);
-    }
-
-    function getCurrentBurnLimit(
-        address connector_
-    ) external view returns (uint256) {
-        return _getCurrentLimit(_burnLimitParams[connector_]);
-    }
-
-    function getMintLimitParams(
-        address connector_
-    ) external view returns (LimitParams memory) {
-        return _mintLimitParams[connector_];
-    }
-
-    function getBurnLimitParams(
-        address connector_
-    ) external view returns (LimitParams memory) {
-        return _burnLimitParams[connector_];
-    }
-
-    /**
-     * @notice Rescues funds from the contract if they are locked by mistake.
-     * @param token_ The address of the token contract.
-     * @param rescueTo_ The address where rescued tokens need to be sent.
-     * @param amount_ The amount of tokens to be rescued.
-     */
-    function rescueFunds(
-        address token_,
-        address rescueTo_,
-        uint256 amount_
-    ) external onlyOwner {
-        RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }

@@ -1,12 +1,10 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/ReentrancyGuard.sol";
-
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import {Gauge} from "../common/Gauge.sol";
 import {AccessControl} from "../common/AccessControl.sol";
-
-import "./interfaces/ISuperTokenOrVault.sol";
-import "./interfaces/IMessageBridge.sol";
+import "../interfaces/IHook.sol";
 
 /**
  * @title Base contract for super token and vault
@@ -14,7 +12,7 @@ import "./interfaces/IMessageBridge.sol";
  * @dev This contract implements Socket's IPlug to enable message bridging and IMessageBridge
  * to support any type of message bridge.
  */
-abstract contract Base is ReentrancyGuard, ISuperTokenOrVault, AccessControl {
+abstract contract HookBase is ReentrancyGuard, Gauge, AccessControl, IHook {
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
     error ZeroAddressReceiver();

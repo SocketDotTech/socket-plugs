@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "../../libraries/ExcessivelySafeCall.sol";
+import "../libraries/ExcessivelySafeCall.sol";
 
 /**
  * @title ExecutionHelper
@@ -16,10 +16,10 @@ contract ExecutionHelper {
      * @param target_ address of target.
      * @param payload_ payload to be executed at target.
      */
-    function execute(
+    function _execute(
         address target_,
         bytes memory payload_
-    ) external returns (bool success) {
+    ) internal returns (bool success) {
         if (target_ == address(this)) return false;
         (success, ) = target_.excessivelySafeCall(
             gasleft(),
