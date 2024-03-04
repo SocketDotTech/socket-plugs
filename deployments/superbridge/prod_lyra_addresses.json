@@ -244,7 +244,24 @@
     },
     "wstETH": {
       "isAppChain": true,
-      "ExchangeRate": "0xD6787D550f9dFC157575264C4fFD1cCCeaDe547E"
+      "MintableToken": "0xdf77b286eDa539CCb6326e9eDB86aa69D83108a5",
+      "ExchangeRate": "0xD6787D550f9dFC157575264C4fFD1cCCeaDe547E",
+      "Controller": "0x760c8D80905dCE001E9f0982F3Eb7722C342DecF",
+      "connectors": {
+        "1": {
+          "FAST": "0x03490730DFAb89f2468da469C5459156F85a69f8",
+          "NATIVE_BRIDGE": "0xd15158d22929849Aa01fE527bcfadBa6821C80Ab"
+        },
+        "10": {
+          "FAST": "0x81405706a4E317eFf7a7154E600ADD19Da2dB80d"
+        },
+        "8453": {
+          "FAST": "0x27F596952389Cb0489AABeC829ADF44c775625e5"
+        },
+        "42161": {
+          "FAST": "0x122B8c35acC306f89191ceB76FD533620B9C8945"
+        }
+      }
     }
   },
   "8453": {
