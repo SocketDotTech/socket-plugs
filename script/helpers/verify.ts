@@ -30,6 +30,8 @@ export const main = async () => {
     const chains: ChainSlug[] = Object.keys(verificationParams).map((c) =>
       Number(c)
     );
+
+    console.log(chains);
     if (!chains) return;
 
     for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {
@@ -37,8 +39,8 @@ export const main = async () => {
       if (
         chain == ChainSlug.AEVO ||
         chain == ChainSlug.AEVO_TESTNET ||
-        chain == ChainSlug.LYRA ||
-        chain == ChainSlug.LYRA_TESTNET ||
+        // chain == ChainSlug.LYRA ||
+        // chain == ChainSlug.LYRA_TESTNET ||
         chain == ChainSlug.SX_NETWORK_TESTNET ||
         chain == ChainSlug.MODE_TESTNET ||
         chain == ChainSlug.VICTION_TESTNET ||

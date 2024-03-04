@@ -7,6 +7,7 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.WETH]: "Wrapped Ether",
   [Tokens.WBTC]: "Wrapped Bitcoin",
   [Tokens.USDT]: "Tether USD",
+  [Tokens.SNX]: "Synthetix Network Token",
 };
 
 export const tokenSymbol: { [key in Tokens]: string } = {
@@ -16,6 +17,7 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.WETH]: "WETH",
   [Tokens.WBTC]: "WBTC",
   [Tokens.USDT]: "USDT",
+  [Tokens.SNX]: "SNX",
 };
 
 export const tokenDecimals: { [key in Tokens]: number } = {
@@ -25,4 +27,5 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.WETH]: 18,
   [Tokens.WBTC]: 8,
   [Tokens.USDT]: 6,
+  [Tokens.SNX]: 18,
 };

@@ -101,6 +101,8 @@ const config: HardhatUserConfig = {
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       base: process.env.BASESCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
+      lyra: "none",
+      "lyra-testnet": "none",
     },
     customChains: [
       {
@@ -141,6 +143,24 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.basescan.org/api",
           browserURL: "https://basescan.org/",
+        },
+      },
+      {
+        network: "lyra",
+        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA],
+        urls: {
+          apiURL: "https://explorer.lyra.finance/api",
+          browserURL: "https://explorer.lyra.finance",
+        },
+      },
+      {
+        network: "lyra-testnet",
+        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA_TESTNET],
+        urls: {
+          apiURL:
+            "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz/api",
+          browserURL:
+            "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz/",
         },
       },
     ],

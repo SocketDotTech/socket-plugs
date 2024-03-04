@@ -31,6 +31,7 @@ import {
 } from "../../../src";
 import { isAppChain, getProjectTokenConstants } from "../../helpers/constants";
 import { ProjectTokenConstants } from "../../constants/types";
+import { TokenDetails } from "../../constants/token-constants/token-details";
 
 export interface ReturnObj {
   allDeployed: boolean;
@@ -243,14 +244,21 @@ const deployAppChainContracts = async (
 const deployNonAppChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
+  console.log(
+    `Deploying non app chain contracts for ${getToken()}, chain: ${
+      deployParams.currentChainSlug
+    }...`
+  );
   try {
-    if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])
-      throw new Error("Token not found on chain");
+    const nonMintableToken =
+      deployParams.addresses[SuperBridgeContracts.NonMintableToken] ??
+      TokenDetails[deployParams.currentChainSlug][getToken()];
+    if (!nonMintableToken) throw new Error("Token not found on chain");
 
     const vault: Contract = await getOrDeploy(
       SuperBridgeContracts.Vault,
       "contracts/superbridge/Vault.sol",
-      [deployParams.addresses[SuperBridgeContracts.NonMintableToken]],
+      [nonMintableToken],
       deployParams
     );
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
