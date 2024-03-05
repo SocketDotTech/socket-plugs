@@ -14,8 +14,28 @@ import "../interfaces/IHook.sol";
 abstract contract HookBase is ReentrancyGuard, AccessControl, IHook {
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
+    address public immutable vaultOrToken;
+
+    error NotAuthorized();
     error ZeroAddressReceiver();
     error ZeroAmount();
+
+    /**
+     * @notice Constructor for creating a new SuperToken.
+     */
+    constructor(address owner_, address vaultOrToken_) AccessControl(owner_) {
+        vaultOrToken = vaultOrToken_;
+    }
+
+    modifier isVaultOrToken() {
+        if (msg.sender != vaultOrToken) revert NotAuthorized();
+        _;
+    }
+
+    modifier isValidReceiver(address receiver_) {
+        if (receiver_ == address(0)) revert ZeroAddressReceiver();
+        _;
+    }
 
     /**
      * @notice Rescues funds from the contract if they are locked by mistake.

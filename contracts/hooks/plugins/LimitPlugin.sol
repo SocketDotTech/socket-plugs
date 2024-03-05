@@ -1,15 +1,15 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./HookBase.sol";
-import {Gauge} from "../common/Gauge.sol";
+import "../HookBase.sol";
+import {Gauge} from "../../common/Gauge.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract enabling bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-abstract contract LimitHookBase is HookBase, Gauge {
+abstract contract LimitPlugin is Gauge, HookBase {
     struct UpdateLimitParams {
         bool isMint;
         address connector;
@@ -30,6 +30,7 @@ abstract contract LimitHookBase is HookBase, Gauge {
     ////////////////////////////////////////////////////////
 
     error SiblingNotSupported();
+    error NotAuthorized();
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -37,6 +38,29 @@ abstract contract LimitHookBase is HookBase, Gauge {
 
     // Emitted when limit parameters are updated
     event LimitParamsUpdated(UpdateLimitParams[] updates);
+
+    // Emitted when pending tokens are minted to the receiver
+    event PendingTokensBridged(
+        uint32 siblingChainSlug,
+        address receiver,
+        uint256 mintAmount,
+        uint256 pendingAmount,
+        bytes32 identifier
+    );
+    // Emitted when the transfer reaches the limit, and the token mint is added to the pending queue
+    event TokensPending(
+        uint32 siblingChainSlug,
+        address receiver,
+        uint256 pendingAmount,
+        uint256 totalPendingAmount,
+        bytes32 identifier
+    );
+
+    modifier isSiblingSupported(address connector_) {
+        if (_receivingLimitParams[connector_].maxLimit == 0)
+            revert SiblingNotSupported();
+        _;
+    }
 
     /**
      * @notice This function is used to set bridge limits.
@@ -91,5 +115,16 @@ abstract contract LimitHookBase is HookBase, Gauge {
         address connector_
     ) external view returns (LimitParams memory) {
         return _sendingLimitParams[connector_];
+    }
+
+    function _limitSrcHook(
+        address receiver_,
+        address connector_,
+        uint256 amount_
+    ) internal {
+        if (_sendingLimitParams[connector_].maxLimit == 0)
+            revert SiblingNotSupported();
+
+        _consumeFullLimit(amount_, _sendingLimitParams[connector_]); // Reverts on limit hit
     }
 }

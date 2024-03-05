@@ -5,10 +5,6 @@ import {ISocket} from "../interfaces/ISocket.sol";
 import {IPlug} from "../interfaces/IPlug.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 
-interface IHub {
-    function receiveInbound(bytes memory payload_) external;
-}
-
 interface IConnector {
     function outbound(
         uint256 msgGasLimit_,
@@ -47,7 +43,8 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
 
     function outbound(
         uint256 msgGasLimit_,
-        bytes memory payload_
+        bytes memory payload_,
+        bytes memory
     ) external payable override returns (bytes32 messageId_) {
         if (msg.sender != address(hub__)) revert NotHub();
 
@@ -69,13 +66,18 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
         hub__.receiveInbound(payload_);
     }
 
+    /**
+     * @notice this function calculates the fees needed to send the message to Socket.
+     * @param msgGasLimit_ min gas limit needed at destination chain to execute the message.
+     */
     function getMinFees(
-        uint256 msgGasLimit_
-    ) external view override returns (uint256 totalFees) {
+        uint256 msgGasLimit_,
+        uint256 payloadSize_
+    ) external view returns (uint256 totalFees) {
         return
             socket__.getMinFees(
                 msgGasLimit_,
-                64,
+                payloadSize_,
                 bytes32(0),
                 bytes32(0),
                 siblingChainSlug,
@@ -90,6 +92,7 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
         messageIdPart =
             (uint256(socket__.chainSlug()) << 224) |
             (uint256(uint160(siblingPlug_)) << 64);
+
         socket__.connect(
             siblingChainSlug,
             siblingPlug_,
@@ -99,6 +102,8 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
     }
 
     function disconnect() external onlyOwner {
+        messageIdPart = 0;
+
         (
             ,
             address inboundSwitchboard,

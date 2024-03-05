@@ -23,6 +23,8 @@ contract Controller is SuperBridgeBase {
     // connector => connectorPoolId
     mapping(address => uint256) public connectorPoolIds;
 
+    mapping(address => bool) public validConnectors;
+
     uint256 public totalMinted;
 
     error ConnectorUnavailable();
@@ -86,28 +88,30 @@ contract Controller is SuperBridgeBase {
         }
     }
 
-    function withdrawFromAppChain(
+    // limits on assets or shares?
+    function withdraw(
         address receiver_,
-        uint256 burnAmount_,
+        uint256 amount_,
         uint256 msgGasLimit_,
         address connector_,
-        bytes calldata execPayload_
+        bytes calldata execPayload_,
+        bytes calldata options_
     ) external payable nonReentrant {
-        if (burnAmount_ == 0) revert ZeroAmount();
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
+        if (amount_ == 0) revert ZeroAmount();
 
         address finalReceiver = receiver_;
-        uint256 finalAmount = burnAmount_;
+        uint256 finalAmount = amount_;
         bytes memory extraData = execPayload_;
 
         if (address(hook__) != address(0)) {
             (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
                 receiver_,
-                burnAmount_,
+                amount_,
                 IConnector(connector_).siblingChainSlug(),
                 connector_,
                 msg.sender,
-                execPayload_
+                extraData
             );
         }
 
@@ -127,7 +131,8 @@ contract Controller is SuperBridgeBase {
             value: msg.value
         }(
             msgGasLimit_,
-            abi.encode(finalReceiver, finalAmount, messageId, execPayload_)
+            connector_,
+            abi.encode(finalReceiver, finalAmount, messageId, extraData)
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
 

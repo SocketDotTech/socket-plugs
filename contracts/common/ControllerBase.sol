@@ -1,86 +1,69 @@
 pragma solidity 0.8.13;
 
+import {IExchangeRate} from "./ExchangeRate.sol";
+import {IMintableERC20} from "./IMintableERC20.sol";
 import "solmate/utils/SafeTransferLib.sol";
-import "./SuperBridgeBase.sol";
+import "./Base.sol";
 import "../interfaces/IHook.sol";
 
-/**
- * @title SuperToken
- * @notice An ERC20 contract which enables bridging a token to its sibling chains.
- * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
- */
-contract Vault is SuperBridgeBase {
-    using SafeTransferLib for ERC20;
-
-    ERC20 public immutable token__;
+contract ControllerBase is Base {
+    IMintableERC20 public immutable token__;
+    IExchangeRate public exchangeRate__;
     IHook public hook__;
 
     // message identifier => cache
     mapping(bytes32 => bytes) public identifierCache;
 
-    // sibling chain => cache
+    // connector => cache
     mapping(address => bytes) public connectorCache;
 
-    // check if needed
+    // how to track this in case of super token
+    // connectorPoolId => totalLockedAmount
+    mapping(uint256 => uint256) public poolLockedAmounts;
+
+    // connector => connectorPoolId
+    mapping(address => uint256) public connectorPoolIds;
+
     mapping(address => bool) public validConnectors;
 
-    // // siblingChainSlug => amount
-    // mapping(uint32 => uint256) public siblingPendingMints;
+    uint256 public totalMinted;
 
-    ////////////////////////////////////////////////////////
-    ////////////////////// ERRORS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    error MessageIdMisMatched();
-    error NotMessageBridge();
-    error InvalidSiblingChainSlug();
-    error NoPendingData();
+    error ConnectorUnavailable();
+    error InvalidPoolId();
     error CannotTransferOrExecuteOnBridgeContracts();
-    error InvalidTokenContract();
-    ////////////////////////////////////////////////////////
-    ////////////////////// EVENTS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    // emitted when message bridge is updated
-    event MessageBridgeUpdated(address newBridge);
+    error NoPendingData();
+    error MessageIdMisMatched();
+    event ExchangeRateUpdated(address exchangeRate);
+    event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     // emitted when message hook is updated
     event HookUpdated(address newHook);
-    event ConnectorStatusUpdated(address connector, bool status);
-    // emitted at source when tokens are bridged to a sibling chain
-    event BridgeTokens(
-        uint32 siblingChainSlug,
+    event TokensWithdrawn(
+        address connector,
         address withdrawer,
         address receiver,
-        uint256 bridgedAmount,
-        bytes32 identifier
+        uint256 burnAmount,
+        bytes32 messageId
     );
-
-    // emitted when pending tokens are minted as limits are replenished
-    event TokensBridged(
-        uint32 siblingChainSlug,
+    event TokensMinted(
+        address connecter,
         address receiver,
-        uint256 unlockAmount,
-        uint256 totalAmount,
-        bytes32 identifier
+        uint256 mintAmount,
+        bytes32 messageId
     );
 
-    event PendingTokensBridged(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 unlockAmount,
-        // uint256 pendingAmount,
-        bytes32 identifier
-    );
-
-    /**
-     * @notice constructor for creating a new SuperTokenVault.
-     * @param token_ token contract address which is to be bridged.
-     * @param hook_ hook address
-     */
-    constructor(address token_, address hook_) AccessControl(msg.sender) {
-        if (token_.code.length == 0) revert InvalidTokenContract();
-        token__ = ERC20(token_);
+    constructor(
+        address token_,
+        address exchangeRate_,
+        address hook_
+    ) AccessControl(msg.sender) {
+        token__ = IMintableERC20(token_);
+        exchangeRate__ = IExchangeRate(exchangeRate_);
         hook__ = IHook(hook_);
+    }
+
+    function updateExchangeRate(address exchangeRate_) external onlyOwner {
+        exchangeRate__ = IExchangeRate(exchangeRate_);
+        emit ExchangeRateUpdated(exchangeRate_);
     }
 
     /**
@@ -89,38 +72,31 @@ contract Vault is SuperBridgeBase {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(address hook_, bool approveToken_) external onlyOwner {
+    function updateHook(address hook_) external onlyOwner {
         hook__ = IHook(hook_);
-        if (approveToken_) token__.approve(hook_, type(uint256).max);
         emit HookUpdated(hook_);
     }
 
-    function updateConnectorStatus(
+    function updateConnectorPoolId(
         address[] calldata connectors,
-        bool[] calldata statuses
+        uint256[] calldata poolIds
     ) external onlyOwner {
         uint256 length = connectors.length;
         for (uint256 i; i < length; i++) {
-            validConnectors[connectors[i]] = statuses[i];
-            emit ConnectorStatusUpdated(connectors[i], statuses[i]);
+            if (poolIds[i] == 0) revert InvalidPoolId();
+            connectorPoolIds[connectors[i]] = poolIds[i];
+            emit ConnectorPoolIdUpdated(connectors[i], poolIds[i]);
         }
     }
 
-    // /**
-    //  * @notice this function is called by users to bridge their funds to a sibling chain
-    //  * @dev it is payable to receive message bridge fees to be paid.
-    //  * @param receiver_ address receiving bridged tokens
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param sendingAmount_ amount bridged
-    //  * @param msgGasLimit_ min gas limit needed for execution at destination
-    //  * @param options_ additional message bridge options can be provided using this param
-    //  */
-    function depositToAppChain(
+    // limits on assets or shares?
+    function bridge(
         address receiver_,
         uint256 amount_,
         uint256 msgGasLimit_,
         address connector_,
-        bytes calldata execPayload_
+        bytes calldata execPayload_,
+        bytes calldata options_
     ) external payable nonReentrant {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
         if (amount_ == 0) revert ZeroAmount();
@@ -136,42 +112,55 @@ contract Vault is SuperBridgeBase {
                 IConnector(connector_).siblingChainSlug(),
                 connector_,
                 msg.sender,
-                execPayload_
+                extraData
             );
         }
-        token__.safeTransferFrom(msg.sender, address(this), finalAmount);
+
+        totalMinted -= finalAmount;
+        _burn(msg.sender, finalAmount);
+
+        uint256 connectorPoolId = connectorPoolIds[connector_];
+        if (connectorPoolId == 0) revert InvalidPoolId();
+        // send it to hook
+        finalAmount = exchangeRate__.getUnlockAmount(
+            finalAmount,
+            poolLockedAmounts[connectorPoolId]
+        );
+        poolLockedAmounts[connectorPoolId] -= finalAmount; // underflow revert expected
 
         bytes32 messageId = IConnector(connector_).getMessageId();
         bytes32 returnedMessageId = IConnector(connector_).outbound{
             value: msg.value
         }(
             msgGasLimit_,
+            connector_,
             abi.encode(finalReceiver, finalAmount, messageId, extraData)
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
 
-        // emit TokensDeposited(
-        //     siblingChainSlug_,
-        //     msg.sender,
-        //     receiver_,
-        //     amount_,
-        //     messageId
-        // );
+        emit TokensWithdrawn(
+            connector_,
+            msg.sender,
+            finalReceiver,
+            finalAmount,
+            messageId
+        );
     }
 
-    /**
-     * @notice this function receives the message from message bridge
-     * @dev Only bridge can call this function.
-     * @param payload_ payload which is decoded to get `receiver`, `amount to mint`, `message id` and `payload` to execute after token transfer.
-     */
+    function _burn(address user_, uint256 burnAmount_) internal virtual {
+        token__.burn(user_, burnAmount_);
+    }
+
+    // receive inbound assuming connector called
     function receiveInbound(
         bytes memory payload_
     ) external override nonReentrant {
-        if (!validConnectors[msg.sender]) revert NotMessageBridge();
+        // no need of source check here, as if invalid caller, will revert with InvalidPoolId
+
         (
             address receiver,
-            uint256 unlockAmount,
-            bytes32 identifier,
+            uint256 lockAmount,
+            bytes32 messageId,
             bytes memory extraData
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
@@ -181,14 +170,17 @@ contract Vault is SuperBridgeBase {
             receiver == address(token__)
         ) revert CannotTransferOrExecuteOnBridgeContracts();
 
+        uint256 connectorPoolId = connectorPoolIds[msg.sender];
+        if (connectorPoolId == 0) revert InvalidPoolId();
+
         address finalReceiver = receiver;
-        uint256 finalAmount = unlockAmount;
+        uint256 finalAmount = lockAmount;
         bytes memory postHookData = new bytes(0);
 
         if (address(hook__) != address(0)) {
             (finalReceiver, finalAmount, postHookData) = hook__.dstPreHookCall(
                 receiver,
-                unlockAmount,
+                lockAmount,
                 IConnector(msg.sender).siblingChainSlug(),
                 msg.sender,
                 extraData,
@@ -196,7 +188,16 @@ contract Vault is SuperBridgeBase {
             );
         }
 
-        token__.safeTransfer(receiver, finalAmount);
+        poolLockedAmounts[connectorPoolId] += finalAmount;
+
+        // move this to hook
+        finalAmount = exchangeRate__.getMintAmount(
+            finalAmount,
+            poolLockedAmounts[connectorPoolId]
+        );
+
+        totalMinted += finalAmount;
+        token__.mint(receiver, finalAmount);
 
         if (address(hook__) != address(0)) {
             (
@@ -204,7 +205,7 @@ contract Vault is SuperBridgeBase {
                 bytes memory newSiblingCache
             ) = hook__.dstPostHookCall(
                     finalReceiver,
-                    unlockAmount,
+                    lockAmount,
                     IConnector(msg.sender).siblingChainSlug(),
                     msg.sender,
                     extraData,
@@ -212,9 +213,11 @@ contract Vault is SuperBridgeBase {
                     connectorCache[msg.sender]
                 );
 
-            identifierCache[identifier] = newIdentifierCache;
+            identifierCache[messageId] = newIdentifierCache;
             connectorCache[msg.sender] = newSiblingCache;
         }
+
+        emit TokensMinted(msg.sender, finalReceiver, finalAmount, messageId);
     }
 
     function retry(
@@ -236,7 +239,8 @@ contract Vault is SuperBridgeBase {
                 connCache
             );
 
-        token__.safeTransfer(receiver, consumedAmount);
+        totalMinted += consumedAmount;
+        token__.mint(receiver, consumedAmount);
 
         (
             bytes memory newIdentifierCache,
@@ -257,5 +261,12 @@ contract Vault is SuperBridgeBase {
         //     consumedAmount,
         //     identifier
         // );
+    }
+
+    function getMinFees(
+        address connector_,
+        uint256 msgGasLimit_
+    ) external view returns (uint256 totalFees) {
+        return IConnector(connector_).getMinFees(msgGasLimit_);
     }
 }

@@ -1,48 +1,22 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./LimitHookBase.sol";
+import "./plugins/LimitPlugin.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract enabling bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract LimitHook is LimitHookBase {
-    address public immutable vaultOrToken;
-
-    ////////////////////////////////////////////////////////
-    ////////////////////// ERRORS //////////////////////////
-    ////////////////////////////////////////////////////////
-    error NotAuthorized();
-    ////////////////////////////////////////////////////////
-    ////////////////////// EVENTS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    // Emitted when pending tokens are minted to the receiver
-    event PendingTokensBridged(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 mintAmount,
-        uint256 pendingAmount,
-        bytes32 identifier
-    );
-    // Emitted when the transfer reaches the limit, and the token mint is added to the pending queue
-    event TokensPending(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 pendingAmount,
-        uint256 totalPendingAmount,
-        bytes32 identifier
-    );
-
+contract LimitHook is LimitPlugin {
     /**
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.
      */
-    constructor(address owner_, address vaultOrToken_) AccessControl(owner_) {
-        vaultOrToken = vaultOrToken_;
-    }
+    constructor(
+        address owner_,
+        address vaultOrToken_
+    ) HookBase(owner_, vaultOrToken_) {}
 
     /**
      * @dev This function calls the srcHookCall function of the connector contract,
@@ -65,18 +39,14 @@ contract LimitHook is LimitHookBase {
         bytes memory extradata_
     )
         external
+        isVaultOrToken
         returns (
             address updatedReceiver,
             uint256 updatedAmount,
             bytes memory updatedExtradata
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
-        if (_sendingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-
-        _consumeFullLimit(amount_, _sendingLimitParams[connector_]); // Reverts on limit hit
+        _limitSrcHook(receiver_, amount_, connector_);
         return (receiver_, amount_, extradata_);
     }
 
@@ -103,20 +73,18 @@ contract LimitHook is LimitHookBase {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
+        isSiblingSupported(connector_)
         returns (
             address updatedReceiver,
             uint256 consumedAmount,
             bytes memory postHookData
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
         uint256 pendingAmount;
         (consumedAmount, pendingAmount) = _consumePartLimit(
             amount_,
-            _receivingLimitParams[connector_]
+            connector_
         );
 
         return (
@@ -149,13 +117,12 @@ contract LimitHook is LimitHookBase {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
         returns (
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             postHookData_,
             (uint256, uint256)
@@ -191,17 +158,14 @@ contract LimitHook is LimitHookBase {
     )
         external
         nonReentrant
+        isVaultOrToken
+        isSiblingSupported(connector_)
         returns (
             address updatedReceiver,
             uint256 consumedAmount,
             bytes memory postRetryHookData
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-
         uint256 pendingMint;
         (updatedReceiver, pendingMint) = abi.decode(
             identifierCache_,
@@ -238,14 +202,13 @@ contract LimitHook is LimitHookBase {
         bytes memory postRetryHookData_
     )
         external
+        isVaultOrToken
         nonReentrant
         returns (
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
         (
             address updatedReceiver,
             uint256 consumedAmount,

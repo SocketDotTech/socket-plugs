@@ -10,42 +10,20 @@ import "../common/ExecutionHelper.sol";
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
 contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
-    address public immutable vaultOrToken;
-
     ////////////////////////////////////////////////////////
     ////////////////////// ERRORS //////////////////////////
     ////////////////////////////////////////////////////////
 
     error InvalidSiblingChainSlug();
-    error NotAuthorized();
-    ////////////////////////////////////////////////////////
-    ////////////////////// EVENTS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    // Emitted when pending tokens are minted to the receiver
-    event PendingTokensBridged(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 mintAmount,
-        uint256 pendingAmount,
-        bytes32 identifier
-    );
-    // Emitted when the transfer reaches the limit, and the token mint is added to the pending queue
-    event TokensPending(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 pendingAmount,
-        uint256 totalPendingAmount,
-        bytes32 identifier
-    );
 
     /**
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.
      */
-    constructor(address owner_, address vaultOrToken_) AccessControl(owner_) {
-        vaultOrToken = vaultOrToken_;
-    }
+    constructor(
+        address owner_,
+        address vaultOrToken_
+    ) HookBase(owner_, vaultOrToken_) {}
 
     /**
      * @dev This function calls the srcHookCall function of the connector contract,
@@ -68,18 +46,14 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory payload_
     )
         external
+        isVaultOrToken
         returns (
             address updatedReceiver,
             uint256 updatedAmount,
             bytes memory updatedExtradata
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-        if (_sendingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-
-        _consumeFullLimit(amount_, _sendingLimitParams[connector_]); // Reverts on limit hit
-
+        _limitSrcHook(receiver_, amount_, connector_);
         return (receiver_, amount_, payload_);
     }
 
@@ -105,20 +79,17 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
+        isSiblingSupported(connector_)
         returns (
             address updatedReceiver,
-            uint256 consumedAmount,
+            uint256 amount,
             bytes memory postHookData
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-        uint256 pendingAmount;
-        (consumedAmount, pendingAmount) = _consumePartLimit(
+        (uint256 consumedAmount, uint256 pendingAmount) = _consumeFullLimit(
             amount_,
-            _receivingLimitParams[connector_]
+            connector_
         );
 
         return (
@@ -151,19 +122,20 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
         returns (
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
+        bytes memory execPayload = extradata_;
 
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             postHookData_,
             (uint256, uint256)
         );
+        
         uint256 connectorPendingAmount = abi.decode(connectorCache_, (uint256));
-        bytes memory execPayload = extradata_;
         if (pendingAmount > 0) {
             newConnectorCache = abi.encode(
                 connectorPendingAmount + pendingAmount
@@ -227,14 +199,14 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
+        isSiblingSupported(connector_)
         returns (
             address updatedReceiver,
             uint256 consumedAmount,
             bytes memory postRetryHookData
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
         (
             address receiver,
             uint256 pendingMint,
@@ -245,9 +217,6 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
 
         if (siblingChainSlug != siblingChainSlug_)
             revert InvalidSiblingChainSlug();
-
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
 
         uint256 pendingAmount;
         (consumedAmount, pendingAmount) = _consumePartLimit(
@@ -280,6 +249,7 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory postRetryHookData_
     )
         external
+        isVaultOrToken
         returns (
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache

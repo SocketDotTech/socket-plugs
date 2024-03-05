@@ -13,8 +13,6 @@ import {AccessControl} from "../common/AccessControl.sol";
 
 // add shutdown
 contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
-    IHook public hook__;
-
     // connector => timestamp
     mapping(address => uint128) public lastSyncTimestamp; // Timestamp of last rebalance
     // connector => total yield
@@ -22,41 +20,17 @@ contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
     // total yield from all siblings
     uint256 public totalYield;
 
-    // message identifier => cache
-    mapping(bytes32 => bytes) public identifierCache;
-
-    // sibling chain => cache
-    mapping(address => bytes) public connectorCache;
-
-    mapping(address => bool) public validConnectors;
-
     error InsufficientFunds();
     error ZeroAmount();
     error ZeroAddressReceiver();
     error NoPendingData();
     error CannotTransferOrExecuteOnBridgeContracts();
 
-    event HookUpdated(address hook_);
-
     constructor(
         string memory name_,
         string memory symbol_,
-        address hook_,
         uint8 decimals_
-    ) Token(name_, symbol_, decimals_) AccessControl(msg.sender) {
-        hook__ = IHook(hook_);
-    }
-
-    /**
-     * @notice this function is used to update hook
-     * @dev it can only be updated by owner
-     * @dev should be carefully migrated as it can risk user funds
-     * @param hook_ new hook address
-     */
-    function updateHook(address hook_) external onlyOwner {
-        hook__ = IHook(hook_);
-        emit HookUpdated(hook_);
-    }
+    ) Token(name_, symbol_, decimals_) AccessControl(msg.sender) {}
 
     function balanceOf(address user_) external view override returns (uint256) {
         uint256 balance = _balanceOf[user_];
@@ -70,63 +44,29 @@ contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
         return totalYield;
     }
 
+    // fix to round up and check other cases
     function _calculateMintAmount(
         uint256 amount_
     ) internal view returns (uint256) {
         if (_totalSupply == 0) return amount_;
+        // total supply -> total shares
+        // total yield -> total underlying from all chains
         // yield sent from src chain includes new amount hence subtracted here
         return (amount_ * _totalSupply) / (totalYield - amount_);
     }
 
-    function withdraw(
+    //  todo: validate msg.sender
+    function burn(
         address receiver_,
         uint256 amount_,
-        uint256 msgGasLimit_,
-        address connector_,
-        bytes calldata payload_,
-        bytes calldata options_
+        address connector_
     ) external payable nonReentrant returns (uint256 deposited) {
-        if (receiver_ == address(0)) revert ZeroAddressReceiver();
-        if (amount_ == 0) revert ZeroAmount();
         if (amount_ > siblingTotalYield[connector_]) revert InsufficientFunds();
-
         uint256 sharesToBurn = convertToShares(amount_);
+
         totalYield -= amount_;
         siblingTotalYield[connector_] -= amount_;
-
-        address finalReceiver = receiver_;
-        uint256 finalAmount = sharesToBurn;
-        bytes memory extraData = payload_;
-
-        if (address(hook__) != address(0)) {
-            (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
-                receiver_,
-                amount_,
-                IConnector(connector_).siblingChainSlug(),
-                connector_,
-                msg.sender,
-                payload_
-            );
-        }
-
-        super.withdraw(msg.sender, finalAmount);
-
-        _depositToAppChain(
-            msgGasLimit_,
-            connector_,
-            abi.encode(receiver_, amount_)
-        );
-    }
-
-    function _depositToAppChain(
-        uint256 msgGasLimit_,
-        address connector_,
-        bytes memory payload
-    ) internal {
-        IConnector(connector_).outbound{value: msg.value}(
-            msgGasLimit_,
-            payload
-        );
+        super.withdraw(msg.sender, sharesToBurn);
     }
 
     // receive inbound assuming connector called
@@ -171,6 +111,8 @@ contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
             );
         }
         _mint(receiver, finalAmount);
+
+        // todo: check post hook
     }
 
     function retry(

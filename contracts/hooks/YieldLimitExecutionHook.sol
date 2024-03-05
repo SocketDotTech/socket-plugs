@@ -7,10 +7,10 @@ import {IStrategy} from "../interfaces/IStrategy.sol";
 import "solmate/utils/SafeTransferLib.sol";
 import {IConnector} from "../superbridge/ConnectorPlug.sol";
 
-import "./LimitHookBase.sol";
+import "./plugins/LimitPlugin.sol";
 import "../common/ExecutionHelper.sol";
 
-contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
+contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
@@ -32,7 +32,6 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
     error DebtRatioTooHigh();
     error NotEnoughAssets();
     error VaultShutdown();
-    error NotAuthorized();
     error InvalidSiblingChainSlug();
 
     event WithdrawFromStrategy(uint256 withdrawn);
@@ -55,7 +54,7 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
         address strategy_,
         address asset_,
         address vaultOrToken_
-    ) AccessControl(msg.sender) {
+    ) HookBase(msg.sender, vaultOrToken_) {
         asset__ = ERC20(asset_);
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
@@ -84,21 +83,19 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory payload_
     )
         external
+        isVaultOrToken
         returns (
             address updatedReceiver,
             uint256 updatedAmount,
             bytes memory updatedExtradata
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-        if (_sendingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
+        _limitSrcHook(receiver_, amount_, connector_);
 
         totalIdle += amount_;
-        _consumeFullLimit(amount_, _sendingLimitParams[connector_]); // Reverts on limit hit
-
         _checkDelayAndRebalance();
         uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
+
         return (receiver_, amount_, abi.encode(expectedReturn, payload_));
     }
 
@@ -124,26 +121,23 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
+        isValidReceiver(receiver_)
+        isSiblingSupported(connector_)
         returns (
             address updatedReceiver,
             uint256 consumedAmount,
             bytes memory postHookData
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-        if (receiver_ == address(0)) revert ZeroAddressReceiver();
-
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
         uint256 pendingAmount;
-        (consumedAmount, pendingAmount) = _consumePartLimit(
+        (consumedAmount, pendingAmount) = _consumeFullLimit(
             amount_,
-            _receivingLimitParams[connector_]
+            connector_
         );
 
         // sanity check
         if (consumedAmount > totalAssets()) revert NotEnoughAssets();
-
         if (consumedAmount > totalIdle) {
             _withdrawFromStrategy(consumedAmount - totalIdle);
             totalIdle = 0;
@@ -180,13 +174,12 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
         returns (
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             postHookData_,
             (uint256, uint256)
@@ -256,14 +249,14 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory connectorCache_
     )
         external
+        isVaultOrToken
+        isSiblingSupported(connector_)
         returns (
             address updatedReceiver,
             uint256 consumedAmount,
             bytes memory postRetryHookData
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
         (
             address receiver,
             uint256 pendingMint,
@@ -274,9 +267,6 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
 
         if (siblingChainSlug != siblingChainSlug_)
             revert InvalidSiblingChainSlug();
-
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
 
         uint256 pendingAmount;
         (consumedAmount, pendingAmount) = _consumePartLimit(
@@ -315,6 +305,7 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
         bytes memory postRetryHookData_
     )
         external
+        isVaultOrToken
         returns (
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache
@@ -407,7 +398,6 @@ contract YieldLimitExecutionHook is LimitHookBase, ExecutionHelper {
         totalDebt = 0;
 
         asset__.transfer(vaultOrToken, withdrawn);
-
         emit WithdrawFromStrategy(withdrawn);
         return withdrawn;
     }
