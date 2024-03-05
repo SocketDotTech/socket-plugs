@@ -1,8 +1,12 @@
-import { getOwnerAndNominee, getProjectAddresses, OWNABLE_ABI, ZERO_ADDRESS } from "./utils";
+import {
+  getOwnerAndNominee,
+  getProjectAddresses,
+  OWNABLE_ABI,
+  ZERO_ADDRESS,
+} from "./utils";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "./networks";
 import { isAppChain } from "./constants";
-
 
 export const main = async () => {
   try {
@@ -35,8 +39,9 @@ export const main = async () => {
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [controllerOwner, controllerNominee, ] =
-            await getOwnerAndNominee(controllerContract);
+          const [controllerOwner, controllerNominee] = await getOwnerAndNominee(
+            controllerContract
+          );
           console.log(
             `Owner of ${controllerAddress} is ${controllerOwner}${
               controllerNominee === ZERO_ADDRESS
@@ -52,8 +57,9 @@ export const main = async () => {
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [vaultOwner, vaultNominee, ] =
-            await getOwnerAndNominee(vaultContract);
+          const [vaultOwner, vaultNominee] = await getOwnerAndNominee(
+            vaultContract
+          );
           console.log(
             `Owner of ${vaultAddress} is ${vaultOwner}${
               vaultNominee === ZERO_ADDRESS ? "" : ` (nominee: ${vaultNominee})`
@@ -67,13 +73,16 @@ export const main = async () => {
           for (const connectorType of Object.keys(
             addresses[chain][currency].connectors[connectorChain]
           )) {
-            const connectorAddress = addresses[chain][currency].connectors[connectorChain][connectorType];
+            const connectorAddress =
+              addresses[chain][currency].connectors[connectorChain][
+                connectorType
+              ];
             const contract = new ethers.Contract(
               connectorAddress,
               OWNABLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const [owner, nominee, ] = await getOwnerAndNominee(contract);
+            const [owner, nominee] = await getOwnerAndNominee(contract);
             console.log(
               `Owner of ${connectorAddress} is ${owner}${
                 nominee === ZERO_ADDRESS ? "" : ` (nominee: ${nominee})`

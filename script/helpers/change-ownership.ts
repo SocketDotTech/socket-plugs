@@ -4,7 +4,6 @@ import { getSignerFromChainSlug, overrides } from "./networks";
 import { isAppChain } from "./constants";
 import { getSocketOwner, getSocketSignerKey } from "../constants/config";
 
-
 const chainToExpectedOwner = {
   1: "0x246d38588b16Dd877c558b245e6D5a711C649fCF",
   10: "0xD4C00FE7657791C2A43025dE483F05E49A5f76A6",

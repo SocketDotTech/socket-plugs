@@ -1,12 +1,14 @@
-import { getOwnerAndNominee, getProjectAddresses, OWNABLE_ABI, ZERO_ADDRESS } from "./utils";
+import {
+  getOwnerAndNominee,
+  getProjectAddresses,
+  OWNABLE_ABI,
+  ZERO_ADDRESS,
+} from "./utils";
 import { ethers } from "ethers";
 import { getProviderFromChainSlug, getSignerFromChainSlug } from "./networks";
 import { isAppChain } from "./constants";
 import { ERC20, ERC20__factory } from "../../typechain-types";
 import { tokenDecimals } from "../../src";
-
-
-
 
 export const main = async () => {
   try {
@@ -20,11 +22,19 @@ export const main = async () => {
 
         // Vault
         const currAddress = addresses[chain][currency].NonMintableToken;
-        const erc20 = ERC20__factory.connect(currAddress, getProviderFromChainSlug(+chain));
-        const vaultBalance = await erc20.balanceOf(addresses[chain][currency].Vault)
+        const erc20 = ERC20__factory.connect(
+          currAddress,
+          getProviderFromChainSlug(+chain)
+        );
+        const vaultBalance = await erc20.balanceOf(
+          addresses[chain][currency].Vault
+        );
 
         console.log(
-          `Vault for ${currency} on chain ${chain} has balance: ${ethers.utils.formatUnits(vaultBalance, tokenDecimals[currency])}`
+          `Vault for ${currency} on chain ${chain} has balance: ${ethers.utils.formatUnits(
+            vaultBalance,
+            tokenDecimals[currency]
+          )}`
         );
       }
     }
