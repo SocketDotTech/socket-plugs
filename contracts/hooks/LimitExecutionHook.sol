@@ -134,7 +134,7 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
             postHookData_,
             (uint256, uint256)
         );
-        
+
         uint256 connectorPendingAmount = abi.decode(connectorCache_, (uint256));
         if (pendingAmount > 0) {
             newConnectorCache = abi.encode(
