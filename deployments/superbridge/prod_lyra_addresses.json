@@ -57,6 +57,7 @@
     },
     "wstETH": {
       "isAppChain": false,
+      "NonMintableToken": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
       "Vault": "0xeBB5D642aA8ccDeE98373D6aC3ee0602b63824b3",
       "connectors": {
         "957": {
@@ -130,6 +131,7 @@
     "wstETH": {
       "isAppChain": false,
       "Vault": "0xAA8f9D05599F1a5d5929c40342c06a5Da063a4dE",
+      "NonMintableToken": "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb",
       "connectors": {
         "957": {
           "FAST": "0x28c9ddF9A3B29c2E6a561c1BC520954e5A33de5D"
@@ -268,6 +270,7 @@
     "wstETH": {
       "isAppChain": false,
       "Vault": "0x2805B908a0F9CA58a2b3b7900341b4EBd0B994e9",
+      "NonMintableToken": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
       "connectors": {
         "957": {
           "FAST": "0xE7603DF191D699d8BD9891b821347dbAb889E5a5"
@@ -277,6 +280,7 @@
     "USDC": {
       "isAppChain": false,
       "Vault": "0x4e798659b9846F1da7B6D6B5d09d581270aB6FEC",
+      "NonMintableToken": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       "connectors": {
         "957": {
           "FAST": "0x57B03E14d409ADC7fAb6CFc44b5886CAD2D5f02b"
@@ -338,6 +342,7 @@
     "wstETH": {
       "isAppChain": false,
       "Vault": "0x8574CBC539c26Df9ec11bA283218268101ff10e1",
+      "NonMintableToken": "0x5979D7b546E38E414F7E9822514be443A4800529",
       "connectors": {
         "957": {
           "FAST": "0x2805B908a0F9CA58a2b3b7900341b4EBd0B994e9"
