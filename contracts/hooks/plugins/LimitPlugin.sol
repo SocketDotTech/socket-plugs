@@ -3,6 +3,8 @@ pragma solidity 0.8.13;
 import "solmate/tokens/ERC20.sol";
 import "../HookBase.sol";
 import {Gauge} from "../../common/Gauge.sol";
+import {SiblingNotSupported} from "../../common/errors.sol";
+import {UpdateLimitParams} from "../../common/structs.sol";
 
 /**
  * @title SuperToken
@@ -10,13 +12,6 @@ import {Gauge} from "../../common/Gauge.sol";
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
 abstract contract LimitPlugin is Gauge, HookBase {
-    struct UpdateLimitParams {
-        bool isMint;
-        address connector;
-        uint256 maxLimit;
-        uint256 ratePerSecond;
-    }
-
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     // connector => receivingLimitParams
@@ -28,9 +23,6 @@ abstract contract LimitPlugin is Gauge, HookBase {
     ////////////////////////////////////////////////////////
     ////////////////////// ERRORS //////////////////////////
     ////////////////////////////////////////////////////////
-
-    error SiblingNotSupported();
-    error NotAuthorized();
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
@@ -118,13 +110,27 @@ abstract contract LimitPlugin is Gauge, HookBase {
     }
 
     function _limitSrcHook(
-        address receiver_,
         address connector_,
+        address receiver_,
         uint256 amount_
     ) internal {
         if (_sendingLimitParams[connector_].maxLimit == 0)
             revert SiblingNotSupported();
 
         _consumeFullLimit(amount_, _sendingLimitParams[connector_]); // Reverts on limit hit
+    }
+
+    function _limitDstHook(
+        address connector_,
+        address receiver_,
+        uint256 amount_
+    ) internal returns (uint256 consumedAmount, uint256 pendingAmount) {
+        if (_receivingLimitParams[connector_].maxLimit == 0)
+            revert SiblingNotSupported();
+
+        (consumedAmount, pendingAmount) = _consumePartLimit(
+            amount_,
+            _receivingLimitParams[connector_]
+        ); // Reverts on limit hit
     }
 }

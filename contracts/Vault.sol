@@ -1,42 +1,35 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
-import "./Base.sol";
-import "../interfaces/IHook.sol";
+import "./common/Base.sol";
+import "./interfaces/IHook.sol";
+import "./interfaces/IConnector.sol";
+import "./common/errors.sol";
+import "./common/structs.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperTokenVault is Base {
+contract Vault is Base {
     using SafeTransferLib for ERC20;
 
     ERC20 public immutable token__;
-
-    // bridge contract address which provides AMB support
-    IMessageBridge public bridge__;
     IHook public hook__;
 
     // message identifier => cache
     mapping(bytes32 => bytes) public identifierCache;
 
-    // connector => cache
+    // sibling chain => cache
     mapping(address => bytes) public connectorCache;
+
+    // check if needed
+    mapping(address => bool) public validConnectors;
 
     // // siblingChainSlug => amount
     // mapping(uint32 => uint256) public siblingPendingMints;
 
-    ////////////////////////////////////////////////////////
-    ////////////////////// ERRORS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    error MessageIdMisMatched();
-    error NotMessageBridge();
-    error InvalidSiblingChainSlug();
-    error NoPendingData();
-    error CannotTransferOrExecuteOnBridgeContracts();
-    error InvalidTokenContract();
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
@@ -45,6 +38,7 @@ contract SuperTokenVault is Base {
     event MessageBridgeUpdated(address newBridge);
     // emitted when message hook is updated
     event HookUpdated(address newHook);
+    event ConnectorStatusUpdated(address connector, bool status);
     // emitted at source when tokens are bridged to a sibling chain
     event BridgeTokens(
         uint32 siblingChainSlug,
@@ -71,33 +65,14 @@ contract SuperTokenVault is Base {
         bytes32 identifier
     );
 
-    /**
-     * @notice constructor for creating a new SuperTokenVault.
-     * @param token_ token contract address which is to be bridged.
-     * @param owner_ owner of this contract
-     * @param bridge_ message bridge address
-     */
-    constructor(
-        address token_,
-        address owner_,
-        address bridge_,
-        address hook_
-    ) AccessControl(owner_) {
+    // /**
+    //  * @notice constructor for creating a new SuperTokenVault.
+    //  * @param token_ token contract address which is to be bridged.
+    //  */
+
+    constructor(address token_, address owner_) AccessControl(owner_) {
         if (token_.code.length == 0) revert InvalidTokenContract();
         token__ = ERC20(token_);
-        bridge__ = IMessageBridge(bridge_);
-        hook__ = IHook(hook_);
-    }
-
-    /**
-     * @notice this function is used to update message bridge
-     * @dev it can only be updated by owner
-     * @dev should be carefully migrated as it can risk user funds
-     * @param bridge_ new bridge address
-     */
-    function updateMessageBridge(address bridge_) external onlyOwner {
-        bridge__ = IMessageBridge(bridge_);
-        emit MessageBridgeUpdated(bridge_);
     }
 
     /**
@@ -106,26 +81,38 @@ contract SuperTokenVault is Base {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(address hook_) external onlyOwner {
+    function updateHook(address hook_, bool approveToken_) external onlyOwner {
         hook__ = IHook(hook_);
+        if (approveToken_) token__.approve(hook_, type(uint256).max);
         emit HookUpdated(hook_);
     }
 
-    /**
-     * @notice this function is called by users to bridge their funds to a sibling chain
-     * @dev it is payable to receive message bridge fees to be paid.
-     * @param receiver_ address receiving bridged tokens
-     * @param siblingChainSlug_ The unique identifier of the sibling chain.
-     * @param amount_ amount bridged
-     * @param msgGasLimit_ min gas limit needed for execution at destination
-     * @param options_ additional message bridge options can be provided using this param
-     */
-    function bridge(
+    function updateConnectorStatus(
+        address[] calldata connectors,
+        bool[] calldata statuses
+    ) external onlyOwner {
+        uint256 length = connectors.length;
+        for (uint256 i; i < length; i++) {
+            validConnectors[connectors[i]] = statuses[i];
+            emit ConnectorStatusUpdated(connectors[i], statuses[i]);
+        }
+    }
+
+    // /**
+    //  * @notice this function is called by users to bridge their funds to a sibling chain
+    //  * @dev it is payable to receive message bridge fees to be paid.
+    //  * @param receiver_ address receiving bridged tokens
+    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
+    //  * @param sendingAmount_ amount bridged
+    //  * @param msgGasLimit_ min gas limit needed for execution at destination
+    //  * @param options_ additional message bridge options can be provided using this param
+    //  */
+    function depositToAppChain(
         address receiver_,
-        uint32 siblingChainSlug_,
         uint256 amount_,
         uint256 msgGasLimit_,
-        bytes calldata payload_,
+        address connector_,
+        bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
@@ -133,31 +120,32 @@ contract SuperTokenVault is Base {
 
         address finalReceiver = receiver_;
         uint256 finalAmount = amount_;
-        bytes memory extraData = payload_;
+        bytes memory extraData = execPayload_;
 
         if (address(hook__) != address(0)) {
             (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
-                receiver_,
-                amount_,
-                siblingChainSlug_,
-                address(bridge__),
-                msg.sender,
-                payload_
+                SrcHookCall(
+                    receiver_,
+                    amount_,
+                    IConnector(connector_).siblingChainSlug(),
+                    connector_,
+                    msg.sender,
+                    extraData
+                )
             );
         }
         token__.safeTransferFrom(msg.sender, address(this), finalAmount);
 
-        bytes32 messageId = bridge__.getMessageId(siblingChainSlug_);
-
-        // important to get message id as it is used as an
-        // identifier for pending amount and payload caching
-        bytes32 returnedMessageId = bridge__.outbound{value: msg.value}(
-            siblingChainSlug_,
+        bytes32 messageId = IConnector(connector_).getMessageId();
+        bytes32 returnedMessageId = IConnector(connector_).outbound{
+            value: msg.value
+        }(
             msgGasLimit_,
             abi.encode(finalReceiver, finalAmount, messageId, extraData),
             options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
+
         // emit TokensDeposited(
         //     siblingChainSlug_,
         //     msg.sender,
@@ -170,15 +158,13 @@ contract SuperTokenVault is Base {
     /**
      * @notice this function receives the message from message bridge
      * @dev Only bridge can call this function.
-     * @param siblingChainSlug_ The unique identifier of the sibling chain.
      * @param payload_ payload which is decoded to get `receiver`, `amount to mint`, `message id` and `payload` to execute after token transfer.
      */
-    function inbound(
+    function receiveInbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override nonReentrant {
-        if (msg.sender != address(bridge__)) revert NotMessageBridge();
-
+        if (!validConnectors[msg.sender]) revert NotMessageBridge();
         (
             address receiver,
             uint256 unlockAmount,
@@ -188,24 +174,27 @@ contract SuperTokenVault is Base {
 
         if (
             receiver == address(this) ||
-            receiver == address(bridge__) ||
+            // receiver == address(bridge__) ||
             receiver == address(token__)
         ) revert CannotTransferOrExecuteOnBridgeContracts();
 
         address finalReceiver = receiver;
         uint256 finalAmount = unlockAmount;
         bytes memory postHookData = new bytes(0);
+
         if (address(hook__) != address(0)) {
             (finalReceiver, finalAmount, postHookData) = hook__.dstPreHookCall(
                 receiver,
                 unlockAmount,
-                siblingChainSlug_,
-                address(bridge__),
+                IConnector(msg.sender).siblingChainSlug(),
+                msg.sender,
                 extraData,
-                connectorCache[address(bridge__)]
+                connectorCache[msg.sender]
             );
         }
+
         token__.safeTransfer(receiver, finalAmount);
+
         if (address(hook__) != address(0)) {
             (
                 bytes memory newIdentifierCache,
@@ -213,31 +202,24 @@ contract SuperTokenVault is Base {
             ) = hook__.dstPostHookCall(
                     finalReceiver,
                     unlockAmount,
-                    siblingChainSlug_,
-                    address(bridge__),
+                    IConnector(msg.sender).siblingChainSlug(),
+                    msg.sender,
                     extraData,
                     postHookData,
-                    connectorCache[address(bridge__)]
+                    connectorCache[msg.sender]
                 );
 
             identifierCache[identifier] = newIdentifierCache;
-            connectorCache[address(bridge__)] = newSiblingCache;
+            connectorCache[msg.sender] = newSiblingCache;
         }
-        // emit TokensBridged(
-        //     siblingChainSlug_,
-        //     receiver,
-        //     amount,
-        //     unlockAmount,
-        //     identifier
-        // );
     }
 
     function retry(
-        uint32 siblingChainSlug_,
+        address connector_,
         bytes32 identifier_
     ) external nonReentrant {
         bytes memory idCache = identifierCache[identifier_];
-        bytes memory connCache = connectorCache[address(bridge__)];
+        bytes memory connCache = connectorCache[connector_];
 
         if (idCache.length == 0) revert NoPendingData();
         (
@@ -245,8 +227,8 @@ contract SuperTokenVault is Base {
             uint256 consumedAmount,
             bytes memory postRetryHookData
         ) = hook__.preRetryHook(
-                siblingChainSlug_,
-                address(bridge__),
+                IConnector(msg.sender).siblingChainSlug(),
+                connector_,
                 idCache,
                 connCache
             );
@@ -257,14 +239,14 @@ contract SuperTokenVault is Base {
             bytes memory newIdentifierCache,
             bytes memory newConnectorCache
         ) = hook__.postRetryHook(
-                siblingChainSlug_,
-                address(bridge__),
+                IConnector(msg.sender).siblingChainSlug(),
+                connector_,
                 idCache,
                 connCache,
                 postRetryHookData
             );
         identifierCache[identifier_] = newIdentifierCache;
-        connectorCache[address(bridge__)] = newConnectorCache;
+        connectorCache[connector_] = newConnectorCache;
 
         // emit PendingTokensBridged(
         //     siblingChainSlug_,

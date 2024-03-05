@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./Base.sol";
+import "../common/Base.sol";
 import "../interfaces/IHook.sol";
 
 /**
@@ -21,7 +21,7 @@ contract SuperToken is ERC20, Base {
      * @param initialSupplyHolder_ address to which initial supply will be minted
      * @param owner_ owner of this contract
      * @param initialSupply_ initial supply of super token
-     * @param controller controller address
+     * @param controller_ controller address
      */
     constructor(
         string memory name_,
@@ -39,14 +39,14 @@ contract SuperToken is ERC20, Base {
     function burn(
         address user_,
         uint256 amount_
-    ) external payable nonReentrant hasRole(CONTROLLER_ROLE) {
-        _burn(msg.sender, finalAmount);
+    ) external onlyRole(CONTROLLER_ROLE) {
+        _burn(user_, amount_);
     }
 
     function mint(
         address receiver_,
         uint256 amount_
-    ) external hasRole(CONTROLLER_ROLE) {
-        _mint(finalReceiver, finalAmount);
+    ) external onlyRole(CONTROLLER_ROLE) {
+        _mint(receiver_, amount_);
     }
 }

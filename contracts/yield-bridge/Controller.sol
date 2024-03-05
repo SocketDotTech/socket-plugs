@@ -1,14 +1,14 @@
 pragma solidity 0.8.13;
 
-import {IExchangeRate} from "./ExchangeRate.sol";
-import {IMintableERC20} from "./IMintableERC20.sol";
+import {IMintableERC20} from "../interfaces/IMintableERC20.sol";
 import "solmate/utils/SafeTransferLib.sol";
-import "./SuperBridgeBase.sol";
+import "../common/Base.sol";
+import "../common/errors.sol";
 import "../interfaces/IHook.sol";
+import "../interfaces/IConnector.sol";
 
-contract Controller is SuperBridgeBase {
+contract Controller is Base {
     IMintableERC20 public immutable token__;
-    IExchangeRate public exchangeRate__;
     IHook public hook__;
 
     // message identifier => cache
@@ -27,11 +27,6 @@ contract Controller is SuperBridgeBase {
 
     uint256 public totalMinted;
 
-    error ConnectorUnavailable();
-    error InvalidPoolId();
-    error CannotTransferOrExecuteOnBridgeContracts();
-    error NoPendingData();
-    error MessageIdMisMatched();
     event ExchangeRateUpdated(address exchangeRate);
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     // emitted when message hook is updated
@@ -50,19 +45,9 @@ contract Controller is SuperBridgeBase {
         bytes32 messageId
     );
 
-    constructor(
-        address token_,
-        address exchangeRate_,
-        address hook_
-    ) AccessControl(msg.sender) {
+    constructor(address token_, address hook_) AccessControl(msg.sender) {
         token__ = IMintableERC20(token_);
-        exchangeRate__ = IExchangeRate(exchangeRate_);
         hook__ = IHook(hook_);
-    }
-
-    function updateExchangeRate(address exchangeRate_) external onlyOwner {
-        exchangeRate__ = IExchangeRate(exchangeRate_);
-        emit ExchangeRateUpdated(exchangeRate_);
     }
 
     /**
@@ -120,10 +105,7 @@ contract Controller is SuperBridgeBase {
 
         uint256 connectorPoolId = connectorPoolIds[connector_];
         if (connectorPoolId == 0) revert InvalidPoolId();
-        finalAmount = exchangeRate__.getUnlockAmount(
-            finalAmount,
-            poolLockedAmounts[connectorPoolId]
-        );
+
         poolLockedAmounts[connectorPoolId] -= finalAmount; // underflow revert expected
 
         bytes32 messageId = IConnector(connector_).getMessageId();
@@ -187,11 +169,6 @@ contract Controller is SuperBridgeBase {
         }
 
         poolLockedAmounts[connectorPoolId] += finalAmount;
-
-        finalAmount = exchangeRate__.getMintAmount(
-            finalAmount,
-            poolLockedAmounts[connectorPoolId]
-        );
 
         totalMinted += finalAmount;
         token__.mint(receiver, finalAmount);

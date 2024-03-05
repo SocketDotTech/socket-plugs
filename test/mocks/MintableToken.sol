@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "../../contracts/superbridge/IMintableERC20.sol";
+import "../../contracts/interfaces/IMintableERC20.sol";
 
 // this is a mock token used in tests, other projects' token to be used here
 contract MintableToken is IMintableERC20 {

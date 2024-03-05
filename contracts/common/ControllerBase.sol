@@ -1,14 +1,14 @@
 pragma solidity 0.8.13;
 
-import {IExchangeRate} from "./ExchangeRate.sol";
-import {IMintableERC20} from "./IMintableERC20.sol";
+import {IMintableERC20} from "../interfaces/IMintableERC20.sol";
+import {IConnector} from "../interfaces/IConnector.sol";
 import "solmate/utils/SafeTransferLib.sol";
 import "./Base.sol";
 import "../interfaces/IHook.sol";
+import {NotAuthorized, ZeroAmount, ZeroAddressReceiver} from "./errors.sol";
 
 contract ControllerBase is Base {
     IMintableERC20 public immutable token__;
-    IExchangeRate public exchangeRate__;
     IHook public hook__;
 
     // message identifier => cache
@@ -51,19 +51,9 @@ contract ControllerBase is Base {
         bytes32 messageId
     );
 
-    constructor(
-        address token_,
-        address exchangeRate_,
-        address hook_
-    ) AccessControl(msg.sender) {
+    constructor(address token_, address hook_) AccessControl(msg.sender) {
         token__ = IMintableERC20(token_);
-        exchangeRate__ = IExchangeRate(exchangeRate_);
         hook__ = IHook(hook_);
-    }
-
-    function updateExchangeRate(address exchangeRate_) external onlyOwner {
-        exchangeRate__ = IExchangeRate(exchangeRate_);
-        emit ExchangeRateUpdated(exchangeRate_);
     }
 
     /**
@@ -122,10 +112,6 @@ contract ControllerBase is Base {
         uint256 connectorPoolId = connectorPoolIds[connector_];
         if (connectorPoolId == 0) revert InvalidPoolId();
         // send it to hook
-        finalAmount = exchangeRate__.getUnlockAmount(
-            finalAmount,
-            poolLockedAmounts[connectorPoolId]
-        );
         poolLockedAmounts[connectorPoolId] -= finalAmount; // underflow revert expected
 
         bytes32 messageId = IConnector(connector_).getMessageId();
@@ -189,12 +175,6 @@ contract ControllerBase is Base {
         }
 
         poolLockedAmounts[connectorPoolId] += finalAmount;
-
-        // move this to hook
-        finalAmount = exchangeRate__.getMintAmount(
-            finalAmount,
-            poolLockedAmounts[connectorPoolId]
-        );
 
         totalMinted += finalAmount;
         token__.mint(receiver, finalAmount);

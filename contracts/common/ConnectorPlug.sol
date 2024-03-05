@@ -3,22 +3,9 @@ pragma solidity 0.8.13;
 import "../common/Ownable.sol";
 import {ISocket} from "../interfaces/ISocket.sol";
 import {IPlug} from "../interfaces/IPlug.sol";
+import {IConnector} from "../interfaces/IConnector.sol";
+import {IHub} from "../interfaces/IHub.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-
-interface IConnector {
-    function outbound(
-        uint256 msgGasLimit_,
-        bytes memory payload_
-    ) external payable returns (bytes32 messageId_);
-
-    function siblingChainSlug() external view returns (uint32);
-
-    function getMinFees(
-        uint256 msgGasLimit_
-    ) external view returns (uint256 totalFees);
-
-    function getMessageId() external view returns (bytes32);
-}
 
 contract ConnectorPlug is IConnector, IPlug, Ownable {
     IHub public immutable hub__;

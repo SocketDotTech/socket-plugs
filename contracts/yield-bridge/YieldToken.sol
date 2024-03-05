@@ -5,9 +5,8 @@ import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 
 import "./erc4626/ERC4626.sol";
 import {IStrategy} from "../interfaces/IStrategy.sol";
+import {IConnector} from "../interfaces/IConnector.sol";
 import {IHook} from "../interfaces/IHook.sol";
-
-import {IConnector} from "../superbridge/ConnectorPlug.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import {AccessControl} from "../common/AccessControl.sol";
 

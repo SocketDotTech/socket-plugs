@@ -4,8 +4,7 @@ import "solmate/utils/ReentrancyGuard.sol";
 
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import {AccessControl} from "../common/AccessControl.sol";
-
-import "./interfaces/IHub.sol";
+import "../interfaces/IHub.sol";
 
 /**
  * @title Base contract for super token and vault
@@ -15,9 +14,6 @@ import "./interfaces/IHub.sol";
  */
 abstract contract Base is ReentrancyGuard, IHub, AccessControl {
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
-
-    error ZeroAddressReceiver();
-    error ZeroAmount();
 
     /**
      * @notice Rescues funds from the contract if they are locked by mistake.

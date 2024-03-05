@@ -3,6 +3,7 @@ pragma solidity 0.8.13;
 import "solmate/utils/ReentrancyGuard.sol";
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import {AccessControl} from "../common/AccessControl.sol";
+import {NotAuthorized, ZeroAddressReceiver} from "../common/errors.sol";
 import "../interfaces/IHook.sol";
 
 /**
@@ -15,10 +16,6 @@ abstract contract HookBase is ReentrancyGuard, AccessControl, IHook {
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
     address public immutable vaultOrToken;
-
-    error NotAuthorized();
-    error ZeroAddressReceiver();
-    error ZeroAmount();
 
     /**
      * @notice Constructor for creating a new SuperToken.

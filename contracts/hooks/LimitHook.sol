@@ -46,7 +46,7 @@ contract LimitHook is LimitPlugin {
             bytes memory updatedExtradata
         )
     {
-        _limitSrcHook(receiver_, amount_, connector_);
+        _limitSrcHook(connector_, receiver_, amount_);
         return (receiver_, amount_, extradata_);
     }
 
@@ -71,20 +71,11 @@ contract LimitHook is LimitPlugin {
         address connector_,
         bytes memory extradata_,
         bytes memory connectorCache_
-    )
-        external
-        isVaultOrToken
-        isSiblingSupported(connector_)
-        returns (
-            address updatedReceiver,
-            uint256 consumedAmount,
-            bytes memory postHookData
-        )
-    {
-        uint256 pendingAmount;
-        (consumedAmount, pendingAmount) = _consumePartLimit(
-            amount_,
-            connector_
+    ) external isVaultOrToken returns (address, uint256, bytes memory) {
+        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
+            connector_,
+            receiver_,
+            amount_
         );
 
         return (
@@ -159,7 +150,6 @@ contract LimitHook is LimitPlugin {
         external
         nonReentrant
         isVaultOrToken
-        isSiblingSupported(connector_)
         returns (
             address updatedReceiver,
             uint256 consumedAmount,
@@ -172,9 +162,10 @@ contract LimitHook is LimitPlugin {
             (address, uint256)
         );
         uint256 pendingAmount;
-        (consumedAmount, pendingAmount) = _consumePartLimit(
-            pendingMint,
-            _receivingLimitParams[connector_]
+        (consumedAmount, pendingAmount) = _limitDstHook(
+            connector_,
+            updatedReceiver,
+            pendingMint
         );
 
         postRetryHookData = abi.encode(
