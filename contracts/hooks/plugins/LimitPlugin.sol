@@ -109,11 +109,7 @@ abstract contract LimitPlugin is Gauge, HookBase {
         return _sendingLimitParams[connector_];
     }
 
-    function _limitSrcHook(
-        address connector_,
-        address receiver_,
-        uint256 amount_
-    ) internal {
+    function _limitSrcHook(address connector_, uint256 amount_) internal {
         if (_sendingLimitParams[connector_].maxLimit == 0)
             revert SiblingNotSupported();
 
@@ -122,7 +118,6 @@ abstract contract LimitPlugin is Gauge, HookBase {
 
     function _limitDstHook(
         address connector_,
-        address receiver_,
         uint256 amount_
     ) internal returns (uint256 consumedAmount, uint256 pendingAmount) {
         if (_receivingLimitParams[connector_].maxLimit == 0)

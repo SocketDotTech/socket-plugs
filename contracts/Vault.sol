@@ -107,7 +107,7 @@ contract Vault is Base {
     //  * @param msgGasLimit_ min gas limit needed for execution at destination
     //  * @param options_ additional message bridge options can be provided using this param
     //  */
-    function depositToAppChain(
+    function bridge(
         address receiver_,
         uint256 amount_,
         uint256 msgGasLimit_,
@@ -118,30 +118,34 @@ contract Vault is Base {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
         if (amount_ == 0) revert ZeroAmount();
 
-        address finalReceiver = receiver_;
-        uint256 finalAmount = amount_;
-        bytes memory extraData = execPayload_;
+        TransferInfo memory transferInfo = TransferInfo(
+            receiver_,
+            amount_,
+            execPayload_
+        );
 
         if (address(hook__) != address(0)) {
-            (finalReceiver, finalAmount, extraData) = hook__.srcHookCall(
-                SrcHookCall(
-                    receiver_,
-                    amount_,
-                    IConnector(connector_).siblingChainSlug(),
-                    connector_,
-                    msg.sender,
-                    extraData
-                )
+            transferInfo = hook__.srcHookCall(
+                SrcHookCallParams(connector_, msg.sender, transferInfo)
             );
         }
-        token__.safeTransferFrom(msg.sender, address(this), finalAmount);
+        token__.safeTransferFrom(
+            msg.sender,
+            address(this),
+            transferInfo.amount
+        );
 
         bytes32 messageId = IConnector(connector_).getMessageId();
         bytes32 returnedMessageId = IConnector(connector_).outbound{
             value: msg.value
         }(
             msgGasLimit_,
-            abi.encode(finalReceiver, finalAmount, messageId, extraData),
+            abi.encode(
+                transferInfo.receiver,
+                transferInfo.amount,
+                messageId,
+                transferInfo.data
+            ),
             options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
@@ -178,39 +182,36 @@ contract Vault is Base {
             receiver == address(token__)
         ) revert CannotTransferOrExecuteOnBridgeContracts();
 
-        address finalReceiver = receiver;
-        uint256 finalAmount = unlockAmount;
-        bytes memory postHookData = new bytes(0);
-
+        TransferInfo memory transferInfo = TransferInfo(
+            receiver,
+            unlockAmount,
+            extraData
+        );
+        bytes memory postHookData = bytes("");
         if (address(hook__) != address(0)) {
-            (finalReceiver, finalAmount, postHookData) = hook__.dstPreHookCall(
-                receiver,
-                unlockAmount,
-                IConnector(msg.sender).siblingChainSlug(),
-                msg.sender,
-                extraData,
-                connectorCache[msg.sender]
+            (postHookData, transferInfo) = hook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    msg.sender,
+                    connectorCache[msg.sender],
+                    transferInfo
+                )
             );
         }
 
-        token__.safeTransfer(receiver, finalAmount);
+        token__.safeTransfer(transferInfo.receiver, transferInfo.amount);
 
         if (address(hook__) != address(0)) {
-            (
-                bytes memory newIdentifierCache,
-                bytes memory newSiblingCache
-            ) = hook__.dstPostHookCall(
-                    finalReceiver,
-                    unlockAmount,
-                    IConnector(msg.sender).siblingChainSlug(),
+            CacheData memory cacheData = hook__.dstPostHookCall(
+                DstPostHookCallParams(
                     msg.sender,
-                    extraData,
+                    connectorCache[msg.sender],
                     postHookData,
-                    connectorCache[msg.sender]
-                );
+                    transferInfo
+                )
+            );
 
-            identifierCache[identifier] = newIdentifierCache;
-            connectorCache[msg.sender] = newSiblingCache;
+            identifierCache[identifier] = cacheData.identifierCache;
+            connectorCache[msg.sender] = cacheData.connectorCache;
         }
     }
 
@@ -218,35 +219,26 @@ contract Vault is Base {
         address connector_,
         bytes32 identifier_
     ) external nonReentrant {
-        bytes memory idCache = identifierCache[identifier_];
-        bytes memory connCache = connectorCache[connector_];
+        if (!validConnectors[connector_]) revert NotMessageBridge();
 
-        if (idCache.length == 0) revert NoPendingData();
+        CacheData memory cacheData = CacheData(
+            identifierCache[identifier_],
+            connectorCache[connector_]
+        );
+
+        if (cacheData.identifierCache.length == 0) revert NoPendingData();
         (
-            address receiver,
-            uint256 consumedAmount,
-            bytes memory postRetryHookData
-        ) = hook__.preRetryHook(
-                IConnector(msg.sender).siblingChainSlug(),
-                connector_,
-                idCache,
-                connCache
-            );
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
+        ) = hook__.preRetryHook(PreRetryHookCallParams(connector_, cacheData));
 
-        token__.safeTransfer(receiver, consumedAmount);
+        token__.safeTransfer(transferInfo.receiver, transferInfo.amount);
 
-        (
-            bytes memory newIdentifierCache,
-            bytes memory newConnectorCache
-        ) = hook__.postRetryHook(
-                IConnector(msg.sender).siblingChainSlug(),
-                connector_,
-                idCache,
-                connCache,
-                postRetryHookData
-            );
-        identifierCache[identifier_] = newIdentifierCache;
-        connectorCache[connector_] = newConnectorCache;
+        (cacheData) = hook__.postRetryHook(
+            PostRetryHookCallParams(connector_, postRetryHookData, cacheData)
+        );
+        identifierCache[identifier_] = cacheData.identifierCache;
+        connectorCache[connector_] = cacheData.connectorCache;
 
         // emit PendingTokensBridged(
         //     siblingChainSlug_,

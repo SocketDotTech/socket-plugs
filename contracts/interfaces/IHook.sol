@@ -15,7 +15,7 @@ interface IHook {
     // / @return amount The updated amount of funds.
     // / @return extradata The updated extradata.
     function srcHookCall(
-        SrcHookCall calldata srcHookCallParams_
+        SrcHookCallParams calldata srcHookCallParams_
     ) external returns (TransferInfo memory transferInfo);
 
     // /**
@@ -33,8 +33,10 @@ interface IHook {
     //  * @return postHookData The postHookData.
     //  */
     function dstPreHookCall(
-        DstPreHookCall calldata dstPreHookCallParams_
-    ) external returns (TransferInfo memory transferInfo);
+        DstPreHookCallParams calldata dstPreHookCallParams_
+    )
+        external
+        returns (bytes memory postHookData, TransferInfo memory transferInfo);
 
     // sd
     // // / @dev This function calls the dstPostHookCall function of the connector contract,
@@ -45,7 +47,7 @@ interface IHook {
     // // / @param connector_ The address of the connector contract.
     // // / @param extradata_ Additional data to be passed to the connector contract.
     function dstPostHookCall(
-        DstPostHookCall calldata dstPostHookCallParams_
+        DstPostHookCallParams calldata dstPostHookCallParams_
     ) external returns (CacheData memory cacheData);
 
     // /**
@@ -59,8 +61,13 @@ interface IHook {
     //  * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
     //  */
     function preRetryHook(
-        PreRetryHookCall calldata preRetryHookCallParams_
-    ) external returns (TransferInfo memory transferInfo);
+        PreRetryHookCallParams calldata preRetryHookCallParams_
+    )
+        external
+        returns (
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
+        );
 
     // /**
     //  * @notice Handles post-retry hook logic after execution.
@@ -73,6 +80,6 @@ interface IHook {
     //  * @return newConnectorCache The updated sibling chain cache.
     //  */
     function postRetryHook(
-        PostRetryHookCall calldata postRetryHookCallParams_
+        PostRetryHookCallParams calldata postRetryHookCallParams_
     ) external returns (CacheData memory cacheData);
 }

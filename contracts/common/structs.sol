@@ -7,31 +7,31 @@ struct UpdateLimitParams {
     uint256 ratePerSecond;
 }
 
-struct SrcHookCall {
+struct SrcHookCallParams {
     address connector;
     address msgSender;
     TransferInfo transferInfo;
 }
 
-struct DstPreHookCall {
+struct DstPreHookCallParams {
     address connector;
     bytes connectorCache;
     TransferInfo transferInfo;
 }
 
-struct DstPostHookCall {
+struct DstPostHookCallParams {
     address connector;
+    bytes connectorCache;
     bytes postHookData;
-    bytes connectorCache;
     TransferInfo transferInfo;
 }
 
-struct PreRetryHookCall {
+struct PreRetryHookCallParams {
     address connector;
     CacheData cacheData;
 }
 
-struct PostRetryHookCall {
+struct PostRetryHookCallParams {
     address connector;
     bytes postRetryHookData;
     CacheData cacheData;

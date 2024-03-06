@@ -50,7 +50,7 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
         bytes calldata payload_
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
-        hub__.receiveInbound(payload_);
+        hub__.receiveInbound(siblingChainSlug, payload_);
     }
 
     /**

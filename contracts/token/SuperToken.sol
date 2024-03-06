@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "../common/Base.sol";
+import "../common/TokenBase.sol";
 import "../interfaces/IHook.sol";
 
 /**
@@ -9,7 +9,7 @@ import "../interfaces/IHook.sol";
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperToken is ERC20, Base {
+contract SuperToken is ERC20, TokenBase {
     // for all controller access (mint, burn)
     bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
 
@@ -33,7 +33,7 @@ contract SuperToken is ERC20, Base {
         address controller_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(initialSupplyHolder_, initialSupply_);
-        _grantRole(controller_, CONTROLLER_ROLE);
+        _grantRole(CONTROLLER_ROLE, controller_);
     }
 
     function burn(
