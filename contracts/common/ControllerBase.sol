@@ -79,15 +79,13 @@ contract ControllerBase is Base {
         }
     }
 
-    // limits on assets or shares?
-    function bridge(
+    function _beforeBridge(
         address receiver_,
         uint256 amount_,
-        uint256 msgGasLimit_,
         address connector_,
         bytes calldata execPayload_,
-        bytes calldata options_
-    ) external payable nonReentrant {
+        bytes calldata
+    ) internal returns (address, uint256, bytes) {
         if (receiver_ == address(0)) revert ZeroAddressReceiver();
         if (amount_ == 0) revert ZeroAmount();
 
@@ -105,42 +103,41 @@ contract ControllerBase is Base {
                 extraData
             );
         }
-
         totalMinted -= finalAmount;
-        _burn(msg.sender, finalAmount);
 
-        uint256 connectorPoolId = connectorPoolIds[connector_];
-        if (connectorPoolId == 0) revert InvalidPoolId();
-        // send it to hook
-        poolLockedAmounts[connectorPoolId] -= finalAmount; // underflow revert expected
+        return (finalReceiver, finalAmount, extraData);
+    }
 
+    function _afterBridge(
+        address finalReceiver_,
+        uint256 finalAmount_,
+        uint256 msgGasLimit_,
+        address connector_,
+        bytes calldata payload_,
+        bytes calldata options_
+    ) internal {
         bytes32 messageId = IConnector(connector_).getMessageId();
         bytes32 returnedMessageId = IConnector(connector_).outbound{
             value: msg.value
         }(
             msgGasLimit_,
             connector_,
-            abi.encode(finalReceiver, finalAmount, messageId, extraData)
+            abi.encode(finalReceiver_, finalAmount_, messageId, payload_),
+            options_
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
 
         emit TokensWithdrawn(
             connector_,
             msg.sender,
-            finalReceiver,
-            finalAmount,
+            finalReceiver_,
+            finalAmount_,
             messageId
         );
     }
 
-    function _burn(address user_, uint256 burnAmount_) internal virtual {
-        token__.burn(user_, burnAmount_);
-    }
-
     // receive inbound assuming connector called
-    function receiveInbound(
-        bytes memory payload_
-    ) external override nonReentrant {
+    function _beforeMint(bytes memory payload_) internal {
         // no need of source check here, as if invalid caller, will revert with InvalidPoolId
 
         (
@@ -155,9 +152,6 @@ contract ControllerBase is Base {
             // receiver == address(bridge__) ||
             receiver == address(token__)
         ) revert CannotTransferOrExecuteOnBridgeContracts();
-
-        uint256 connectorPoolId = connectorPoolIds[msg.sender];
-        if (connectorPoolId == 0) revert InvalidPoolId();
 
         address finalReceiver = receiver;
         uint256 finalAmount = lockAmount;
@@ -174,11 +168,19 @@ contract ControllerBase is Base {
             );
         }
 
-        poolLockedAmounts[connectorPoolId] += finalAmount;
-
         totalMinted += finalAmount;
-        token__.mint(receiver, finalAmount);
 
+        return (finalReceiver, finalAmount, lockAmount, postHookData);
+    }
+
+    function _afterMint(
+        address finalReceiver,
+        uint256 lockAmount,
+        uint256 msgGasLimit_,
+        bytes memory extraData,
+        bytes memory postHookData,
+        uint256 messageId
+    ) internal {
         if (address(hook__) != address(0)) {
             (
                 bytes memory newIdentifierCache,
@@ -196,14 +198,9 @@ contract ControllerBase is Base {
             identifierCache[messageId] = newIdentifierCache;
             connectorCache[msg.sender] = newSiblingCache;
         }
-
-        emit TokensMinted(msg.sender, finalReceiver, finalAmount, messageId);
     }
 
-    function retry(
-        address connector_,
-        bytes32 identifier_
-    ) external nonReentrant {
+    function _beforeRetry(address connector_, bytes32 identifier_) internal {
         bytes memory idCache = identifierCache[identifier_];
         bytes memory connCache = connectorCache[connector_];
 
@@ -218,22 +215,22 @@ contract ControllerBase is Base {
                 idCache,
                 connCache
             );
-
         totalMinted += consumedAmount;
-        token__.mint(receiver, consumedAmount);
+    }
 
-        (
-            bytes memory newIdentifierCache,
-            bytes memory newConnectorCache
-        ) = hook__.postRetryHook(
-                IConnector(msg.sender).siblingChainSlug(),
+    function _afterRetry(
+        address connector_,
+        bytes32 identifier_,
+        bytes memory postRetryHookData,
+        CacheData memory cacheData_
+    ) internal {
+        (identifierCache[identifier_], connectorCache[connector_]) = hook__
+            .postRetryHook(
+                IConnector(connector_).siblingChainSlug(),
                 connector_,
-                idCache,
-                connCache,
+                cacheData_,
                 postRetryHookData
             );
-        identifierCache[identifier_] = newIdentifierCache;
-        connectorCache[connector_] = newConnectorCache;
 
         // emit PendingTokensBridged(
         //     siblingChainSlug_,
