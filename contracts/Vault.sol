@@ -15,18 +15,6 @@ import "./common/structs.sol";
 contract Vault is Base {
     using SafeTransferLib for ERC20;
 
-    ERC20 public immutable token__;
-    IHook public hook__;
-
-    // message identifier => cache
-    mapping(bytes32 => bytes) public identifierCache;
-
-    // sibling chain => cache
-    mapping(address => bytes) public connectorCache;
-
-    // check if needed
-    mapping(address => bool) public validConnectors;
-
     // // siblingChainSlug => amount
     // mapping(uint32 => uint256) public siblingPendingMints;
 
@@ -75,29 +63,6 @@ contract Vault is Base {
         token__ = ERC20(token_);
     }
 
-    /**
-     * @notice this function is used to update hook
-     * @dev it can only be updated by owner
-     * @dev should be carefully migrated as it can risk user funds
-     * @param hook_ new hook address
-     */
-    function updateHook(address hook_, bool approveToken_) external onlyOwner {
-        hook__ = IHook(hook_);
-        if (approveToken_) token__.approve(hook_, type(uint256).max);
-        emit HookUpdated(hook_);
-    }
-
-    function updateConnectorStatus(
-        address[] calldata connectors,
-        bool[] calldata statuses
-    ) external onlyOwner {
-        uint256 length = connectors.length;
-        for (uint256 i; i < length; i++) {
-            validConnectors[connectors[i]] = statuses[i];
-            emit ConnectorStatusUpdated(connectors[i], statuses[i]);
-        }
-    }
-
     // /**
     //  * @notice this function is called by users to bridge their funds to a sibling chain
     //  * @dev it is payable to receive message bridge fees to be paid.
@@ -115,48 +80,18 @@ contract Vault is Base {
         bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
-        if (receiver_ == address(0)) revert ZeroAddressReceiver();
-        if (amount_ == 0) revert ZeroAmount();
-
-        TransferInfo memory transferInfo = TransferInfo(
-            receiver_,
-            amount_,
-            execPayload_
+        TransferInfo memory transferInfo = _beforeBridge(
+            connector_,
+            TransferInfo(receiver_, amount_, execPayload_)
         );
 
-        if (address(hook__) != address(0)) {
-            transferInfo = hook__.srcHookCall(
-                SrcHookCallParams(connector_, msg.sender, transferInfo)
-            );
-        }
         token__.safeTransferFrom(
             msg.sender,
             address(this),
             transferInfo.amount
         );
 
-        bytes32 messageId = IConnector(connector_).getMessageId();
-        bytes32 returnedMessageId = IConnector(connector_).outbound{
-            value: msg.value
-        }(
-            msgGasLimit_,
-            abi.encode(
-                transferInfo.receiver,
-                transferInfo.amount,
-                messageId,
-                transferInfo.data
-            ),
-            options_
-        );
-        if (returnedMessageId != messageId) revert MessageIdMisMatched();
-
-        // emit TokensDeposited(
-        //     siblingChainSlug_,
-        //     msg.sender,
-        //     receiver_,
-        //     amount_,
-        //     messageId
-        // );
+        _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
     }
 
     /**
@@ -168,7 +103,6 @@ contract Vault is Base {
         uint32 siblingChainSlug_,
         bytes memory payload_
     ) external payable override nonReentrant {
-        if (!validConnectors[msg.sender]) revert NotMessageBridge();
         (
             address receiver,
             uint256 unlockAmount,

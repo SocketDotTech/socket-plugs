@@ -2,9 +2,9 @@ pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
 import "../HookBase.sol";
-import {Gauge} from "../../common/Gauge.sol";
-import {SiblingNotSupported} from "../../common/errors.sol";
-import {UpdateLimitParams} from "../../common/structs.sol";
+import {Gauge} from "../../utils/Gauge.sol";
+import {SiblingNotSupported} from "../../common/Errors.sol";
+import {UpdateLimitParams} from "../../common/Structs.sol";
 
 /**
  * @title SuperToken

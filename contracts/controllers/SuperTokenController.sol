@@ -1,19 +1,15 @@
 pragma solidity 0.8.13;
 
-import {IExchangeRate} from "./ExchangeRate.sol";
 import {IMintableERC20} from "./IMintableERC20.sol";
 import "solmate/utils/SafeTransferLib.sol";
 import "./ControllerBase.sol";
 import "../interfaces/IHook.sol";
 
-contract SuperBridgeController is ControllerBase {
+contract SuperTokenController is ControllerBase {
     IMintableERC20 public immutable token__;
     uint256 public totalMinted;
 
-    constructor(
-        address token_,
-        address hook_
-    ) ControllerBase(token_, exchangeRate_, hook_) {}
+    constructor(address token_, address hook_) ControllerBase(token_, hook_) {}
 
     // limits on assets or shares?
     function bridge(
@@ -24,22 +20,16 @@ contract SuperBridgeController is ControllerBase {
         bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
-        (
-            address finalReceiver,
-            uint256 finalAmount,
-            bytes memory extraData
-        ) = _beforeBridge(receiver_, amount_, connector_, execPayload_);
-
-        _burn(msg.sender, finalAmount);
-
-        _afterBridge(
-            finalReceiver,
-            finalAmount,
-            msgGasLimit_,
+        TransferInfo memory transferInfo = _beforeBridge(
             connector_,
-            extraData,
-            options_
+            TransferInfo(receiver_, amount_, execPayload_)
         );
+        // to maintain socket dl specific accounting for super token
+        // re check this logic for mint and mint use cases and if other minter involved
+        totalMinted -= transferInfo.amount;
+
+        _burn(msg.sender, transferInfo.amount);
+        _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
     }
 
     function _burn(address user_, uint256 burnAmount_) internal virtual {
@@ -48,34 +38,49 @@ contract SuperBridgeController is ControllerBase {
 
     // receive inbound assuming connector called
     function receiveInbound(
+        uint32 siblingChainSlug_,
         bytes memory payload_
     ) external override nonReentrant {
         (
-            address finalReceiver,
-            uint256 finalAmount,
+            address receiver,
             uint256 lockAmount,
+            bytes32 messageId,
             bytes memory extraData
-        ) = _beforeMint(payload_);
+        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
-        token__.mint(receiver, finalAmount);
+        // convert to shares
+        TransferInfo memory transferInfo = TransferInfo(
+            receiver,
+            lockAmount,
+            extraData
+        );
+        bytes memory postHookData;
+        (transferInfo, postHookData) = _beforeMint(
+            siblingChainSlug_,
+            transferInfo
+        );
 
-        _afterMint(finalReceiver, lockAmount, );
-        emit TokensMinted(msg.sender, finalReceiver, finalAmount, messageId);
+        token__.mint(transferInfo.receiver, transferInfo.amount);
+
+        _afterMint(lockAmount, messageId, postHookData, transferInfo);
+        emit TokensMinted(
+            msg.sender,
+            transferInfo.receiver,
+            transferInfo.amount,
+            messageId
+        );
     }
 
     function retry(
         address connector_,
         bytes32 identifier_
     ) external nonReentrant {
-        _beforeRetry(connector_, identifier_);
-        token__.mint(receiver, consumedAmount);
+        (
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
+        ) = _beforeRetry(connector_, identifier_);
+        token__.mint(transferInfo.receiver, transferInfo.amount);
 
-        _afterRetry(
-                connector_,
-                cacheData,
-                postRetryHookData,
-                identifier_    
-            );
+        _afterRetry(connector_, identifier_, postRetryHookData, cacheData);
     }
-
 }

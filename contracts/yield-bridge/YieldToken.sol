@@ -7,11 +7,10 @@ import "./erc4626/ERC4626.sol";
 import {IStrategy} from "../interfaces/IStrategy.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 import {IHook} from "../interfaces/IHook.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import {AccessControl} from "../common/AccessControl.sol";
+import "../utils/RescueBase.sol";
 
 // add shutdown
-contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
+contract YieldToken is ERC4626, ReentrancyGuard, RescueBase {
     // connector => timestamp
     mapping(address => uint128) public lastSyncTimestamp; // Timestamp of last rebalance
     // connector => total yield
@@ -62,10 +61,13 @@ contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
     ) external payable nonReentrant returns (uint256 deposited) {
         if (amount_ > siblingTotalYield[connector_]) revert InsufficientFunds();
         uint256 sharesToBurn = convertToShares(amount_);
+        super.withdraw(msg.sender, sharesToBurn);
+    }
 
+    function updateYield() external {
+        // todo: only controller can call
         totalYield -= amount_;
         siblingTotalYield[connector_] -= amount_;
-        super.withdraw(msg.sender, sharesToBurn);
     }
 
     // receive inbound assuming connector called
@@ -73,21 +75,7 @@ contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
     function receiveInbound(
         bytes memory payload_
     ) public nonReentrant returns (uint256 amount) {
-        (
-            address receiver,
-            uint256 mintAmount,
-            bytes32 messageId,
-            bytes memory extraData
-        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
-
         (uint256 newYield, ) = abi.decode(extraData, (uint256, bytes));
-
-        if (
-            receiver == address(this)
-            // ||
-            // receiver == address()
-            // receiver == address(token__)
-        ) revert CannotTransferOrExecuteOnBridgeContracts();
 
         lastSyncTimestamp[msg.sender] = uint128(block.timestamp);
         totalYield = totalYield + newYield - siblingTotalYield[msg.sender];
@@ -216,19 +204,5 @@ contract YieldToken is ERC4626, ReentrancyGuard, AccessControl {
         uint256 msgGasLimit_
     ) external view returns (uint256 totalFees) {
         return IConnector(connector_).getMinFees(msgGasLimit_);
-    }
-
-    /**
-     * @notice Rescues funds from the contract if they are locked by mistake.
-     * @param token_ The address of the token contract.
-     * @param rescueTo_ The address where rescued tokens need to be sent.
-     * @param amount_ The amount of tokens to be rescued.
-     */
-    function rescueFunds(
-        address token_,
-        address rescueTo_,
-        uint256 amount_
-    ) external onlyOwner {
-        RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }

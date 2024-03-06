@@ -44,7 +44,7 @@ contract LimitHook is LimitPlugin {
     //  * @dev This function checks if the sibling chain is supported, consumes a part of the limit, and prepares post-hook data.
     //  * @param receiver_ The receiver of the funds.
     //  * @param amount_ The amount of funds.
-    //  * @param siblingChainSlug_ The unique identif_ier of the sibling chain.
+    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
     //  * @param connector_ The address of the connector contract.
     //  * @param extradata_ Additional data to be passed to the connector contract.
     //  * @param connectorCache_ Sibling chain cache containing pending amount information.
@@ -52,7 +52,6 @@ contract LimitHook is LimitPlugin {
     //  * @return consumedAmount The amount consumed from the limit.
     //  * @return postHookData The post-hook data to be processed after the hook execution.
     //  */
-
     function dstPreHookCall(
         DstPreHookCallParams memory params_
     )

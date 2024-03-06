@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
-import {AccessControl} from "../common/AccessControl.sol";
+import {AccessControl} from "./AccessControl.sol";
 
 /**
  * @title Base contract for super token and vault
@@ -8,7 +8,7 @@ import {AccessControl} from "../common/AccessControl.sol";
  * @dev This contract implements Socket's IPlug to enable message bridging and IMessageBridge
  * to support any type of message bridge.
  */
-abstract contract TokenBase is AccessControl {
+abstract contract RescueBase is AccessControl {
     bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
     /**

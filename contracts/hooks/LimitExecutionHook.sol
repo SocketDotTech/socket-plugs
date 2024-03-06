@@ -2,9 +2,9 @@ pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
 import "./plugins/LimitPlugin.sol";
-import "../common/ExecutionHelper.sol";
-import "../common/structs.sol";
-import "../common/errors.sol";
+import "./plugins/ExecutionHelper.sol";
+import "../common/Structs.sol";
+import "../common/Errors.sol";
 
 /**
  * @title SuperToken

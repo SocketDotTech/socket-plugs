@@ -1,13 +1,12 @@
 pragma solidity 0.8.13;
 
-import "../common/Ownable.sol";
-import {ISocket} from "../interfaces/ISocket.sol";
-import {IPlug} from "../interfaces/IPlug.sol";
-import {IConnector} from "../interfaces/IConnector.sol";
-import {IHub} from "../interfaces/IHub.sol";
-import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
+import "./RescueBase.sol";
+import {ISocket} from "./interfaces/ISocket.sol";
+import {IPlug} from "./interfaces/IPlug.sol";
+import {IConnector} from "./interfaces/IConnector.sol";
+import {IHub} from "./interfaces/IHub.sol";
 
-contract ConnectorPlug is IConnector, IPlug, Ownable {
+contract ConnectorPlug is IConnector, IPlug, RescueBase {
     IHub public immutable hub__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
@@ -22,7 +21,7 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
         address hub_,
         address socket_,
         uint32 siblingChainSlug_
-    ) Ownable(msg.sender) {
+    ) AccessControl(msg.sender) {
         hub__ = IHub(hub_);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;
@@ -46,11 +45,11 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
     }
 
     function inbound(
-        uint32 /* siblingChainSlug_ */, // cannot be connected for any other slug, immutable variable
+        uint32 siblingChainSlug_, // cannot be connected for any other slug, immutable variable
         bytes calldata payload_
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
-        hub__.receiveInbound(siblingChainSlug, payload_);
+        hub__.receiveInbound(siblingChainSlug_, payload_);
     }
 
     /**
@@ -115,19 +114,5 @@ contract ConnectorPlug is IConnector, IPlug, Ownable {
      */
     function getMessageId() external view returns (bytes32) {
         return bytes32(messageIdPart | (socket__.globalMessageCount()));
-    }
-
-    /**
-     * @notice Rescues funds from the contract if they are locked by mistake.
-     * @param token_ The address of the token contract.
-     * @param rescueTo_ The address where rescued tokens need to be sent.
-     * @param amount_ The amount of tokens to be rescued.
-     */
-    function rescueFunds(
-        address token_,
-        address rescueTo_,
-        uint256 amount_
-    ) external onlyOwner {
-        RescueFundsLib.rescueFunds(token_, rescueTo_, amount_);
     }
 }
