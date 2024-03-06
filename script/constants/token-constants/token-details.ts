@@ -10,15 +10,6 @@ export const TokenDetails = {
     [Tokens.SNX]: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
     [Tokens.WSTETH]: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
   },
-  [ChainSlug.LYRA]: {
-    [Tokens.USDC]: "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
-    [Tokens.USDCE]: "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
-    [Tokens.USDT]: "0x13512979ade267ab5100878e2e0f485b568328a4",
-    [Tokens.WETH]: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
-    [Tokens.WBTC]: "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
-    [Tokens.SNX]: "0x7f3edcdd180dbe4819bd98f960d4a9d6c3e5e3d6",
-    [Tokens.WSTETH]: "0x7f3edcdd180dbe4819bd98f960d4a9d6c3e5e3d6",
-  },
   [ChainSlug.OPTIMISM]: {
     [Tokens.USDC]: "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
     [Tokens.USDCE]: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",

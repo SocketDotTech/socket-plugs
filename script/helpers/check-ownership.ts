@@ -26,7 +26,7 @@ export const main = async () => {
           const [exchangeRateOwner, exchangeRateNominee, exchangeRateType] =
             await getOwnerAndNominee(exchangeRateContract);
           console.log(
-            `Owner of ${exchangeRateAddress} is ${exchangeRateOwner}${
+            `Owner of ${exchangeRateAddress}(${exchangeRateType}) is ${exchangeRateOwner}${
               exchangeRateNominee === ZERO_ADDRESS
                 ? ""
                 : ` (nominee: ${exchangeRateNominee})`
@@ -39,11 +39,10 @@ export const main = async () => {
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [controllerOwner, controllerNominee] = await getOwnerAndNominee(
-            controllerContract
-          );
+          const [controllerOwner, controllerNominee, type] =
+            await getOwnerAndNominee(controllerContract);
           console.log(
-            `Owner of ${controllerAddress} is ${controllerOwner}${
+            `Owner of ${controllerAddress}(${type}) is ${controllerOwner}${
               controllerNominee === ZERO_ADDRESS
                 ? ""
                 : ` (nominee: ${controllerNominee})`
@@ -57,11 +56,11 @@ export const main = async () => {
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [vaultOwner, vaultNominee] = await getOwnerAndNominee(
+          const [vaultOwner, vaultNominee, type] = await getOwnerAndNominee(
             vaultContract
           );
           console.log(
-            `Owner of ${vaultAddress} is ${vaultOwner}${
+            `Owner of ${vaultAddress}(${type}) is ${vaultOwner}${
               vaultNominee === ZERO_ADDRESS ? "" : ` (nominee: ${vaultNominee})`
             } on chain: ${chain} (Vault for currency: ${currency})`
           );
@@ -82,9 +81,9 @@ export const main = async () => {
               OWNABLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const [owner, nominee] = await getOwnerAndNominee(contract);
+            const [owner, nominee, type] = await getOwnerAndNominee(contract);
             console.log(
-              `Owner of ${connectorAddress} is ${owner}${
+              `Owner of ${connectorAddress}(${type}) is ${owner}${
                 nominee === ZERO_ADDRESS ? "" : ` (nominee: ${nominee})`
               } on chain: ${chain} (Connector for ${currency}, conn-chain: ${connectorChain}, conn-type: ${connectorType}`
             );
