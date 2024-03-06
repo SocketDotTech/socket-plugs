@@ -5,13 +5,13 @@ import "./plugins/LimitPlugin.sol";
 import "../common/ExecutionHelper.sol";
 import "../common/structs.sol";
 import "../common/errors.sol";
+
 /**
  * @title SuperToken
  * @notice An ERC20 contract enabling bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
 contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
-
     /**
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.

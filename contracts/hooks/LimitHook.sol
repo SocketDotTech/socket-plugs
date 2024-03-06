@@ -35,10 +35,7 @@ contract LimitHook is LimitPlugin {
     function srcHookCall(
         SrcHookCallParams memory params_
     ) external isVaultOrToken returns (TransferInfo memory) {
-        _limitSrcHook(
-            params_.connector,
-            params_.transferInfo.amount
-        );
+        _limitSrcHook(params_.connector, params_.transferInfo.amount);
         return params_.transferInfo;
     }
 
