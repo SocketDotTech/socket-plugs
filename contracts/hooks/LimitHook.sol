@@ -1,13 +1,7 @@
 pragma solidity 0.8.13;
 
-import "solmate/tokens/ERC20.sol";
 import "./plugins/LimitPlugin.sol";
 
-/**
- * @title SuperToken
- * @notice An ERC20 contract enabling bridging a token to its sibling chains.
- * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
- */
 contract LimitHook is LimitPlugin {
     /**
      * @notice Constructor for creating a new SuperToken.
@@ -15,8 +9,8 @@ contract LimitHook is LimitPlugin {
      */
     constructor(
         address owner_,
-        address vaultOrToken_
-    ) HookBase(owner_, vaultOrToken_) {}
+        address controller_
+    ) HookBase(owner_, controller_) {}
 
     // /**
     //  * @dev This function calls the srcHookCall function of the connector contract,
@@ -38,7 +32,8 @@ contract LimitHook is LimitPlugin {
     }
 
     function srcPostHookCall(
-        bytes memory payload_
+        bytes memory payload_,
+        bytes memory options_
     ) external returns (bytes memory) {
         return payload_;
     }

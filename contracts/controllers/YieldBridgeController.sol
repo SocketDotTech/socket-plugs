@@ -1,8 +1,8 @@
 pragma solidity 0.8.13;
 
-import "./ControllerBase.sol";
+import "../Base.sol";
 
-contract YieldBridgeController is ControllerBase {
+contract YieldBridgeController is Base {
     uint256 public totalMinted;
 
     // connectorPoolId => totalLockedAmount
@@ -11,7 +11,19 @@ contract YieldBridgeController is ControllerBase {
     // connector => connectorPoolId
     mapping(address => uint256) public connectorPoolIds;
 
-    constructor(address token_, address hook_) ControllerBase(token_, hook_) {}
+    constructor(address token_, address hook_) Base(token_, hook_) {}
+
+    /**
+     * @notice this function is used to update hook
+     * @dev it can only be updated by owner
+     * @dev should be carefully migrated as it can risk user funds
+     * @param hook_ new hook address
+     */
+    function updateHook(address hook_, bool approveTokens_) external override onlyOwner {
+        hook__ = IHook(hook_);
+        if (approveTokens_) token__.approve(hook_, type(uint256).max);
+        emit HookUpdated(hook_);
+    }
 
     function updateConnectorPoolId(
         address[] calldata connectors,
@@ -59,7 +71,7 @@ contract YieldBridgeController is ControllerBase {
     function receiveInbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
-    ) external override nonReentrant {
+    ) external payable override nonReentrant {
         (
             address receiver,
             uint256 lockAmount,
@@ -96,14 +108,14 @@ contract YieldBridgeController is ControllerBase {
 
     function retry(
         address connector_,
-        bytes32 identifier_
+        bytes32 messageId_
     ) external nonReentrant {
         (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
-        ) = _beforeRetry(connector_, identifier_);
+        ) = _beforeRetry(connector_, messageId_);
         token__.mint(transferInfo.receiver, transferInfo.amount);
 
-        _afterRetry(connector_, identifier_, postRetryHookData, cacheData);
+        _afterRetry(connector_, messageId_, postRetryHookData);
     }
 }

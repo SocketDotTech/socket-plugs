@@ -1,8 +1,8 @@
 pragma solidity 0.8.13;
 
-import "./ControllerBase.sol";
+import "../Base.sol";
 
-contract SuperBridgeController is ControllerBase {
+contract SuperBridgeController is Base {
     uint256 public totalMinted;
 
     // connectorPoolId => totalLockedAmount
@@ -11,7 +11,7 @@ contract SuperBridgeController is ControllerBase {
     // connector => connectorPoolId
     mapping(address => uint256) public connectorPoolIds;
 
-    constructor(address token_, address hook_) ControllerBase(token_, hook_) {}
+    constructor(address token_, address hook_) Base(token_, hook_) {}
 
     function updateConnectorPoolId(
         address[] calldata connectors,
@@ -97,15 +97,15 @@ contract SuperBridgeController is ControllerBase {
 
     function retry(
         address connector_,
-        bytes32 identifier_
+        bytes32 messageId_
     ) external nonReentrant {
         (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
-        ) = _beforeRetry(connector_, identifier_);
+        ) = _beforeRetry(connector_, messageId_);
         token__.mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
-        _afterRetry(connector_, identifier_, postRetryHookData);
+        _afterRetry(connector_, messageId_, postRetryHookData);
     }
 }

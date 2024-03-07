@@ -10,12 +10,6 @@ import {IHook} from "../../interfaces/IHook.sol";
 contract YieldToken is YieldTokenBase {
     bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
 
-    error InsufficientFunds();
-    error ZeroAmount();
-    error ZeroAddressReceiver();
-    error NoPendingData();
-    error CannotTransferOrExecuteOnBridgeContracts();
-
     constructor(
         string memory name_,
         string memory symbol_,
@@ -36,16 +30,14 @@ contract YieldToken is YieldTokenBase {
         return
             supply == 0
                 ? assets_
-                : assets_.mulDivUp(supply, (totalYield - amount_));
+                : assets_.mulDivUp(supply, (totalYield - assets_));
     }
 
     function burn(
         address user_,
-        uint256 amount_,
-        address connector_
+        uint256 amount_
     )
         external
-        payable
         nonReentrant
         onlyRole(CONTROLLER_ROLE)
         returns (uint256 sharesToBurn)
@@ -60,7 +52,6 @@ contract YieldToken is YieldTokenBase {
         uint256 amount_
     )
         external
-        payable
         nonReentrant
         onlyRole(CONTROLLER_ROLE)
         returns (uint256 sharesToMint)

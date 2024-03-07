@@ -19,7 +19,8 @@ interface IHook {
     ) external returns (TransferInfo memory transferInfo);
 
     function srcPostHookCall(
-        bytes memory payload_
+        bytes memory payload_,
+        bytes memory options_
     ) external returns (bytes memory data);
 
     // /**

@@ -1,16 +1,16 @@
 pragma solidity 0.8.13;
 
-import "./controllers/ControllerBase.sol";
+import "./Base.sol";
 import "./interfaces/IConnector.sol";
+import "solmate/tokens/ERC20.sol";
 
 /**
  * @title SuperToken
- * @notice An ERC20 contract which enables bridging a token to its sibling chains.
+ * @notice A contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract Vault is ControllerBase {
+contract Vault is Base {
     using SafeTransferLib for ERC20;
-
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
@@ -46,11 +46,7 @@ contract Vault is ControllerBase {
     //  * @param token_ token contract address which is to be bridged.
     //  */
 
-    constructor(
-        address token_,
-        address hook_,
-        address owner_
-    ) ControllerBase(token_, hook_, owner_) {}
+    constructor(address token_) Base(token_) {}
 
     // /**
     //  * @notice this function is called by users to bridge their funds to a sibling chain
@@ -74,7 +70,7 @@ contract Vault is ControllerBase {
             TransferInfo(receiver_, amount_, execPayload_)
         );
 
-        token__.safeTransferFrom(
+        ERC20(address(token__)).safeTransferFrom(
             msg.sender,
             address(this),
             transferInfo.amount
@@ -95,7 +91,7 @@ contract Vault is ControllerBase {
         (
             address receiver,
             uint256 unlockAmount,
-            bytes32 identifier,
+            bytes32 messageId,
             bytes memory extraData
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
@@ -111,9 +107,12 @@ contract Vault is ControllerBase {
             transferInfo
         );
 
-        token__.safeTransfer(transferInfo.receiver, transferInfo.amount);
+        ERC20(address(token__)).safeTransfer(
+            transferInfo.receiver,
+            transferInfo.amount
+        );
 
-        _afterMint(lockAmount, messageId, postHookData, transferInfo);
+        _afterMint(unlockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
             msg.sender,
             transferInfo.receiver,
@@ -124,14 +123,17 @@ contract Vault is ControllerBase {
 
     function retry(
         address connector_,
-        bytes32 identifier_
+        bytes32 messageId_
     ) external nonReentrant {
         (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
-        ) = _beforeRetry(connector_, identifier_);
-        token__.safeTransfer(transferInfo.receiver, transferInfo.amount);
+        ) = _beforeRetry(connector_, messageId_);
+        ERC20(address(token__)).safeTransfer(
+            transferInfo.receiver,
+            transferInfo.amount
+        );
 
-        _afterRetry(connector_, identifier_, postRetryHookData, cacheData);
+        _afterRetry(connector_, messageId_, postRetryHookData);
     }
 }

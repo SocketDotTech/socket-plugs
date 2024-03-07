@@ -8,7 +8,7 @@ contract FiatTokenV2_1_Mintable is IFiatTokenV2_1_Mintable {
         string memory name_,
         string memory symbol_,
         uint8 decimals_
-    ) ERC20(name_, symbol_, decimals_) {}
+    ) ERC20(name_, symbol_) {}
 
     function mint(address receiver_, uint256 amount_) external override {
         _mint(receiver_, amount_);

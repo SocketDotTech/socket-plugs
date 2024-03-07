@@ -4,21 +4,10 @@ pragma solidity >=0.8.0;
 import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import "../../utils/RescueBase.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-abstract contract YieldTokenBase is RescueBase, ReentrancyGuard {
+abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     using FixedPointMathLib for uint256;
-
-    /*//////////////////////////////////////////////////////////////
-                                 EVENTS
-    //////////////////////////////////////////////////////////////*/
-
-    event Transfer(address indexed from, address indexed to, uint256 amount);
-
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 amount
-    );
 
     /*//////////////////////////////////////////////////////////////
                             METADATA STORAGE
@@ -82,14 +71,14 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard {
         uint256 assets
     ) public view virtual returns (uint256) {
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
-        return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+        return supply == 0 ? assets : assets.mulDivDown(supply, totalYield);
     }
 
     function convertToAssets(
         uint256 shares
     ) public view virtual returns (uint256) {
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
-        return supply == 0 ? shares : shares.mulDivDown(totalAssets(), supply);
+        return supply == 0 ? shares : shares.mulDivDown(totalYield, supply);
     }
 
     function balanceOf(address user_) external view returns (uint256) {
@@ -105,13 +94,13 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard {
     }
 
     function approve(
-        address spender,
-        uint256 amount
+        address spender_,
+        uint256 amount_
     ) public virtual returns (bool) {
         uint256 shares = convertToShares(amount_);
-        allowance[msg.sender][spender] = shares;
+        allowance[msg.sender][spender_] = shares;
 
-        emit Approval(msg.sender, spender, shares);
+        emit Approval(msg.sender, spender_, shares);
 
         return true;
     }

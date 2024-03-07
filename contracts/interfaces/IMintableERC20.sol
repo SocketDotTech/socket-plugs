@@ -1,9 +1,7 @@
 pragma solidity 0.8.13;
 
-import "solmate/tokens/ERC20.sol";
+interface IMintableERC20 {
+    function mint(address receiver_, uint256 amount_) external;
 
-abstract contract IMintableERC20 is ERC20 {
-    function mint(address receiver_, uint256 amount_) external virtual;
-
-    function burn(address burner_, uint256 amount_) external virtual;
+    function burn(address burner_, uint256 amount_) external;
 }

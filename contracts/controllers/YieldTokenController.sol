@@ -1,15 +1,14 @@
 pragma solidity 0.8.13;
 
-import "./ControllerBase.sol";
+import "../Base.sol";
 
-contract YieldTokenController is ControllerBase {
-    IMintableERC20 public immutable token__;
+contract YieldTokenController is Base {
     uint256 public totalMinted;
 
     // connector => total yield
     mapping(address => uint256) public siblingTotalYield;
 
-    constructor(address token_, address hook_) ControllerBase(token_, hook_) {}
+    constructor(address token_, address hook_) Base(token_, hook_) {}
 
     // limits on shares here
     // options_ here is now a boolean which indicates if we want to enable withdrawing
@@ -34,7 +33,7 @@ contract YieldTokenController is ControllerBase {
         // re check this logic for mint and mint use cases and if other minter involved
         totalMinted -= transferInfo.amount;
         siblingTotalYield[connector_] -= amount_;
-        shares = _burn(msg.sender, transferInfo.amount);
+        uint256 shares = _burn(msg.sender, transferInfo.amount);
 
         _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
     }
@@ -43,7 +42,7 @@ contract YieldTokenController is ControllerBase {
     function receiveInbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
-    ) external override nonReentrant {
+    ) external payable override nonReentrant {
         (
             address receiver,
             uint256 lockAmount,
@@ -64,7 +63,7 @@ contract YieldTokenController is ControllerBase {
             transferInfo
         );
 
-        siblingTotalYield[connector_] += amount_;
+        siblingTotalYield[msg.sender] += transferInfo.amount;
         _mint(transferInfo.receiver, transferInfo.amount);
         token__.updateYield(newYield);
 
@@ -79,18 +78,19 @@ contract YieldTokenController is ControllerBase {
 
     function retry(
         address connector_,
-        bytes32 identifier_
+        bytes32 messageId_
     ) external nonReentrant {
         (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
-        ) = _beforeRetry(connector_, identifier_);
+        ) = _beforeRetry(connector_, messageId_);
 
-        totalMinted += consumedAmount;
-        siblingTotalYield[connector_] += amount_;
+        totalMinted += transferInfo.amount;
+        // todo: check
+        siblingTotalYield[connector_] += transferInfo.amount;
         _mint(transferInfo.receiver, transferInfo.amount);
 
-        _afterRetry(connector_, identifier_, postRetryHookData, cacheData);
+        _afterRetry(connector_, messageId_, postRetryHookData);
     }
 
     function _burn(

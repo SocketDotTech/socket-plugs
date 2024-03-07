@@ -1,11 +1,11 @@
 pragma solidity 0.8.13;
 
-import "./ControllerBase.sol";
+import "../Base.sol";
 
-contract SuperTokenController is ControllerBase {
+contract SuperTokenController is Base {
     uint256 public totalMinted;
 
-    constructor(address token_, address hook_) ControllerBase(token_, hook_) {}
+    constructor(address token_, address hook_) Base(token_, hook_) {}
 
     // limits on assets or shares?
     function bridge(
@@ -70,15 +70,15 @@ contract SuperTokenController is ControllerBase {
 
     function retry(
         address connector_,
-        bytes32 identifier_
+        bytes32 messageId_
     ) external nonReentrant {
         (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
-        ) = _beforeRetry(connector_, identifier_);
+        ) = _beforeRetry(connector_, messageId_);
         token__.mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
-        _afterRetry(connector_, identifier_, postRetryHookData);
+        _afterRetry(connector_, messageId_, postRetryHookData);
     }
 }

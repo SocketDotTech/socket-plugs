@@ -17,3 +17,7 @@ error InvalidConnector();
 error InvalidConnectorPoolId();
 error ZeroAddressReceiver();
 error ZeroAmount();
+error DebtRatioTooHigh();
+error NotEnoughAssets();
+error VaultShutdown();
+error InsufficientFunds();

@@ -1,14 +1,8 @@
 pragma solidity 0.8.13;
 
-import "solmate/tokens/ERC20.sol";
 import "../HookBase.sol";
 import {Gauge} from "../../utils/Gauge.sol";
 
-/**
- * @title SuperToken
- * @notice An ERC20 contract enabling bridging a token to its sibling chains.
- * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
- */
 abstract contract LimitPlugin is Gauge, HookBase {
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
@@ -45,12 +39,6 @@ abstract contract LimitPlugin is Gauge, HookBase {
         uint256 totalPendingAmount,
         bytes32 identifier
     );
-
-    modifier isSiblingSupported(address connector_) {
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-        _;
-    }
 
     /**
      * @notice This function is used to set bridge limits.
