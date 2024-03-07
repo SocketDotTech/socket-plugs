@@ -56,7 +56,6 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
         strategy = IStrategy(strategy_);
-        controller = controller_;
     }
 
     /**

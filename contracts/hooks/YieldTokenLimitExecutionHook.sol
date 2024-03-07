@@ -33,7 +33,6 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         address controller_
     ) HookBase(msg.sender, controller_) {
         asset__ = IMintableERC20(asset_);
-        controller = controller_;
     }
 
     /**
