@@ -6,8 +6,6 @@ import "../mocks/MintableToken.sol";
 // import "../../contracts/supertoken/SuperToken.sol";
 import "../mocks/MockSocket.sol";
 import "../../contracts/hooks/LimitHook.sol";
-import "../../contracts/common/structs.sol";
-import "../../contracts/common/errors.sol";
 
 contract TestSuperTokenLimits is Test {
     uint256 _c = 1000;

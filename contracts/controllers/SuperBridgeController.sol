@@ -59,7 +59,7 @@ contract SuperBridgeController is ControllerBase {
     function receiveInbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
-    ) external override nonReentrant {
+    ) external payable override nonReentrant {
         (
             address receiver,
             uint256 lockAmount,
@@ -84,6 +84,7 @@ contract SuperBridgeController is ControllerBase {
 
         poolLockedAmounts[connectorPoolId] += transferInfo.amount;
         token__.mint(transferInfo.receiver, transferInfo.amount);
+        totalMinted += transferInfo.amount;
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
@@ -103,7 +104,8 @@ contract SuperBridgeController is ControllerBase {
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, identifier_);
         token__.mint(transferInfo.receiver, transferInfo.amount);
+        totalMinted += transferInfo.amount;
 
-        _afterRetry(connector_, identifier_, postRetryHookData, cacheData);
+        _afterRetry(connector_, identifier_, postRetryHookData);
     }
 }

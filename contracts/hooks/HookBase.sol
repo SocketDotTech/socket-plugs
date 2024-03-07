@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/ReentrancyGuard.sol";
-import {NotAuthorized, ZeroAddressReceiver} from "../common/Errors.sol";
+import "../common/Errors.sol";
 import "../interfaces/IHook.sol";
 import "../utils/RescueBase.sol";
 

@@ -1,5 +1,5 @@
 pragma solidity ^0.8.3;
-import "../common/structs.sol";
+import "../common/Structs.sol";
 
 interface IHook {
     // / @dev This function calls the srcHookCall function of the connector contract,

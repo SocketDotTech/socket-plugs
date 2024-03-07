@@ -1,7 +1,6 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/ReentrancyGuard.sol";
-
 import "./interfaces/IHub.sol";
 import "./utils/RescueBase.sol";
 

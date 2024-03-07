@@ -3,12 +3,11 @@ pragma solidity 0.8.13;
 import {IMintableERC20} from "../interfaces/IMintableERC20.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 import "solmate/utils/SafeTransferLib.sol";
-import "./Base.sol";
+import "../Base.sol";
 import "../interfaces/IHook.sol";
-import {NotAuthorized, ZeroAmount, ZeroAddressReceiver} from "../common/Errors.sol";
-import "../common/Structs.sol";
+import "../common/Errors.sol";
 
-contract ControllerBase is Base {
+abstract contract ControllerBase is Base {
     IMintableERC20 public immutable token__;
     IHook public hook__;
 
@@ -20,12 +19,6 @@ contract ControllerBase is Base {
 
     mapping(address => bool) public validConnectors;
 
-    error ConnectorUnavailable();
-    error InvalidPoolId();
-    error CannotTransferOrExecuteOnBridgeContracts();
-    error NoPendingData();
-    error MessageIdMisMatched();
-    event ExchangeRateUpdated(address exchangeRate);
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     event ConnectorStatusUpdated(address connector, bool status);
 
@@ -45,11 +38,10 @@ contract ControllerBase is Base {
         bytes32 messageId
     );
 
-    constructor(address token_, address hook_) AccessControl(msg.sender) {
+    constructor(address token_) AccessControl(msg.sender) {
         if (token_.code.length == 0) revert InvalidTokenContract();
 
         token__ = IMintableERC20(token_);
-        hook__ = IHook(hook_);
     }
 
     /**
@@ -105,7 +97,6 @@ contract ControllerBase is Base {
             value: msg.value
         }(
             msgGasLimit_,
-            connector_,
             abi.encode(
                 transferInfo.receiver,
                 transferInfo.amount,
@@ -151,13 +142,11 @@ contract ControllerBase is Base {
                 )
             );
         }
-
-        totalMinted += transferInfo.amount;
     }
 
     function _afterMint(
         uint256 lockAmount,
-        uint256 messageId,
+        bytes32 messageId,
         bytes memory postHookData,
         TransferInfo memory transferInfo_
     ) internal {
@@ -197,16 +186,18 @@ contract ControllerBase is Base {
         (postRetryHookData, transferInfo) = hook__.preRetryHook(
             PreRetryHookCallParams(connector_, cacheData)
         );
-
-        totalMinted += transferInfo.amount;
     }
 
     function _afterRetry(
         address connector_,
         bytes32 identifier_,
-        bytes memory postRetryHookData,
-        CacheData memory cacheData_
+        bytes memory postRetryHookData
     ) internal {
+        CacheData memory cacheData = CacheData(
+            identifierCache[identifier_],
+            connectorCache[connector_]
+        );
+
         (cacheData) = hook__.postRetryHook(
             PostRetryHookCallParams(connector_, postRetryHookData, cacheData)
         );
@@ -223,8 +214,9 @@ contract ControllerBase is Base {
 
     function getMinFees(
         address connector_,
-        uint256 msgGasLimit_
+        uint256 msgGasLimit_,
+        uint256 payloadSize_
     ) external view returns (uint256 totalFees) {
-        return IConnector(connector_).getMinFees(msgGasLimit_);
+        return IConnector(connector_).getMinFees(msgGasLimit_, payloadSize_);
     }
 }
