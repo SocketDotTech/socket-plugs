@@ -22,9 +22,9 @@ contract YieldToken is YieldTokenBase {
     }
 
     // fix to round up and check other cases
-    function _calculateMintAmount(
+    function calculateMintAmount(
         uint256 assets_
-    ) internal view returns (uint256) {
+    ) external view returns (uint256) {
         // total supply -> total shares
         // total yield -> total underlying from all chains
         // yield sent from src chain includes new amount hence subtracted here
@@ -35,16 +35,9 @@ contract YieldToken is YieldTokenBase {
 
     function burn(
         address user_,
-        uint256 amount_
-    )
-        external
-        nonReentrant
-        onlyRole(CONTROLLER_ROLE)
-        returns (uint256 sharesToBurn)
-    {
-        sharesToBurn = convertToShares(amount_);
-        _setYield(totalYield - amount_);
-        _burn(user_, sharesToBurn);
+        uint256 asset_
+    ) external nonReentrant onlyRole(CONTROLLER_ROLE) returns (uint256 asset) {
+        _burn(user_, asset_);
     }
 
     function mint(
@@ -56,15 +49,14 @@ contract YieldToken is YieldTokenBase {
         onlyRole(CONTROLLER_ROLE)
         returns (uint256 sharesToMint)
     {
-        sharesToMint = _calculateMintAmount(amount_);
-        _mint(receiver_, sharesToMint);
+        _mint(receiver_, amount_);
     }
 
     function updateYield(uint256 amount_) external onlyRole(CONTROLLER_ROLE) {
-        _setYield(amount_);
+        _updateYield(amount_);
     }
 
-    function _setYield(uint256 amount_) internal onlyRole(CONTROLLER_ROLE) {
+    function _updateYield(uint256 amount_) internal {
         lastSyncTimestamp = block.timestamp;
         totalYield = amount_;
     }
@@ -79,13 +71,5 @@ contract YieldToken is YieldTokenBase {
 
     function maxRedeem(address owner) public view virtual returns (uint256) {
         return convertToAssets(_balanceOf[owner]);
-    }
-
-    function getMinFees(
-        address connector_,
-        uint256 msgGasLimit_,
-        uint256 payloadSize_
-    ) external view returns (uint256 totalFees) {
-        return IConnector(connector_).getMinFees(msgGasLimit_, payloadSize_);
     }
 }
