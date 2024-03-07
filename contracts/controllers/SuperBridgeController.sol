@@ -1,12 +1,11 @@
 pragma solidity 0.8.13;
 
-import {IMintableERC20} from "./IMintableERC20.sol";
+import {IMintableERC20} from "../interfaces/IMintableERC20.sol";
 import "solmate/utils/SafeTransferLib.sol";
 import "./ControllerBase.sol";
 import "../interfaces/IHook.sol";
 
 contract SuperBridgeController is ControllerBase {
-    IMintableERC20 public immutable token__;
     uint256 public totalMinted;
 
     // connectorPoolId => totalLockedAmount
@@ -63,7 +62,7 @@ contract SuperBridgeController is ControllerBase {
     function receiveInbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
-    ) external override nonReentrant {
+    ) external payable override nonReentrant {
         (
             address receiver,
             uint256 lockAmount,
@@ -88,6 +87,7 @@ contract SuperBridgeController is ControllerBase {
 
         poolLockedAmounts[connectorPoolId] += transferInfo.amount;
         token__.mint(transferInfo.receiver, transferInfo.amount);
+        totalMinted += transferInfo.amount;
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
@@ -107,7 +107,8 @@ contract SuperBridgeController is ControllerBase {
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, identifier_);
         token__.mint(transferInfo.receiver, transferInfo.amount);
+        totalMinted += transferInfo.amount;
 
-        _afterRetry(connector_, identifier_, postRetryHookData, cacheData);
+        _afterRetry(connector_, identifier_, postRetryHookData);
     }
 }

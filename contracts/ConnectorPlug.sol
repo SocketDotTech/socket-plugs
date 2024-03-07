@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "./RescueBase.sol";
+import "./utils/RescueBase.sol";
 import {ISocket} from "./interfaces/ISocket.sol";
 import {IPlug} from "./interfaces/IPlug.sol";
 import {IConnector} from "./interfaces/IConnector.sol";

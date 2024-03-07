@@ -2,8 +2,6 @@ pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
 import "./plugins/LimitPlugin.sol";
-import "../common/structs.sol";
-import "../common/errors.sol";
 
 /**
  * @title SuperToken

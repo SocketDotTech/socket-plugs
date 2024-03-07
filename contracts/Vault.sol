@@ -1,18 +1,16 @@
 pragma solidity 0.8.13;
 
 import "solmate/utils/SafeTransferLib.sol";
-import "./common/Base.sol";
+import "./controllers/ControllerBase.sol";
 import "./interfaces/IHook.sol";
 import "./interfaces/IConnector.sol";
-import "./common/errors.sol";
-import "./common/structs.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract Vault is Base {
+contract Vault is ControllerBase {
     using SafeTransferLib for ERC20;
 
     // // siblingChainSlug => amount
@@ -22,11 +20,6 @@ contract Vault is Base {
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
 
-    // emitted when message bridge is updated
-    event MessageBridgeUpdated(address newBridge);
-    // emitted when message hook is updated
-    event HookUpdated(address newHook);
-    event ConnectorStatusUpdated(address connector, bool status);
     // emitted at source when tokens are bridged to a sibling chain
     event BridgeTokens(
         uint32 siblingChainSlug,
