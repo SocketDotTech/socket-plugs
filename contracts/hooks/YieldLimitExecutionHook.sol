@@ -1,535 +1,486 @@
 // // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.8.13;
 
-// import "openzeppelin-contracts/contracts/utils/math/Math.sol";
-// import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
-// import {IStrategy} from "../interfaces/IStrategy.sol";
-// import "solmate/utils/SafeTransferLib.sol";
-// import {IConnector} from "../common/ConnectorPlug.sol";
+import "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
+import {IStrategy} from "../interfaces/IStrategy.sol";
+import "solmate/utils/SafeTransferLib.sol";
+import {IConnector} from "../ConnectorPlug.sol";
 
-// import "./plugins/LimitPlugin.sol";
-// import "../common/ExecutionHelper.sol";
+import "./plugins/LimitPlugin.sol";
+import "./plugins/ExecutionHelper.sol";
 
-// contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
-//     using SafeTransferLib for ERC20;
-//     using FixedPointMathLib for uint256;
+contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
+    using SafeTransferLib for ERC20;
+    using FixedPointMathLib for uint256;
 
-//     uint256 public constant MAX_BPS = 10_000;
+    uint256 public constant MAX_BPS = 10_000;
 
-//     IStrategy public strategy; // address of the strategy contract
-//     ERC20 public immutable asset__;
+    IStrategy public strategy; // address of the strategy contract
+    ERC20 public immutable asset__;
 
-//     uint256 public totalLockedInStrategy; // total funds deposited in strategy
+    uint256 public totalLockedInStrategy; // total funds deposited in strategy
 
-//     uint256 public totalIdle; // Amount of tokens that are in the vault
-//     uint256 public totalDebt; // Amount of tokens that strategy have borrowed
-//     uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
-//     uint128 public lastRebalanceTimestamp; // Timestamp of last rebalance
-//     uint128 public rebalanceDelay; // Delay between rebalance
-//     bool public emergencyShutdown; // if true, no funds can be invested in the strategy
+    uint256 public totalIdle; // Amount of tokens that are in the vault
+    uint256 public totalDebt; // Amount of tokens that strategy have borrowed
+    uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
+    uint128 public lastRebalanceTimestamp; // Timestamp of last rebalance
+    uint128 public rebalanceDelay; // Delay between rebalance
+    bool public emergencyShutdown; // if true, no funds can be invested in the strategy
 
-//     error DebtRatioTooHigh();
-//     error NotEnoughAssets();
-//     error VaultShutdown();
-//     error InvalidSiblingChainSlug();
+    error DebtRatioTooHigh();
+    error NotEnoughAssets();
+    error VaultShutdown();
+    error InvalidSiblingChainSlug();
 
-//     event WithdrawFromStrategy(uint256 withdrawn);
-//     event Rebalanced(
-//         uint256 totalIdle,
-//         uint256 totalDebt,
-//         uint256 credit,
-//         uint256 debtOutstanding
-//     );
-//     event ShutdownStateUpdated(bool shutdownState);
+    event WithdrawFromStrategy(uint256 withdrawn);
+    event Rebalanced(
+        uint256 totalIdle,
+        uint256 totalDebt,
+        uint256 credit,
+        uint256 debtOutstanding
+    );
+    event ShutdownStateUpdated(bool shutdownState);
 
-//     modifier notShutdown() {
-//         if (emergencyShutdown) revert VaultShutdown();
-//         _;
-//     }
+    modifier notShutdown() {
+        if (emergencyShutdown) revert VaultShutdown();
+        _;
+    }
 
-//     constructor(
-//         uint256 debtRatio_,
-//         uint128 rebalanceDelay_,
-//         address strategy_,
-//         address asset_,
-//         address vaultOrToken_
-//     ) HookBase(msg.sender, vaultOrToken_) {
-//         asset__ = ERC20(asset_);
-//         debtRatio = debtRatio_;
-//         rebalanceDelay = rebalanceDelay_;
-//         strategy = IStrategy(strategy_);
-//         vaultOrToken = vaultOrToken_;
-//     }
+    constructor(
+        uint256 debtRatio_,
+        uint128 rebalanceDelay_,
+        address strategy_,
+        address asset_,
+        address vaultOrToken_
+    ) HookBase(msg.sender, vaultOrToken_) {
+        asset__ = ERC20(asset_);
+        debtRatio = debtRatio_;
+        rebalanceDelay = rebalanceDelay_;
+        strategy = IStrategy(strategy_);
+        vaultOrToken = vaultOrToken_;
+    }
 
-//     /**
-//      * @dev This function calls the srcHookCall function of the connector contract,
-//      * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
-//      * the updated receiver, amount, and extradata.
-//      * @param receiver_ The receiver of the funds.
-//      * @param amount_ The amount of funds.
-//      * @param siblingChainSlug_ The sibling chain identifier.
-//      * @param payload_ Payload data to be passed to the connector contract.
-//      * @return updatedReceiver The updated receiver of the funds.
-//      * @return updatedAmount The updated amount of funds.
-//      * @return updatedExtradata The updated extradata.
-//      */
-//     function srcHookCall(
-//         address receiver_,
-//         uint256 amount_,
-//         uint32 siblingChainSlug_,
-//         address connector_,
-//         address,
-//         bytes memory payload_
-//     )
-//         external
-//         isVaultOrToken
-//         returns (
-//             address updatedReceiver,
-//             uint256 updatedAmount,
-//             bytes memory updatedExtradata
-//         )
-//     {
-//         _limitSrcHook(receiver_, amount_, connector_);
+    /**
+     * @dev This function calls the srcHookCall function of the connector contract,
+     * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
+     * the updated receiver, amount, and extradata.
+     */
+    function srcPreHookCall(
+        SrcPreHookCallParams calldata params_
+    ) external isVaultOrToken returns (TransferInfo memory) {
+        _limitSrcHook(params_.connector, params_.transferInfo);
+        return params_.transferInfo;
+    }
 
-//         totalIdle += amount_;
-//         _checkDelayAndRebalance();
-//         uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
+    function srcPostHookCall(
+        bytes memory payload_
+    ) external returns (bytes memory) {
+        totalIdle += params_.transferInfo.amount_;
 
-//         return (receiver_, amount_, abi.encode(expectedReturn, payload_));
-//     }
+        _checkDelayAndRebalance();
+        uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
 
-//     /**
-//      * @notice This function is called before the execution of a destination hook.
-//      * @dev It checks if the sibling chain is supported, consumes a part of the limit, and prepares post-hook data.
-//      * @param receiver_ The receiver of the funds.
-//      * @param amount_ The amount of funds.
-//      * @param siblingChainSlug_ The unique identifier of the sibling chain.
-//      * @param connector_ The address of the bridge contract.
-//      * @param extradata_ Additional data to be passed to the connector contract.
-//      * @param connectorCache_ Sibling chain cache containing pending amount information.
-//      * @return updatedReceiver The updated receiver of the funds.
-//      * @return consumedAmount The amount consumed from the limit.
-//      * @return postHookData The post-hook data to be processed after the hook execution.
-//      */
-//     function dstPreHookCall(
-//         address receiver_,
-//         uint256 amount_,
-//         uint32 siblingChainSlug_,
-//         address connector_,
-//         bytes memory extradata_,
-//         bytes memory connectorCache_
-//     )
-//         external
-//         isVaultOrToken
-//         isValidReceiver(receiver_)
-//         isSiblingSupported(connector_)
-//         returns (
-//             address updatedReceiver,
-//             uint256 consumedAmount,
-//             bytes memory postHookData
-//         )
-//     {
-//         uint256 pendingAmount;
-//         (consumedAmount, pendingAmount) = _consumeFullLimit(
-//             amount_,
-//             connector_
-//         );
+        return abi.encode(expectedReturn, payload_);
+    }
 
-//         // sanity check
-//         if (consumedAmount > totalAssets()) revert NotEnoughAssets();
-//         if (consumedAmount > totalIdle) {
-//             _withdrawFromStrategy(consumedAmount - totalIdle);
-//             totalIdle = 0;
-//         } else totalIdle -= consumedAmount;
-//         _rebalance();
+    /**
+     * @notice This function is called before the execution of a destination hook.
+     * @dev It checks if the sibling chain is supported, consumes a part of the limit, and prepares post-hook data.
+     */
+    function dstPreHookCall(
+        DstPreHookCallParams calldata params_
+    )
+        external
+        isVaultOrToken
+        isValidReceiver(receiver_)
+        isSiblingSupported(connector_)
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
+    {
+        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
+            params_.connector,
+            params_.transferInfo.amount
+        );
 
-//         return (
-//             receiver_,
-//             consumedAmount,
-//             abi.encode(consumedAmount, pendingAmount)
-//         );
-//     }
+        // ensure vault have enough idle assets
+        if (consumedAmount > totalAssets()) revert NotEnoughAssets();
 
-//     /**
-//      * @notice Handles post-hook logic after the execution of a destination hook.
-//      * @dev This function processes post-hook data to update the identifier cache and sibling chain cache.
-//      * @param receiver_ The receiver of the funds.
-//      * @param amount_ The amount of funds.
-//      * @param siblingChainSlug_ The unique identifier of the sibling chain.
-//      * @param connector_ The address of the bridge contract.
-//      * @param extradata_ Additional data passed to the connector contract.
-//      * @param postHookData_ The post-hook data containing consumed and pending amounts.
-//      * @param connectorCache_ Sibling chain cache containing pending amount information.
-//      * @return newIdentifierCache The updated identifier cache.
-//      * @return newConnectorCache The updated sibling chain cache.
-//      */
-//     function dstPostHookCall(
-//         address receiver_,
-//         uint256 amount_,
-//         uint32 siblingChainSlug_,
-//         address connector_,
-//         bytes memory extradata_,
-//         bytes memory postHookData_,
-//         bytes memory connectorCache_
-//     )
-//         external
-//         isVaultOrToken
-//         returns (
-//             bytes memory newIdentifierCache,
-//             bytes memory newConnectorCache
-//         )
-//     {
-//         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
-//             postHookData_,
-//             (uint256, uint256)
-//         );
-//         uint256 connectorPendingAmount = abi.decode(connectorCache_, (uint256));
-//         bytes memory execPayload = extradata_;
-//         if (pendingAmount > 0) {
-//             newConnectorCache = abi.encode(
-//                 connectorPendingAmount + pendingAmount
-//             );
-//             // if pending amount is more than 0, payload is cached
-//             if (execPayload.length > 0) {
-//                 newIdentifierCache = abi.encode(
-//                     receiver_,
-//                     pendingAmount,
-//                     siblingChainSlug_,
-//                     execPayload
-//                 );
-//             } else {
-//                 newIdentifierCache = abi.encode(
-//                     receiver_,
-//                     pendingAmount,
-//                     siblingChainSlug_,
-//                     new bytes(0)
-//                 );
-//             }
+        (bool withdrawFromStrategy, bytes memory payload_) = abi.decode(
+            params_.transferInfo.data,
+            (bool, bytes)
+        );
 
-//             // emit TokensPending(
-//             //     siblingChainSlug_,
-//             //     receiver_,
-//             //     pendingAmount,
-//             //     pendingMints[siblingChainSlug_][receiver_][identifier],
-//             //     identifier
-//             // );
-//         } else if (execPayload.length > 0) {
-//             // execute
-//             bool success = _execute(receiver_, execPayload);
+        if (consumedAmount > totalIdle) {
+            if (withdrawFromStrategy) {
+                _withdrawFromStrategy(consumedAmount - totalIdle);
+            } else {
+                pendingAmount += totalIdle - consumedAmount;
+                consumedAmount = totalIdle;
+            }
+            totalIdle = 0;
+        } else totalIdle -= consumedAmount;
 
-//             if (success) newIdentifierCache = new bytes(0);
-//             else {
-//                 newIdentifierCache = abi.encode(
-//                     receiver_,
-//                     0,
-//                     siblingChainSlug_,
-//                     execPayload
-//                 );
-//             }
+        postHookData = abi.encode(consumedAmount, pendingAmount);
+        params_.transferInfo.amount = consumedAmount;
+        params_.transferInfo.data = payload_;
+        transferInfo = params_.transferInfo;
+    }
 
-//             newConnectorCache = connectorCache_;
-//         }
-//     }
+    /**
+     * @notice Handles post-hook logic after the execution of a destination hook.
+     * @dev This function processes post-hook data to update the identifier cache and sibling chain cache.
+     */
+    function dstPostHookCall(
+        DstPostHookCallParams calldata params_
+    ) external isVaultOrToken returns (CacheData memory cacheData) {
+        bytes memory execPayload = params_.transferInfo.data;
+        (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
+            params_.postHookData,
+            (uint256, uint256)
+        );
 
-//     /**
-//      * @notice Handles pre-retry hook logic before execution.
-//      * @dev This function can be used to mint funds which were in a pending state due to limits.
-//      * @param siblingChainSlug_ The unique identifier of the sibling chain.
-//      * @param identifierCache_ Identifier cache containing pending mint information.
-//      * @param connectorCache_ Sibling chain cache containing pending amount information.
-//      * @return updatedReceiver The updated receiver of the funds.
-//      * @return consumedAmount The amount consumed from the limit.
-//      * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
-//      */
-//     function preRetryHook(
-//         uint32 siblingChainSlug_,
-//         address connector_,
-//         bytes memory identifierCache_,
-//         bytes memory connectorCache_
-//     )
-//         external
-//         isVaultOrToken
-//         isSiblingSupported(connector_)
-//         returns (
-//             address updatedReceiver,
-//             uint256 consumedAmount,
-//             bytes memory postRetryHookData
-//         )
-//     {
-//         (
-//             address receiver,
-//             uint256 pendingMint,
-//             uint32 siblingChainSlug,
-//             bytes memory execPayload
-//         ) = abi.decode(identifierCache_, (address, uint256, uint32, bytes));
-//         updatedReceiver = receiver;
+        uint256 connectorPendingAmount = abi.decode(
+            params_.connectorCache,
+            (uint256)
+        );
 
-//         if (siblingChainSlug != siblingChainSlug_)
-//             revert InvalidSiblingChainSlug();
+        if (pendingAmount > 0) {
+            cacheData.connectorCache = abi.encode(
+                connectorPendingAmount + pendingAmount
+            );
+            // if pending amount is more than 0, payload is cached
+            if (execPayload.length > 0) {
+                cacheData.identifierCache = abi.encode(
+                    params_.transferInfo.receiver,
+                    pendingAmount,
+                    params_.connector,
+                    execPayload
+                );
+            } else {
+                cacheData.identifierCache = abi.encode(
+                    params_.transferInfo.receiver,
+                    pendingAmount,
+                    params_.connector,
+                    bytes("")
+                );
+            }
 
-//         uint256 pendingAmount;
-//         (consumedAmount, pendingAmount) = _consumePartLimit(
-//             pendingMint,
-//             _receivingLimitParams[connector_]
-//         );
+            // emit TokensPending(
+            //     siblingChainSlug_,
+            //     receiver_,
+            //     pendingAmount,
+            //     pendingMints[siblingChainSlug_][receiver_][identifier],
+            //     identifier
+            // );
+        } else if (execPayload.length > 0) {
+            // execute
+            bool success = _execute(params_.transferInfo.receiver, execPayload);
 
-//         if (consumedAmount > totalIdle) {
-//             _withdrawFromStrategy(consumedAmount - totalIdle);
-//             totalIdle = 0;
-//         } else totalIdle -= consumedAmount;
-//         _rebalance();
+            if (success) cacheData.identifierCache = new bytes(0);
+            else {
+                cacheData.identifierCache = abi.encode(
+                    params_.transferInfo.receiver,
+                    0,
+                    params_.connector,
+                    execPayload
+                );
+            }
 
-//         postRetryHookData = abi.encode(
-//             updatedReceiver,
-//             consumedAmount,
-//             pendingAmount
-//         );
-//     }
+            cacheData.connectorCache = connectorCache_;
+        }
+    }
 
-//     /**
-//      * @notice Handles post-retry hook logic after execution.
-//      * @dev This function updates the identifier cache and sibling chain cache based on the post-hook data.
-//      * @param siblingChainSlug_ The unique identifier of the sibling chain.
-//      * @param identifierCache_ Identifier cache containing pending mint information.
-//      * @param connectorCache_ Sibling chain cache containing pending amount information.
-//      * @param postRetryHookData_ The post-hook data containing updated receiver and consumed/pending amounts.
-//      * @return newIdentifierCache The updated identifier cache.
-//      * @return newConnectorCache The updated sibling chain cache.
-//      */
-//     function postRetryHook(
-//         uint32 siblingChainSlug_,
-//         address connector_,
-//         bytes memory identifierCache_,
-//         bytes memory connectorCache_,
-//         bytes memory postRetryHookData_
-//     )
-//         external
-//         isVaultOrToken
-//         returns (
-//             bytes memory newIdentifierCache,
-//             bytes memory newConnectorCache
-//         )
-//     {
-//         (
-//             ,
-//             uint256 pendingMint,
-//             uint32 siblingChainSlug,
-//             bytes memory execPayload
-//         ) = abi.decode(identifierCache_, (address, uint256, uint32, bytes));
+    /**
+     * @notice Handles pre-retry hook logic before execution.
+     * @dev This function can be used to mint funds which were in a pending state due to limits.
+     */
+    function preRetryHook(
+        uint32 siblingChainSlug_,
+        address connector_,
+        bytes memory identifierCache_,
+        bytes memory connectorCache_
+    )
+        external
+        isVaultOrToken
+        isSiblingSupported(connector_)
+        returns (
+            address updatedReceiver,
+            uint256 consumedAmount,
+            bytes memory postRetryHookData
+        )
+    {
+        (
+            address receiver,
+            uint256 pendingMint,
+            uint32 siblingChainSlug,
+            bytes memory execPayload
+        ) = abi.decode(identifierCache_, (address, uint256, uint32, bytes));
+        updatedReceiver = receiver;
 
-//         (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
-//             .decode(postRetryHookData_, (address, uint256, uint256));
+        if (siblingChainSlug != siblingChainSlug_)
+            revert InvalidSiblingChainSlug();
 
-//         if (pendingAmount == 0 && receiver != address(0)) {
-//             // receiver is not an input from user, can skip this check
-//             // if (receiver_ != receiver) revert InvalidReceiver();
+        uint256 pendingAmount;
+        (consumedAmount, pendingAmount) = _consumePartLimit(
+            pendingMint,
+            _receivingLimitParams[connector_]
+        );
 
-//             // no siblingChainSlug required here, as already done in preRetryHook call in same tx
-//             // if (siblingChainSlug != siblingChainSlug_)
-//             //     revert InvalidSiblingChainSlug();
+        if (consumedAmount > totalIdle) {
+            _withdrawFromStrategy(consumedAmount - totalIdle);
+            totalIdle = 0;
+        } else totalIdle -= consumedAmount;
 
-//             // execute
-//             bool success = _execute(receiver, execPayload);
-//             if (success) newIdentifierCache = new bytes(0);
-//             else
-//                 newIdentifierCache = abi.encode(
-//                     receiver,
-//                     0,
-//                     siblingChainSlug,
-//                     execPayload
-//                 );
-//         }
-//         uint256 connectorPendingAmount = abi.decode(connectorCache_, (uint256));
+        postRetryHookData = abi.encode(
+            updatedReceiver,
+            consumedAmount,
+            pendingAmount
+        );
+    }
 
-//         newConnectorCache = abi.encode(connectorPendingAmount - consumedAmount);
-//     }
+    /**
+     * @notice Handles post-retry hook logic after execution.
+     * @dev This function updates the identifier cache and sibling chain cache based on the post-hook data.
+     * @param siblingChainSlug_ The unique identifier of the sibling chain.
+     * @param identifierCache_ Identifier cache containing pending mint information.
+     * @param connectorCache_ Sibling chain cache containing pending amount information.
+     * @param postRetryHookData_ The post-hook data containing updated receiver and consumed/pending amounts.
+     * @return newIdentifierCache The updated identifier cache.
+     * @return newConnectorCache The updated sibling chain cache.
+     */
+    function postRetryHook(
+        uint32 siblingChainSlug_,
+        address connector_,
+        bytes memory identifierCache_,
+        bytes memory connectorCache_,
+        bytes memory postRetryHookData_
+    )
+        external
+        isVaultOrToken
+        returns (
+            bytes memory newIdentifierCache,
+            bytes memory newConnectorCache
+        )
+    {
+        (
+            ,
+            uint256 pendingMint,
+            uint32 siblingChainSlug,
+            bytes memory execPayload
+        ) = abi.decode(identifierCache_, (address, uint256, uint32, bytes));
 
-//     // todo: should this be moved out?
-//     function syncToAppChain(
-//         uint256 msgGasLimit_,
-//         address connector_
-//     ) external payable nonReentrant notShutdown {
-//         _checkDelayAndRebalance();
-//         uint256 expectedReturn = strategy.estimatedTotalAssets();
+        (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
+            .decode(postRetryHookData_, (address, uint256, uint256));
 
-//         _depositToAppChain(
-//             msgGasLimit_,
-//             connector_,
-//             abi.encode(address(0), 0, expectedReturn)
-//         );
-//     }
+        if (pendingAmount == 0 && receiver != address(0)) {
+            // receiver is not an input from user, can skip this check
+            // if (receiver_ != receiver) revert InvalidReceiver();
 
-//     function _depositToAppChain(
-//         uint256 msgGasLimit_,
-//         address connector_,
-//         bytes memory payload
-//     ) internal {
-//         IConnector(connector_).outbound{value: msg.value}(
-//             msgGasLimit_,
-//             payload
-//         );
-//     }
+            // no siblingChainSlug required here, as already done in preRetryHook call in same tx
+            // if (siblingChainSlug != siblingChainSlug_)
+            //     revert InvalidSiblingChainSlug();
 
-//     function withdrawFromStrategy(
-//         uint256 assets_
-//     ) external onlyOwner returns (uint256) {
-//         return _withdrawFromStrategy(assets_);
-//     }
+            // execute
+            bool success = _execute(receiver, execPayload);
+            if (success) newIdentifierCache = new bytes(0);
+            else
+                newIdentifierCache = abi.encode(
+                    receiver,
+                    0,
+                    siblingChainSlug,
+                    execPayload
+                );
+        }
+        uint256 connectorPendingAmount = abi.decode(connectorCache_, (uint256));
+        newConnectorCache = abi.encode(connectorPendingAmount - consumedAmount);
+    }
 
-//     function _withdrawFromStrategy(
-//         uint256 assets_
-//     ) internal returns (uint256 withdrawn) {
-//         uint256 preBalance = asset__.balanceOf(address(this));
-//         strategy.withdraw(assets_);
-//         withdrawn = asset__.balanceOf(address(this)) - preBalance;
-//         totalIdle += withdrawn;
-//         totalDebt -= withdrawn;
+    // todo: should this be moved out?
+    function syncToAppChain(
+        uint256 msgGasLimit_,
+        address connector_
+    ) external payable nonReentrant notShutdown {
+        _checkDelayAndRebalance();
+        uint256 expectedReturn = strategy.estimatedTotalAssets();
 
-//         asset__.transfer(vaultOrToken, withdrawn);
-//         emit WithdrawFromStrategy(withdrawn);
-//     }
+        _depositToAppChain(
+            msgGasLimit_,
+            connector_,
+            abi.encode(address(0), 0, expectedReturn)
+        );
+    }
 
-//     function _withdrawAllFromStrategy() internal returns (uint256) {
-//         uint256 preBalance = asset__.balanceOf(address(this));
-//         strategy.withdrawAll();
-//         uint256 withdrawn = asset__.balanceOf(address(this)) - preBalance;
-//         totalIdle += withdrawn;
-//         totalDebt = 0;
+    function _depositToAppChain(
+        uint256 msgGasLimit_,
+        address connector_,
+        bytes memory payload
+    ) internal {
+        IConnector(connector_).outbound{value: msg.value}(
+            msgGasLimit_,
+            payload
+        );
+    }
 
-//         asset__.transfer(vaultOrToken, withdrawn);
-//         emit WithdrawFromStrategy(withdrawn);
-//         return withdrawn;
-//     }
+    function withdrawFromStrategy(
+        uint256 assets_
+    ) external onlyOwner returns (uint256) {
+        return _withdrawFromStrategy(assets_);
+    }
 
-//     function maxAvailableShares() public view returns (uint256) {
-//         return totalAssets();
-//     }
+    function _withdrawFromStrategy(
+        uint256 assets_
+    ) internal returns (uint256 withdrawn) {
+        uint256 preBalance = asset__.balanceOf(address(this));
+        strategy.withdraw(assets_);
+        withdrawn = asset__.balanceOf(address(this)) - preBalance;
+        totalIdle += withdrawn;
+        totalDebt -= withdrawn;
 
-//     function rebalance() external notShutdown {
-//         _rebalance();
-//     }
+        asset__.transfer(vaultOrToken, withdrawn);
+        emit WithdrawFromStrategy(withdrawn);
+    }
 
-//     function _checkDelayAndRebalance() internal {
-//         uint128 timeElapsed = uint128(block.timestamp) - lastRebalanceTimestamp;
-//         if (timeElapsed >= rebalanceDelay) {
-//             _rebalance();
-//         }
-//     }
+    function _withdrawAllFromStrategy() internal returns (uint256) {
+        uint256 preBalance = asset__.balanceOf(address(this));
+        strategy.withdrawAll();
+        uint256 withdrawn = asset__.balanceOf(address(this)) - preBalance;
+        totalIdle += withdrawn;
+        totalDebt = 0;
 
-//     function _rebalance() internal {
-//         if (address(strategy) == address(0)) return;
-//         lastRebalanceTimestamp = uint128(block.timestamp);
-//         // Compute the line of credit the Vault is able to offer the Strategy (if any)
-//         uint256 credit = _creditAvailable();
-//         uint256 pendingDebt = _debtOutstanding();
+        asset__.transfer(vaultOrToken, withdrawn);
+        emit WithdrawFromStrategy(withdrawn);
+        return withdrawn;
+    }
 
-//         if (credit > 0) {
-//             // Credit surplus, give to Strategy
-//             totalIdle -= credit;
-//             totalDebt += credit;
-//             totalLockedInStrategy += credit;
-//             asset__.safeTransferFrom(vaultOrToken, address(strategy), credit);
-//             strategy.invest();
-//         } else if (pendingDebt > 0) {
-//             // Credit deficit, take from Strategy
-//             _withdrawFromStrategy(pendingDebt);
-//         }
+    function maxAvailableShares() public view returns (uint256) {
+        return totalAssets();
+    }
 
-//         emit Rebalanced(totalIdle, totalDebt, credit, pendingDebt);
-//     }
+    function rebalance() external notShutdown {
+        _rebalance();
+    }
 
-//     /// @notice Returns the total quantity of all assets under control of this
-//     ///    Vault, whether they're loaned out to a Strategy, or currently held in
-//     /// the Vault.
-//     /// @return total quantity of all assets under control of this Vault
-//     function totalAssets() public view returns (uint256) {
-//         return strategy.estimatedTotalAssets() + totalIdle;
-//     }
+    function _checkDelayAndRebalance() internal {
+        uint128 timeElapsed = uint128(block.timestamp) - lastRebalanceTimestamp;
+        if (timeElapsed >= rebalanceDelay) {
+            _rebalance();
+        }
+    }
 
-//     function _creditAvailable() internal view returns (uint256) {
-//         uint256 vaultTotalAssets = totalAssets();
-//         uint256 vaultDebtLimit = (debtRatio * vaultTotalAssets) / MAX_BPS;
-//         uint256 vaultTotalDebt = totalDebt;
+    function _rebalance() internal {
+        if (address(strategy) == address(0)) return;
+        lastRebalanceTimestamp = uint128(block.timestamp);
+        // Compute the line of credit the Vault is able to offer the Strategy (if any)
+        uint256 credit = _creditAvailable();
+        uint256 pendingDebt = _debtOutstanding();
 
-//         if (vaultDebtLimit <= vaultTotalDebt) return 0;
+        if (credit > 0) {
+            // Credit surplus, give to Strategy
+            totalIdle -= credit;
+            totalDebt += credit;
+            totalLockedInStrategy += credit;
+            asset__.safeTransferFrom(vaultOrToken, address(strategy), credit);
+            strategy.invest();
+        } else if (pendingDebt > 0) {
+            // Credit deficit, take from Strategy
+            _withdrawFromStrategy(pendingDebt);
+        }
 
-//         // Start with debt limit left for the Strategy
-//         uint256 availableCredit = vaultDebtLimit - vaultTotalDebt;
+        emit Rebalanced(totalIdle, totalDebt, credit, pendingDebt);
+    }
 
-//         // Can only borrow up to what the contract has in reserve
-//         // NOTE: Running near 100% is discouraged
-//         return Math.min(availableCredit, totalIdle);
-//     }
+    /// @notice Returns the total quantity of all assets under control of this
+    ///    Vault, whether they're loaned out to a Strategy, or currently held in
+    /// the Vault.
+    /// @return total quantity of all assets under control of this Vault
+    function totalAssets() public view returns (uint256) {
+        return strategy.estimatedTotalAssets() + totalIdle;
+    }
 
-//     function creditAvailable() external view returns (uint256) {
-//         // @notice
-//         //     Amount of tokens in Vault a Strategy has access to as a credit line.
-//         //     This will check the Strategy's debt limit, as well as the tokens
-//         //     available in the Vault, and determine the maximum amount of tokens
-//         //     (if any) the Strategy may draw on.
-//         //     In the rare case the Vault is in emergency shutdown this will return 0.
-//         // @param strategy The Strategy to check. Defaults to caller.
-//         // @return The quantity of tokens available for the Strategy to draw on.
+    function _creditAvailable() internal view returns (uint256) {
+        uint256 vaultTotalAssets = totalAssets();
+        uint256 vaultDebtLimit = (debtRatio * vaultTotalAssets) / MAX_BPS;
+        uint256 vaultTotalDebt = totalDebt;
 
-//         return _creditAvailable();
-//     }
+        if (vaultDebtLimit <= vaultTotalDebt) return 0;
 
-//     function _debtOutstanding() internal view returns (uint256) {
-//         // See note on `debtOutstanding()`.
-//         if (debtRatio == 0) {
-//             return totalDebt;
-//         }
+        // Start with debt limit left for the Strategy
+        uint256 availableCredit = vaultDebtLimit - vaultTotalDebt;
 
-//         uint256 debtLimit = ((debtRatio * totalAssets()) / MAX_BPS);
+        // Can only borrow up to what the contract has in reserve
+        // NOTE: Running near 100% is discouraged
+        return Math.min(availableCredit, totalIdle);
+    }
 
-//         if (totalDebt <= debtLimit) return 0;
-//         else return totalDebt - debtLimit;
-//     }
+    function creditAvailable() external view returns (uint256) {
+        // @notice
+        //     Amount of tokens in Vault a Strategy has access to as a credit line.
+        //     This will check the Strategy's debt limit, as well as the tokens
+        //     available in the Vault, and determine the maximum amount of tokens
+        //     (if any) the Strategy may draw on.
+        //     In the rare case the Vault is in emergency shutdown this will return 0.
+        // @param strategy The Strategy to check. Defaults to caller.
+        // @return The quantity of tokens available for the Strategy to draw on.
 
-//     function debtOutstanding() external view returns (uint256) {
-//         // @notice
-//         //     Determines if `strategy` is past its debt limit and if any tokens
-//         //     should be withdrawn to the Vault.
-//         // @return The quantity of tokens to withdraw.
+        return _creditAvailable();
+    }
 
-//         return _debtOutstanding();
-//     }
+    function _debtOutstanding() internal view returns (uint256) {
+        // See note on `debtOutstanding()`.
+        if (debtRatio == 0) {
+            return totalDebt;
+        }
 
-//     function getMinFees(
-//         address connector_,
-//         uint256 msgGasLimit_
-//     ) external view returns (uint256 totalFees) {
-//         return IConnector(connector_).getMinFees(msgGasLimit_);
-//     }
+        uint256 debtLimit = ((debtRatio * totalAssets()) / MAX_BPS);
 
-//     function updateEmergencyShutdownState(
-//         bool shutdownState_,
-//         bool detachStrategy
-//     ) external onlyOwner {
-//         if (shutdownState_ && detachStrategy) {
-//             // If we're exiting emergency shutdown, we need to empty strategy
-//             _withdrawAllFromStrategy();
-//             strategy = IStrategy(address(0));
-//         }
-//         emergencyShutdown = shutdownState_;
-//         emit ShutdownStateUpdated(shutdownState_);
-//     }
+        if (totalDebt <= debtLimit) return 0;
+        else return totalDebt - debtLimit;
+    }
 
-//     ////////////////////////////////////////////////////////
-//     ////////////////////// SETTERS //////////////////////////
-//     ////////////////////////////////////////////////////////
+    function debtOutstanding() external view returns (uint256) {
+        // @notice
+        //     Determines if `strategy` is past its debt limit and if any tokens
+        //     should be withdrawn to the Vault.
+        // @return The quantity of tokens to withdraw.
 
-//     // todo: add events
-//     function setDebtRatio(uint256 debtRatio_) external onlyOwner {
-//         if (debtRatio_ > MAX_BPS) revert DebtRatioTooHigh();
-//         debtRatio = debtRatio_;
-//     }
+        return _debtOutstanding();
+    }
 
-//     function setStrategy(address strategy_) external onlyOwner {
-//         strategy = IStrategy(strategy_);
-//     }
+    function getMinFees(
+        address connector_,
+        uint256 msgGasLimit_
+    ) external view returns (uint256 totalFees) {
+        return IConnector(connector_).getMinFees(msgGasLimit_);
+    }
 
-//     function setRebalanceDelay(uint128 rebalanceDelay_) external onlyOwner {
-//         rebalanceDelay = rebalanceDelay_;
-//     }
-// }
+    function updateEmergencyShutdownState(
+        bool shutdownState_,
+        bool detachStrategy
+    ) external onlyOwner {
+        if (shutdownState_ && detachStrategy) {
+            // If we're exiting emergency shutdown, we need to empty strategy
+            _withdrawAllFromStrategy();
+            strategy = IStrategy(address(0));
+        }
+        emergencyShutdown = shutdownState_;
+        emit ShutdownStateUpdated(shutdownState_);
+    }
+
+    ////////////////////////////////////////////////////////
+    ////////////////////// SETTERS //////////////////////////
+    ////////////////////////////////////////////////////////
+
+    // todo: add events
+    function setDebtRatio(uint256 debtRatio_) external onlyOwner {
+        if (debtRatio_ > MAX_BPS) revert DebtRatioTooHigh();
+        debtRatio = debtRatio_;
+    }
+
+    function setStrategy(address strategy_) external onlyOwner {
+        strategy = IStrategy(strategy_);
+    }
+
+    function setRebalanceDelay(uint128 rebalanceDelay_) external onlyOwner {
+        rebalanceDelay = rebalanceDelay_;
+    }
+}
