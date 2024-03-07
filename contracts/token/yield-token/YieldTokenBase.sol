@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-/// @notice Modern and gas efficient ERC20 + EIP-2612 implementation.
-/// @author Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC20.sol)
-/// @author Modified from Uniswap (https://github.com/Uniswap/uniswap-v2-core/blob/master/contracts/UniswapV2ERC20.sol)
-/// @dev Do not manually set balances without updating totalSupply, as the sum of all user balances must not exceed it.
-abstract contract YieldTokenBase {
+import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
+import "../../utils/RescueBase.sol";
+
+abstract contract YieldTokenBase is RescueBase, ReentrancyGuard {
+    using FixedPointMathLib for uint256;
+
     /*//////////////////////////////////////////////////////////////
                                  EVENTS
     //////////////////////////////////////////////////////////////*/
@@ -49,6 +51,17 @@ abstract contract YieldTokenBase {
     mapping(address => uint256) public nonces;
 
     /*//////////////////////////////////////////////////////////////
+                            YIELD STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    // Timestamp of last rebalance
+    // connector => timestamp
+    mapping(address => uint128) public lastSyncTimestamp;
+
+    // total yield from all siblings
+    uint256 public totalYield;
+
+    /*//////////////////////////////////////////////////////////////
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
@@ -65,13 +78,84 @@ abstract contract YieldTokenBase {
                                ERC20 LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    function convertToShares(
+        uint256 assets
+    ) public view virtual returns (uint256) {
+        uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
+        return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+    }
+
+    function convertToAssets(
+        uint256 shares
+    ) public view virtual returns (uint256) {
+        uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
+        return supply == 0 ? shares : shares.mulDivDown(totalAssets(), supply);
+    }
+
+    function balanceOf(address user_) external view returns (uint256) {
+        uint256 balance = _balanceOf[user_];
+        if (balance == 0) return 0;
+        return convertToAssets(balance);
+    }
+
+    // recheck for multi yield
+    function totalSupply() external view returns (uint256) {
+        if (_totalSupply == 0) return 0;
+        return totalYield;
+    }
+
     function approve(
         address spender,
         uint256 amount
     ) public virtual returns (bool) {
-        allowance[msg.sender][spender] = amount;
+        uint256 shares = convertToShares(amount_);
+        allowance[msg.sender][spender] = shares;
 
-        emit Approval(msg.sender, spender, amount);
+        emit Approval(msg.sender, spender, shares);
+
+        return true;
+    }
+
+    function transfer(
+        address to_,
+        uint256 amount_
+    ) public override returns (bool) {
+        uint256 sharesToTransfer = convertToShares(amount_);
+        _balanceOf[msg.sender] -= sharesToTransfer;
+
+        // Cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value.
+        unchecked {
+            _balanceOf[to_] += sharesToTransfer;
+        }
+
+        emit Transfer(msg.sender, to_, amount_);
+
+        return true;
+    }
+
+    // transfer changes shares balance but reduces the amount
+    function transferFrom(
+        address from_,
+        address to_,
+        uint256 amount_
+    ) public override returns (bool) {
+        uint256 sharesToTransfer = convertToShares(amount_);
+
+        uint256 allowed = allowance[from_][msg.sender]; // Saves gas for limited approvals.
+
+        if (allowed != type(uint256).max)
+            allowance[from_][msg.sender] = allowed - sharesToTransfer;
+
+        _balanceOf[from_] -= sharesToTransfer;
+
+        // Cannot overflow because the sum of all user
+        // balances can't exceed the max uint256 value.
+        unchecked {
+            _balanceOf[to_] += sharesToTransfer;
+        }
+
+        emit Transfer(from_, to_, amount_);
 
         return true;
     }
@@ -91,6 +175,8 @@ abstract contract YieldTokenBase {
     ) public virtual {
         require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
 
+        uint256 shares = convertToShares(value);
+
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
         unchecked {
@@ -106,7 +192,7 @@ abstract contract YieldTokenBase {
                                 ),
                                 owner,
                                 spender,
-                                value,
+                                shares,
                                 nonces[owner]++,
                                 deadline
                             )
@@ -123,10 +209,10 @@ abstract contract YieldTokenBase {
                 "INVALID_SIGNER"
             );
 
-            allowance[recoveredAddress][spender] = value;
+            allowance[recoveredAddress][spender] = shares;
         }
 
-        emit Approval(owner, spender, value);
+        emit Approval(owner, spender, shares);
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {

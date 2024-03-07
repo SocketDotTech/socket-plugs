@@ -85,9 +85,7 @@ contract ControllerBase is Base {
 
         if (address(hook__) != address(0)) {
             transferInfo = hook__.srcHookCall(
-                connector_,
-                msg.sender,
-                transferInfo_
+                SrcPreHookCallParams(connector_, msg.sender, transferInfo_)
             );
         }
     }
@@ -99,7 +97,7 @@ contract ControllerBase is Base {
         TransferInfo memory transferInfo_
     ) internal {
         if (address(hook__) != address(0)) {
-            transferInfo = hook__.srcPostHookCall(transferInfo_);
+            transferInfo.data = hook__.srcPostHookCall(options_, transferInfo_);
         }
 
         bytes32 messageId = IConnector(connector_).getMessageId();
