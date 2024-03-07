@@ -44,8 +44,7 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     //////////////////////////////////////////////////////////////*/
 
     // Timestamp of last rebalance
-    // connector => timestamp
-    mapping(address => uint128) public lastSyncTimestamp;
+    uint256 public lastSyncTimestamp;
 
     // total yield from all siblings
     uint256 public totalYield;
@@ -163,9 +162,6 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
         bytes32 s
     ) public virtual {
         require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
-
-        uint256 shares = convertToShares(value);
-
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
         unchecked {
@@ -181,7 +177,7 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
                                 ),
                                 owner,
                                 spender,
-                                shares,
+                                convertToShares(value),
                                 nonces[owner]++,
                                 deadline
                             )
@@ -198,10 +194,10 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
                 "INVALID_SIGNER"
             );
 
-            allowance[recoveredAddress][spender] = shares;
+            allowance[recoveredAddress][spender] = value;
         }
 
-        emit Approval(owner, spender, shares);
+        emit Approval(owner, spender, value);
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {

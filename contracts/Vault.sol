@@ -70,7 +70,7 @@ contract Vault is Base {
             TransferInfo(receiver_, amount_, execPayload_)
         );
 
-        ERC20(address(token__)).safeTransferFrom(
+        ERC20(token).safeTransferFrom(
             msg.sender,
             address(this),
             transferInfo.amount
@@ -102,15 +102,12 @@ contract Vault is Base {
         );
 
         bytes memory postHookData;
-        (transferInfo, postHookData) = _beforeMint(
+        (postHookData, transferInfo) = _beforeMint(
             siblingChainSlug_,
             transferInfo
         );
 
-        ERC20(address(token__)).safeTransfer(
-            transferInfo.receiver,
-            transferInfo.amount
-        );
+        ERC20(token).safeTransfer(transferInfo.receiver, transferInfo.amount);
 
         _afterMint(unlockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
@@ -129,10 +126,7 @@ contract Vault is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        ERC20(address(token__)).safeTransfer(
-            transferInfo.receiver,
-            transferInfo.amount
-        );
+        ERC20(token).safeTransfer(transferInfo.receiver, transferInfo.amount);
 
         _afterRetry(connector_, messageId_, postRetryHookData);
     }

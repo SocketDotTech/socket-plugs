@@ -5,7 +5,7 @@ import "../Base.sol";
 contract SuperTokenController is Base {
     uint256 public totalMinted;
 
-    constructor(address token_, address hook_) Base(token_, hook_) {}
+    constructor(address token_) Base(token_) {}
 
     // limits on assets or shares?
     function bridge(
@@ -29,7 +29,7 @@ contract SuperTokenController is Base {
     }
 
     function _burn(address user_, uint256 burnAmount_) internal virtual {
-        token__.burn(user_, burnAmount_);
+        IMintableERC20(token).burn(user_, burnAmount_);
     }
 
     // receive inbound assuming connector called
@@ -51,12 +51,12 @@ contract SuperTokenController is Base {
             extraData
         );
         bytes memory postHookData;
-        (transferInfo, postHookData) = _beforeMint(
+        (postHookData, transferInfo) = _beforeMint(
             siblingChainSlug_,
             transferInfo
         );
 
-        token__.mint(transferInfo.receiver, transferInfo.amount);
+        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
@@ -76,7 +76,7 @@ contract SuperTokenController is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        token__.mint(transferInfo.receiver, transferInfo.amount);
+        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
         _afterRetry(connector_, messageId_, postRetryHookData);

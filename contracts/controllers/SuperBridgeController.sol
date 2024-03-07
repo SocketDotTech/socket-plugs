@@ -11,7 +11,7 @@ contract SuperBridgeController is Base {
     // connector => connectorPoolId
     mapping(address => uint256) public connectorPoolIds;
 
-    constructor(address token_, address hook_) Base(token_, hook_) {}
+    constructor(address token_) Base(token_) {}
 
     function updateConnectorPoolId(
         address[] calldata connectors,
@@ -52,7 +52,7 @@ contract SuperBridgeController is Base {
     }
 
     function _burn(address user_, uint256 burnAmount_) internal virtual {
-        token__.burn(user_, burnAmount_);
+        IMintableERC20(token).burn(user_, burnAmount_);
     }
 
     // receive inbound assuming connector called
@@ -74,7 +74,7 @@ contract SuperBridgeController is Base {
             extraData
         );
         bytes memory postHookData;
-        (transferInfo, postHookData) = _beforeMint(
+        (postHookData, transferInfo) = _beforeMint(
             siblingChainSlug_,
             transferInfo
         );
@@ -83,7 +83,7 @@ contract SuperBridgeController is Base {
         if (connectorPoolId == 0) revert InvalidPoolId();
 
         poolLockedAmounts[connectorPoolId] += transferInfo.amount;
-        token__.mint(transferInfo.receiver, transferInfo.amount);
+        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
@@ -103,7 +103,7 @@ contract SuperBridgeController is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        token__.mint(transferInfo.receiver, transferInfo.amount);
+        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
         _afterRetry(connector_, messageId_, postRetryHookData);

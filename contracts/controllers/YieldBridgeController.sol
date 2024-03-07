@@ -1,6 +1,7 @@
 pragma solidity 0.8.13;
 
 import "../Base.sol";
+import "solmate/tokens/ERC20.sol";
 
 contract YieldBridgeController is Base {
     uint256 public totalMinted;
@@ -11,7 +12,7 @@ contract YieldBridgeController is Base {
     // connector => connectorPoolId
     mapping(address => uint256) public connectorPoolIds;
 
-    constructor(address token_, address hook_) Base(token_, hook_) {}
+    constructor(address token_) Base(token_) {}
 
     /**
      * @notice this function is used to update hook
@@ -19,9 +20,13 @@ contract YieldBridgeController is Base {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(address hook_, bool approveTokens_) external override onlyOwner {
+    function updateHook(
+        address hook_,
+        bool approveTokens_
+    ) external override onlyOwner {
         hook__ = IHook(hook_);
-        if (approveTokens_) token__.approve(hook_, type(uint256).max);
+        // todo
+        if (approveTokens_) ERC20(token).approve(hook_, type(uint256).max);
         emit HookUpdated(hook_);
     }
 
@@ -64,7 +69,7 @@ contract YieldBridgeController is Base {
     }
 
     function _burn(address user_, uint256 burnAmount_) internal virtual {
-        token__.burn(user_, burnAmount_);
+        IMintableERC20(token).burn(user_, burnAmount_);
     }
 
     // receive inbound assuming connector called
@@ -86,7 +91,7 @@ contract YieldBridgeController is Base {
             extraData
         );
         bytes memory postHookData;
-        (transferInfo, postHookData) = _beforeMint(
+        (postHookData, transferInfo) = _beforeMint(
             siblingChainSlug_,
             transferInfo
         );
@@ -95,7 +100,7 @@ contract YieldBridgeController is Base {
         if (connectorPoolId == 0) revert InvalidPoolId();
 
         poolLockedAmounts[connectorPoolId] += transferInfo.amount;
-        token__.mint(transferInfo.receiver, transferInfo.amount);
+        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
@@ -114,7 +119,7 @@ contract YieldBridgeController is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        token__.mint(transferInfo.receiver, transferInfo.amount);
+        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
 
         _afterRetry(connector_, messageId_, postRetryHookData);
     }

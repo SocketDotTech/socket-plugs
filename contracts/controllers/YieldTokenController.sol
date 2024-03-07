@@ -2,13 +2,22 @@ pragma solidity 0.8.13;
 
 import "../Base.sol";
 
+interface IYieldToken {
+    function updateYield(uint256 amount_) external;
+
+    function mint(address user_, uint256 amount_) external returns (uint256);
+
+    function burn(address user_, uint256 amount_) external returns (uint256);
+}
+
 contract YieldTokenController is Base {
     uint256 public totalMinted;
 
     // connector => total yield
     mapping(address => uint256) public siblingTotalYield;
+    mapping(address => uint256) public lastSyncTimestamp;
 
-    constructor(address token_, address hook_) Base(token_, hook_) {}
+    constructor(address token_) Base(token_) {}
 
     // limits on shares here
     // options_ here is now a boolean which indicates if we want to enable withdrawing
@@ -58,14 +67,14 @@ contract YieldTokenController is Base {
             extraData
         );
         bytes memory postHookData;
-        (transferInfo, postHookData) = _beforeMint(
+        (postHookData, transferInfo) = _beforeMint(
             siblingChainSlug_,
             transferInfo
         );
 
         siblingTotalYield[msg.sender] += transferInfo.amount;
         _mint(transferInfo.receiver, transferInfo.amount);
-        token__.updateYield(newYield);
+        IYieldToken(address(token)).updateYield(newYield);
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
@@ -97,13 +106,13 @@ contract YieldTokenController is Base {
         address user_,
         uint256 burnAmount_
     ) internal virtual returns (uint256 shares) {
-        shares = token__.burn(user_, burnAmount_);
+        shares = IYieldToken(token).burn(user_, burnAmount_);
     }
 
     function _mint(
         address user_,
         uint256 mintAmount_
     ) internal virtual returns (uint256 shares) {
-        shares = token__.mint(user_, mintAmount_);
+        shares = IYieldToken(token).mint(user_, mintAmount_);
     }
 }

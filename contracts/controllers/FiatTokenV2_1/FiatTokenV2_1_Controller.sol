@@ -17,7 +17,7 @@ pragma solidity 0.8.13;
 //     ) Controller(token_, exchangeRate_, hook_) {}
 
 //     function _burn(address user_, uint256 burnAmount_) internal override {
-//         token__.safeTransferFrom(user_, address(this), burnAmount_);
-//         IFiatTokenV2_1_Mintable(address(token__)).burn(burnAmount_);
+//         token.safeTransferFrom(user_, address(this), burnAmount_);
+//         IFiatTokenV2_1_Mintable(address(token)).burn(burnAmount_);
 //     }
 // }

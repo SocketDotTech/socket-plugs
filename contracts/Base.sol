@@ -10,7 +10,7 @@ import "./interfaces/IHub.sol";
 import "./utils/RescueBase.sol";
 
 abstract contract Base is ReentrancyGuard, IHub, RescueBase {
-    IMintableERC20 public immutable token__;
+    address public immutable token;
     IHook public hook__;
 
     // message identifier => cache
@@ -42,7 +42,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
 
     constructor(address token_) AccessControl(msg.sender) {
         if (token_.code.length == 0) revert InvalidTokenContract();
-        token__ = IMintableERC20(token_);
+        token = token_;
     }
 
     /**
@@ -51,10 +51,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(
-        address hook_,
-        bool approveTokens_
-    ) external virtual onlyOwner {
+    function updateHook(address hook_, bool) external virtual onlyOwner {
         hook__ = IHook(hook_);
         emit HookUpdated(hook_);
     }
@@ -136,7 +133,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         if (
             transferInfo_.receiver == address(this) ||
             // transferInfo_.receiver == address(bridge__) ||
-            transferInfo_.receiver == address(token__)
+            transferInfo_.receiver == token
         ) revert CannotTransferOrExecuteOnBridgeContracts();
 
         if (address(hook__) != address(0)) {

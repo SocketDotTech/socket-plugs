@@ -8,6 +8,8 @@ import {IHook} from "../../interfaces/IHook.sol";
 
 // add shutdown
 contract YieldToken is YieldTokenBase {
+    using FixedPointMathLib for uint256;
+
     bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
 
     constructor(
@@ -27,10 +29,8 @@ contract YieldToken is YieldTokenBase {
         // total yield -> total underlying from all chains
         // yield sent from src chain includes new amount hence subtracted here
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
-        return
-            supply == 0
-                ? assets_
-                : assets_.mulDivUp(supply, (totalYield - assets_));
+        uint256 totalAssets = totalYield - assets_;
+        return supply == 0 ? assets_ : assets_.mulDivUp(supply, totalAssets);
     }
 
     function burn(
@@ -83,8 +83,9 @@ contract YieldToken is YieldTokenBase {
 
     function getMinFees(
         address connector_,
-        uint256 msgGasLimit_
+        uint256 msgGasLimit_,
+        uint256 payloadSize_
     ) external view returns (uint256 totalFees) {
-        return IConnector(connector_).getMinFees(msgGasLimit_);
+        return IConnector(connector_).getMinFees(msgGasLimit_, payloadSize_);
     }
 }
