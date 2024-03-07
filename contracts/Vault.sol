@@ -1,32 +1,20 @@
 pragma solidity 0.8.13;
 
-import "solmate/utils/SafeTransferLib.sol";
-import "./common/Base.sol";
-import "./interfaces/IHook.sol";
+import "./controllers/ControllerBase.sol";
 import "./interfaces/IConnector.sol";
-import "./common/errors.sol";
-import "./common/structs.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract Vault is Base {
+contract Vault is ControllerBase {
     using SafeTransferLib for ERC20;
-
-    // // siblingChainSlug => amount
-    // mapping(uint32 => uint256) public siblingPendingMints;
 
     ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
 
-    // emitted when message bridge is updated
-    event MessageBridgeUpdated(address newBridge);
-    // emitted when message hook is updated
-    event HookUpdated(address newHook);
-    event ConnectorStatusUpdated(address connector, bool status);
     // emitted at source when tokens are bridged to a sibling chain
     event BridgeTokens(
         uint32 siblingChainSlug,
@@ -58,10 +46,11 @@ contract Vault is Base {
     //  * @param token_ token contract address which is to be bridged.
     //  */
 
-    constructor(address token_, address owner_) AccessControl(owner_) {
-        if (token_.code.length == 0) revert InvalidTokenContract();
-        token__ = ERC20(token_);
-    }
+    constructor(
+        address token_,
+        address hook_,
+        address owner_
+    ) ControllerBase(token_, hook_, owner_) {}
 
     // /**
     //  * @notice this function is called by users to bridge their funds to a sibling chain
@@ -110,75 +99,39 @@ contract Vault is Base {
             bytes memory extraData
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
-        if (
-            receiver == address(this) ||
-            // receiver == address(bridge__) ||
-            receiver == address(token__)
-        ) revert CannotTransferOrExecuteOnBridgeContracts();
-
         TransferInfo memory transferInfo = TransferInfo(
             receiver,
             unlockAmount,
             extraData
         );
-        bytes memory postHookData = bytes("");
-        if (address(hook__) != address(0)) {
-            (postHookData, transferInfo) = hook__.dstPreHookCall(
-                DstPreHookCallParams(
-                    msg.sender,
-                    connectorCache[msg.sender],
-                    transferInfo
-                )
-            );
-        }
+
+        bytes memory postHookData;
+        (transferInfo, postHookData) = _beforeMint(
+            siblingChainSlug_,
+            transferInfo
+        );
 
         token__.safeTransfer(transferInfo.receiver, transferInfo.amount);
 
-        if (address(hook__) != address(0)) {
-            CacheData memory cacheData = hook__.dstPostHookCall(
-                DstPostHookCallParams(
-                    msg.sender,
-                    connectorCache[msg.sender],
-                    postHookData,
-                    transferInfo
-                )
-            );
-
-            identifierCache[identifier] = cacheData.identifierCache;
-            connectorCache[msg.sender] = cacheData.connectorCache;
-        }
+        _afterMint(lockAmount, messageId, postHookData, transferInfo);
+        emit TokensMinted(
+            msg.sender,
+            transferInfo.receiver,
+            transferInfo.amount,
+            messageId
+        );
     }
 
     function retry(
         address connector_,
         bytes32 identifier_
     ) external nonReentrant {
-        if (!validConnectors[connector_]) revert NotMessageBridge();
-
-        CacheData memory cacheData = CacheData(
-            identifierCache[identifier_],
-            connectorCache[connector_]
-        );
-
-        if (cacheData.identifierCache.length == 0) revert NoPendingData();
         (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
-        ) = hook__.preRetryHook(PreRetryHookCallParams(connector_, cacheData));
-
+        ) = _beforeRetry(connector_, identifier_);
         token__.safeTransfer(transferInfo.receiver, transferInfo.amount);
 
-        (cacheData) = hook__.postRetryHook(
-            PostRetryHookCallParams(connector_, postRetryHookData, cacheData)
-        );
-        identifierCache[identifier_] = cacheData.identifierCache;
-        connectorCache[connector_] = cacheData.connectorCache;
-
-        // emit PendingTokensBridged(
-        //     siblingChainSlug_,
-        //     receiver,
-        //     consumedAmount,
-        //     identifier
-        // );
+        _afterRetry(connector_, identifier_, postRetryHookData, cacheData);
     }
 }

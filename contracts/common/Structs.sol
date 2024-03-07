@@ -7,7 +7,7 @@ struct UpdateLimitParams {
     uint256 ratePerSecond;
 }
 
-struct SrcHookCallParams {
+struct SrcPreHookCallParams {
     address connector;
     address msgSender;
     TransferInfo transferInfo;

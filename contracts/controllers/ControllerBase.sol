@@ -27,6 +27,8 @@ contract ControllerBase is Base {
     error MessageIdMisMatched();
     event ExchangeRateUpdated(address exchangeRate);
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
+    event ConnectorStatusUpdated(address connector, bool status);
+
     // emitted when message hook is updated
     event HookUpdated(address newHook);
     event TokensWithdrawn(
@@ -44,6 +46,8 @@ contract ControllerBase is Base {
     );
 
     constructor(address token_, address hook_) AccessControl(msg.sender) {
+        if (token_.code.length == 0) revert InvalidTokenContract();
+
         token__ = IMintableERC20(token_);
         hook__ = IHook(hook_);
     }
@@ -54,8 +58,9 @@ contract ControllerBase is Base {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(address hook_) external onlyOwner {
+    function updateHook(address hook_, bool approveTokens_) external onlyOwner {
         hook__ = IHook(hook_);
+        if (approveTokens_) token__.safeApprove(hook_, type(uint256).max);
         emit HookUpdated(hook_);
     }
 
@@ -91,8 +96,12 @@ contract ControllerBase is Base {
         uint256 msgGasLimit_,
         address connector_,
         bytes calldata options_,
-        TransferInfo memory transferInfo
+        TransferInfo memory transferInfo_
     ) internal {
+        if (address(hook__) != address(0)) {
+            transferInfo = hook__.srcPostHookCall(transferInfo_);
+        }
+
         bytes32 messageId = IConnector(connector_).getMessageId();
         bytes32 returnedMessageId = IConnector(connector_).outbound{
             value: msg.value
