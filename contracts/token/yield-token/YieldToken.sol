@@ -3,14 +3,17 @@ pragma solidity 0.8.13;
 
 import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 
-import "./erc4626/ERC4626.sol";
-import {IStrategy} from "../interfaces/IStrategy.sol";
+import "./YieldTokenBase.sol";
+import {IStrategy} from "../../interfaces/IStrategy.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 import {IHook} from "../interfaces/IHook.sol";
 import "../utils/RescueBase.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
 // add shutdown
-contract YieldToken is ERC4626, ReentrancyGuard, RescueBase {
+contract YieldToken is YieldTokenBase, ReentrancyGuard, RescueBase {
+    using FixedPointMathLib for uint256;
+
     // connector => timestamp
     mapping(address => uint128) public lastSyncTimestamp; // Timestamp of last rebalance
     // connector => total yield
@@ -28,16 +31,30 @@ contract YieldToken is ERC4626, ReentrancyGuard, RescueBase {
         string memory name_,
         string memory symbol_,
         uint8 decimals_
-    ) Token(name_, symbol_, decimals_) AccessControl(msg.sender) {}
+    ) YieldTokenBase(name_, symbol_, decimals_) AccessControl(msg.sender) {}
 
-    function balanceOf(address user_) external view override returns (uint256) {
+    function convertToShares(
+        uint256 assets
+    ) public view virtual returns (uint256) {
+        uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
+        return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+    }
+
+    function convertToAssets(
+        uint256 shares
+    ) public view virtual returns (uint256) {
+        uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
+        return supply == 0 ? shares : shares.mulDivDown(totalAssets(), supply);
+    }
+
+    function balanceOf(address user_) external view returns (uint256) {
         uint256 balance = _balanceOf[user_];
         if (balance == 0) return 0;
         return convertToAssets(balance);
     }
 
     // recheck for multi yield
-    function totalSupply() external view override returns (uint256) {
+    function totalSupply() external view returns (uint256) {
         if (_totalSupply == 0) return 0;
         return totalYield;
     }
@@ -61,7 +78,7 @@ contract YieldToken is ERC4626, ReentrancyGuard, RescueBase {
     ) external payable nonReentrant returns (uint256 deposited) {
         if (amount_ > siblingTotalYield[connector_]) revert InsufficientFunds();
         uint256 sharesToBurn = convertToShares(amount_);
-        super.withdraw(msg.sender, sharesToBurn);
+        _burn(msg.sender, sharesToBurn);
     }
 
     function updateYield() external {

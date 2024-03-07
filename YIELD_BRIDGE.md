@@ -33,16 +33,9 @@
 
 - If yield decreases and tokens are yet to be minted, it will create a hole and will have to be paid back by bridge owners.
 
-deposit
-deposit
-increase yield
-calculate redeem amount
-decrease yield
-withdraw
+<!-- ## Non app chain:
+- Vault is connected to a super bridge controller with yield bridge vault hook -->
 
-check how much loss
+## App chain:
 
-increase yield
-check if recoverable
-
-permanant increase or decrease due to sync issue?
+- Rebasing Token is connected to a yield bridge controller with yield bridge token hook
