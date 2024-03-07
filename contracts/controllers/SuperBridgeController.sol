@@ -1,12 +1,8 @@
 pragma solidity 0.8.13;
 
-import {IMintableERC20} from "./IMintableERC20.sol";
-import "solmate/utils/SafeTransferLib.sol";
 import "./ControllerBase.sol";
-import "../interfaces/IHook.sol";
 
 contract SuperBridgeController is ControllerBase {
-    IMintableERC20 public immutable token__;
     uint256 public totalMinted;
 
     // connectorPoolId => totalLockedAmount

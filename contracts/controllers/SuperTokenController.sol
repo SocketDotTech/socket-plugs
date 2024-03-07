@@ -1,9 +1,6 @@
 pragma solidity 0.8.13;
 
-import {IMintableERC20} from "./IMintableERC20.sol";
-import "solmate/utils/SafeTransferLib.sol";
 import "./ControllerBase.sol";
-import "../interfaces/IHook.sol";
 
 contract SuperTokenController is ControllerBase {
     IMintableERC20 public immutable token__;

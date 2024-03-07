@@ -14,9 +14,13 @@ interface IHook {
     // / @return receiver The updated receiver of the funds.
     // / @return amount The updated amount of funds.
     // / @return extradata The updated extradata.
-    function srcHookCall(
-        SrcHookCallParams calldata srcHookCallParams_
+    function srcPreHookCall(
+        SrcPreHookCallParams calldata srcPreHookCallParams_
     ) external returns (TransferInfo memory transferInfo);
+
+    function srcPostHookCall(
+        bytes memory payload_
+    ) external returns (bytes memory data);
 
     // /**
     //  * @dev This function calls the dstPreHookCall function of the connector contract,

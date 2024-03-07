@@ -32,11 +32,17 @@ contract LimitHook is LimitPlugin {
     //  * @return updatedAmount The updated amount of funds.
     //  * @return updatedExtradata The updated extradata.
     //  */
-    function srcHookCall(
-        SrcHookCallParams memory params_
+    function srcPreHookCall(
+        SrcPreHookCallParams memory params_
     ) external isVaultOrToken returns (TransferInfo memory) {
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         return params_.transferInfo;
+    }
+
+    function srcPostHookCall(
+        bytes memory payload_
+    ) external returns (bytes memory) {
+        return payload_;
     }
 
     // /**

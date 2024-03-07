@@ -21,23 +21,22 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
         address vaultOrToken_
     ) HookBase(owner_, vaultOrToken_) {}
 
-    // /**
-    //  * @dev This function calls the srcHookCall function of the connector contract,
-    //  * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
-    //  * the updated receiver, amount, and extradata.
-    //  * @param receiver_ The receiver of the funds.
-    //  * @param amount_ The amount of funds.
-    //  * @param siblingChainSlug_ The sibling chain identifier.
-    //  * @param payload_ Payload data to be passed to the connector contract.
-    //  * @return updatedReceiver The updated receiver of the funds.
-    //  * @return updatedAmount The updated amount of funds.
-    //  * @return updatedExtradata The updated extradata.
-    //  */
-    function srcHookCall(
-        SrcHookCallParams calldata params_
+    /**
+     * @dev This function calls the srcHookCall function of the connector contract,
+     * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
+     * the updated receiver, amount, and extradata.
+     */
+    function srcPreHookCall(
+        SrcPreHookCallParams calldata params_
     ) external isVaultOrToken returns (TransferInfo memory) {
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         return params_.transferInfo;
+    }
+
+    function srcPostHookCall(
+        bytes memory payload_
+    ) external returns (bytes memory) {
+        return payload_;
     }
 
     // /**
