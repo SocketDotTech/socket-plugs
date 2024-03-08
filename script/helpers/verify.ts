@@ -44,7 +44,7 @@ export const main = async () => {
         chain == ChainSlug.VICTION_TESTNET ||
         chain == ChainSlug.MODE ||
         chain == ChainSlug.ANCIENT8_TESTNET2 ||
-        chain == ChainSlug.REYA_CRONOS_ORBIT
+        chain == ChainSlug.REYA_CRONOS
       )
         continue;
       // hre.changeNetwork(ChainSlugToHardhatKey[chain]);

@@ -1,0 +1,72 @@
+{
+  "80001": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0xD9edcC943ed9729B08E52Bb1e110FE43d1930773",
+      "Vault": "0xEC5b7075F581D46983EBe2Be6baB0f58Bf1E8C4b",
+      "connectors": {
+        "89346161": {
+          "FAST": "0xF5b588306867992201fc78dE045bCe01BE6eA2fD"
+        }
+      }
+    }
+  },
+  "421614": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+      "Vault": "0x85314b664cB2e443C93F09EDb51088f76b048212",
+      "connectors": {
+        "89346161": {
+          "FAST": "0xeD4F75f0C25963d2C61827261C2d7f84BF884c7F"
+        }
+      }
+    }
+  },
+  "11155111": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+      "Vault": "0x8487daa5864a5cE18E5a89406c11EC748da33fbB",
+      "connectors": {
+        "89346161": {
+          "FAST": "0x4BFDf43662cdf2Cc0A96C8697AC179819B6E5E91"
+        }
+      }
+    }
+  },
+  "11155420": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+      "Vault": "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
+      "connectors": {
+        "89346161": {
+          "FAST": "0x9838Fc33ea56F7664c677b1F2917c60d75a73BC6"
+        }
+      }
+    }
+  },
+  "89346161": {
+    "USDC": {
+      "isAppChain": true,
+      "MintableToken": "0x1b700A40A0707Dd5f0BC31cbc57D730558E5714d",
+      "ExchangeRate": "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
+      "Controller": "0xc5a5Ac67fff82Da72d1F862f1363E2b217a2A61A",
+      "connectors": {
+        "80001": {
+          "FAST": "0x47E136cf4A96e1afa72e19022f9699Bbaa1BE60e"
+        },
+        "421614": {
+          "FAST": "0xCd2E3CCb0Eeec6F2762dcD5D24a76583b69f3Ee1"
+        },
+        "11155111": {
+          "FAST": "0x1d43076909Ca139BFaC4EbB7194518bE3638fc76"
+        },
+        "11155420": {
+          "FAST": "0x9ca48cAF8AD2B081a0b633d6FCD803076F719fEa"
+        }
+      }
+    }
+  }
+}

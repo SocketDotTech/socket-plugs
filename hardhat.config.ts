@@ -70,7 +70,7 @@ const liveNetworks = [
   HardhatChainName.BASE,
   HardhatChainName.MODE,
   HardhatChainName.ANCIENT8_TESTNET2,
-  HardhatChainName.REYA_CRONOS_ORBIT,
+  HardhatChainName.REYA_CRONOS,
 ];
 
 let hardhatNetworkDetails = {};

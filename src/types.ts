@@ -20,7 +20,7 @@ export enum Project {
   VICTION_TESTNET = "viction-testnet",
   MODE = "mode",
   ANCIENT8_TESTNET2 = "ancient8-testnet2",
-  REYA_CRONOS_ORBIT = "reya-cronos-orbit",
+  REYA_CRONOS = "reya-cronos",
 }
 
 ////// **** SUPER BRIDGE TYPES **** //////
@@ -81,7 +81,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
   [ChainSlug.MODE]: Project.MODE,
   [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
-  [ChainSlug.REYA_CRONOS_ORBIT]: Project.REYA_CRONOS_ORBIT,
+  [ChainSlug.REYA_CRONOS]: Project.REYA_CRONOS,
 };
 
 ////// **** SUPER TOKEN TYPES **** //////
