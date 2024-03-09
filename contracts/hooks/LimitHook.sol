@@ -34,7 +34,7 @@ contract LimitHook is LimitPlugin {
     function srcPostHookCall(
         bytes memory payload_,
         bytes memory options_
-    ) external returns (bytes memory) {
+    ) external isVaultOrToken returns (bytes memory) {
         return payload_;
     }
 
@@ -87,9 +87,8 @@ contract LimitHook is LimitPlugin {
             params_.postHookData,
             (uint256, uint256)
         );
-        uint256 connectorPendingAmount = abi.decode(
-            params_.connectorCache,
-            (uint256)
+        uint256 connectorPendingAmount = _getConnectorPendingAmount(
+            params_.connectorCache
         );
         if (pendingAmount > 0) {
             cacheData = CacheData(
@@ -99,6 +98,14 @@ contract LimitHook is LimitPlugin {
         } else {
             cacheData = CacheData(bytes(""), params_.connectorCache);
         }
+    }
+
+    function _getConnectorPendingAmount(
+        bytes memory connectorCache_
+    ) internal view returns (uint256) {
+        if (connectorCache_.length > 0) {
+            return abi.decode(connectorCache_, (uint256));
+        } else return 0;
     }
 
     // /**
@@ -163,19 +170,15 @@ contract LimitHook is LimitPlugin {
             uint256 pendingAmount
         ) = abi.decode(params_.postRetryHookData, (address, uint256, uint256));
 
-        uint256 connectorPendingAmount = abi.decode(
-            params_.cacheData.connectorCache,
-            (uint256)
+        uint256 connectorPendingAmount = _getConnectorPendingAmount(
+            params_.cacheData.connectorCache
         );
         cacheData.connectorCache = abi.encode(
             connectorPendingAmount - consumedAmount
         );
-        if (pendingAmount > 0) {
-            cacheData.identifierCache = abi.encode(
-                updatedReceiver,
-                pendingAmount
-            );
-        } else {
+        cacheData.identifierCache = abi.encode(updatedReceiver, pendingAmount);
+
+        if (pendingAmount == 0) {
             cacheData.identifierCache = new bytes(0);
         }
     }
