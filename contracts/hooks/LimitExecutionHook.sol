@@ -1,187 +1,117 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./LimitHookBase.sol";
-import "../common/ExecutionHelper.sol";
+import "./plugins/LimitPlugin.sol";
+import "./plugins/ExecutionHelper.sol";
 
 /**
  * @title SuperToken
  * @notice An ERC20 contract enabling bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
-    address public immutable vaultOrToken;
-
-    ////////////////////////////////////////////////////////
-    ////////////////////// ERRORS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    error InvalidSiblingChainSlug();
-    error NotAuthorized();
-    ////////////////////////////////////////////////////////
-    ////////////////////// EVENTS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    // Emitted when pending tokens are minted to the receiver
-    event PendingTokensBridged(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 mintAmount,
-        uint256 pendingAmount,
-        bytes32 identifier
-    );
-    // Emitted when the transfer reaches the limit, and the token mint is added to the pending queue
-    event TokensPending(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 pendingAmount,
-        uint256 totalPendingAmount,
-        bytes32 identifier
-    );
-
+contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
     /**
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.
      */
-    constructor(address owner_, address vaultOrToken_) AccessControl(owner_) {
-        vaultOrToken = vaultOrToken_;
-    }
+    constructor(
+        address owner_,
+        address vaultOrToken_
+    ) HookBase(owner_, vaultOrToken_) {}
 
-    /**
-     * @dev This function calls the srcHookCall function of the connector contract,
-     * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
-     * the updated receiver, amount, and extradata.
-     * @param receiver_ The receiver of the funds.
-     * @param amount_ The amount of funds.
-     * @param siblingChainSlug_ The sibling chain identifier.
-     * @param payload_ Payload data to be passed to the connector contract.
-     * @return updatedReceiver The updated receiver of the funds.
-     * @return updatedAmount The updated amount of funds.
-     * @return updatedExtradata The updated extradata.
-     */
+    // /**
+    //  * @dev This function calls the srcHookCall function of the connector contract,
+    //  * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
+    //  * the updated receiver, amount, and extradata.
+    //  * @param receiver_ The receiver of the funds.
+    //  * @param amount_ The amount of funds.
+    //  * @param siblingChainSlug_ The sibling chain identifier.
+    //  * @param payload_ Payload data to be passed to the connector contract.
+    //  * @return updatedReceiver The updated receiver of the funds.
+    //  * @return updatedAmount The updated amount of funds.
+    //  * @return updatedExtradata The updated extradata.
+    //  */
     function srcHookCall(
-        address receiver_,
-        uint256 amount_,
-        uint32 siblingChainSlug_,
-        address connector_,
-        address,
-        bytes memory payload_
-    )
-        external
-        returns (
-            address updatedReceiver,
-            uint256 updatedAmount,
-            bytes memory updatedExtradata
-        )
-    {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-        if (_sendingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-
-        _consumeFullLimit(amount_, _sendingLimitParams[connector_]); // Reverts on limit hit
-
-        return (receiver_, amount_, payload_);
+        SrcHookCallParams calldata params_
+    ) external isVaultOrToken returns (TransferInfo memory) {
+        _limitSrcHook(params_.connector, params_.transferInfo.amount);
+        return params_.transferInfo;
     }
 
-    /**
-     * @notice This function is called before the execution of a destination hook.
-     * @dev It checks if the sibling chain is supported, consumes a part of the limit, and prepares post-hook data.
-     * @param receiver_ The receiver of the funds.
-     * @param amount_ The amount of funds.
-     * @param siblingChainSlug_ The unique identifier of the sibling chain.
-     * @param connector_ The address of the bridge contract.
-     * @param extradata_ Additional data to be passed to the connector contract.
-     * @param connectorCache_ Sibling chain cache containing pending amount information.
-     * @return updatedReceiver The updated receiver of the funds.
-     * @return consumedAmount The amount consumed from the limit.
-     * @return postHookData The post-hook data to be processed after the hook execution.
-     */
+    // /**
+    //  * @notice This function is called before the execution of a destination hook.
+    //  * @dev It checks if the sibling chain is supported, consumes a part of the limit, and prepares post-hook data.
+    //  * @param receiver_ The receiver of the funds.
+    //  * @param amount_ The amount of funds.
+    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
+    //  * @param connector_ The address of the bridge contract.
+    //  * @param extradata_ Additional data to be passed to the connector contract.
+    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
+    //  * @return updatedReceiver The updated receiver of the funds.
+    //  * @return consumedAmount The amount consumed from the limit.
+    //  * @return postHookData The post-hook data to be processed after the hook execution.
+    //  */
     function dstPreHookCall(
-        address receiver_,
-        uint256 amount_,
-        uint32 siblingChainSlug_,
-        address connector_,
-        bytes memory extradata_,
-        bytes memory connectorCache_
+        DstPreHookCallParams calldata params_
     )
         external
-        returns (
-            address updatedReceiver,
-            uint256 consumedAmount,
-            bytes memory postHookData
-        )
+        isVaultOrToken
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-        uint256 pendingAmount;
-        (consumedAmount, pendingAmount) = _consumePartLimit(
-            amount_,
-            _receivingLimitParams[connector_]
+        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
+            params_.connector,
+            params_.transferInfo.amount
         );
-
-        return (
-            receiver_,
-            consumedAmount,
-            abi.encode(consumedAmount, pendingAmount)
-        );
+        postHookData = abi.encode(consumedAmount, pendingAmount);
+        transferInfo = params_.transferInfo;
+        transferInfo.amount = consumedAmount;
     }
 
-    /**
-     * @notice Handles post-hook logic after the execution of a destination hook.
-     * @dev This function processes post-hook data to update the identifier cache and sibling chain cache.
-     * @param receiver_ The receiver of the funds.
-     * @param amount_ The amount of funds.
-     * @param siblingChainSlug_ The unique identifier of the sibling chain.
-     * @param connector_ The address of the bridge contract.
-     * @param extradata_ Additional data passed to the connector contract.
-     * @param postHookData_ The post-hook data containing consumed and pending amounts.
-     * @param connectorCache_ Sibling chain cache containing pending amount information.
-     * @return newIdentifierCache The updated identifier cache.
-     * @return newConnectorCache The updated sibling chain cache.
-     */
+    // /**
+    //  * @notice Handles post-hook logic after the execution of a destination hook.
+    //  * @dev This function processes post-hook data to update the identifier cache and sibling chain cache.
+    //  * @param receiver_ The receiver of the funds.
+    //  * @param amount_ The amount of funds.
+    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
+    //  * @param connector_ The address of the bridge contract.
+    //  * @param extradata_ Additional data passed to the connector contract.
+    //  * @param postHookData_ The post-hook data containing consumed and pending amounts.
+    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
+    //  * @return newIdentifierCache The updated identifier cache.
+    //  * @return newConnectorCache The updated sibling chain cache.
+    //  */
     function dstPostHookCall(
-        address receiver_,
-        uint256 amount_,
-        uint32 siblingChainSlug_,
-        address connector_,
-        bytes memory extradata_,
-        bytes memory postHookData_,
-        bytes memory connectorCache_
-    )
-        external
-        returns (
-            bytes memory newIdentifierCache,
-            bytes memory newConnectorCache
-        )
-    {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
+        DstPostHookCallParams calldata params_
+    ) external isVaultOrToken returns (CacheData memory cacheData) {
+        bytes memory execPayload = params_.transferInfo.data;
 
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
-            postHookData_,
+            params_.postHookData,
             (uint256, uint256)
         );
-        uint256 connectorPendingAmount = abi.decode(connectorCache_, (uint256));
-        bytes memory execPayload = extradata_;
+
+        uint256 connectorPendingAmount = abi.decode(
+            params_.connectorCache,
+            (uint256)
+        );
         if (pendingAmount > 0) {
-            newConnectorCache = abi.encode(
+            cacheData.connectorCache = abi.encode(
                 connectorPendingAmount + pendingAmount
             );
             // if pending amount is more than 0, payload is cached
             if (execPayload.length > 0) {
-                newIdentifierCache = abi.encode(
-                    receiver_,
+                cacheData.identifierCache = abi.encode(
+                    params_.transferInfo.receiver,
                     pendingAmount,
-                    siblingChainSlug_,
+                    params_.connector,
                     execPayload
                 );
             } else {
-                newIdentifierCache = abi.encode(
-                    receiver_,
+                cacheData.identifierCache = abi.encode(
+                    params_.transferInfo.receiver,
                     pendingAmount,
-                    siblingChainSlug_,
-                    new bytes(0)
+                    params_.connector,
+                    bytes("")
                 );
             }
 
@@ -194,128 +124,111 @@ contract LimitExecutionHook is LimitHookBase, ExecutionHelper {
             // );
         } else if (execPayload.length > 0) {
             // execute
-            bool success = _execute(receiver_, execPayload);
+            bool success = _execute(params_.transferInfo.receiver, execPayload);
 
-            if (success) newIdentifierCache = new bytes(0);
+            if (success) cacheData.identifierCache = new bytes(0);
             else {
-                newIdentifierCache = abi.encode(
-                    receiver_,
+                cacheData.identifierCache = abi.encode(
+                    params_.transferInfo.receiver,
                     0,
-                    siblingChainSlug_,
+                    params_.connector,
                     execPayload
                 );
             }
 
-            newConnectorCache = connectorCache_;
+            cacheData.connectorCache = params_.connectorCache;
         }
     }
 
-    /**
-     * @notice Handles pre-retry hook logic before execution.
-     * @dev This function can be used to mint funds which were in a pending state due to limits.
-     * @param siblingChainSlug_ The unique identifier of the sibling chain.
-     * @param identifierCache_ Identifier cache containing pending mint information.
-     * @param connectorCache_ Sibling chain cache containing pending amount information.
-     * @return updatedReceiver The updated receiver of the funds.
-     * @return consumedAmount The amount consumed from the limit.
-     * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
-     */
+    // /**
+    //  * @notice Handles pre-retry hook logic before execution.
+    //  * @dev This function can be used to mint funds which were in a pending state due to limits.
+    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
+    //  * @param identifierCache_ Identifier cache containing pending mint information.
+    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
+    //  * @return updatedReceiver The updated receiver of the funds.
+    //  * @return consumedAmount The amount consumed from the limit.
+    //  * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
+    //  */
     function preRetryHook(
-        uint32 siblingChainSlug_,
-        address connector_,
-        bytes memory identifierCache_,
-        bytes memory connectorCache_
+        PreRetryHookCallParams calldata params_
     )
         external
+        isVaultOrToken
         returns (
-            address updatedReceiver,
-            uint256 consumedAmount,
-            bytes memory postRetryHookData
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
         )
     {
-        if (msg.sender != vaultOrToken) revert NotAuthorized();
-
         (
             address receiver,
             uint256 pendingMint,
-            uint32 siblingChainSlug,
+            address connector,
             bytes memory execPayload
-        ) = abi.decode(identifierCache_, (address, uint256, uint32, bytes));
-        updatedReceiver = receiver;
+        ) = abi.decode(
+                params_.cacheData.identifierCache,
+                (address, uint256, address, bytes)
+            );
 
-        if (siblingChainSlug != siblingChainSlug_)
-            revert InvalidSiblingChainSlug();
+        if (connector != params_.connector) revert InvalidConnector();
 
-        if (_receivingLimitParams[connector_].maxLimit == 0)
-            revert SiblingNotSupported();
-
-        uint256 pendingAmount;
-        (consumedAmount, pendingAmount) = _consumePartLimit(
-            pendingMint,
-            _receivingLimitParams[connector_]
+        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
+            params_.connector,
+            pendingMint
         );
 
-        postRetryHookData = abi.encode(
-            updatedReceiver,
-            consumedAmount,
-            pendingAmount
-        );
+        postRetryHookData = abi.encode(receiver, consumedAmount, pendingAmount);
+        transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
     }
 
-    /**
-     * @notice Handles post-retry hook logic after execution.
-     * @dev This function updates the identifier cache and sibling chain cache based on the post-hook data.
-     * @param siblingChainSlug_ The unique identifier of the sibling chain.
-     * @param identifierCache_ Identifier cache containing pending mint information.
-     * @param connectorCache_ Sibling chain cache containing pending amount information.
-     * @param postRetryHookData_ The post-hook data containing updated receiver and consumed/pending amounts.
-     * @return newIdentifierCache The updated identifier cache.
-     * @return newConnectorCache The updated sibling chain cache.
-     */
+    // /**
+    //  * @notice Handles post-retry hook logic after execution.
+    //  * @dev This function updates the identifier cache and sibling chain cache based on the post-hook data.
+    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
+    //  * @param identifierCache_ Identifier cache containing pending mint information.
+    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
+    //  * @param postRetryHookData_ The post-hook data containing updated receiver and consumed/pending amounts.
+    //  * @return newIdentifierCache The updated identifier cache.
+    //  * @return newConnectorCache The updated sibling chain cache.
+    //  */
     function postRetryHook(
-        uint32 siblingChainSlug_,
-        address connector_,
-        bytes memory identifierCache_,
-        bytes memory connectorCache_,
-        bytes memory postRetryHookData_
-    )
-        external
-        returns (
-            bytes memory newIdentifierCache,
-            bytes memory newConnectorCache
-        )
-    {
+        PostRetryHookCallParams calldata params_
+    ) external isVaultOrToken returns (CacheData memory cacheData) {
         (
             ,
             uint256 pendingMint,
-            uint32 siblingChainSlug,
+            address connector,
             bytes memory execPayload
-        ) = abi.decode(identifierCache_, (address, uint256, uint32, bytes));
+        ) = abi.decode(
+                params_.cacheData.identifierCache,
+                (address, uint256, address, bytes)
+            );
 
         (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
-            .decode(postRetryHookData_, (address, uint256, uint256));
+            .decode(params_.postRetryHookData, (address, uint256, uint256));
 
         if (pendingAmount == 0 && receiver != address(0)) {
-            // receiver is not an input from user, can skip this check
-            // if (receiver_ != receiver) revert InvalidReceiver();
-
-            // no siblingChainSlug required here, as already done in preRetryHook call in same tx
-            // if (siblingChainSlug != siblingChainSlug_)
-            //     revert InvalidSiblingChainSlug();
+            // receiver is not an input from user, can receiver check
+            // no connector check required here, as already done in preRetryHook call in same tx
 
             // execute
             bool success = _execute(receiver, execPayload);
-            if (success) newIdentifierCache = new bytes(0);
+            if (success) cacheData.identifierCache = new bytes(0);
             else
-                newIdentifierCache = abi.encode(
+                cacheData.identifierCache = abi.encode(
                     receiver,
                     0,
-                    siblingChainSlug,
+                    connector,
                     execPayload
                 );
         }
-        uint256 connectorPendingAmount = abi.decode(connectorCache_, (uint256));
+        uint256 connectorPendingAmount = abi.decode(
+            params_.cacheData.connectorCache,
+            (uint256)
+        );
 
-        newConnectorCache = abi.encode(connectorPendingAmount - consumedAmount);
+        cacheData.connectorCache = abi.encode(
+            connectorPendingAmount - consumedAmount
+        );
     }
 }
