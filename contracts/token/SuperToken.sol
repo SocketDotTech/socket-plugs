@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
 import "solmate/tokens/ERC20.sol";
-import "./Base.sol";
+import "../utils/RescueBase.sol";
 import "../interfaces/IHook.sol";
 
 /**
@@ -9,7 +9,7 @@ import "../interfaces/IHook.sol";
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperToken is ERC20, Base {
+contract SuperToken is ERC20, RescueBase {
     // for all controller access (mint, burn)
     bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
 
@@ -21,7 +21,7 @@ contract SuperToken is ERC20, Base {
      * @param initialSupplyHolder_ address to which initial supply will be minted
      * @param owner_ owner of this contract
      * @param initialSupply_ initial supply of super token
-     * @param controller controller address
+     * @param controller_ controller address
      */
     constructor(
         string memory name_,
@@ -33,20 +33,20 @@ contract SuperToken is ERC20, Base {
         address controller_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(initialSupplyHolder_, initialSupply_);
-        _grantRole(controller_, CONTROLLER_ROLE);
+        _grantRole(CONTROLLER_ROLE, controller_);
     }
 
     function burn(
         address user_,
         uint256 amount_
-    ) external payable nonReentrant hasRole(CONTROLLER_ROLE) {
-        _burn(msg.sender, finalAmount);
+    ) external onlyRole(CONTROLLER_ROLE) {
+        _burn(user_, amount_);
     }
 
     function mint(
         address receiver_,
         uint256 amount_
-    ) external hasRole(CONTROLLER_ROLE) {
-        _mint(finalReceiver, finalAmount);
+    ) external onlyRole(CONTROLLER_ROLE) {
+        _mint(receiver_, amount_);
     }
 }
