@@ -13,6 +13,13 @@ struct SrcPreHookCallParams {
     TransferInfo transferInfo;
 }
 
+struct SrcPostHookCallParams {
+    address connector;
+    bytes options;
+    bytes postSrcHookData;
+    TransferInfo transferInfo;
+}
+
 struct DstPreHookCallParams {
     address connector;
     bytes connectorCache;

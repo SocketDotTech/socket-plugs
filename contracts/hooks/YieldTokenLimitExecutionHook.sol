@@ -11,12 +11,29 @@ import {IConnector} from "../ConnectorPlug.sol";
 import "./plugins/LimitPlugin.sol";
 import "./plugins/ExecutionHelper.sol";
 
+interface IYieldToken {
+    function updateYield(uint256 amount_) external;
+
+    function mint(address user_, uint256 amount_) external returns (uint256);
+
+    function burn(address user_, uint256 amount_) external returns (uint256);
+
+    function calculateMintAmount(uint256 amount_) external returns (uint256);
+
+    function convertToShares(uint256 assets) external view returns (uint256);
+}
+
 contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
 
     uint256 public constant MAX_BPS = 10_000;
-    IMintableERC20 public immutable asset__;
+    IYieldToken public immutable asset__;
+
+    uint256 public totalYield;
+    // connector => total yield
+    mapping(address => uint256) public siblingTotalYield;
+    mapping(address => uint256) public lastSyncTimestamp;
 
     // if true, no funds can be invested in the strategy
     bool public emergencyShutdown;
@@ -32,7 +49,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         address asset_,
         address controller_
     ) HookBase(msg.sender, controller_) {
-        asset__ = IMintableERC20(asset_);
+        asset__ = IYieldToken(asset_);
     }
 
     /**
@@ -42,16 +59,38 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    ) external isVaultOrToken returns (TransferInfo memory) {
+    )
+        external
+        isVaultOrToken
+        returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
+    {
+        if (params_.transferInfo.amount > siblingTotalYield[params_.connector])
+            revert InsufficientFunds();
+
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
-        return params_.transferInfo;
+        postSrcHookData = abi.encode(params_.transferInfo.amount);
+
+        uint256 shares = asset__.convertToShares(params_.transferInfo.amount);
+        totalYield -= shares;
+        siblingTotalYield[params_.connector] -= shares;
+
+        transferInfo = params_.transferInfo;
+        transferInfo.amount = shares;
     }
 
     function srcPostHookCall(
-        bytes memory options_,
-        bytes memory payload_
-    ) external returns (bytes memory) {
-        return abi.encode(abi.decode(options_, (bool)), payload_);
+        SrcPostHookCallParams memory srcPostHookCallParams_
+    ) external returns (TransferInfo memory transferInfo) {
+        asset__.updateYield(totalYield);
+        transferInfo.receiver = srcPostHookCallParams_.transferInfo.receiver;
+        transferInfo.data = abi.encode(
+            srcPostHookCallParams_.options,
+            srcPostHookCallParams_.transferInfo.data
+        );
+        transferInfo.amount = abi.decode(
+            srcPostHookCallParams_.postSrcHookData,
+            (uint256)
+        );
     }
 
     /**
@@ -65,14 +104,31 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
-            params_.connector,
-            params_.transferInfo.amount
+        (uint256 newYield, ) = abi.decode(
+            params_.transferInfo.data,
+            (uint256, bytes)
         );
 
-        postHookData = abi.encode(consumedAmount, pendingAmount);
+        totalYield =
+            totalYield +
+            newYield -
+            siblingTotalYield[params_.connector];
+        siblingTotalYield[params_.connector] = newYield;
+
+        if (params_.transferInfo.amount == 0)
+            return (abi.encode(0, 0), transferInfo);
+
+        uint256 sharesToMint = asset__.calculateMintAmount(
+            params_.transferInfo.amount
+        );
+        (uint256 consumedShares, uint256 pendingAmount) = _limitDstHook(
+            params_.connector,
+            sharesToMint
+        );
+
+        postHookData = abi.encode(consumedShares, pendingAmount);
         transferInfo = params_.transferInfo;
-        transferInfo.amount = consumedAmount;
+        transferInfo.amount = consumedShares;
     }
 
     /**
@@ -82,8 +138,10 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) external isVaultOrToken returns (CacheData memory cacheData) {
+        asset__.updateYield(totalYield);
+
         bytes memory execPayload = params_.transferInfo.data;
-        (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
+        (, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
             (uint256, uint256)
         );
@@ -159,12 +217,8 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
             TransferInfo memory transferInfo
         )
     {
-        (
-            address receiver,
-            uint256 pendingMint,
-            address connector,
-            bytes memory execPayload
-        ) = abi.decode(
+        (address receiver, uint256 pendingMint, address connector, ) = abi
+            .decode(
                 params_.cacheData.identifierCache,
                 (address, uint256, address, bytes)
             );
