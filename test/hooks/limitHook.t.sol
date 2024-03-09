@@ -196,13 +196,16 @@ contract TestLimitHook is Test {
         bytes memory payload = abi.encode(_raju, withdrawAmount);
 
         vm.startPrank(controller__);
-        TransferInfo memory transferInfo = limitHook__.srcPreHookCall(
-            SrcPreHookCallParams(
-                _connector1,
-                address(_raju),
-                TransferInfo(_raju, withdrawAmount, payload)
-            )
-        );
+        (
+            TransferInfo memory transferInfo,
+            bytes memory postSrcHookData
+        ) = limitHook__.srcPreHookCall(
+                SrcPreHookCallParams(
+                    _connector1,
+                    address(_raju),
+                    TransferInfo(_raju, withdrawAmount, payload)
+                )
+            );
         vm.stopPrank();
 
         uint256 burnLimitAfter = limitHook__.getCurrentSendingLimit(
@@ -220,13 +223,18 @@ contract TestLimitHook is Test {
     }
 
     function testsrcPostHookCall() external {
-        bytes memory payload = abi.encode(_raju, 10 ether);
+        uint256 amount = 10 ether;
+        bytes memory payload = abi.encode(_raju, amount);
         vm.startPrank(controller__);
-        bytes memory payloadData = limitHook__.srcPostHookCall(
-            payload,
-            bytes("")
+        TransferInfo memory transferInfo = limitHook__.srcPostHookCall(
+            SrcPostHookCallParams(
+                _connector1,
+                payload,
+                bytes(""),
+                TransferInfo(_raju, amount, payload)
+            )
         );
-        assertEq(payloadData, payload, "extra data incorrect");
+        assertEq(transferInfo.data, payload, "extra data incorrect");
     }
 
     function testFullBurnLimitReplenish() external {
