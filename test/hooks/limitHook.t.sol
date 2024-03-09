@@ -47,7 +47,6 @@ contract TestLimitHook is Test {
 
         limitHook__ = new LimitHook(_admin, controller__);
         _token = new MintableToken("Moon", "MOON", 18);
-~
         _token.mint(_admin, _initialSupply);
         _token.mint(_raju, _rajuInitialBal);
 
