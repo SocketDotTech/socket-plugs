@@ -2,28 +2,10 @@ pragma solidity 0.8.13;
 
 import "../Base.sol";
 
-contract SuperBridgeController is Base {
+contract TokenController is Base {
     uint256 public totalMinted;
 
-    // connectorPoolId => totalLockedAmount
-    mapping(uint256 => uint256) public poolLockedAmounts;
-
-    // connector => connectorPoolId
-    mapping(address => uint256) public connectorPoolIds;
-
     constructor(address token_) Base(token_) {}
-
-    function updateConnectorPoolId(
-        address[] calldata connectors,
-        uint256[] calldata poolIds
-    ) external onlyOwner {
-        uint256 length = connectors.length;
-        for (uint256 i; i < length; i++) {
-            if (poolIds[i] == 0) revert InvalidPoolId();
-            connectorPoolIds[connectors[i]] = poolIds[i];
-            emit ConnectorPoolIdUpdated(connectors[i], poolIds[i]);
-        }
-    }
 
     // limits on assets or shares?
     function bridge(
@@ -34,21 +16,25 @@ contract SuperBridgeController is Base {
         bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
-        TransferInfo memory transferInfo = _beforeBridge(
-            connector_,
-            TransferInfo(receiver_, amount_, execPayload_)
-        );
+        (
+            TransferInfo memory transferInfo,
+            bytes memory postHookData
+        ) = _beforeBridge(
+                connector_,
+                TransferInfo(receiver_, amount_, execPayload_)
+            );
+
         // to maintain socket dl specific accounting for super token
+        // re check this logic for mint and mint use cases and if other minter involved
         totalMinted -= transferInfo.amount;
-
         _burn(msg.sender, transferInfo.amount);
-
-        uint256 connectorPoolId = connectorPoolIds[connector_];
-        if (connectorPoolId == 0) revert InvalidPoolId();
-
-        poolLockedAmounts[connectorPoolId] -= transferInfo.amount; // underflow revert expected
-
-        _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
+        _afterBridge(
+            msgGasLimit_,
+            connector_,
+            options_,
+            postHookData,
+            transferInfo
+        );
     }
 
     function _burn(address user_, uint256 burnAmount_) internal virtual {
@@ -79,10 +65,6 @@ contract SuperBridgeController is Base {
             transferInfo
         );
 
-        uint256 connectorPoolId = connectorPoolIds[msg.sender];
-        if (connectorPoolId == 0) revert InvalidPoolId();
-
-        poolLockedAmounts[connectorPoolId] += transferInfo.amount;
         IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 

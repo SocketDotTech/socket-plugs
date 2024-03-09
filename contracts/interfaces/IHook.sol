@@ -16,12 +16,16 @@ interface IHook {
     // / @return extradata The updated extradata.
     function srcPreHookCall(
         SrcPreHookCallParams calldata srcPreHookCallParams_
-    ) external returns (TransferInfo memory transferInfo);
+    )
+        external
+        returns (
+            TransferInfo memory transferInfo,
+            bytes memory postSrcHookData
+        );
 
     function srcPostHookCall(
-        bytes memory payload_,
-        bytes memory options_
-    ) external returns (bytes memory data);
+        SrcPostHookCallParams calldata srcPostHookCallParams_
+    ) external returns (TransferInfo memory transferInfo);
 
     // /**
     //  * @dev This function calls the dstPreHookCall function of the connector contract,

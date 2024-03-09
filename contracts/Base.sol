@@ -70,13 +70,16 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     function _beforeBridge(
         address connector_,
         TransferInfo memory transferInfo_
-    ) internal returns (TransferInfo memory transferInfo) {
+    )
+        internal
+        returns (TransferInfo memory transferInfo, bytes memory postHookData)
+    {
         if (transferInfo_.receiver == address(0)) revert ZeroAddressReceiver();
         if (transferInfo_.amount == 0) revert ZeroAmount();
         if (!validConnectors[connector_]) revert InvalidConnector();
 
         if (address(hook__) != address(0)) {
-            transferInfo = hook__.srcPreHookCall(
+            (transferInfo, postHookData) = hook__.srcPreHookCall(
                 SrcPreHookCallParams(connector_, msg.sender, transferInfo_)
             );
         }
@@ -85,13 +88,19 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     function _afterBridge(
         uint256 msgGasLimit_,
         address connector_,
-        bytes calldata options_,
+        bytes memory options_,
+        bytes memory postSrcHookData_,
         TransferInfo memory transferInfo_
     ) internal {
+        TransferInfo memory transferInfo = transferInfo_;
         if (address(hook__) != address(0)) {
-            transferInfo_.data = hook__.srcPostHookCall(
-                transferInfo_.data,
-                options_
+            transferInfo = hook__.srcPostHookCall(
+                SrcPostHookCallParams(
+                    connector_,
+                    options_,
+                    postSrcHookData_,
+                    transferInfo_
+                )
             );
         }
 
@@ -101,10 +110,10 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         }(
             msgGasLimit_,
             abi.encode(
-                transferInfo_.receiver,
-                transferInfo_.amount,
+                transferInfo.receiver,
+                transferInfo.amount,
                 messageId,
-                transferInfo_.data
+                transferInfo.data
             ),
             options_
         );
@@ -113,8 +122,8 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         emit TokensWithdrawn(
             connector_,
             msg.sender,
-            transferInfo_.receiver,
-            transferInfo_.amount,
+            transferInfo.receiver,
+            transferInfo.amount,
             messageId
         );
     }
@@ -148,9 +157,9 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     }
 
     function _afterMint(
-        uint256 lockAmount_,
-        bytes32 messageId_,
-        bytes memory postHookData_,
+        uint256,
+        bytes32 messageId,
+        bytes memory postHookData,
         TransferInfo memory transferInfo_
     ) internal {
         if (address(hook__) != address(0)) {

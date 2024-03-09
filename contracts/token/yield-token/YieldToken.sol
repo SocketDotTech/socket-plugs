@@ -21,6 +21,7 @@ contract YieldToken is YieldTokenBase {
         _grantRole(CONTROLLER_ROLE, controller_);
     }
 
+    // move to hook
     // fix to round up and check other cases
     function calculateMintAmount(
         uint256 assets_
@@ -35,11 +36,12 @@ contract YieldToken is YieldTokenBase {
 
     function burn(
         address user_,
-        uint256 asset_
-    ) external nonReentrant onlyRole(CONTROLLER_ROLE) returns (uint256 asset) {
-        _burn(user_, asset_);
+        uint256 shares_
+    ) external nonReentrant onlyRole(CONTROLLER_ROLE) returns (uint256 assets) {
+        _burn(user_, shares_);
     }
 
+    // minter role
     function mint(
         address receiver_,
         uint256 amount_
@@ -52,6 +54,7 @@ contract YieldToken is YieldTokenBase {
         _mint(receiver_, amount_);
     }
 
+    // hook role
     function updateYield(uint256 amount_) external onlyRole(CONTROLLER_ROLE) {
         _updateYield(amount_);
     }
