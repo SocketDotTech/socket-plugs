@@ -2,7 +2,7 @@ pragma solidity 0.8.13;
 
 import "../Base.sol";
 
-contract SuperBridgeController is Base {
+contract BridgeController is Base {
     uint256 public totalMinted;
 
     // connectorPoolId => totalLockedAmount

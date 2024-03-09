@@ -85,7 +85,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     function _afterBridge(
         uint256 msgGasLimit_,
         address connector_,
-        bytes calldata options_,
+        bytes memory options_,
         TransferInfo memory transferInfo_
     ) internal {
         if (address(hook__) != address(0)) {
@@ -148,7 +148,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     }
 
     function _afterMint(
-        uint256 lockAmount,
+        uint256,
         bytes32 messageId,
         bytes memory postHookData,
         TransferInfo memory transferInfo_

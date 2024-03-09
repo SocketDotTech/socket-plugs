@@ -2,7 +2,7 @@ pragma solidity 0.8.13;
 
 import "../Base.sol";
 
-contract SuperTokenController is Base {
+contract TokenController is Base {
     uint256 public totalMinted;
 
     constructor(address token_) Base(token_) {}
@@ -20,10 +20,10 @@ contract SuperTokenController is Base {
             connector_,
             TransferInfo(receiver_, amount_, execPayload_)
         );
+
         // to maintain socket dl specific accounting for super token
         // re check this logic for mint and mint use cases and if other minter involved
         totalMinted -= transferInfo.amount;
-
         _burn(msg.sender, transferInfo.amount);
         _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
     }

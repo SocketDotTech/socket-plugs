@@ -11,12 +11,29 @@ import {IConnector} from "../ConnectorPlug.sol";
 import "./plugins/LimitPlugin.sol";
 import "./plugins/ExecutionHelper.sol";
 
+interface IYieldToken {
+    function updateYield(uint256 amount_) external;
+
+    function mint(address user_, uint256 amount_) external returns (uint256);
+
+    function burn(address user_, uint256 amount_) external returns (uint256);
+
+    function calculateMintAmount(uint256 amount_) external returns (uint256);
+
+    function convertToShares(uint256 assets) external view returns (uint256);
+}
+
 contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
 
     uint256 public constant MAX_BPS = 10_000;
-    IMintableERC20 public immutable asset__;
+    IYieldToken public immutable asset__;
+
+    uint256 public totalYield;
+    // connector => total yield
+    mapping(address => uint256) public siblingTotalYield;
+    mapping(address => uint256) public lastSyncTimestamp;
 
     // if true, no funds can be invested in the strategy
     bool public emergencyShutdown;
@@ -32,7 +49,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         address asset_,
         address controller_
     ) HookBase(msg.sender, controller_) {
-        asset__ = IMintableERC20(asset_);
+        asset__ = IYieldToken(asset_);
     }
 
     /**
@@ -43,6 +60,9 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     ) external isVaultOrToken returns (TransferInfo memory) {
+        if (params_.transferInfo.amount > siblingTotalYield[params_.connector])
+            revert InsufficientFunds();
+
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         return params_.transferInfo;
     }
@@ -51,7 +71,15 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         bytes memory options_,
         bytes memory payload_
     ) external returns (bytes memory) {
-        return abi.encode(abi.decode(options_, (bool)), payload_);
+        (bool pullFromStrategy, address connector, uint256 assets) = abi.decode(
+            options_,
+            (bool, address, uint256)
+        );
+        totalYield -= assets;
+        siblingTotalYield[connector] -= assets;
+        asset__.updateYield(totalYield);
+
+        return abi.encode(pullFromStrategy, payload_);
     }
 
     /**
@@ -65,10 +93,21 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
-            params_.connector,
+        uint256 sharesToMint = asset__.calculateMintAmount(
             params_.transferInfo.amount
         );
+        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
+            params_.connector,
+            sharesToMint
+        );
+
+        (uint256 newYield, ) = abi.decode(
+            params_.transferInfo.data,
+            (uint256, bytes)
+        );
+
+        totalYield = totalYield + newYield - siblingTotalYield[msg.sender];
+        siblingTotalYield[msg.sender] = newYield;
 
         postHookData = abi.encode(consumedAmount, pendingAmount);
         transferInfo = params_.transferInfo;
@@ -82,8 +121,10 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) external isVaultOrToken returns (CacheData memory cacheData) {
+        asset__.updateYield(totalYield);
+
         bytes memory execPayload = params_.transferInfo.data;
-        (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
+        (, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
             (uint256, uint256)
         );
@@ -159,12 +200,8 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
             TransferInfo memory transferInfo
         )
     {
-        (
-            address receiver,
-            uint256 pendingMint,
-            address connector,
-            bytes memory execPayload
-        ) = abi.decode(
+        (address receiver, uint256 pendingMint, address connector, ) = abi
+            .decode(
                 params_.cacheData.identifierCache,
                 (address, uint256, address, bytes)
             );
