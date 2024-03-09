@@ -248,7 +248,7 @@ const deployNonAppChainContracts = async (
     if (pc.nativeVaultChains?.includes(deployParams.currentChainSlug)) {
       vault = await getOrDeploy(
         SuperBridgeContracts.NativeVaultWithPayload,
-        "contracts/superbridge/Vault.sol",
+        "contracts/superbridge/payload/NativeVaultWithPayload.sol",
         [],
         deployParams
       );
@@ -258,7 +258,7 @@ const deployNonAppChainContracts = async (
 
       vault = await getOrDeploy(
         SuperBridgeContracts.ERC20VaultWithPayload,
-        "contracts/superbridge/Vault.sol",
+        "contracts/superbridge/payload/ERC20VaultWithPayload.sol",
         [deployParams.addresses[SuperBridgeContracts.NonMintableToken]],
         deployParams
       );

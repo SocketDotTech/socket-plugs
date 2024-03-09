@@ -43,7 +43,7 @@ export const main = async () => {
     const socketSigner = getSignerFromChainSlug(srcChain);
 
     const vault: Contract = (
-      await getInstance(SuperBridgeContracts.Vault, vaultAddr)
+      await getInstance(SuperBridgeContracts.ERC20VaultWithPayload, vaultAddr)
     ).connect(socketSigner);
     const tokenContract: Contract = (
       await getInstance("ERC20", tokenAddr)
@@ -80,6 +80,7 @@ export const main = async () => {
       amountBN,
       gasLimit,
       connectorAddr,
+      utils.arrayify("0x"),
       { ...overrides[srcChain], value: fees }
     );
     console.log("Tokens deposited: ", depositTx.hash);

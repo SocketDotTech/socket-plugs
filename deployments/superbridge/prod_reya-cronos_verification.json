@@ -13,7 +13,7 @@
     [
       "0xEC5b7075F581D46983EBe2Be6baB0f58Bf1E8C4b",
       "ERC20VaultWithPayload",
-      "contracts/superbridge/Vault.sol",
+      "contracts/superbridge/payload/ERC20VaultWithPayload.sol",
       ["0xD9edcC943ed9729B08E52Bb1e110FE43d1930773"]
     ]
   ],
@@ -31,7 +31,7 @@
     [
       "0x85314b664cB2e443C93F09EDb51088f76b048212",
       "ERC20VaultWithPayload",
-      "contracts/superbridge/Vault.sol",
+      "contracts/superbridge/payload/ERC20VaultWithPayload.sol",
       ["0x8537307810fC40F4073A12a38554D4Ff78EfFf41"]
     ]
   ],
@@ -49,7 +49,7 @@
     [
       "0x8487daa5864a5cE18E5a89406c11EC748da33fbB",
       "ERC20VaultWithPayload",
-      "contracts/superbridge/Vault.sol",
+      "contracts/superbridge/payload/ERC20VaultWithPayload.sol",
       ["0x565810cbfa3Cf1390963E5aFa2fB953795686339"]
     ]
   ],
@@ -67,7 +67,7 @@
     [
       "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
       "ERC20VaultWithPayload",
-      "contracts/superbridge/Vault.sol",
+      "contracts/superbridge/payload/ERC20VaultWithPayload.sol",
       ["0x6D290609b3F5F02D52F28d97C75a443ED8564cBf"]
     ]
   ],
