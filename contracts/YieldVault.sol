@@ -14,7 +14,8 @@ contract YieldVault is Vault {
             msgGasLimit_,
             connector_,
             options_,
-            TransferInfo(address(0), 0, 0)
+            bytes(""),
+            TransferInfo(address(0), 0, bytes(""))
         );
     }
 }

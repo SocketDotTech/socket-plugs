@@ -65,25 +65,26 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    ) external isVaultOrToken returns (TransferInfo memory) {
+    ) external isVaultOrToken returns (TransferInfo memory, bytes memory) {
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         totalIdle += params_.transferInfo.amount;
-        return params_.transferInfo;
+        return (params_.transferInfo, bytes(""));
     }
 
     function srcPostHookCall(
         SrcPostHookCallParams memory srcPostHookCallParams_
     ) external returns (TransferInfo memory transferInfo) {
         _checkDelayAndRebalance();
+        uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
+
         transferInfo = srcPostHookCallParams_.transferInfo;
-
         if (srcPostHookCallParams_.transferInfo.amount == 0) {
-            transferInfo.data = abi.encode(totalYield, bytes(""));
+            transferInfo.data = abi.encode(expectedReturn, bytes(""));
         } else {
-            uint256 expectedReturn = strategy.estimatedTotalAssets() +
-                totalIdle;
-
-            transferInfo.data = abi.encode(expectedReturn, payload_);
+            transferInfo.data = abi.encode(
+                expectedReturn,
+                srcPostHookCallParams_.transferInfo.data
+            );
         }
     }
 

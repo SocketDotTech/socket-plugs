@@ -65,10 +65,13 @@ contract Vault is Base {
         bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
-        TransferInfo memory transferInfo = _beforeBridge(
-            connector_,
-            TransferInfo(receiver_, amount_, execPayload_)
-        );
+        (
+            TransferInfo memory transferInfo,
+            bytes memory postHookData
+        ) = _beforeBridge(
+                connector_,
+                TransferInfo(receiver_, amount_, execPayload_)
+            );
 
         ERC20(token).safeTransferFrom(
             msg.sender,
@@ -76,7 +79,13 @@ contract Vault is Base {
             transferInfo.amount
         );
 
-        _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
+        _afterBridge(
+            msgGasLimit_,
+            connector_,
+            options_,
+            postHookData,
+            transferInfo
+        );
     }
 
     /**

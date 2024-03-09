@@ -129,7 +129,7 @@ contract TestSuperTokenLimits is Test {
 
         vm.startPrank(vaultOrToken__);
         vm.expectRevert(Gauge.AmountOutsideLimit.selector);
-        limitHook__.srcHookCall(
+        limitHook__.srcPreHookCall(
             _raju,
             withdrawAmount,
             _siblingSlug1,

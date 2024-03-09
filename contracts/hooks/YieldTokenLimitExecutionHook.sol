@@ -59,18 +59,22 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    ) external isVaultOrToken returns (TransferInfo memory transferInfo, bytes memory postSrcHookData) {        
+    )
+        external
+        isVaultOrToken
+        returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
+    {
         if (params_.transferInfo.amount > siblingTotalYield[params_.connector])
             revert InsufficientFunds();
 
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         postSrcHookData = abi.encode(params_.transferInfo.amount);
 
-        uint256 shares = asset__.convertToShares(shares_);
+        uint256 shares = asset__.convertToShares(params_.transferInfo.amount);
         totalYield -= shares;
-        siblingTotalYield[connector] -= shares;
+        siblingTotalYield[params_.connector] -= shares;
 
-        transferInfo = params_.transferInfo
+        transferInfo = params_.transferInfo;
         transferInfo.amount = shares;
     }
 
@@ -79,8 +83,14 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     ) external returns (TransferInfo memory transferInfo) {
         asset__.updateYield(totalYield);
         transferInfo.receiver = srcPostHookCallParams_.transferInfo.receiver;
-        transferInfo.data = abi.encode(srcPostHookCallParams_.options, srcPostHookCallParams_.transferInfo.data);
-        transferInfo.amount = abi.decode(srcPostHookCallParams_.postSrcHookData, (uint256));
+        transferInfo.data = abi.encode(
+            srcPostHookCallParams_.options,
+            srcPostHookCallParams_.transferInfo.data
+        );
+        transferInfo.amount = abi.decode(
+            srcPostHookCallParams_.postSrcHookData,
+            (uint256)
+        );
     }
 
     /**
@@ -98,11 +108,15 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
             params_.transferInfo.data,
             (uint256, bytes)
         );
-        
-        totalYield = totalYield + newYield - siblingTotalYield[params_.connector];
+
+        totalYield =
+            totalYield +
+            newYield -
+            siblingTotalYield[params_.connector];
         siblingTotalYield[params_.connector] = newYield;
 
-        if(params_.transferInfo.amount == 0) return (abi.encode(0,0), transferInfo);
+        if (params_.transferInfo.amount == 0)
+            return (abi.encode(0, 0), transferInfo);
 
         uint256 sharesToMint = asset__.calculateMintAmount(
             params_.transferInfo.amount
@@ -111,7 +125,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
             params_.connector,
             sharesToMint
         );
-       
+
         postHookData = abi.encode(consumedShares, pendingAmount);
         transferInfo = params_.transferInfo;
         transferInfo.amount = consumedShares;

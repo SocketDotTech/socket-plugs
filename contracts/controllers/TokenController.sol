@@ -16,16 +16,25 @@ contract TokenController is Base {
         bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
-        TransferInfo memory transferInfo = _beforeBridge(
-            connector_,
-            TransferInfo(receiver_, amount_, execPayload_)
-        );
+        (
+            TransferInfo memory transferInfo,
+            bytes memory postHookData
+        ) = _beforeBridge(
+                connector_,
+                TransferInfo(receiver_, amount_, execPayload_)
+            );
 
         // to maintain socket dl specific accounting for super token
         // re check this logic for mint and mint use cases and if other minter involved
         totalMinted -= transferInfo.amount;
         _burn(msg.sender, transferInfo.amount);
-        _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
+        _afterBridge(
+            msgGasLimit_,
+            connector_,
+            options_,
+            postHookData,
+            transferInfo
+        );
     }
 
     function _burn(address user_, uint256 burnAmount_) internal virtual {

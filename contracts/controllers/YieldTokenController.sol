@@ -14,9 +14,6 @@ interface IYieldToken {
     function convertToShares(uint256 assets) external view returns (uint256);
 }
 
-share: _balanceOf()
-underlying: balanceOf()
-
 contract YieldTokenController is Base {
     uint256 public totalMinted;
 
@@ -36,10 +33,13 @@ contract YieldTokenController is Base {
         bytes calldata options_
     ) external payable nonReentrant {
         // limits on shares
-        TransferInfo memory transferInfo = _beforeBridge(
-            connector_,
-            TransferInfo(receiver_, amount_, execPayload_)
-        );
+        (
+            TransferInfo memory transferInfo,
+            bytes memory postHookData
+        ) = _beforeBridge(
+                connector_,
+                TransferInfo(receiver_, amount_, execPayload_)
+            );
 
         // to maintain socket dl specific accounting for super token
         // re check this logic for mint and mint use cases and if other minter involved
@@ -50,6 +50,7 @@ contract YieldTokenController is Base {
             msgGasLimit_,
             connector_,
             options_,
+            postHookData,
             transferInfo
         );
     }

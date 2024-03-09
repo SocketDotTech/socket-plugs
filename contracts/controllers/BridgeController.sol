@@ -34,10 +34,13 @@ contract BridgeController is Base {
         bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
-        TransferInfo memory transferInfo = _beforeBridge(
-            connector_,
-            TransferInfo(receiver_, amount_, execPayload_)
-        );
+        (
+            TransferInfo memory transferInfo,
+            bytes memory postHookData
+        ) = _beforeBridge(
+                connector_,
+                TransferInfo(receiver_, amount_, execPayload_)
+            );
 
         // to maintain socket dl specific accounting for super token
         totalMinted -= transferInfo.amount;
@@ -47,7 +50,13 @@ contract BridgeController is Base {
         if (connectorPoolId == 0) revert InvalidPoolId();
         poolLockedAmounts[connectorPoolId] -= amount_; // underflow revert expected
 
-        _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
+        _afterBridge(
+            msgGasLimit_,
+            connector_,
+            options_,
+            postHookData,
+            transferInfo
+        );
     }
 
     // receive inbound assuming connector called

@@ -70,13 +70,16 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     function _beforeBridge(
         address connector_,
         TransferInfo memory transferInfo_
-    ) internal returns (TransferInfo memory transferInfo) {
+    )
+        internal
+        returns (TransferInfo memory transferInfo, bytes memory postHookData)
+    {
         if (transferInfo_.receiver == address(0)) revert ZeroAddressReceiver();
         if (transferInfo_.amount == 0) revert ZeroAmount();
         if (!validConnectors[connector_]) revert InvalidConnector();
 
         if (address(hook__) != address(0)) {
-            transferInfo = hook__.srcPreHookCall(
+            (transferInfo, postHookData) = hook__.srcPreHookCall(
                 SrcPreHookCallParams(connector_, msg.sender, transferInfo_)
             );
         }
@@ -89,9 +92,15 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         bytes memory postSrcHookData_,
         TransferInfo memory transferInfo_
     ) internal {
+        TransferInfo memory transferInfo = transferInfo_;
         if (address(hook__) != address(0)) {
-            TransferInfo memory transferInfo = hook__.srcPostHookCall(
-                SrcPostHookCallParams(options_, postSrcHookData_, transferInfo_)
+            transferInfo = hook__.srcPostHookCall(
+                SrcPostHookCallParams(
+                    connector_,
+                    options_,
+                    postSrcHookData_,
+                    transferInfo_
+                )
             );
         }
 

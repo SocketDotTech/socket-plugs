@@ -20,16 +20,15 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    ) external isVaultOrToken returns (TransferInfo memory) {
+    ) external isVaultOrToken returns (TransferInfo memory, bytes memory) {
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
-        return params_.transferInfo;
+        return (params_.transferInfo, bytes(""));
     }
 
     function srcPostHookCall(
-        bytes memory payload_,
-        bytes memory options_
-    ) external returns (bytes memory) {
-        return payload_;
+        SrcPostHookCallParams memory params_
+    ) external pure returns (TransferInfo memory) {
+        return params_.transferInfo;
     }
 
     // /**
