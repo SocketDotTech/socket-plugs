@@ -112,6 +112,6 @@ abstract contract LimitPlugin is Gauge, HookBase {
         (consumedAmount, pendingAmount) = _consumePartLimit(
             amount_,
             _receivingLimitParams[connector_]
-        ); // Reverts on limit hit
+        );
     }
 }

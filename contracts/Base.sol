@@ -158,8 +158,8 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
 
     function _afterMint(
         uint256,
-        bytes32 messageId,
-        bytes memory postHookData,
+        bytes32 messageId_,
+        bytes memory postHookData_,
         TransferInfo memory transferInfo_
     ) internal {
         if (address(hook__) != address(0)) {
@@ -167,12 +167,12 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
                 DstPostHookCallParams(
                     msg.sender,
                     connectorCache[msg.sender],
-                    postHookData,
+                    postHookData_,
                     transferInfo_
                 )
             );
 
-            identifierCache[messageId] = cacheData.identifierCache;
+            identifierCache[messageId_] = cacheData.identifierCache;
             connectorCache[msg.sender] = cacheData.connectorCache;
         }
     }

@@ -27,7 +27,7 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory params_
-    ) external pure returns (TransferInfo memory) {
+    ) external isVaultOrToken returns (TransferInfo memory) {
         return params_.transferInfo;
     }
 
@@ -83,53 +83,29 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
             (uint256, uint256)
         );
 
-        uint256 connectorPendingAmount = abi.decode(
-            params_.connectorCache,
-            (uint256)
+        uint256 connectorPendingAmount = _getConnectorPendingAmount(
+            params_.connectorCache
         );
-        if (pendingAmount > 0) {
-            cacheData.connectorCache = abi.encode(
-                connectorPendingAmount + pendingAmount
-            );
-            // if pending amount is more than 0, payload is cached
+        cacheData.connectorCache = abi.encode(
+            connectorPendingAmount + pendingAmount
+        );
+        cacheData.identifierCache = abi.encode(
+            params_.transferInfo.receiver,
+            pendingAmount,
+            params_.connector,
+            execPayload
+        );
+
+        if (pendingAmount == 0) {
             if (execPayload.length > 0) {
-                cacheData.identifierCache = abi.encode(
+                // execute
+                bool success = _execute(
                     params_.transferInfo.receiver,
-                    pendingAmount,
-                    params_.connector,
                     execPayload
                 );
-            } else {
-                cacheData.identifierCache = abi.encode(
-                    params_.transferInfo.receiver,
-                    pendingAmount,
-                    params_.connector,
-                    bytes("")
-                );
-            }
 
-            // emit TokensPending(
-            //     siblingChainSlug_,
-            //     receiver_,
-            //     pendingAmount,
-            //     pendingMints[siblingChainSlug_][receiver_][identifier],
-            //     identifier
-            // );
-        } else if (execPayload.length > 0) {
-            // execute
-            bool success = _execute(params_.transferInfo.receiver, execPayload);
-
-            if (success) cacheData.identifierCache = new bytes(0);
-            else {
-                cacheData.identifierCache = abi.encode(
-                    params_.transferInfo.receiver,
-                    0,
-                    params_.connector,
-                    execPayload
-                );
-            }
-
-            cacheData.connectorCache = params_.connectorCache;
+                if (success) cacheData.identifierCache = new bytes(0);
+            } else cacheData.identifierCache = new bytes(0);
         }
     }
 
@@ -200,28 +176,34 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
         (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
             .decode(params_.postRetryHookData, (address, uint256, uint256));
 
-        if (pendingAmount == 0 && receiver != address(0)) {
+        uint256 connectorPendingAmount = _getConnectorPendingAmount(
+            params_.cacheData.connectorCache
+        );
+
+        cacheData.connectorCache = abi.encode(
+            connectorPendingAmount - consumedAmount
+        );
+        cacheData.identifierCache = abi.encode(
+            receiver,
+            pendingAmount,
+            connector,
+            execPayload
+        );
+        if (pendingAmount == 0) {
             // receiver is not an input from user, can receiver check
             // no connector check required here, as already done in preRetryHook call in same tx
 
             // execute
             bool success = _execute(receiver, execPayload);
             if (success) cacheData.identifierCache = new bytes(0);
-            else
-                cacheData.identifierCache = abi.encode(
-                    receiver,
-                    0,
-                    connector,
-                    execPayload
-                );
         }
-        uint256 connectorPendingAmount = abi.decode(
-            params_.cacheData.connectorCache,
-            (uint256)
-        );
+    }
 
-        cacheData.connectorCache = abi.encode(
-            connectorPendingAmount - consumedAmount
-        );
+    function _getConnectorPendingAmount(
+        bytes memory connectorCache_
+    ) internal view returns (uint256) {
+        if (connectorCache_.length > 0) {
+            return abi.decode(connectorCache_, (uint256));
+        } else return 0;
     }
 }

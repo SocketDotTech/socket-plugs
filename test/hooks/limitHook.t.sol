@@ -6,8 +6,9 @@ import "../mocks/MintableToken.sol";
 // import "../../contracts/supertoken/SuperToken.sol";
 import "../mocks/MockSocket.sol";
 import "../../contracts/hooks/LimitHook.sol";
+import "forge-std/console.sol";
 
-contract TestSuperTokenLimits is Test {
+contract TestLimitHook is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
@@ -24,11 +25,11 @@ contract TestSuperTokenLimits is Test {
     uint256 constant _bootstrapTime = 100;
     uint256 constant _initialSupply = 100000;
     uint256 constant _rajuInitialBal = 1000;
-
+    mapping(address => bytes) connectorCache;
     MintableToken _token;
     LimitHook limitHook__;
     address _socket;
-    address vaultOrToken__;
+    address controller__;
     uint32 _siblingSlug;
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
@@ -40,13 +41,12 @@ contract TestSuperTokenLimits is Test {
         vm.startPrank(_admin);
 
         _socket = address(uint160(_c++));
-        vaultOrToken__ = address(uint160(_c++));
+        controller__ = address(uint160(_c++));
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
-        limitHook__ = new LimitHook(_admin, vaultOrToken__);
+        limitHook__ = new LimitHook(_admin, controller__);
         _token = new MintableToken("Moon", "MOON", 18);
-
         _token.mint(_admin, _initialSupply);
         _token.mint(_raju, _rajuInitialBal);
 
@@ -115,7 +115,7 @@ contract TestSuperTokenLimits is Test {
         limitHook__.updateLimitParams(u);
     }
 
-    function testSrcHookCallLimitHit() external {
+    function testsrcPreHookCallLimitHit() external {
         uint256 withdrawAmount = 201 ether;
         _setLimits();
         assertTrue(
@@ -127,20 +127,19 @@ contract TestSuperTokenLimits is Test {
         deal(address(_token), _raju, withdrawAmount, true);
         deal(_raju, _fees);
 
-        vm.startPrank(vaultOrToken__);
+        vm.startPrank(controller__);
         vm.expectRevert(Gauge.AmountOutsideLimit.selector);
         limitHook__.srcPreHookCall(
-            _raju,
-            withdrawAmount,
-            _siblingSlug1,
-            _connector1,
-            address(_raju),
-            bytes("")
+            SrcPreHookCallParams(
+                _connector1,
+                address(_raju),
+                TransferInfo(_raju, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
 
-    function testSrcHookCallSender() external {
+    function testsrcPreHookCallSender() external {
         _setLimits();
 
         uint256 withdrawAmount = 10 ether;
@@ -150,18 +149,17 @@ contract TestSuperTokenLimits is Test {
 
         vm.startPrank(_admin);
         vm.expectRevert(NotAuthorized.selector);
-        limitHook__.srcHookCall(
-            _raju,
-            withdrawAmount,
-            _otherSiblingSlug,
-            _otherConnector,
-            address(_raju),
-            bytes("")
+        limitHook__.srcPreHookCall(
+            SrcPreHookCallParams(
+                _otherConnector,
+                address(_raju),
+                TransferInfo(_raju, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
 
-    function testSrcHookCallSiblingNotSupported() external {
+    function testsrcPreHookCallSiblingNotSupported() external {
         _setLimits();
 
         uint256 withdrawAmount = 10 ether;
@@ -169,21 +167,20 @@ contract TestSuperTokenLimits is Test {
         deal(address(_token), _raju, dealAmount);
         deal(_raju, _fees);
 
-        vm.startPrank(vaultOrToken__);
+        vm.startPrank(controller__);
 
         vm.expectRevert(SiblingNotSupported.selector);
-        limitHook__.srcHookCall(
-            _raju,
-            withdrawAmount,
-            _otherSiblingSlug,
-            _otherConnector,
-            address(_raju),
-            bytes("")
+        limitHook__.srcPreHookCall(
+            SrcPreHookCallParams(
+                _otherConnector,
+                address(_raju),
+                TransferInfo(_raju, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
 
-    function testSrcHookCall() external {
+    function testsrcPreHookCall() external {
         _setLimits();
         uint256 withdrawAmount = 10 ether;
 
@@ -198,18 +195,16 @@ contract TestSuperTokenLimits is Test {
 
         bytes memory payload = abi.encode(_raju, withdrawAmount);
 
-        vm.startPrank(vaultOrToken__);
+        vm.startPrank(controller__);
         (
-            address updatedReceiver,
-            uint256 updatedAmount,
-            bytes memory updatedExtraData
-        ) = limitHook__.srcHookCall(
-                _raju,
-                withdrawAmount,
-                _siblingSlug1,
-                _connector1,
-                address(_raju),
-                payload
+            TransferInfo memory transferInfo,
+            bytes memory postSrcHookData
+        ) = limitHook__.srcPreHookCall(
+                SrcPreHookCallParams(
+                    _connector1,
+                    address(_raju),
+                    TransferInfo(_raju, withdrawAmount, payload)
+                )
             );
         vm.stopPrank();
 
@@ -219,419 +214,319 @@ contract TestSuperTokenLimits is Test {
 
         assertEq(
             burnLimitAfter,
-            burnLimitBefore - withdrawAmount,
+            burnLimitBefore - transferInfo.amount,
             "burn limit sus"
         );
-        assertEq(updatedReceiver, _raju, "receiver incorrect");
-        assertEq(updatedAmount, withdrawAmount, "amount incorrect");
-        assertEq(updatedExtraData, payload, "extra data incorrect");
+        assertEq(_raju, transferInfo.receiver, "receiver incorrect");
+        assertEq(withdrawAmount, transferInfo.amount, "amount incorrect");
+        assertEq(transferInfo.data, payload, "extra data incorrect");
     }
 
-    // function testFullBurnLimitReplenish() external {
-    //     _setLimits();
+    function testsrcPostHookCall() external {
+        uint256 amount = 10 ether;
+        bytes memory payload = abi.encode(_raju, amount);
+        vm.startPrank(controller__);
+        TransferInfo memory transferInfo = limitHook__.srcPostHookCall(
+            SrcPostHookCallParams(
+                _connector1,
+                payload,
+                bytes(""),
+                TransferInfo(_raju, amount, payload)
+            )
+        );
+        assertEq(transferInfo.data, payload, "extra data incorrect");
+    }
 
-    //     uint256 usedLimit = 30 ether;
-    //     uint256 time = 100;
-    //     deal(_raju, _fees);
-    //     vm.prank(address(superTokenPlug));
-    //     _token.inbound(_siblingSlug1, abi.encode(_raju, usedLimit, bytes32(0)));
+    function testFullBurnLimitReplenish() external {
+        _setLimits();
 
-    //     bytes32 messageId = bytes32(
-    //         (uint256(_siblingSlug) << 224) |
-    //             (uint256(uint160(address(0))) << 64) |
-    //             (0)
-    //     );
-    //     bytes memory payload = abi.encode(_raju, usedLimit, messageId);
-    //     vm.startPrank(_raju);
-    //     vm.mockCall(
-    //         _socket,
-    //         abi.encodeCall(ISocket.globalMessageCount, ()),
-    //         abi.encode(0)
-    //     );
-    //     vm.mockCall(
-    //         _socket,
-    //         _fees,
-    //         abi.encodeCall(
-    //             ISocket.outbound,
-    //             (_siblingSlug1, _msgGasLimit, bytes32(0), bytes32(0), payload)
-    //         ),
-    //         abi.encode(messageId)
-    //     );
-    //     vm.expectCall(
-    //         _socket,
-    //         _fees,
-    //         abi.encodeCall(
-    //             ISocket.outbound,
-    //             (_siblingSlug1, _msgGasLimit, bytes32(0), bytes32(0), payload)
-    //         )
-    //     );
+        uint256 withdrawAmount = 30 ether;
+        uint256 time = 100;
 
-    //     _token.bridge{value: _fees}(
-    //         _raju,
-    //         _siblingSlug1,
-    //         usedLimit,
-    //         _msgGasLimit,
-    //         bytes("")
-    //     );
-    //     vm.stopPrank();
+        bytes memory payload = abi.encode(_raju, withdrawAmount);
+        vm.startPrank(controller__);
 
-    //     uint256 burnLimitBefore = limitHook__.getCurrentSendingLimit(_connector1);
+        limitHook__.srcPreHookCall(
+            SrcPreHookCallParams(
+                _connector1,
+                address(_raju),
+                TransferInfo(_raju, withdrawAmount, payload)
+            )
+        );
+        vm.stopPrank();
 
-    //     assertTrue(burnLimitBefore < _burnMaxLimit, "full limit avail");
-    //     assertTrue(
-    //         burnLimitBefore + time * _burnRate > _burnMaxLimit,
-    //         "not enough time"
-    //     );
+        uint256 burnLimitBefore = limitHook__.getCurrentSendingLimit(
+            _connector1
+        );
 
-    //     skip(time);
+        assertTrue(burnLimitBefore < _burnMaxLimit, "full limit avail");
+        assertTrue(
+            burnLimitBefore + time * _burnRate > _burnMaxLimit,
+            "not enough time"
+        );
 
-    //     uint256 burnLimitAfter = limitHook__.getCurrentSendingLimit(_connector1);
-    //     assertEq(burnLimitAfter, _burnMaxLimit, "burn limit sus");
-    // }
+        skip(time);
 
-    // function testFullConsumeInboundReceive() external {
-    //     _setLimits();
-    //     uint256 depositAmount = 2 ether;
-    //     deal(address(_token), address(_token), depositAmount, true);
+        uint256 burnLimitAfter = limitHook__.getCurrentSendingLimit(
+            _connector1
+        );
+        assertEq(burnLimitAfter, _burnMaxLimit, "burn limit sus");
+    }
 
-    //     uint256 totalSupplyBefore = _token.totalSupply();
-    //     uint256 rajuBalBefore = _token.balanceOf(_raju);
-    //     uint256 pendingMintsBefore = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsBefore = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-    //     uint256 mintLimitBefore = limitHook__.getCurrentReceivingLimit(
-    //         _siblingSlug1
-    //     );
+    function testFullConsumeDstCall() external {
+        _setLimits();
+        uint256 depositAmount = 2 ether;
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = limitHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(_raju, depositAmount, bytes(""))
+                )
+            );
 
-    //     assertTrue(depositAmount <= mintLimitBefore, "limit hit");
+        assertEq(transferInfo.amount, depositAmount, "depositAmount sus");
+        assertEq(transferInfo.receiver, _raju, "raju address sus");
 
-    //     vm.prank(address(superTokenPlug));
-    //     _token.inbound(
-    //         _siblingSlug1,
-    //         abi.encode(_raju, depositAmount, bytes32(""))
-    //     );
+        assertEq(
+            postHookData,
+            abi.encode(depositAmount, 0),
+            "postHookData sus"
+        );
+        vm.startPrank(controller__);
+        CacheData memory cacheData = limitHook__.dstPostHookCall(
+            DstPostHookCallParams(
+                _connector1,
+                bytes(""),
+                postHookData,
+                TransferInfo(_raju, depositAmount, bytes(""))
+            )
+        );
 
-    //     uint256 totalSupplyAfter = _token.totalSupply();
-    //     uint256 rajuBalAfter = _token.balanceOf(_raju);
-    //     uint256 pendingMintsAfter = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsAfter = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-    //     uint256 mintLimitAfter = limitHook__.getCurrentReceivingLimit(_siblingSlug1);
+        assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
+        assertEq(cacheData.connectorCache, bytes(""), "connectorCache sus");
+    }
 
-    //     assertEq(
-    //         totalSupplyAfter,
-    //         totalSupplyBefore + depositAmount,
-    //         "total minted sus"
-    //     );
-    //     assertEq(
-    //         rajuBalAfter,
-    //         rajuBalBefore + depositAmount,
-    //         "raju balance sus"
-    //     );
-    //     assertEq(pendingMintsAfter, pendingMintsBefore, "pending mints sus");
-    //     assertEq(
-    //         siblingPendingMintsAfter,
-    //         siblingPendingMintsBefore,
-    //         "total pending amount sus"
-    //     );
-    //     assertEq(
-    //         mintLimitAfter,
-    //         mintLimitBefore - depositAmount,
-    //         "mint limit sus"
-    //     );
-    // }
+    function testPartConsumeDstCall() external {
+        _setLimits();
+        uint256 depositAmount = 110 ether;
 
-    // function testPartConsumeInboundReceive() external {
-    //     _setLimits();
-    //     uint256 depositAmount = 110 ether;
-    //     deal(address(_token), address(_token), depositAmount, true);
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = limitHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(_raju, depositAmount, bytes(""))
+                )
+            );
+        assertTrue(depositAmount > _mintMaxLimit, "deposit amount not enough");
+        assertEq(transferInfo.amount, _mintMaxLimit, "depositAmount sus");
 
-    //     uint256 totalSupplyBefore = _token.totalSupply();
-    //     uint256 rajuBalBefore = _token.balanceOf(_raju);
-    //     uint256 pendingMintsBefore = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsBefore = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-    //     uint256 mintLimitBefore = limitHook__.getCurrentReceivingLimit(
-    //         _siblingSlug1
-    //     );
+        uint256 pendingAmount = depositAmount - _mintMaxLimit;
+        assertEq(
+            postHookData,
+            abi.encode(_mintMaxLimit, pendingAmount),
+            "postHookData sus"
+        );
+        vm.startPrank(controller__);
+        CacheData memory cacheData = limitHook__.dstPostHookCall(
+            DstPostHookCallParams(
+                _connector1,
+                bytes(""),
+                postHookData,
+                TransferInfo(_raju, depositAmount, bytes(""))
+            )
+        );
 
-    //     assertTrue(mintLimitBefore > 0, "no mint limit available");
-    //     assertTrue(depositAmount > mintLimitBefore, "mint not partial");
+        assertEq(
+            cacheData.identifierCache,
+            abi.encode(_raju, pendingAmount),
+            "identifierCache sus"
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(pendingAmount),
+            "connectorCache sus"
+        );
+    }
 
-    //     vm.prank(address(superTokenPlug));
-    //     _token.inbound(
-    //         _siblingSlug1,
-    //         abi.encode(_raju, depositAmount, bytes32(0), bytes(""))
-    //     );
+    function testPartConsumeDstCallConnectorCache() external {
+        _setLimits();
+        uint256 depositAmount = 110 ether;
+        uint256 pendingAmount = depositAmount - _mintMaxLimit;
+        uint256 connectorPendingAmountBefore = 10 ether;
+        bytes memory connectorCacheBefore = abi.encode(
+            connectorPendingAmountBefore
+        );
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = limitHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(_raju, depositAmount, bytes(""))
+                )
+            );
 
-    //     uint256 totalSupplyAfter = _token.totalSupply();
-    //     uint256 rajuBalAfter = _token.balanceOf(_raju);
-    //     uint256 pendingMintsAfter = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsAfter = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-    //     uint256 mintLimitAfter = limitHook__.getCurrentReceivingLimit(_siblingSlug1);
+        CacheData memory cacheData = limitHook__.dstPostHookCall(
+            DstPostHookCallParams(
+                _connector1,
+                connectorCacheBefore,
+                postHookData,
+                TransferInfo(_raju, depositAmount, bytes(""))
+            )
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(pendingAmount + connectorPendingAmountBefore),
+            "connectorCache sus"
+        );
+    }
 
-    //     assertEq(
-    //         totalSupplyAfter,
-    //         totalSupplyBefore + mintLimitBefore,
-    //         "total minted sus"
-    //     );
-    //     assertEq(
-    //         rajuBalAfter,
-    //         rajuBalBefore + mintLimitBefore,
-    //         "raju balance sus"
-    //     );
-    //     assertEq(
-    //         pendingMintsAfter,
-    //         pendingMintsBefore + depositAmount - mintLimitBefore,
-    //         "pending mints sus"
-    //     );
-    //     assertEq(
-    //         siblingPendingMintsAfter,
-    //         siblingPendingMintsBefore + depositAmount - mintLimitBefore,
-    //         "total pending amount sus"
-    //     );
-    //     assertEq(mintLimitAfter, 0, "mint limit sus");
-    // }
+    function testFullConsumeRetryHookCall() external {
+        _setLimits();
+        uint256 pendingAmount = 2 ether;
+        vm.startPrank(controller__);
+        (
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
+        ) = limitHook__.preRetryHook(
+                PreRetryHookCallParams(
+                    _connector1,
+                    CacheData(
+                        abi.encode(_raju, pendingAmount),
+                        abi.encode(pendingAmount)
+                    )
+                )
+            );
 
-    // function testPartMintLimitReplenish() external {
-    //     _setLimits();
+        assertEq(
+            postRetryHookData,
+            abi.encode(_raju, pendingAmount, 0),
+            "postHookData sus"
+        );
+        assertEq(transferInfo.receiver, _raju, "raju address sus");
+        assertEq(transferInfo.amount, pendingAmount, "pending amount sus");
+        assertEq(transferInfo.data, bytes(""), "raju address sus");
 
-    //     uint256 usedLimit = 20 ether;
-    //     uint256 time = 10;
-    //     deal(address(_token), address(_token), usedLimit, true);
+        // test 0 connector pendingAmount afterwards
+        CacheData memory cacheData = limitHook__.postRetryHook(
+            PostRetryHookCallParams(
+                _connector1,
+                postRetryHookData,
+                CacheData(
+                    abi.encode(_raju, pendingAmount),
+                    abi.encode(pendingAmount)
+                )
+            )
+        );
 
-    //     vm.prank(address(superTokenPlug));
-    //     _token.inbound(
-    //         _siblingSlug1,
-    //         abi.encode(_raju, usedLimit, bytes32(0), bytes(""))
-    //     );
+        assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
+        assertEq(cacheData.connectorCache, abi.encode(0), "connectorCache sus");
 
-    //     uint256 mintLimitBefore = limitHook__.getCurrentReceivingLimit(
-    //         _siblingSlug1
-    //     );
+        // test non 0 connector pendingAmount afterwards
+        cacheData = limitHook__.postRetryHook(
+            PostRetryHookCallParams(
+                _connector1,
+                postRetryHookData,
+                CacheData(
+                    abi.encode(_raju, pendingAmount),
+                    abi.encode(pendingAmount + 10 ether)
+                )
+            )
+        );
 
-    //     assertTrue(mintLimitBefore < _mintMaxLimit, "full limit avail");
-    //     assertTrue(
-    //         mintLimitBefore + time * _mintRate < _mintMaxLimit,
-    //         "too much time"
-    //     );
+        assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(10 ether),
+            "connectorCache sus"
+        );
+    }
 
-    //     skip(time);
+    function testPartConsumeRetryHookCall() external {
+        _setLimits();
+        uint256 pendingAmount = 200 ether;
+        uint256 connectorAlreadyPendingAmount = 100 ether;
+        vm.startPrank(controller__);
+        (
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
+        ) = limitHook__.preRetryHook(
+                PreRetryHookCallParams(
+                    _connector1,
+                    CacheData(
+                        abi.encode(_raju, pendingAmount),
+                        abi.encode(
+                            pendingAmount + connectorAlreadyPendingAmount
+                        )
+                    )
+                )
+            );
 
-    //     uint256 mintLimitAfter = limitHook__.getCurrentReceivingLimit(_siblingSlug1);
-    //     assertEq(
-    //         mintLimitAfter,
-    //         mintLimitBefore + time * _mintRate,
-    //         "mint limit sus"
-    //     );
-    // }
+        assertEq(
+            postRetryHookData,
+            abi.encode(_raju, _mintMaxLimit, pendingAmount - _mintMaxLimit),
+            "postHookData sus"
+        );
+        assertEq(transferInfo.receiver, _raju, "raju address sus");
+        assertEq(transferInfo.amount, _mintMaxLimit, "pending amount sus");
+        assertEq(transferInfo.data, bytes(""), "raju address sus");
 
-    // function testFullMintLimitReplenish() external {
-    //     _setLimits();
+        // test 0 connector pendingAmount before
+        CacheData memory cacheData = limitHook__.postRetryHook(
+            PostRetryHookCallParams(
+                _connector1,
+                postRetryHookData,
+                CacheData(
+                    abi.encode(_raju, pendingAmount),
+                    abi.encode(pendingAmount)
+                )
+            )
+        );
 
-    //     uint256 usedLimit = 20 ether;
-    //     uint256 time = 100;
-    //     deal(address(_token), address(_token), usedLimit, true);
-    //     vm.prank(address(superTokenPlug));
-    //     _token.inbound(
-    //         _siblingSlug1,
-    //         abi.encode(_raju, usedLimit, bytes32(0), bytes(""))
-    //     );
+        assertEq(
+            cacheData.identifierCache,
+            abi.encode(_raju, pendingAmount - _mintMaxLimit),
+            "identifierCache sus"
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(pendingAmount - _mintMaxLimit),
+            "connectorCache sus"
+        );
 
-    //     uint256 mintLimitBefore = limitHook__.getCurrentReceivingLimit(
-    //         _siblingSlug1
-    //     );
+        // test non 0 connector pendingAmount before
+        cacheData = limitHook__.postRetryHook(
+            PostRetryHookCallParams(
+                _connector1,
+                postRetryHookData,
+                CacheData(
+                    abi.encode(_raju, pendingAmount),
+                    abi.encode(pendingAmount + connectorAlreadyPendingAmount)
+                )
+            )
+        );
 
-    //     assertTrue(mintLimitBefore < _mintMaxLimit, "full limit avail");
-    //     assertTrue(
-    //         mintLimitBefore + time * _mintRate > _mintMaxLimit,
-    //         "not enough time"
-    //     );
-
-    //     skip(time);
-
-    //     uint256 mintLimitAfter = limitHook__.getCurrentReceivingLimit(_siblingSlug1);
-    //     assertEq(mintLimitAfter, _mintMaxLimit, "mint limit sus");
-    // }
-
-    // function testFullConsumeMintPending() external {
-    //     _setLimits();
-
-    //     uint256 depositAmount = 120 ether;
-    //     uint256 time = 200;
-
-    //     vm.prank(address(superTokenPlug));
-    //     _token.inbound(
-    //         _siblingSlug1,
-    //         abi.encode(_raju, depositAmount, bytes32(0), bytes(""))
-    //     );
-
-    //     uint256 totalSupplyBefore = _token.totalSupply();
-    //     uint256 rajuBalBefore = _token.balanceOf(_raju);
-    //     uint256 pendingMintsBefore = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsBefore = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-
-    //     assertEq(
-    //         totalSupplyBefore,
-    //         _mintMaxLimit + _initialSupply,
-    //         "total minted before sus"
-    //     );
-    //     assertEq(
-    //         rajuBalBefore,
-    //         _mintMaxLimit + _rajuInitialBal,
-    //         "raju bal before sus"
-    //     );
-    //     assertEq(
-    //         pendingMintsBefore,
-    //         depositAmount - _mintMaxLimit,
-    //         "pending mint before sus"
-    //     );
-    //     assertEq(
-    //         siblingPendingMintsBefore,
-    //         depositAmount - _mintMaxLimit,
-    //         "total pending mint before sus"
-    //     );
-    //     assertTrue(
-    //         time * _mintRate > depositAmount - _mintMaxLimit,
-    //         "not enough time"
-    //     );
-
-    //     skip(time);
-    //     _token.mintPendingFor(_raju, _siblingSlug1, bytes32(0));
-
-    //     uint256 totalSupplyAfter = _token.totalSupply();
-    //     uint256 rajuBalAfter = _token.balanceOf(_raju);
-    //     uint256 pendingMintsAfter = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsAfter = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-
-    //     assertEq(
-    //         totalSupplyAfter,
-    //         depositAmount + _initialSupply,
-    //         "total minted after sus"
-    //     );
-    //     assertEq(
-    //         rajuBalAfter,
-    //         depositAmount + _rajuInitialBal,
-    //         "raju bal after sus"
-    //     );
-    //     assertEq(pendingMintsAfter, 0, "pending mint after sus");
-    //     assertEq(siblingPendingMintsAfter, 0, "total pending mint after sus");
-    // }
-
-    // function testPartConsumeMintPending() external {
-    //     _setLimits();
-    //     uint256 depositAmount = 120 ether;
-    //     uint256 time = 5;
-    //     deal(address(_token), address(_token), depositAmount, true);
-
-    //     vm.prank(address(superTokenPlug));
-    //     _token.inbound(
-    //         _siblingSlug1,
-    //         abi.encode(_raju, depositAmount, bytes32(0), bytes(""))
-    //     );
-
-    //     uint256 totalSupplyBefore = _token.totalSupply();
-    //     uint256 rajuBalBefore = _token.balanceOf(_raju);
-    //     uint256 pendingMintsBefore = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsBefore = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-    //     uint256 newMint = time * _mintRate;
-
-    //     assertEq(
-    //         totalSupplyBefore,
-    //         _mintMaxLimit + _initialSupply + depositAmount,
-    //         "total minted before sus"
-    //     );
-    //     assertEq(
-    //         rajuBalBefore,
-    //         _mintMaxLimit + _rajuInitialBal,
-    //         "raju bal before sus"
-    //     );
-    //     assertEq(
-    //         pendingMintsBefore,
-    //         depositAmount - _mintMaxLimit,
-    //         "pending mint before sus"
-    //     );
-    //     assertEq(
-    //         siblingPendingMintsBefore,
-    //         depositAmount - _mintMaxLimit,
-    //         "total pending mint before sus"
-    //     );
-    //     assertTrue(depositAmount - _mintMaxLimit > 0, "what to mint?");
-
-    //     assertTrue(newMint < depositAmount - _mintMaxLimit, "too much time");
-
-    //     skip(time);
-    //     _token.mintPendingFor(_raju, _siblingSlug1, bytes32(0));
-
-    //     uint256 totalSupplyAfter = _token.totalSupply();
-    //     uint256 rajuBalAfter = _token.balanceOf(_raju);
-    //     uint256 pendingMintsAfter = _token.pendingMints(
-    //         _siblingSlug1,
-    //         _raju,
-    //         bytes32(0)
-    //     );
-    //     uint256 siblingPendingMintsAfter = _token.siblingPendingMints(
-    //         _siblingSlug1
-    //     );
-
-    //     assertEq(
-    //         totalSupplyAfter,
-    //         _mintMaxLimit + newMint + _initialSupply + depositAmount,
-    //         "total minted after sus"
-    //     );
-    //     assertEq(
-    //         rajuBalAfter,
-    //         _mintMaxLimit + newMint + _rajuInitialBal,
-    //         "raju bal after sus"
-    //     );
-    //     assertEq(
-    //         pendingMintsAfter,
-    //         depositAmount - _mintMaxLimit - newMint,
-    //         "pending mint after sus"
-    //     );
-    //     assertEq(
-    //         siblingPendingMintsAfter,
-    //         depositAmount - _mintMaxLimit - newMint,
-    //         "total pending mint after sus"
-    //     );
-    // }
+        assertEq(
+            cacheData.identifierCache,
+            abi.encode(_raju, pendingAmount - _mintMaxLimit),
+            "identifierCache sus"
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(
+                pendingAmount + connectorAlreadyPendingAmount - _mintMaxLimit
+            ),
+            "connectorCache sus"
+        );
+    }
 }
