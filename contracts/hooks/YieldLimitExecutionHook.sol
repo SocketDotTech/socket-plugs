@@ -72,13 +72,19 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
     }
 
     function srcPostHookCall(
-        bytes memory payload_,
-        bytes memory options_
-    ) external returns (bytes memory) {
+        SrcPostHookCallParams memory srcPostHookCallParams_
+    ) external returns (TransferInfo memory transferInfo) {
         _checkDelayAndRebalance();
-        uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
+        transferInfo = srcPostHookCallParams_.transferInfo;
 
-        return abi.encode(expectedReturn, payload_);
+        if (srcPostHookCallParams_.transferInfo.amount == 0) {
+            transferInfo.data = abi.encode(totalYield, bytes(""));
+        } else {
+            uint256 expectedReturn = strategy.estimatedTotalAssets() +
+                totalIdle;
+
+            transferInfo.data = abi.encode(expectedReturn, payload_);
+        }
     }
 
     /**

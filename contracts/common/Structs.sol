@@ -10,6 +10,13 @@ struct UpdateLimitParams {
 struct SrcPreHookCallParams {
     address connector;
     address msgSender;
+    bytes postSrcHookData;
+    TransferInfo transferInfo;
+}
+
+struct SrcPostHookCallParams {
+    bytes options;
+    bytes postSrcHookData;
     TransferInfo transferInfo;
 }
 

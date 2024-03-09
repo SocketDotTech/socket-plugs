@@ -38,21 +38,16 @@ contract BridgeController is Base {
             connector_,
             TransferInfo(receiver_, amount_, execPayload_)
         );
+
         // to maintain socket dl specific accounting for super token
         totalMinted -= transferInfo.amount;
-
         _burn(msg.sender, transferInfo.amount);
 
         uint256 connectorPoolId = connectorPoolIds[connector_];
         if (connectorPoolId == 0) revert InvalidPoolId();
-
-        poolLockedAmounts[connectorPoolId] -= transferInfo.amount; // underflow revert expected
+        poolLockedAmounts[connectorPoolId] -= amount_; // underflow revert expected
 
         _afterBridge(msgGasLimit_, connector_, options_, transferInfo);
-    }
-
-    function _burn(address user_, uint256 burnAmount_) internal virtual {
-        IMintableERC20(token).burn(user_, burnAmount_);
     }
 
     // receive inbound assuming connector called
@@ -82,11 +77,12 @@ contract BridgeController is Base {
         uint256 connectorPoolId = connectorPoolIds[msg.sender];
         if (connectorPoolId == 0) revert InvalidPoolId();
 
-        poolLockedAmounts[connectorPoolId] += transferInfo.amount;
-        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
+        poolLockedAmounts[connectorPoolId] += lockAmount;
+        _mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
+
         emit TokensMinted(
             msg.sender,
             transferInfo.receiver,
@@ -103,9 +99,19 @@ contract BridgeController is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
+
+        _mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
         _afterRetry(connector_, messageId_, postRetryHookData);
+    }
+
+    function _burn(address user_, uint256 burnAmount_) internal virtual {
+        IMintableERC20(token).burn(user_, burnAmount_);
+    }
+
+    function _mint(address user_, uint256 mintAmount_) internal virtual {
+        if (mintAmount_ == 0) return;
+        IMintableERC20(token).mint(user_, mintAmount_);
     }
 }

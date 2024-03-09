@@ -86,12 +86,12 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         uint256 msgGasLimit_,
         address connector_,
         bytes memory options_,
+        bytes memory postSrcHookData_,
         TransferInfo memory transferInfo_
     ) internal {
         if (address(hook__) != address(0)) {
-            transferInfo_.data = hook__.srcPostHookCall(
-                transferInfo_.data,
-                options_
+            TransferInfo memory transferInfo = hook__.srcPostHookCall(
+                SrcPostHookCallParams(options_, postSrcHookData_, transferInfo_)
             );
         }
 
@@ -101,10 +101,10 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         }(
             msgGasLimit_,
             abi.encode(
-                transferInfo_.receiver,
-                transferInfo_.amount,
+                transferInfo.receiver,
+                transferInfo.amount,
                 messageId,
-                transferInfo_.data
+                transferInfo.data
             ),
             options_
         );
@@ -113,8 +113,8 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         emit TokensWithdrawn(
             connector_,
             msg.sender,
-            transferInfo_.receiver,
-            transferInfo_.amount,
+            transferInfo.receiver,
+            transferInfo.amount,
             messageId
         );
     }

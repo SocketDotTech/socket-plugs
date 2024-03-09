@@ -59,27 +59,28 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    ) external isVaultOrToken returns (TransferInfo memory) {
+    ) external isVaultOrToken returns (TransferInfo memory transferInfo, bytes memory postSrcHookData) {        
         if (params_.transferInfo.amount > siblingTotalYield[params_.connector])
             revert InsufficientFunds();
 
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
-        return params_.transferInfo;
+        postSrcHookData = abi.encode(params_.transferInfo.amount);
+
+        uint256 shares = asset__.convertToShares(shares_);
+        totalYield -= shares;
+        siblingTotalYield[connector] -= shares;
+
+        transferInfo = params_.transferInfo
+        transferInfo.amount = shares;
     }
 
     function srcPostHookCall(
-        bytes memory options_,
-        bytes memory payload_
-    ) external returns (bytes memory) {
-        (bool pullFromStrategy, address connector, uint256 assets) = abi.decode(
-            options_,
-            (bool, address, uint256)
-        );
-        totalYield -= assets;
-        siblingTotalYield[connector] -= assets;
+        SrcPostHookCallParams memory srcPostHookCallParams_
+    ) external returns (TransferInfo memory transferInfo) {
         asset__.updateYield(totalYield);
-
-        return abi.encode(pullFromStrategy, payload_);
+        transferInfo.receiver = srcPostHookCallParams_.transferInfo.receiver;
+        transferInfo.data = abi.encode(srcPostHookCallParams_.options, srcPostHookCallParams_.transferInfo.data);
+        transferInfo.amount = abi.decode(srcPostHookCallParams_.postSrcHookData, (uint256));
     }
 
     /**
@@ -93,25 +94,27 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        uint256 sharesToMint = asset__.calculateMintAmount(
-            params_.transferInfo.amount
-        );
-        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
-            params_.connector,
-            sharesToMint
-        );
-
         (uint256 newYield, ) = abi.decode(
             params_.transferInfo.data,
             (uint256, bytes)
         );
+        
+        totalYield = totalYield + newYield - siblingTotalYield[params_.connector];
+        siblingTotalYield[params_.connector] = newYield;
 
-        totalYield = totalYield + newYield - siblingTotalYield[msg.sender];
-        siblingTotalYield[msg.sender] = newYield;
+        if(params_.transferInfo.amount == 0) return (abi.encode(0,0), transferInfo);
 
-        postHookData = abi.encode(consumedAmount, pendingAmount);
+        uint256 sharesToMint = asset__.calculateMintAmount(
+            params_.transferInfo.amount
+        );
+        (uint256 consumedShares, uint256 pendingAmount) = _limitDstHook(
+            params_.connector,
+            sharesToMint
+        );
+       
+        postHookData = abi.encode(consumedShares, pendingAmount);
         transferInfo = params_.transferInfo;
-        transferInfo.amount = consumedAmount;
+        transferInfo.amount = consumedShares;
     }
 
     /**

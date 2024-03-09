@@ -14,6 +14,9 @@ interface IYieldToken {
     function convertToShares(uint256 assets) external view returns (uint256);
 }
 
+share: _balanceOf()
+underlying: balanceOf()
+
 contract YieldTokenController is Base {
     uint256 public totalMinted;
 
@@ -41,13 +44,12 @@ contract YieldTokenController is Base {
         // to maintain socket dl specific accounting for super token
         // re check this logic for mint and mint use cases and if other minter involved
         totalMinted -= transferInfo.amount;
+        _burn(msg.sender, transferInfo.amount);
 
-        uint256 asset = _burn(msg.sender, transferInfo.amount);
-        bool pullFromStrategy = abi.decode(options_, (bool));
         _afterBridge(
             msgGasLimit_,
             connector_,
-            abi.encode(pullFromStrategy, connector_, asset),
+            options_,
             transferInfo
         );
     }
@@ -111,6 +113,7 @@ contract YieldTokenController is Base {
     }
 
     function _mint(address user_, uint256 mintAmount_) internal virtual {
+        if (mintAmount_ == 0) return;
         IYieldToken(token).mint(user_, mintAmount_);
     }
 }

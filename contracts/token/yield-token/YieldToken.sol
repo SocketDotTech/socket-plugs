@@ -38,8 +38,7 @@ contract YieldToken is YieldTokenBase {
         address user_,
         uint256 shares_
     ) external nonReentrant onlyRole(CONTROLLER_ROLE) returns (uint256 assets) {
-        assets = convertToShares(shares_);
-        _burn(user_, assets);
+        _burn(user_, shares_);
     }
 
     // minter role
