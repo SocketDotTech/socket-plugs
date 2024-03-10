@@ -635,6 +635,65 @@ contract TestLimitExecutionHook is Test {
         );
     }
 
+    function testPayloadFailPostRetryHookCall() external {
+        // Full Consume
+        uint256 pendingAmount = 2 ether;
+        uint256 connectorAlreadyPendingAmount = 10 ether;
+        uint256 consumedAmount = pendingAmount;
+        uint256 finalPendingAmount = 0;
+        bytes memory payload = abi.encodeWithSignature("failureCall()");
+        bytes memory postRetryHookData = abi.encode(
+            _raju,
+            consumedAmount,
+            finalPendingAmount
+        );
+        CacheData memory cacheData = _postRetryHookCall(
+            postRetryHookData,
+            pendingAmount,
+            connectorAlreadyPendingAmount,
+            payload,
+            true
+        );
+        assertEq(
+            cacheData.identifierCache,
+            abi.encode(_raju, finalPendingAmount, _connector1, payload),
+            "identifierCache sus"
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(connectorAlreadyPendingAmount + finalPendingAmount),
+            "connectorCache sus"
+        );
+
+        // Part consume
+        pendingAmount = 200 ether;
+        connectorAlreadyPendingAmount = 10 ether;
+        consumedAmount = _mintMaxLimit;
+        finalPendingAmount = pendingAmount - _mintMaxLimit;
+        postRetryHookData = abi.encode(
+            _raju,
+            consumedAmount,
+            finalPendingAmount
+        );
+        cacheData = _postRetryHookCall(
+            postRetryHookData,
+            pendingAmount,
+            connectorAlreadyPendingAmount,
+            payload,
+            true
+        );
+        assertEq(
+            cacheData.identifierCache,
+            abi.encode(_raju, finalPendingAmount, _connector1, payload),
+            "identifierCache sus"
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(connectorAlreadyPendingAmount + finalPendingAmount),
+            "connectorCache sus"
+        );
+    }
+
     function _postRetryHookCall(
         bytes memory postRetryHookData_,
         uint256 pendingAmount_,
@@ -645,6 +704,13 @@ contract TestLimitExecutionHook is Test {
         _setLimits();
 
         vm.startPrank(controller__);
+        if (failExecution_) {
+            vm.mockCallRevert(
+                _raju,
+                execPayload_,
+                abi.encode("REVERT_MESSAGE")
+            );
+        }
         cacheData = hook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector1,

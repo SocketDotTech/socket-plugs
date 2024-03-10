@@ -2,6 +2,7 @@ pragma solidity 0.8.13;
 
 import "./plugins/LimitPlugin.sol";
 import "./plugins/ExecutionHelper.sol";
+import "../interfaces/IController.sol";
 
 contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
     /**
@@ -27,7 +28,7 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory params_
-    ) external isVaultOrToken returns (TransferInfo memory) {
+    ) external view isVaultOrToken returns (TransferInfo memory) {
         return params_.transferInfo;
     }
 
@@ -205,5 +206,38 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
         if (connectorCache_.length > 0) {
             return abi.decode(connectorCache_, (uint256));
         } else return 0;
+    }
+
+    function getConnectorPendingAmount(
+        address connector_
+    ) external returns (uint256) {
+        bytes memory cache = IController(controller).connectorCache(connector_);
+        return _getConnectorPendingAmount(cache);
+    }
+
+    function _getIdentifierPendingAmount(
+        bytes memory identifierCache_
+    ) internal view returns (uint256) {
+        if (identifierCache_.length > 0) {
+            (
+                address receiver,
+                uint256 pendingAmount,
+                address connector,
+                bytes memory payload
+            ) = abi.decode(
+                    identifierCache_,
+                    (address, uint256, address, bytes)
+                );
+            return pendingAmount;
+        } else return 0;
+    }
+
+    function getIdentifierPendingAmount(
+        bytes32 messageId_
+    ) external returns (uint256) {
+        bytes memory cache = IController(controller).identifierCache(
+            messageId_
+        );
+        return _getIdentifierPendingAmount(cache);
     }
 }

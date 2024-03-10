@@ -51,7 +51,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(address hook_, bool) external virtual onlyOwner {
+    function updateHook(address hook_) external virtual onlyOwner {
         hook__ = IHook(hook_);
         emit HookUpdated(hook_);
     }
@@ -136,7 +136,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         internal
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        if (!validConnectors[msg.sender]) revert NotMessageBridge();
+        if (!validConnectors[msg.sender]) revert InvalidConnector();
 
         // no need of source check here, as if invalid caller, will revert with InvalidPoolId
         if (
@@ -187,7 +187,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
             TransferInfo memory transferInfo
         )
     {
-        if (!validConnectors[connector_]) revert NotMessageBridge();
+        if (!validConnectors[connector_]) revert InvalidConnector();
 
         CacheData memory cacheData = CacheData(
             identifierCache[messageId_],
