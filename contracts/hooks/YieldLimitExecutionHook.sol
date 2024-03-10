@@ -73,7 +73,7 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory srcPostHookCallParams_
-    ) external returns (TransferInfo memory transferInfo) {
+    ) external isVaultOrToken returns (TransferInfo memory transferInfo) {
         _checkDelayAndRebalance();
         uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
 
@@ -277,35 +277,6 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
 
         cacheData.connectorCache = abi.encode(
             connectorPendingAmount - consumedAmount
-        );
-    }
-
-    // todo: should this be moved out?
-    function syncToAppChain(
-        uint256 msgGasLimit_,
-        address connector_
-    ) external payable nonReentrant notShutdown {
-        _checkDelayAndRebalance();
-        uint256 expectedReturn = strategy.estimatedTotalAssets();
-
-        _depositToAppChain(
-            msgGasLimit_,
-            connector_,
-            abi.encode(address(0), 0, expectedReturn),
-            bytes("")
-        );
-    }
-
-    function _depositToAppChain(
-        uint256 msgGasLimit_,
-        address connector_,
-        bytes memory payload_,
-        bytes memory options_
-    ) internal {
-        IConnector(connector_).outbound{value: msg.value}(
-            msgGasLimit_,
-            payload_,
-            options_
         );
     }
 

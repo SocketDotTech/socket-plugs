@@ -14,10 +14,6 @@ import "./plugins/ExecutionHelper.sol";
 interface IYieldToken {
     function updateYield(uint256 amount_) external;
 
-    function mint(address user_, uint256 amount_) external returns (uint256);
-
-    function burn(address user_, uint256 amount_) external returns (uint256);
-
     function calculateMintAmount(uint256 amount_) external returns (uint256);
 
     function convertToShares(uint256 assets) external view returns (uint256);
@@ -80,7 +76,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory srcPostHookCallParams_
-    ) external returns (TransferInfo memory transferInfo) {
+    ) external isVaultOrToken returns (TransferInfo memory transferInfo) {
         asset__.updateYield(totalYield);
         transferInfo.receiver = srcPostHookCallParams_.transferInfo.receiver;
         transferInfo.data = abi.encode(

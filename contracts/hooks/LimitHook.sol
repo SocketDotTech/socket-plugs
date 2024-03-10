@@ -37,7 +37,7 @@ contract LimitHook is LimitPlugin {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory params_
-    ) external isVaultOrToken returns (TransferInfo memory) {
+    ) external view isVaultOrToken returns (TransferInfo memory) {
         return params_.transferInfo;
     }
 

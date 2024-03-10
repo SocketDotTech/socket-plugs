@@ -100,7 +100,7 @@ contract YieldTokenController is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        IMintableERC20(token).mint(transferInfo.receiver, transferInfo.amount);
+        _mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
         _afterRetry(connector_, messageId_, postRetryHookData);
