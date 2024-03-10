@@ -10,7 +10,8 @@ import {IHook} from "../../interfaces/IHook.sol";
 contract YieldToken is YieldTokenBase {
     using FixedPointMathLib for uint256;
 
-    bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
+    bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 constant HOOK_ROLE = keccak256("HOOK_ROLE");
 
     constructor(
         string memory name_,
@@ -18,7 +19,7 @@ contract YieldToken is YieldTokenBase {
         uint8 decimals_,
         address controller_
     ) YieldTokenBase(name_, symbol_, decimals_) AccessControl(msg.sender) {
-        _grantRole(CONTROLLER_ROLE, controller_);
+        _grantRole(MINTER_ROLE, controller_);
     }
 
     // move to hook
@@ -37,7 +38,7 @@ contract YieldToken is YieldTokenBase {
     function burn(
         address user_,
         uint256 shares_
-    ) external nonReentrant onlyRole(CONTROLLER_ROLE) returns (uint256 assets) {
+    ) external nonReentrant onlyRole(MINTER_ROLE) returns (uint256 assets) {
         _burn(user_, shares_);
     }
 
@@ -48,14 +49,14 @@ contract YieldToken is YieldTokenBase {
     )
         external
         nonReentrant
-        onlyRole(CONTROLLER_ROLE)
+        onlyRole(MINTER_ROLE)
         returns (uint256 sharesToMint)
     {
         _mint(receiver_, amount_);
     }
 
     // hook role
-    function updateYield(uint256 amount_) external onlyRole(CONTROLLER_ROLE) {
+    function updateYield(uint256 amount_) external onlyRole(HOOK_ROLE) {
         _updateYield(amount_);
     }
 
