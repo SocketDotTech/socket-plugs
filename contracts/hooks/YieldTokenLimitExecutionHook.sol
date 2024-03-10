@@ -48,15 +48,13 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         asset__ = IYieldToken(asset_);
     }
 
-    /**
-     * @dev This function calls the srcHookCall function of the connector contract,
-     * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
-     * the updated receiver, amount, and extradata.
-     */
+    // assumed transfer info inputs are validated at controller
+    // transfer info data is untrusted
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     )
         external
+        notShutdown
         isVaultOrToken
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
@@ -76,8 +74,14 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory srcPostHookCallParams_
-    ) external isVaultOrToken returns (TransferInfo memory transferInfo) {
+    )
+        external
+        notShutdown
+        isVaultOrToken
+        returns (TransferInfo memory transferInfo)
+    {
         asset__.updateYield(totalYield);
+
         transferInfo.receiver = srcPostHookCallParams_.transferInfo.receiver;
         transferInfo.data = abi.encode(
             srcPostHookCallParams_.options,
@@ -97,6 +101,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         DstPreHookCallParams calldata params_
     )
         external
+        notShutdown
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
@@ -133,7 +138,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
-    ) external isVaultOrToken returns (CacheData memory cacheData) {
+    ) external notShutdown isVaultOrToken returns (CacheData memory cacheData) {
         asset__.updateYield(totalYield);
 
         bytes memory execPayload = params_.transferInfo.data;
@@ -207,6 +212,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         PreRetryHookCallParams calldata params_
     )
         external
+        notShutdown
         isVaultOrToken
         returns (
             bytes memory postRetryHookData,
@@ -218,7 +224,6 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
                 params_.cacheData.identifierCache,
                 (address, uint256, address, bytes)
             );
-
         if (connector != params_.connector) revert InvalidConnector();
 
         (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
@@ -242,7 +247,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     //  */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
-    ) external isVaultOrToken returns (CacheData memory cacheData) {
+    ) external isVaultOrToken notShutdown returns (CacheData memory cacheData) {
         (
             ,
             uint256 pendingMint,

@@ -93,6 +93,6 @@ contract TokenController is Base {
 
     function _mint(address user_, uint256 mintAmount_) internal virtual {
         if (mintAmount_ == 0) return;
-        IMintableERC20(token).mint(user_, transferInfo.amount);
+        IMintableERC20(token).mint(user_, mintAmount_);
     }
 }
