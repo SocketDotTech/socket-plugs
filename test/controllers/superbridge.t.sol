@@ -614,7 +614,6 @@ abstract contract TestBridgeController is Test {
         _controller.retry(_connector, _messageId);
     }
 
-
     function testFullConsumeMintPending() external {
         address[] memory connectors = new address[](1);
         connectors[0] = _connector;
