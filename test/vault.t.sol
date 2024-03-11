@@ -246,8 +246,9 @@ contract TestVault is Test {
             new bytes(0)
         );
 
-        uint256 msgValue = address(_token) == ETH_ADDRESS ? amount_ + _fees : _fees;
-
+        uint256 msgValue = address(_token) == ETH_ADDRESS
+            ? amount_ + _fees
+            : _fees;
 
         vm.expectCall(
             connector_,
