@@ -81,12 +81,6 @@ contract Controller is Base {
         totalMinted += transferInfo.amount;
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
-        emit TokensMinted(
-            msg.sender,
-            transferInfo.receiver,
-            transferInfo.amount,
-            messageId
-        );
     }
 
     /**
