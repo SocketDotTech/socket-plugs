@@ -24,19 +24,19 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
 
     event ConnectorStatusUpdated(address connector, bool status);
 
-    // emitted when message hook is updated
     event HookUpdated(address newHook);
-    event TokensWithdrawn(
+
+    event BridgingTokens(
         address connector,
-        address withdrawer,
+        address sender,
         address receiver,
-        uint256 burnAmount,
+        uint256 amount,
         bytes32 messageId
     );
-    event TokensMinted(
+    event TokensBridged(
         address connecter,
         address receiver,
-        uint256 mintAmount,
+        uint256 amount,
         bytes32 messageId
     );
 
@@ -152,7 +152,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         );
         if (returnedMessageId != messageId) revert MessageIdMisMatched();
 
-        emit TokensWithdrawn(
+        emit BridgingTokens(
             connector_,
             msg.sender,
             transferInfo.receiver,
@@ -228,6 +228,13 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
             identifierCache[messageId_] = cacheData.identifierCache;
             connectorCache[msg.sender] = cacheData.connectorCache;
         }
+
+        emit TokensBridged(
+            msg.sender,
+            transferInfo_.receiver,
+            transferInfo_.amount,
+            messageId_
+        );
     }
 
     /**
@@ -294,13 +301,6 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         );
         identifierCache[messageId_] = cacheData.identifierCache;
         connectorCache[connector_] = cacheData.connectorCache;
-
-        // emit PendingTokensBridged(
-        //     siblingChainSlug_,
-        //     receiver,
-        //     consumedAmount,
-        //     identifier
-        // );
     }
 
     /**

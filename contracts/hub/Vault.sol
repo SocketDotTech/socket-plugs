@@ -11,35 +11,6 @@ import "solmate/tokens/ERC20.sol";
  */
 contract Vault is Base {
     using SafeTransferLib for ERC20;
-    ////////////////////////////////////////////////////////
-    ////////////////////// EVENTS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    // emitted at source when tokens are bridged to a sibling chain
-    event BridgeTokens(
-        uint32 siblingChainSlug,
-        address withdrawer,
-        address receiver,
-        uint256 bridgedAmount,
-        bytes32 identifier
-    );
-
-    // emitted when pending tokens are minted as limits are replenished
-    event TokensBridged(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 unlockAmount,
-        uint256 totalAmount,
-        bytes32 identifier
-    );
-
-    event PendingTokensBridged(
-        uint32 siblingChainSlug,
-        address receiver,
-        uint256 unlockAmount,
-        // uint256 pendingAmount,
-        bytes32 identifier
-    );
 
     // /**
     //  * @notice constructor for creating a new SuperTokenVault.
@@ -119,12 +90,6 @@ contract Vault is Base {
         _transferTokens(transferInfo.receiver, transferInfo.amount);
 
         _afterMint(unlockAmount, messageId, postHookData, transferInfo);
-        emit TokensMinted(
-            msg.sender,
-            transferInfo.receiver,
-            transferInfo.amount,
-            messageId
-        );
     }
 
     /**
