@@ -7,10 +7,7 @@ import {IStrategy} from "../interfaces/IStrategy.sol";
 import {IMintableERC20} from "../interfaces/IMintableERC20.sol";
 import "solmate/utils/SafeTransferLib.sol";
 import {IConnector} from "../ConnectorPlug.sol";
-
-import "./plugins/LimitPlugin.sol";
-import "./plugins/ExecutionHelper.sol";
-import "./plugins/ConnectorPoolPlugin.sol";
+import "./LimitExecutionHook.sol";
 
 interface IYieldToken {
     function updateYield(uint256 amount_) external;
@@ -21,13 +18,12 @@ interface IYieldToken {
 }
 
 // limits on underlying or visible tokens
-contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
+contract YieldTokenLimitExecutionHook is LimitExecutionHook {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
 
     uint256 public constant MAX_BPS = 10_000;
     IYieldToken public immutable asset__;
-    ExecutionHelper executionHelper__;
 
     // total yield
     uint256 public totalYield;
@@ -47,9 +43,8 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         address asset_,
         address controller_,
         address executionHelper_
-    ) HookBase(msg.sender, controller_) {
+    ) LimitExecutionHook(msg.sender, controller_, executionHelper_, true) {
         asset__ = IYieldToken(asset_);
-        executionHelper__ = ExecutionHelper(executionHelper_);
     }
 
     // assumed transfer info inputs are validated at controller
@@ -57,14 +52,13 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     )
-        external
-        notShutdown
+        public
+        override
         isVaultOrToken
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
+        super.srcPreHookCall(params_);
         uint256 amount = params_.transferInfo.amount;
-        _poolSrcHook(params_.connector, amount);
-        _limitSrcHook(params_.connector, amount);
         postSrcHookData = abi.encode(amount);
 
         totalYield -= amount;
@@ -75,7 +69,8 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function srcPostHookCall(
         SrcPostHookCallParams memory srcPostHookCallParams_
     )
-        external
+        public
+        override
         notShutdown
         isVaultOrToken
         returns (TransferInfo memory transferInfo)
@@ -100,7 +95,8 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function dstPreHookCall(
         DstPreHookCallParams calldata params_
     )
-        external
+        public
+        override
         notShutdown
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
@@ -133,67 +129,9 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
      */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
-    ) external notShutdown isVaultOrToken returns (CacheData memory cacheData) {
+    ) public override notShutdown returns (CacheData memory cacheData) {
         asset__.updateYield(totalYield);
-
-        bytes memory execPayload = params_.transferInfo.data;
-        (, uint256 pendingAmount) = abi.decode(
-            params_.postHookData,
-            (uint256, uint256)
-        );
-
-        uint256 connectorPendingAmount = abi.decode(
-            params_.connectorCache,
-            (uint256)
-        );
-
-        if (pendingAmount > 0) {
-            cacheData.connectorCache = abi.encode(
-                connectorPendingAmount + pendingAmount
-            );
-            // if pending amount is more than 0, payload is cached
-            if (execPayload.length > 0) {
-                cacheData.identifierCache = abi.encode(
-                    params_.transferInfo.receiver,
-                    pendingAmount,
-                    params_.connector,
-                    execPayload
-                );
-            } else {
-                cacheData.identifierCache = abi.encode(
-                    params_.transferInfo.receiver,
-                    pendingAmount,
-                    params_.connector,
-                    bytes("")
-                );
-            }
-
-            // emit TokensPending(
-            //     siblingChainSlug_,
-            //     receiver_,
-            //     pendingAmount,
-            //     pendingMints[siblingChainSlug_][receiver_][identifier],
-            //     identifier
-            // );
-        } else if (execPayload.length > 0) {
-            // execute
-            bool success = executionHelper__.execute(
-                params_.transferInfo.receiver,
-                execPayload
-            );
-
-            if (success) cacheData.identifierCache = new bytes(0);
-            else {
-                cacheData.identifierCache = abi.encode(
-                    params_.transferInfo.receiver,
-                    0,
-                    params_.connector,
-                    execPayload
-                );
-            }
-
-            cacheData.connectorCache = params_.connectorCache;
-        }
+        return super.dstPostHookCall(params_);
     }
 
     // /**
@@ -209,29 +147,17 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function preRetryHook(
         PreRetryHookCallParams calldata params_
     )
-        external
+        public
+        override
         notShutdown
-        isVaultOrToken
         returns (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         )
     {
-        (address receiver, uint256 pendingMint, address connector, ) = abi
-            .decode(
-                params_.cacheData.identifierCache,
-                (address, uint256, address, bytes)
-            );
-        if (connector != params_.connector) revert InvalidConnector();
-
-        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
-            params_.connector,
-            pendingMint
-        );
-        uint256 sharesToMint = asset__.calculateMintAmount(consumedAmount);
-
-        postRetryHookData = abi.encode(consumedAmount, pendingAmount);
-        transferInfo = TransferInfo(receiver, sharesToMint, bytes(""));
+        (postRetryHookData, transferInfo) = super.preRetryHook(params_);
+        uint256 sharesToMint = asset__.calculateMintAmount(transferInfo.amount);
+        transferInfo = TransferInfo(transferInfo.receiver, sharesToMint, bytes(""));
     }
 
     // /**
@@ -246,52 +172,8 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     //  */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
-    ) external isVaultOrToken notShutdown returns (CacheData memory cacheData) {
-        (
-            address receiver,
-            uint256 pendingMint,
-            address connector,
-            bytes memory execPayload
-        ) = abi.decode(
-                params_.cacheData.identifierCache,
-                (address, uint256, address, bytes)
-            );
-
-        (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
-            params_.postRetryHookData,
-            (uint256, uint256)
-        );
-
-        if (pendingAmount == 0 && receiver != address(0)) {
-            // receiver is not an input from user, can receiver check
-            // no connector check required here, as already done in preRetryHook call in same tx
-
-            // execute
-            bool success = executionHelper__.execute(receiver, execPayload);
-            if (success) cacheData.identifierCache = new bytes(0);
-            else
-                cacheData.identifierCache = abi.encode(
-                    receiver,
-                    0,
-                    connector,
-                    execPayload
-                );
-        } else {
-            cacheData.identifierCache = abi.encode(
-                receiver,
-                pendingMint - consumedAmount,
-                connector,
-                execPayload
-            );
-        }
-        uint256 connectorPendingAmount = abi.decode(
-            params_.cacheData.connectorCache,
-            (uint256)
-        );
-
-        cacheData.connectorCache = abi.encode(
-            connectorPendingAmount - consumedAmount
-        );
+    ) public override notShutdown returns (CacheData memory cacheData) {
+        return super.postRetryHook(params_);
     }
 
     function updateEmergencyShutdownState(

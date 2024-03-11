@@ -30,7 +30,12 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    ) external isVaultOrToken returns (TransferInfo memory, bytes memory) {
+    )
+        public
+        virtual
+        isVaultOrToken
+        returns (TransferInfo memory, bytes memory)
+    {
         if (useControllerPools)
             _poolSrcHook(params_.connector, params_.transferInfo.amount);
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
@@ -39,7 +44,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory params_
-    ) external view isVaultOrToken returns (TransferInfo memory) {
+    ) public virtual isVaultOrToken returns (TransferInfo memory) {
         return params_.transferInfo;
     }
 
@@ -59,7 +64,8 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function dstPreHookCall(
         DstPreHookCallParams calldata params_
     )
-        external
+        public
+        virtual
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
@@ -90,7 +96,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     //  */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
-    ) external isVaultOrToken returns (CacheData memory cacheData) {
+    ) public virtual isVaultOrToken returns (CacheData memory cacheData) {
         bytes memory execPayload = params_.transferInfo.data;
 
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
@@ -137,7 +143,8 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function preRetryHook(
         PreRetryHookCallParams calldata params_
     )
-        external
+        public
+        virtual
         isVaultOrToken
         returns (
             bytes memory postRetryHookData,
@@ -177,7 +184,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     //  */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
-    ) external isVaultOrToken returns (CacheData memory cacheData) {
+    ) public virtual isVaultOrToken returns (CacheData memory cacheData) {
         (
             ,
             uint256 pendingMint,

@@ -9,11 +9,9 @@ import "solmate/tokens/ERC20.sol";
 import "solmate/utils/SafeTransferLib.sol";
 import {IConnector} from "../ConnectorPlug.sol";
 
-import "./plugins/LimitPlugin.sol";
-import "./plugins/ExecutionHelper.sol";
-import "./plugins/ConnectorPoolPlugin.sol";
+import "./LimitExecutionHook.sol";
 
-contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
+contract YieldLimitExecutionHook is LimitExecutionHook {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
@@ -21,7 +19,6 @@ contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
 
     IStrategy public strategy; // address of the strategy contract
     ERC20 public immutable asset__;
-    ExecutionHelper executionHelper__;
 
     uint256 public totalLockedInStrategy; // total funds deposited in strategy
 
@@ -32,7 +29,6 @@ contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     uint128 public rebalanceDelay; // Delay between rebalance
     uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
     bool public emergencyShutdown; // if true, no funds can be invested in the strategy
-    bool public useControllerPools;
 
     event WithdrawFromStrategy(uint256 withdrawn);
     event Rebalanced(
@@ -56,14 +52,18 @@ contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         address controller_,
         address executionHelper_,
         bool useControllerPools_
-    ) HookBase(msg.sender, controller_) {
+    )
+        LimitExecutionHook(
+            msg.sender,
+            controller_,
+            executionHelper_,
+            useControllerPools_
+        )
+    {
         asset__ = ERC20(asset_);
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
         strategy = IStrategy(strategy_);
-        executionHelper__ = ExecutionHelper(executionHelper_);
-
-        useControllerPools = useControllerPools_;
     }
 
     /**
@@ -73,23 +73,16 @@ contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    )
-        external
-        notShutdown
-        isVaultOrToken
-        returns (TransferInfo memory, bytes memory)
-    {
-        if (useControllerPools)
-            _poolSrcHook(params_.connector, params_.transferInfo.amount);
-        _limitSrcHook(params_.connector, params_.transferInfo.amount);
+    ) public override notShutdown returns (TransferInfo memory, bytes memory) {
         totalIdle += params_.transferInfo.amount;
-        return (params_.transferInfo, bytes(""));
+        return super.srcPreHookCall(params_);
     }
 
     function srcPostHookCall(
         SrcPostHookCallParams memory srcPostHookCallParams_
     )
-        external
+        public
+        override
         notShutdown
         isVaultOrToken
         returns (TransferInfo memory transferInfo)
@@ -115,81 +108,43 @@ contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function dstPreHookCall(
         DstPreHookCallParams calldata params_
     )
-        external
+        public
+        override
         notShutdown
-        isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        if (useControllerPools)
-            _poolDstHook(params_.connector, params_.transferInfo.amount, true);
-
-        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
-            params_.connector,
-            params_.transferInfo.amount
-        );
+        (postHookData, transferInfo) = super.dstPreHookCall(params_);
 
         // ensure vault have enough idle assets
-        if (consumedAmount > totalAssets()) revert NotEnoughAssets();
-
+        if (transferInfo.amount > totalAssets()) revert NotEnoughAssets();
         (bool pullFromStrategy, bytes memory payload_) = abi.decode(
             params_.transferInfo.data,
             (bool, bytes)
         );
 
-        if (consumedAmount > totalIdle) {
+        if (transferInfo.amount > totalIdle) {
             if (pullFromStrategy) {
-                _withdrawFromStrategy(consumedAmount - totalIdle);
+                _withdrawFromStrategy(transferInfo.amount - totalIdle);
             } else {
-                pendingAmount += totalIdle - consumedAmount;
-                consumedAmount = totalIdle;
+                (, uint256 pendingAmount) = abi.decode(
+                    postHookData,
+                    (uint256, uint256)
+                );
+                pendingAmount += totalIdle - transferInfo.amount;
+                postHookData = abi.encode(transferInfo.amount, pendingAmount);
+                transferInfo.amount = totalIdle;
             }
             totalIdle = 0;
-        } else totalIdle -= consumedAmount;
+        } else totalIdle -= transferInfo.amount;
 
-        postHookData = abi.encode(consumedAmount, pendingAmount);
-        transferInfo.amount = consumedAmount;
         transferInfo.data = payload_;
         transferInfo.receiver = params_.transferInfo.receiver;
     }
 
-    /**
-     * @notice Handles post-hook logic after the execution of a destination hook.
-     * @dev This function processes post-hook data to update the identifier cache and sibling chain cache.
-     */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
-    ) external notShutdown isVaultOrToken returns (CacheData memory cacheData) {
-        bytes memory execPayload = params_.transferInfo.data;
-
-        (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
-            params_.postHookData,
-            (uint256, uint256)
-        );
-
-        uint256 connectorPendingAmount = _getConnectorPendingAmount(
-            params_.connectorCache
-        );
-        cacheData.connectorCache = abi.encode(
-            connectorPendingAmount + pendingAmount
-        );
-        cacheData.identifierCache = abi.encode(
-            params_.transferInfo.receiver,
-            pendingAmount,
-            params_.connector,
-            execPayload
-        );
-
-        if (pendingAmount == 0) {
-            if (execPayload.length > 0) {
-                // execute
-                bool success = executionHelper__.execute(
-                    params_.transferInfo.receiver,
-                    execPayload
-                );
-
-                if (success) cacheData.identifierCache = new bytes(0);
-            } else cacheData.identifierCache = new bytes(0);
-        }
+    ) public override notShutdown returns (CacheData memory cacheData) {
+        return super.dstPostHookCall(params_);
     }
 
     /**
@@ -199,7 +154,8 @@ contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function preRetryHook(
         PreRetryHookCallParams calldata params_
     )
-        external
+        public
+        override
         notShutdown
         isVaultOrToken
         returns (
@@ -207,71 +163,17 @@ contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             TransferInfo memory transferInfo
         )
     {
-        (
-            address receiver,
-            uint256 pendingMint,
-            address connector,
-            bytes memory execPayload
-        ) = abi.decode(
-                params_.cacheData.identifierCache,
-                (address, uint256, address, bytes)
-            );
-        if (connector != params_.connector) revert InvalidConnector();
-
-        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
-            params_.connector,
-            pendingMint
-        );
-
-        postRetryHookData = abi.encode(receiver, consumedAmount, pendingAmount);
-        transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
-        if (consumedAmount > totalIdle) {
-            _withdrawFromStrategy(consumedAmount - totalIdle);
+        (postRetryHookData, transferInfo) = super.preRetryHook(params_);
+        if (transferInfo.amount > totalIdle) {
+            _withdrawFromStrategy(transferInfo.amount - totalIdle);
             totalIdle = 0;
-        } else totalIdle -= consumedAmount;
+        } else totalIdle -= transferInfo.amount;
     }
 
-    /**
-     * @notice Handles post-retry hook logic after execution.
-     * @dev This function updates the identifier cache and sibling chain cache based on the post-hook data.
-     */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
-    ) external notShutdown isVaultOrToken returns (CacheData memory cacheData) {
-        (
-            ,
-            uint256 pendingMint,
-            address connector,
-            bytes memory execPayload
-        ) = abi.decode(
-                params_.cacheData.identifierCache,
-                (address, uint256, address, bytes)
-            );
-
-        (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
-            .decode(params_.postRetryHookData, (address, uint256, uint256));
-
-        uint256 connectorPendingAmount = _getConnectorPendingAmount(
-            params_.cacheData.connectorCache
-        );
-
-        cacheData.connectorCache = abi.encode(
-            connectorPendingAmount - consumedAmount
-        );
-        cacheData.identifierCache = abi.encode(
-            receiver,
-            pendingAmount,
-            connector,
-            execPayload
-        );
-        if (pendingAmount == 0) {
-            // receiver is not an input from user, can receiver check
-            // no connector check required here, as already done in preRetryHook call in same tx
-
-            // execute
-            bool success = executionHelper__.execute(receiver, execPayload);
-            if (success) cacheData.identifierCache = new bytes(0);
-        }
+    ) public override notShutdown returns (CacheData memory cacheData) {
+        return super.postRetryHook(params_);
     }
 
     function withdrawFromStrategy(
