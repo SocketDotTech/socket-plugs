@@ -16,7 +16,8 @@ contract MockYieldBridgeHook is YieldLimitExecutionHook {
             rebalanceDelay_,
             strategy_,
             asset_,
-            controller_
+            controller_,
+            false
         )
     {}
 

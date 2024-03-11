@@ -11,8 +11,13 @@ import {IConnector} from "../ConnectorPlug.sol";
 
 import "./plugins/LimitPlugin.sol";
 import "./plugins/ExecutionHelper.sol";
+import "./plugins/ConnectorPoolPlugin.sol";
 
-contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
+contract YieldLimitExecutionHook is
+    LimitPlugin,
+    ExecutionHelper,
+    ConnectorPoolPlugin
+{
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
@@ -30,6 +35,7 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
     uint128 public rebalanceDelay; // Delay between rebalance
     uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
     bool public emergencyShutdown; // if true, no funds can be invested in the strategy
+    bool public useControllerPools;
 
     event WithdrawFromStrategy(uint256 withdrawn);
     event Rebalanced(
@@ -50,12 +56,15 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
         uint128 rebalanceDelay_,
         address strategy_,
         address asset_,
-        address controller_
+        address controller_,
+        bool useControllerPools_
     ) HookBase(msg.sender, controller_) {
         asset__ = ERC20(asset_);
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
         strategy = IStrategy(strategy_);
+
+        useControllerPools = useControllerPools_;
     }
 
     /**
@@ -71,6 +80,9 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
         isVaultOrToken
         returns (TransferInfo memory, bytes memory)
     {
+        if (useControllerPools)
+            _poolSrcHook(params_.connector, params_.transferInfo.amount);
+
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         totalIdle += params_.transferInfo.amount;
         return (params_.transferInfo, bytes(""));
@@ -110,6 +122,9 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
+        if (useControllerPools)
+            _poolDstHook(params_.connector, params_.transferInfo.amount, true);
+
         (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
             params_.connector,
             params_.transferInfo.amount

@@ -64,7 +64,7 @@ contract YieldTokenLimitExecutionHook is
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
         uint256 amount = params_.transferInfo.amount;
-        _poolSrcHook(amount, params_.connector);
+        _poolSrcHook(params_.connector, amount);
         _limitSrcHook(params_.connector, amount);
         postSrcHookData = abi.encode(amount);
 
@@ -111,7 +111,7 @@ contract YieldTokenLimitExecutionHook is
             (uint256, bytes)
         );
 
-        uint256 oldYield = _poolDstHook(newYield, params_.connector);
+        uint256 oldYield = _poolDstHook(params_.connector, newYield, false);
         totalYield = totalYield + newYield - oldYield;
 
         if (params_.transferInfo.amount == 0)
