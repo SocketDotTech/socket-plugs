@@ -1,6 +1,6 @@
 pragma solidity 0.8.13;
 
-import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "solmate/tokens/ERC20.sol";
 
 // USDC's standard token
 abstract contract IFiatTokenV2_1_Mintable is ERC20 {
