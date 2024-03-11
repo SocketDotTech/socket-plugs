@@ -2,17 +2,27 @@ pragma solidity 0.8.13;
 
 import "./plugins/LimitPlugin.sol";
 import "./plugins/ExecutionHelper.sol";
+import "./plugins/ConnectorPoolPlugin.sol";
 import "../interfaces/IController.sol";
 
-contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
+contract LimitExecutionHook is
+    LimitPlugin,
+    ExecutionHelper,
+    ConnectorPoolPlugin
+{
+    bool public useControllerPools;
+
     /**
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.
      */
     constructor(
         address owner_,
-        address controller_
-    ) HookBase(owner_, controller_) {}
+        address controller_,
+        bool useControllerPools_
+    ) HookBase(owner_, controller_) {
+        useControllerPools = useControllerPools_;
+    }
 
     /**
      * @dev This function calls the srcHookCall function of the connector contract,
@@ -22,6 +32,9 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     ) external isVaultOrToken returns (TransferInfo memory, bytes memory) {
+        if (useControllerPools)
+            _poolSrcHook(params_.connector, params_.transferInfo.amount);
+
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         return (params_.transferInfo, bytes(""));
     }
@@ -52,6 +65,9 @@ contract LimitExecutionHook is LimitPlugin, ExecutionHelper {
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
+        if (useControllerPools)
+            _poolDstHook(params_.connector, params_.transferInfo.amount, true);
+
         (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
             params_.connector,
             params_.transferInfo.amount

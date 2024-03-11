@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
 import "./Base.sol";
-import "./interfaces/IConnector.sol";
+import "../interfaces/IConnector.sol";
 import "solmate/tokens/ERC20.sol";
 
 /**
@@ -137,6 +137,7 @@ contract Vault is Base {
     }
 
     function _transferTokens(address receiver_, uint256 amount_) internal {
+        if (amount_ == 0) return;
         if (address(token) == ETH_ADDRESS) {
             SafeTransferLib.safeTransferETH(receiver_, amount_);
         } else {
@@ -145,8 +146,7 @@ contract Vault is Base {
     }
 
     function _receiveTokens(uint256 amount_) internal {
-        if (address(token) != ETH_ADDRESS) {
-            ERC20(token).safeTransferFrom(msg.sender, address(this), amount_);
-        }
+        if (amount_ == 0 || address(token) == ETH_ADDRESS) return;
+        ERC20(token).safeTransferFrom(msg.sender, address(this), amount_);
     }
 }

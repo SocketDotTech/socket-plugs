@@ -3,14 +3,14 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
-import "../../contracts/controllers/TokenController.sol";
+import "../../contracts/hub/Controller.sol";
 import "../../contracts/common/Errors.sol";
-import "../../contracts/controllers/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
+import "../../contracts/hub/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
 import "../../contracts/hooks/LimitExecutionHook.sol";
 import "forge-std/console.sol";
 import "../../contracts/utils/Gauge.sol";
 
-contract TestSuperTokenController is Test {
+contract TestSuperController is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
@@ -30,7 +30,7 @@ contract TestSuperTokenController is Test {
     uint256 constant _bootstrapTime = 100;
     bool isFiatTokenV2_1;
     ERC20 _token;
-    TokenController _controller;
+    Controller _controller;
 
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
@@ -40,7 +40,7 @@ contract TestSuperTokenController is Test {
         isFiatTokenV2_1 = false;
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
-        _controller = new TokenController(address(_token));
+        _controller = new Controller(address(_token));
         hook__ = new LimitExecutionHook(_admin, address(_controller));
         _controller.updateHook(address(hook__));
         vm.stopPrank();
