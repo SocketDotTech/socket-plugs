@@ -9,7 +9,8 @@ contract MockYieldBridgeHook is YieldLimitExecutionHook {
         uint128 rebalanceDelay_,
         address strategy_,
         address asset_,
-        address controller_
+        address controller_,
+        address executionHelper_
     )
         YieldLimitExecutionHook(
             debtRatio_,
@@ -17,6 +18,7 @@ contract MockYieldBridgeHook is YieldLimitExecutionHook {
             strategy_,
             asset_,
             controller_,
+            executionHelper_,
             false
         )
     {}

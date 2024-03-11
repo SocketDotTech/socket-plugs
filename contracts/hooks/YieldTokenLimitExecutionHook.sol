@@ -21,16 +21,13 @@ interface IYieldToken {
 }
 
 // limits on underlying or visible tokens
-contract YieldTokenLimitExecutionHook is
-    LimitPlugin,
-    ExecutionHelper,
-    ConnectorPoolPlugin
-{
+contract YieldTokenLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
 
     uint256 public constant MAX_BPS = 10_000;
     IYieldToken public immutable asset__;
+    ExecutionHelper executionHelper__;
 
     // total yield
     uint256 public totalYield;
@@ -48,9 +45,11 @@ contract YieldTokenLimitExecutionHook is
 
     constructor(
         address asset_,
-        address controller_
+        address controller_,
+        address executionHelper_
     ) HookBase(msg.sender, controller_) {
         asset__ = IYieldToken(asset_);
+        executionHelper__ = ExecutionHelper(executionHelper_);
     }
 
     // assumed transfer info inputs are validated at controller
@@ -178,7 +177,10 @@ contract YieldTokenLimitExecutionHook is
             // );
         } else if (execPayload.length > 0) {
             // execute
-            bool success = _execute(params_.transferInfo.receiver, execPayload);
+            bool success = executionHelper__.execute(
+                params_.transferInfo.receiver,
+                execPayload
+            );
 
             if (success) cacheData.identifierCache = new bytes(0);
             else {
@@ -265,7 +267,7 @@ contract YieldTokenLimitExecutionHook is
             // no connector check required here, as already done in preRetryHook call in same tx
 
             // execute
-            bool success = _execute(receiver, execPayload);
+            bool success = executionHelper__.execute(receiver, execPayload);
             if (success) cacheData.identifierCache = new bytes(0);
             else
                 cacheData.identifierCache = abi.encode(

@@ -5,12 +5,9 @@ import "./plugins/ExecutionHelper.sol";
 import "./plugins/ConnectorPoolPlugin.sol";
 import "../interfaces/IController.sol";
 
-contract LimitExecutionHook is
-    LimitPlugin,
-    ExecutionHelper,
-    ConnectorPoolPlugin
-{
+contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     bool public useControllerPools;
+    ExecutionHelper executionHelper__;
 
     /**
      * @notice Constructor for creating a new SuperToken.
@@ -19,9 +16,11 @@ contract LimitExecutionHook is
     constructor(
         address owner_,
         address controller_,
+        address executionHelper_,
         bool useControllerPools_
     ) HookBase(owner_, controller_) {
         useControllerPools = useControllerPools_;
+        executionHelper__ = ExecutionHelper(executionHelper_);
     }
 
     /**
@@ -34,7 +33,6 @@ contract LimitExecutionHook is
     ) external isVaultOrToken returns (TransferInfo memory, bytes memory) {
         if (useControllerPools)
             _poolSrcHook(params_.connector, params_.transferInfo.amount);
-
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         return (params_.transferInfo, bytes(""));
     }
@@ -116,7 +114,7 @@ contract LimitExecutionHook is
         if (pendingAmount == 0) {
             if (execPayload.length > 0) {
                 // execute
-                bool success = _execute(
+                bool success = executionHelper__.execute(
                     params_.transferInfo.receiver,
                     execPayload
                 );
@@ -211,17 +209,9 @@ contract LimitExecutionHook is
             // no connector check required here, as already done in preRetryHook call in same tx
 
             // execute
-            bool success = _execute(receiver, execPayload);
+            bool success = executionHelper__.execute(receiver, execPayload);
             if (success) cacheData.identifierCache = new bytes(0);
         }
-    }
-
-    function _getConnectorPendingAmount(
-        bytes memory connectorCache_
-    ) internal view returns (uint256) {
-        if (connectorCache_.length > 0) {
-            return abi.decode(connectorCache_, (uint256));
-        } else return 0;
     }
 
     function getConnectorPendingAmount(

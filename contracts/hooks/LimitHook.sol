@@ -194,14 +194,6 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         }
     }
 
-    function _getConnectorPendingAmount(
-        bytes memory connectorCache_
-    ) internal pure returns (uint256) {
-        if (connectorCache_.length > 0) {
-            return abi.decode(connectorCache_, (uint256));
-        } else return 0;
-    }
-
     function getConnectorPendingAmount(
         address connector_
     ) external returns (uint256) {

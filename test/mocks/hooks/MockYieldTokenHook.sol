@@ -6,8 +6,9 @@ import "../../../contracts/hooks/YieldTokenLimitExecutionHook.sol";
 contract MockYieldTokenHook is YieldTokenLimitExecutionHook {
     constructor(
         address asset_,
-        address controller_
-    ) YieldTokenLimitExecutionHook(asset_, controller_) {}
+        address controller_,
+        address executionHelper_
+    ) YieldTokenLimitExecutionHook(asset_, controller_, executionHelper_) {}
 
     function updateSiblingYield(address connector_, uint256 yield_) external {
         // poolLockedAmounts[connector_] = yield_;

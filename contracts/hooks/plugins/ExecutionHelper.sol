@@ -16,10 +16,10 @@ contract ExecutionHelper {
      * @param target_ address of target.
      * @param payload_ payload to be executed at target.
      */
-    function _execute(
+    function execute(
         address target_,
         bytes memory payload_
-    ) internal returns (bool success) {
+    ) external returns (bool success) {
         if (target_ == address(this)) return false;
         (success, ) = target_.excessivelySafeCall(
             gasleft(),

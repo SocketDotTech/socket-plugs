@@ -13,11 +13,7 @@ import "./plugins/LimitPlugin.sol";
 import "./plugins/ExecutionHelper.sol";
 import "./plugins/ConnectorPoolPlugin.sol";
 
-contract YieldLimitExecutionHook is
-    LimitPlugin,
-    ExecutionHelper,
-    ConnectorPoolPlugin
-{
+contract YieldLimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
@@ -25,6 +21,7 @@ contract YieldLimitExecutionHook is
 
     IStrategy public strategy; // address of the strategy contract
     ERC20 public immutable asset__;
+    ExecutionHelper executionHelper__;
 
     uint256 public totalLockedInStrategy; // total funds deposited in strategy
 
@@ -57,12 +54,14 @@ contract YieldLimitExecutionHook is
         address strategy_,
         address asset_,
         address controller_,
+        address executionHelper_,
         bool useControllerPools_
     ) HookBase(msg.sender, controller_) {
         asset__ = ERC20(asset_);
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
         strategy = IStrategy(strategy_);
+        executionHelper__ = ExecutionHelper(executionHelper_);
 
         useControllerPools = useControllerPools_;
     }
@@ -82,7 +81,6 @@ contract YieldLimitExecutionHook is
     {
         if (useControllerPools)
             _poolSrcHook(params_.connector, params_.transferInfo.amount);
-
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         totalIdle += params_.transferInfo.amount;
         return (params_.transferInfo, bytes(""));
@@ -162,59 +160,35 @@ contract YieldLimitExecutionHook is
         DstPostHookCallParams calldata params_
     ) external notShutdown isVaultOrToken returns (CacheData memory cacheData) {
         bytes memory execPayload = params_.transferInfo.data;
+
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
             (uint256, uint256)
         );
 
-        uint256 connectorPendingAmount = abi.decode(
-            params_.connectorCache,
-            (uint256)
+        uint256 connectorPendingAmount = _getConnectorPendingAmount(
+            params_.connectorCache
+        );
+        cacheData.connectorCache = abi.encode(
+            connectorPendingAmount + pendingAmount
+        );
+        cacheData.identifierCache = abi.encode(
+            params_.transferInfo.receiver,
+            pendingAmount,
+            params_.connector,
+            execPayload
         );
 
-        if (pendingAmount > 0) {
-            cacheData.connectorCache = abi.encode(
-                connectorPendingAmount + pendingAmount
-            );
-            // if pending amount is more than 0, payload is cached
+        if (pendingAmount == 0) {
             if (execPayload.length > 0) {
-                cacheData.identifierCache = abi.encode(
+                // execute
+                bool success = executionHelper__.execute(
                     params_.transferInfo.receiver,
-                    pendingAmount,
-                    params_.connector,
                     execPayload
                 );
-            } else {
-                cacheData.identifierCache = abi.encode(
-                    params_.transferInfo.receiver,
-                    pendingAmount,
-                    params_.connector,
-                    bytes("")
-                );
-            }
 
-            // emit TokensPending(
-            //     siblingChainSlug_,
-            //     receiver_,
-            //     pendingAmount,
-            //     pendingMints[siblingChainSlug_][receiver_][identifier],
-            //     identifier
-            // );
-        } else if (execPayload.length > 0) {
-            // execute
-            bool success = _execute(params_.transferInfo.receiver, execPayload);
-
-            if (success) cacheData.identifierCache = new bytes(0);
-            else {
-                cacheData.identifierCache = abi.encode(
-                    params_.transferInfo.receiver,
-                    0,
-                    params_.connector,
-                    execPayload
-                );
-            }
-
-            cacheData.connectorCache = params_.connectorCache;
+                if (success) cacheData.identifierCache = new bytes(0);
+            } else cacheData.identifierCache = new bytes(0);
         }
     }
 
@@ -249,13 +223,12 @@ contract YieldLimitExecutionHook is
             pendingMint
         );
 
+        postRetryHookData = abi.encode(receiver, consumedAmount, pendingAmount);
+        transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
         if (consumedAmount > totalIdle) {
             _withdrawFromStrategy(consumedAmount - totalIdle);
             totalIdle = 0;
         } else totalIdle -= consumedAmount;
-
-        postRetryHookData = abi.encode(receiver, consumedAmount, pendingAmount);
-        transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
     }
 
     /**
@@ -278,33 +251,27 @@ contract YieldLimitExecutionHook is
         (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
             .decode(params_.postRetryHookData, (address, uint256, uint256));
 
-        if (pendingAmount == 0 && receiver != address(0)) {
-            // receiver is not an input from user, can skip this check
-            // if (receiver_ != receiver) revert InvalidReceiver();
-
-            // no siblingChainSlug required here, as already done in preRetryHook call in same tx
-            // if (siblingChainSlug != siblingChainSlug_)
-            //     revert InvalidSiblingChainSlug();
-
-            // execute
-            bool success = _execute(receiver, execPayload);
-            if (success) cacheData.identifierCache = new bytes(0);
-            else
-                cacheData.identifierCache = abi.encode(
-                    receiver,
-                    0,
-                    connector,
-                    execPayload
-                );
-        }
-        uint256 connectorPendingAmount = abi.decode(
-            params_.cacheData.connectorCache,
-            (uint256)
+        uint256 connectorPendingAmount = _getConnectorPendingAmount(
+            params_.cacheData.connectorCache
         );
 
         cacheData.connectorCache = abi.encode(
             connectorPendingAmount - consumedAmount
         );
+        cacheData.identifierCache = abi.encode(
+            receiver,
+            pendingAmount,
+            connector,
+            execPayload
+        );
+        if (pendingAmount == 0) {
+            // receiver is not an input from user, can receiver check
+            // no connector check required here, as already done in preRetryHook call in same tx
+
+            // execute
+            bool success = executionHelper__.execute(receiver, execPayload);
+            if (success) cacheData.identifierCache = new bytes(0);
+        }
     }
 
     function withdrawFromStrategy(
