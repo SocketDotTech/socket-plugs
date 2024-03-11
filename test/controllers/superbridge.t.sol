@@ -3,9 +3,9 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
-import "../../contracts/controllers/BridgeController.sol";
+import "../../contracts/hub/Controller.sol";
 import "../../contracts/common/Errors.sol";
-import "../../contracts/controllers/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
+import "../../contracts/hub/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
 import "../../contracts/hooks/LimitExecutionHook.sol";
 import "forge-std/console.sol";
 import "../../contracts/utils/Gauge.sol";
@@ -31,7 +31,7 @@ abstract contract TestBaseController is Test {
     uint256 constant _bootstrapTime = 100;
     bool isFiatTokenV2_1;
     ERC20 _token;
-    BridgeController _controller;
+    Controller _controller;
 
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
@@ -746,14 +746,14 @@ contract TestNormalController is TestBaseController {
         isFiatTokenV2_1 = false;
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
-        _controller = new BridgeController(address(_token));
+        _controller = new Controller(address(_token));
         hook__ = new LimitExecutionHook(_admin, address(_controller));
         _controller.updateHook(address(hook__));
         vm.stopPrank();
     }
 }
 
-// contract TestFiatTokenV2_1_Controller is TestBridgeController {
+// contract TestFiatTokenV2_1_Controller is TestController {
 //     function setUp() external {
 //         isFiatTokenV2_1 = true;
 //         vm.startPrank(_admin);

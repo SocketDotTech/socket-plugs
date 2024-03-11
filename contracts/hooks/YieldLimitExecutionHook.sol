@@ -65,7 +65,12 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    ) external isVaultOrToken returns (TransferInfo memory, bytes memory) {
+    )
+        external
+        notShutdown
+        isVaultOrToken
+        returns (TransferInfo memory, bytes memory)
+    {
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         totalIdle += params_.transferInfo.amount;
         return (params_.transferInfo, bytes(""));
@@ -73,7 +78,12 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory srcPostHookCallParams_
-    ) external returns (TransferInfo memory transferInfo) {
+    )
+        external
+        notShutdown
+        isVaultOrToken
+        returns (TransferInfo memory transferInfo)
+    {
         _checkDelayAndRebalance();
         uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
 
@@ -96,6 +106,7 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
         DstPreHookCallParams calldata params_
     )
         external
+        notShutdown
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
@@ -134,7 +145,7 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
-    ) external isVaultOrToken returns (CacheData memory cacheData) {
+    ) external notShutdown isVaultOrToken returns (CacheData memory cacheData) {
         bytes memory execPayload = params_.transferInfo.data;
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
@@ -200,6 +211,7 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
         PreRetryHookCallParams calldata params_
     )
         external
+        notShutdown
         isVaultOrToken
         returns (
             bytes memory postRetryHookData,
@@ -237,7 +249,7 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
      */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
-    ) external isVaultOrToken returns (CacheData memory cacheData) {
+    ) external notShutdown isVaultOrToken returns (CacheData memory cacheData) {
         (
             ,
             uint256 pendingMint,
@@ -277,35 +289,6 @@ contract YieldLimitExecutionHook is LimitPlugin, ExecutionHelper {
 
         cacheData.connectorCache = abi.encode(
             connectorPendingAmount - consumedAmount
-        );
-    }
-
-    // todo: should this be moved out?
-    function syncToAppChain(
-        uint256 msgGasLimit_,
-        address connector_
-    ) external payable nonReentrant notShutdown {
-        _checkDelayAndRebalance();
-        uint256 expectedReturn = strategy.estimatedTotalAssets();
-
-        _depositToAppChain(
-            msgGasLimit_,
-            connector_,
-            abi.encode(address(0), 0, expectedReturn),
-            bytes("")
-        );
-    }
-
-    function _depositToAppChain(
-        uint256 msgGasLimit_,
-        address connector_,
-        bytes memory payload_,
-        bytes memory options_
-    ) internal {
-        IConnector(connector_).outbound{value: msg.value}(
-            msgGasLimit_,
-            payload_,
-            options_
         );
     }
 
