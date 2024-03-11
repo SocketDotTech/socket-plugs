@@ -5,7 +5,7 @@ import "../interfaces/IController.sol";
 import "./plugins/ConnectorPoolPlugin.sol";
 
 contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
-    bool public useControllerPools;
+    bool public immutable useControllerPools;
 
     /**
      * @notice Constructor for creating a new SuperToken.
@@ -24,7 +24,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         SrcPreHookCallParams memory params_
     )
         external
-        isVaultOrToken
+        isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory)
     {
         if (useControllerPools)
@@ -36,7 +36,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory params_
-    ) external view isVaultOrToken returns (TransferInfo memory) {
+    ) external view isVaultOrController returns (TransferInfo memory) {
         return params_.transferInfo;
     }
 
@@ -44,7 +44,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         DstPreHookCallParams memory params_
     )
         external
-        isVaultOrToken
+        isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         if (useControllerPools)
@@ -61,7 +61,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
 
     function dstPostHookCall(
         DstPostHookCallParams memory params_
-    ) external isVaultOrToken returns (CacheData memory cacheData) {
+    ) external isVaultOrController returns (CacheData memory cacheData) {
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
             (uint256, uint256)
@@ -95,7 +95,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     )
         external
         nonReentrant
-        isVaultOrToken
+        isVaultOrController
         returns (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
@@ -122,7 +122,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         PostRetryHookCallParams calldata params_
     )
         external
-        isVaultOrToken
+        isVaultOrController
         nonReentrant
         returns (CacheData memory cacheData)
     {
@@ -157,7 +157,9 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     function getConnectorPendingAmount(
         address connector_
     ) external returns (uint256) {
-        bytes memory cache = IController(controller).connectorCache(connector_);
+        bytes memory cache = IController(vaultOrController).connectorCache(
+            connector_
+        );
         return _getConnectorPendingAmount(cache);
     }
 
@@ -176,7 +178,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     function getIdentifierPendingAmount(
         bytes32 messageId_
     ) external returns (uint256) {
-        bytes memory cache = IController(controller).identifierCache(
+        bytes memory cache = IController(vaultOrController).identifierCache(
             messageId_
         );
         return _getIdentifierPendingAmount(cache);

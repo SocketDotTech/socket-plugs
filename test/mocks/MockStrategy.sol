@@ -31,7 +31,7 @@ contract MockStrategy is IStrategy {
     function estimatedTotalAssets()
         external
         view
-        returns (uint256 totalAssets_)
+        returns (uint256 totalUnderlyingAssets_)
     {
         return token.balanceOf(address(this));
     }

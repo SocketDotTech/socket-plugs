@@ -3,8 +3,8 @@ import "../common/Structs.sol";
 
 interface IHook {
     /**
-     * @notice Executes pre-hook call for source asset.
-     * @dev This function is used to execute a pre-hook call for the source asset before initiating a transfer.
+     * @notice Executes pre-hook call for source underlyingAsset.
+     * @dev This function is used to execute a pre-hook call for the source underlyingAsset before initiating a transfer.
      * @param params_ Parameters for the pre-hook call.
      * @return transferInfo Information about the transfer.
      * @return postSrcHookData returned from the pre-hook call.
@@ -23,8 +23,8 @@ interface IHook {
     ) external returns (TransferInfo memory transferInfo);
 
     /**
-     * @notice Executes pre-hook call for destination asset.
-     * @dev This function is used to execute a pre-hook call for the destination asset before initiating a transfer.
+     * @notice Executes pre-hook call for destination underlyingAsset.
+     * @dev This function is used to execute a pre-hook call for the destination underlyingAsset before initiating a transfer.
      * @param params_ Parameters for the pre-hook call.
      */
     function dstPreHookCall(
@@ -34,8 +34,8 @@ interface IHook {
         returns (bytes memory postHookData, TransferInfo memory transferInfo);
 
     /**
-     * @notice Executes post-hook call for destination asset.
-     * @dev This function is used to execute a post-hook call for the destination asset after completing a transfer.
+     * @notice Executes post-hook call for destination underlyingAsset.
+     * @dev This function is used to execute a post-hook call for the destination underlyingAsset after completing a transfer.
      * @param params_ Parameters for the post-hook call.
      * @return cacheData Cached data for the post-hook call.
      */

@@ -22,13 +22,16 @@ contract YieldToken is YieldTokenBase {
     // move to hook
     // fix to round up and check other cases
     function calculateMintAmount(
-        uint256 assets_
+        uint256 underlyingAssets_
     ) external view returns (uint256) {
         // total supply -> total shares
         // total yield -> total underlying from all chains
         // yield sent from src chain includes new amount hence subtracted here
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
-        return supply == 0 ? assets_ : assets_.mulDivUp(supply, totalYield);
+        return
+            supply == 0
+                ? underlyingAssets_
+                : underlyingAssets_.mulDivUp(supply, totalUnderlyingAssets);
     }
 
     function burn(
@@ -47,13 +50,15 @@ contract YieldToken is YieldTokenBase {
     }
 
     // hook role
-    function updateYield(uint256 amount_) external onlyRole(HOOK_ROLE) {
-        _updateYield(amount_);
+    function updateTotalUnderlyingAssets(
+        uint256 amount_
+    ) external onlyRole(HOOK_ROLE) {
+        _updateTotalUnderlyingAssets(amount_);
     }
 
-    function _updateYield(uint256 amount_) internal {
+    function _updateTotalUnderlyingAssets(uint256 amount_) internal {
         lastSyncTimestamp = block.timestamp;
-        totalYield = amount_;
+        totalUnderlyingAssets = amount_;
     }
 
     /*//////////////////////////////////////////////////////////////

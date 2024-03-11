@@ -1,22 +1,22 @@
 // // // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity 0.8.13;
 
-import "../../../contracts/hooks/YieldLimitExecutionHook.sol";
+import "../../../contracts/hooks/Vault_YieldLimitExecHook.sol";
 
-contract MockYieldBridgeHook is YieldLimitExecutionHook {
+contract MockYieldBridgeHook is Vault_YieldLimitExecHook {
     constructor(
         uint256 debtRatio_,
         uint128 rebalanceDelay_,
         address strategy_,
-        address asset_,
+        address underlyingAsset_,
         address controller_,
         address executionHelper_
     )
-        YieldLimitExecutionHook(
+        Vault_YieldLimitExecHook(
             debtRatio_,
             rebalanceDelay_,
             strategy_,
-            asset_,
+            underlyingAsset_,
             controller_,
             executionHelper_,
             false

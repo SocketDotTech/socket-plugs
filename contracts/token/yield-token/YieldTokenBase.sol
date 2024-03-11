@@ -47,7 +47,7 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     uint256 public lastSyncTimestamp;
 
     // total yield from all siblings
-    uint256 public totalYield;
+    uint256 public totalUnderlyingAssets;
 
     /*//////////////////////////////////////////////////////////////
                                CONSTRUCTOR
@@ -67,17 +67,23 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     //////////////////////////////////////////////////////////////*/
 
     function convertToShares(
-        uint256 assets
+        uint256 underlyingAssets
     ) public view virtual returns (uint256) {
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
-        return supply == 0 ? assets : assets.mulDivDown(supply, totalYield);
+        return
+            supply == 0
+                ? underlyingAssets
+                : underlyingAssets.mulDivDown(supply, totalUnderlyingAssets);
     }
 
     function convertToAssets(
         uint256 shares
     ) public view virtual returns (uint256) {
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
-        return supply == 0 ? shares : shares.mulDivDown(totalYield, supply);
+        return
+            supply == 0
+                ? shares
+                : shares.mulDivDown(totalUnderlyingAssets, supply);
     }
 
     function balanceOf(address user_) external view returns (uint256) {
@@ -89,7 +95,7 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     // recheck for multi yield
     function totalSupply() external view returns (uint256) {
         if (_totalSupply == 0) return 0;
-        return totalYield;
+        return totalUnderlyingAssets;
     }
 
     function approve(

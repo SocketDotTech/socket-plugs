@@ -6,7 +6,7 @@ import "solmate/tokens/ERC20.sol";
 import "../../contracts/token/yield-token/YieldToken.sol";
 import {Vault} from "../../contracts/hub/Vault.sol";
 import {Controller} from "../../contracts/hub/Controller.sol";
-import {LimitExecutionHook} from "../../contracts/hooks/YieldLimitExecutionHook.sol";
+import {LimitExecutionHook} from "../../contracts/hooks/Vault_YieldLimitExecHook.sol";
 import {MockYieldTokenHook} from "../mocks/hooks/MockYieldTokenHook.sol";
 import {MockYieldBridgeHook} from "../mocks/hooks/MockYieldBridgeHook.sol";
 
@@ -253,7 +253,7 @@ contract TestYieldBridge is SetupYieldBridge {
         _beforeDeposit(depositAmount, _raju);
         uint256 rajuBalBefore = token__.balanceOf(_raju);
         uint256 ramuBalBefore = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalAssets();
+        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
         uint256 tokenSupplyBefore = yieldToken__.totalSupply();
 
         assertTrue(rajuBalBefore >= depositAmount, "Raju got no balance");
@@ -262,7 +262,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
         uint256 rajuBalAfter = token__.balanceOf(_raju);
         uint256 ramuBalAfter = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalAfter = vaultHook__.totalAssets();
+        uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
         uint256 tokenSupplyAfter = yieldToken__.totalSupply();
 
         assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
@@ -289,7 +289,7 @@ contract TestYieldBridge is SetupYieldBridge {
         _beforeDeposit(depositAmount, _raju);
         uint256 rajuBalBefore = token__.balanceOf(_raju);
         uint256 ramuBalBefore = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalAssets();
+        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
         uint256 tokenSupplyBefore = yieldToken__.totalSupply();
 
         assertTrue(rajuBalBefore >= depositAmount, "Raju got no balance");
@@ -297,7 +297,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
         uint256 rajuBalAfter = token__.balanceOf(_raju);
         uint256 ramuBalAfter = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalAfter = vaultHook__.totalAssets();
+        uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
         uint256 tokenSupplyAfter = yieldToken__.totalSupply();
 
         assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
@@ -323,7 +323,7 @@ contract TestYieldBridge is SetupYieldBridge {
         _beforeDeposit(depositAmount, _raju);
         uint256 rajuBalBefore = token__.balanceOf(_raju);
         uint256 ramuBalBefore = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalAssets();
+        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
 
         // add 10% yield
         uint256 strategyYield = 10;
@@ -340,7 +340,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
         uint256 rajuBalAfter = token__.balanceOf(_raju);
         uint256 ramuBalAfter = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalAfter = vaultHook__.totalAssets();
+        uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
         uint256 tokenSupplyAfter = yieldToken__.totalSupply();
 
         assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
@@ -366,7 +366,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
     //     uint256 rajuBalBefore = token__.balanceOf(_raju);
     //     uint256 ramuBalBefore = yieldToken__.balanceOf(_ramu);
-    //     uint256 vaultBalBefore = vaultHook__.totalAssets();
+    //     uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
     //     uint256 tokenSupplyBefore = yieldToken__.totalSupply();
 
     //     assertTrue(rajuBalBefore >= depositAmount, "Raju got no balance");
@@ -383,14 +383,14 @@ contract TestYieldBridge is SetupYieldBridge {
 
         uint256 rajuBalBefore = yieldToken__.balanceOf(_raju);
         uint256 ramuBalBefore = token__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalAssets();
+        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
         assertTrue(rajuBalBefore >= withdrawAmount, "Raju got no balance");
 
         _withdraw(withdrawAmount, _otherChainSlug, _raju, _ramu, true);
 
         uint256 rajuBalAfter = yieldToken__.balanceOf(_raju);
         uint256 ramuBalAfter = token__.balanceOf(_ramu);
-        uint256 vaultBalAfter = vaultHook__.totalAssets();
+        uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
 
         assertEq(rajuBalAfter, rajuBalBefore - withdrawAmount, "Raju bal sus");
         assertEq(ramuBalAfter, ramuBalBefore + withdrawAmount, "Ramu bal sus");
@@ -411,7 +411,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
         uint256 rajuBalBefore = yieldToken__.balanceOf(_raju);
         uint256 ramuBalBefore = token__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalAssets();
+        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
         assertTrue(rajuBalBefore >= withdrawAmount, "Raju got no balance");
 
         _withdraw(
@@ -424,7 +424,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
         // uint256 rajuBalAfter = yieldToken__.balanceOf(_raju);
         // uint256 ramuBalAfter = token__.balanceOf(_ramu);
-        // uint256 vaultBalAfter = vaultHook__.totalAssets();
+        // uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
 
         // assertEq(rajuBalAfter, rajuBalBefore - withdrawAmount, "Raju bal sus");
         // assertEq(ramuBalAfter, ramuBalBefore + withdrawAmount, "Ramu bal sus");
@@ -447,7 +447,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
         uint256 rajuBalBefore = yieldToken__.balanceOf(_raju);
         uint256 ramuBalBefore = token__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalAssets();
+        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
 
         assertTrue(rajuBalBefore >= withdrawAmount, "Raju got no balance");
         console.log(rajuBalBefore);
@@ -456,7 +456,7 @@ contract TestYieldBridge is SetupYieldBridge {
 
         uint256 rajuBalAfter = yieldToken__.balanceOf(_raju);
         uint256 ramuBalAfter = token__.balanceOf(_ramu);
-        uint256 vaultBalAfter = vaultHook__.totalAssets();
+        uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
 
         console.log(rajuBalAfter);
 

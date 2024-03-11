@@ -222,7 +222,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     uint256 updatedAmount = token__.convertToShares(withdrawAmount);
     //     bytes memory payload = bytes("");
 
-    //     uint256 totalYield = hook__.totalYield();
+    //     uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
     //     uint256 siblingYield = hook__.siblingTotalYield(_connector);
 
     //     vm.startPrank(_controller);
@@ -238,10 +238,10 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //         );
     //     vm.stopPrank();
 
-    //     uint256 newTotalYield = hook__.totalYield();
+    //     uint256 newTotalYield = hook__.totalUnderlyingAssets();
     //     uint256 newSiblingYield = hook__.siblingTotalYield(_connector);
 
-    //     assertEq(totalYield - updatedAmount, newTotalYield, "total yield sus");
+    //     assertEq(totalUnderlyingAssets - updatedAmount, newTotalYield, "total yield sus");
     //     assertEq(
     //         siblingYield - updatedAmount,
     //         newSiblingYield,
@@ -287,8 +287,8 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     uint256 updatedAmount = token__.convertToShares(withdrawAmount);
     //     bytes memory payload = abi.encode(options, bytes(""));
 
-    //     uint256 tokenYield = token__.totalYield();
-    //     uint256 totalYield = hook__.totalYield();
+    //     uint256 tokenYield = token__.totalUnderlyingAssets();
+    //     uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
     //     uint256 siblingYield = hook__.siblingTotalYield(_connector);
 
     //     vm.startPrank(_controller);
@@ -313,8 +313,8 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     );
     //     vm.stopPrank();
 
-    //     uint256 newTokenYield = token__.totalYield();
-    //     uint256 newTotalYield = hook__.totalYield();
+    //     uint256 newTokenYield = token__.totalUnderlyingAssets();
+    //     uint256 newTotalYield = hook__.totalUnderlyingAssets();
     //     uint256 newSiblingYield = hook__.siblingTotalYield(_connector);
 
     //     assertEq(
@@ -322,7 +322,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //         newTokenYield,
     //         "token total yield sus"
     //     );
-    //     assertEq(totalYield - updatedAmount, newTotalYield, "total yield sus");
+    //     assertEq(totalUnderlyingAssets - updatedAmount, newTotalYield, "total yield sus");
     //     assertEq(
     //         siblingYield - updatedAmount,
     //         newSiblingYield,
@@ -370,7 +370,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     uint256 yield = _initialSupply + 100;
 
     //     bytes memory data = abi.encode((yield), bytes(""));
-    //     uint256 totalYield = hook__.totalYield();
+    //     uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
     //     uint256 siblingYield = hook__.siblingTotalYield(_connector);
 
     //     vm.startPrank(_controller);
@@ -385,11 +385,11 @@ contract TestMintableTokenLimitExecutionHook is Setup {
 
     //     vm.stopPrank();
 
-    //     uint256 newTotalYield = hook__.totalYield();
+    //     uint256 newTotalYield = hook__.totalUnderlyingAssets();
     //     uint256 newSiblingYield = hook__.siblingTotalYield(_connector);
 
     //     assertEq(
-    //         totalYield + yield - siblingYield,
+    //         totalUnderlyingAssets + yield - siblingYield,
     //         newTotalYield,
     //         "newTotalYield sus"
     //     );
@@ -426,7 +426,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     );
     //     vm.stopPrank();
 
-    //     uint256 newTotalYield = token__.totalYield();
+    //     uint256 newTotalYield = token__.totalUnderlyingAssets();
     //     assertEq(yield, newTotalYield, "newTotalYield sus");
     //     assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
     //     assertEq(cacheData.connectorCache, bytes(""), "connectorCache sus");
@@ -438,7 +438,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     uint256 amount = 100;
     //     address receiver = _raju;
     //     bytes memory data = abi.encode((yield), bytes(""));
-    //     uint256 totalYield = hook__.totalYield();
+    //     uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
     //     uint256 siblingYield = hook__.siblingTotalYield(_connector);
 
     //     uint256 shares = token__.calculateMintAmount(amount);
@@ -455,11 +455,11 @@ contract TestMintableTokenLimitExecutionHook is Setup {
 
     //     vm.stopPrank();
 
-    //     uint256 newTotalYield = hook__.totalYield();
+    //     uint256 newTotalYield = hook__.totalUnderlyingAssets();
     //     uint256 newSiblingYield = hook__.siblingTotalYield(_connector);
 
     //     assertEq(
-    //         totalYield + yield - siblingYield,
+    //         totalUnderlyingAssets + yield - siblingYield,
     //         newTotalYield,
     //         "newTotalYield sus"
     //     );
@@ -510,7 +510,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //         postHookData,
     //         (uint256, uint256)
     //     );
-    //     uint256 newTotalYield = token__.totalYield();
+    //     uint256 newTotalYield = token__.totalUnderlyingAssets();
 
     //     assertEq(yield, newTotalYield, "newTotalYield sus");
     //     assertEq(

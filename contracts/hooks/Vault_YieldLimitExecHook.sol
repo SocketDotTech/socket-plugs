@@ -11,14 +11,14 @@ import {IConnector} from "../ConnectorPlug.sol";
 
 import "./LimitExecutionHook.sol";
 
-contract YieldLimitExecutionHook is LimitExecutionHook {
+contract Vault_YieldLimitExecHook is LimitExecutionHook {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
     uint256 public constant MAX_BPS = 10_000;
 
     IStrategy public strategy; // address of the strategy contract
-    ERC20 public immutable asset__;
+    ERC20 public immutable underlyingAsset__;
 
     uint256 public totalLockedInStrategy; // total funds deposited in strategy
 
@@ -48,7 +48,7 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
         uint256 debtRatio_,
         uint128 rebalanceDelay_,
         address strategy_,
-        address asset_,
+        address underlyingAsset_,
         address vault_,
         address executionHelper_,
         bool useControllerPools_
@@ -60,7 +60,7 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
             useControllerPools_
         )
     {
-        asset__ = ERC20(asset_);
+        underlyingAsset__ = ERC20(underlyingAsset_);
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
         strategy = IStrategy(strategy_);
@@ -85,7 +85,7 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
         public
         override
         notShutdown
-        isVaultOrToken
+        isVaultOrController
         returns (TransferInfo memory transferInfo)
     {
         _checkDelayAndRebalance();
@@ -116,8 +116,9 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
     {
         (postHookData, transferInfo) = super.dstPreHookCall(params_);
 
-        // ensure vault have enough idle assets
-        if (transferInfo.amount > totalAssets()) revert NotEnoughAssets();
+        // ensure vault have enough idle underlyingAssets
+        if (transferInfo.amount > totalUnderlyingAssets())
+            revert NotEnoughAssets();
 
         (bytes memory options_, bytes memory payload_) = abi.decode(
             params_.transferInfo.data,
@@ -129,12 +130,15 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
             if (pullFromStrategy) {
                 _withdrawFromStrategy(transferInfo.amount - totalIdle);
             } else {
-                (, uint256 pendingAmount) = abi.decode(
+                (, uint256 pendingUnderlying) = abi.decode(
                     postHookData,
                     (uint256, uint256)
                 );
-                pendingAmount += totalIdle - transferInfo.amount;
-                postHookData = abi.encode(transferInfo.amount, pendingAmount);
+                pendingUnderlying += totalIdle - transferInfo.amount;
+                postHookData = abi.encode(
+                    transferInfo.amount,
+                    pendingUnderlying
+                );
                 transferInfo.amount = totalIdle;
             }
             totalIdle = 0;
@@ -160,7 +164,7 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
         public
         override
         notShutdown
-        isVaultOrToken
+        isVaultOrController
         returns (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
@@ -180,38 +184,35 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
     }
 
     function withdrawFromStrategy(
-        uint256 assets_
+        uint256 underlyingAsset_
     ) external onlyOwner returns (uint256) {
-        return _withdrawFromStrategy(assets_);
+        return _withdrawFromStrategy(underlyingAsset_);
     }
 
     function _withdrawFromStrategy(
-        uint256 assets_
+        uint256 underlyingAsset_
     ) internal returns (uint256 withdrawn) {
-        uint256 preBalance = asset__.balanceOf(address(this));
-        strategy.withdraw(assets_);
-        withdrawn = asset__.balanceOf(address(this)) - preBalance;
+        uint256 preBalance = underlyingAsset__.balanceOf(address(this));
+        strategy.withdraw(underlyingAsset_);
+        withdrawn = underlyingAsset__.balanceOf(address(this)) - preBalance;
         totalIdle += withdrawn;
         totalDebt -= withdrawn;
 
-        asset__.transfer(controller, withdrawn);
+        underlyingAsset__.transfer(vaultOrController, withdrawn);
         emit WithdrawFromStrategy(withdrawn);
     }
 
     function _withdrawAllFromStrategy() internal returns (uint256) {
-        uint256 preBalance = asset__.balanceOf(address(this));
+        uint256 preBalance = underlyingAsset__.balanceOf(address(this));
         strategy.withdrawAll();
-        uint256 withdrawn = asset__.balanceOf(address(this)) - preBalance;
+        uint256 withdrawn = underlyingAsset__.balanceOf(address(this)) -
+            preBalance;
         totalIdle += withdrawn;
         totalDebt = 0;
 
-        asset__.transfer(controller, withdrawn);
+        underlyingAsset__.transfer(vaultOrController, withdrawn);
         emit WithdrawFromStrategy(withdrawn);
         return withdrawn;
-    }
-
-    function maxAvailableShares() public view returns (uint256) {
-        return totalAssets();
     }
 
     function rebalance() external notShutdown {
@@ -237,7 +238,11 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
             totalIdle -= credit;
             totalDebt += credit;
             totalLockedInStrategy += credit;
-            asset__.safeTransferFrom(controller, address(strategy), credit);
+            underlyingAsset__.safeTransferFrom(
+                vaultOrController,
+                address(strategy),
+                credit
+            );
             strategy.invest();
         } else if (pendingDebt > 0) {
             // Credit deficit, take from Strategy
@@ -247,16 +252,16 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
         emit Rebalanced(totalIdle, totalDebt, credit, pendingDebt);
     }
 
-    /// @notice Returns the total quantity of all assets under control of this
+    /// @notice Returns the total quantity of all underlyingAssets under control of this
     ///    Vault, whether they're loaned out to a Strategy, or currently held in
     /// the Vault.
-    /// @return total quantity of all assets under control of this Vault
-    function totalAssets() public view returns (uint256) {
+    /// @return total quantity of all underlyingAssets under control of this Vault
+    function totalUnderlyingAssets() public view returns (uint256) {
         return strategy.estimatedTotalAssets() + totalIdle;
     }
 
     function _creditAvailable() internal view returns (uint256) {
-        uint256 vaultTotalAssets = totalAssets();
+        uint256 vaultTotalAssets = totalUnderlyingAssets();
         uint256 vaultDebtLimit = (debtRatio * vaultTotalAssets) / MAX_BPS;
         uint256 vaultTotalDebt = totalDebt;
 
@@ -289,7 +294,7 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
             return totalDebt;
         }
 
-        uint256 debtLimit = ((debtRatio * totalAssets()) / MAX_BPS);
+        uint256 debtLimit = ((debtRatio * totalUnderlyingAssets()) / MAX_BPS);
 
         if (totalDebt <= debtLimit) return 0;
         else return totalDebt - debtLimit;

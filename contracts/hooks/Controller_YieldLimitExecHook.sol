@@ -10,24 +10,25 @@ import {IConnector} from "../ConnectorPlug.sol";
 import "./LimitExecutionHook.sol";
 
 interface IYieldToken {
-    function updateYield(uint256 amount_) external;
+    function updateTotalUnderlyingAssets(uint256 amount_) external;
 
     function calculateMintAmount(uint256 amount_) external returns (uint256);
 
-    function convertToShares(uint256 assets) external view returns (uint256);
+    function convertToShares(
+        uint256 underlyingAssets
+    ) external view returns (uint256);
 }
 
 // limits on underlying or visible tokens
-contract YieldTokenLimitExecutionHook is LimitExecutionHook {
+contract Controller_YieldLimitExecHook is LimitExecutionHook {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
 
     uint256 public constant MAX_BPS = 10_000;
-    IYieldToken public immutable asset__;
+    IYieldToken public immutable yieldToken__;
 
     // total yield
-    uint256 public totalYield;
-    mapping(uint256 => uint256) public lastSyncTimestamp;
+    uint256 public totalUnderlyingAssets;
 
     // if true, no funds can be invested in the strategy
     bool public emergencyShutdown;
@@ -40,11 +41,11 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
     }
 
     constructor(
-        address asset_,
+        address underlyingAsset_,
         address controller_,
         address executionHelper_
     ) LimitExecutionHook(msg.sender, controller_, executionHelper_, true) {
-        asset__ = IYieldToken(asset_);
+        yieldToken__ = IYieldToken(underlyingAsset_);
         hookType = LIMIT_EXECUTION_YIELD_TOKEN_HOOK;
     }
 
@@ -55,16 +56,16 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
     )
         public
         override
-        isVaultOrToken
+        isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
         super.srcPreHookCall(params_);
         uint256 amount = params_.transferInfo.amount;
         postSrcHookData = abi.encode(amount);
 
-        totalYield -= amount;
+        totalUnderlyingAssets -= amount;
         transferInfo = params_.transferInfo;
-        transferInfo.amount = asset__.convertToShares(amount);
+        transferInfo.amount = yieldToken__.convertToShares(amount);
     }
 
     function srcPostHookCall(
@@ -73,10 +74,10 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
         public
         override
         notShutdown
-        isVaultOrToken
+        isVaultOrController
         returns (TransferInfo memory transferInfo)
     {
-        asset__.updateYield(totalYield);
+        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 
         transferInfo.receiver = srcPostHookCallParams_.transferInfo.receiver;
         transferInfo.data = abi.encode(
@@ -99,27 +100,36 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
         public
         override
         notShutdown
-        isVaultOrToken
+        isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 newYield, bytes memory payload) = abi.decode(
+        (uint256 newTotalUnderlyingAssets, bytes memory payload) = abi.decode(
             params_.transferInfo.data,
             (uint256, bytes)
         );
 
-        uint256 oldYield = _poolDstHook(params_.connector, newYield, false);
-        totalYield = totalYield + newYield - oldYield;
+        uint256 oldTotalUnderlyingAssets = _poolDstHook(
+            params_.connector,
+            newTotalUnderlyingAssets,
+            false
+        );
+        totalUnderlyingAssets =
+            totalUnderlyingAssets +
+            newTotalUnderlyingAssets -
+            oldTotalUnderlyingAssets;
 
         if (params_.transferInfo.amount == 0)
             return (abi.encode(0, 0), transferInfo);
 
-        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
+        (uint256 consumedUnderlying, uint256 pendingUnderlying) = _limitDstHook(
             params_.connector,
             params_.transferInfo.amount
         );
-        uint256 sharesToMint = asset__.calculateMintAmount(consumedAmount);
+        uint256 sharesToMint = yieldToken__.calculateMintAmount(
+            consumedUnderlying
+        );
 
-        postHookData = abi.encode(consumedAmount, pendingAmount);
+        postHookData = abi.encode(consumedUnderlying, pendingUnderlying);
         transferInfo = params_.transferInfo;
         transferInfo.amount = sharesToMint;
         transferInfo.data = payload;
@@ -132,7 +142,7 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) public override notShutdown returns (CacheData memory cacheData) {
-        asset__.updateYield(totalYield);
+        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
         return super.dstPostHookCall(params_);
     }
 
@@ -143,7 +153,7 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
     //  * @param identifierCache_ Identifier cache containing pending mint information.
     //  * @param connectorCache_ Sibling chain cache containing pending amount information.
     //  * @return updatedReceiver The updated receiver of the funds.
-    //  * @return consumedAmount The amount consumed from the limit.
+    //  * @return consumedUnderlying The amount consumed from the limit.
     //  * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
     //  */
     function preRetryHook(
@@ -158,7 +168,9 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
         )
     {
         (postRetryHookData, transferInfo) = super.preRetryHook(params_);
-        uint256 sharesToMint = asset__.calculateMintAmount(transferInfo.amount);
+        uint256 sharesToMint = yieldToken__.calculateMintAmount(
+            transferInfo.amount
+        );
         transferInfo = TransferInfo(
             transferInfo.receiver,
             sharesToMint,

@@ -13,18 +13,21 @@ import "../utils/RescueBase.sol";
  * to support any type of message bridge.
  */
 abstract contract HookBase is ReentrancyGuard, IHook, RescueBase {
-    address public immutable controller;
+    address public immutable vaultOrController;
     bytes32 public hookType;
 
     /**
      * @notice Constructor for creating a new SuperToken.
      */
-    constructor(address owner_, address controller_) AccessControl(owner_) {
-        controller = controller_;
+    constructor(
+        address owner_,
+        address vaultOrController_
+    ) AccessControl(owner_) {
+        vaultOrController = vaultOrController_;
     }
 
-    modifier isVaultOrToken() {
-        if (msg.sender != controller) revert NotAuthorized();
+    modifier isVaultOrController() {
+        if (msg.sender != vaultOrController) revert NotAuthorized();
         _;
     }
 }

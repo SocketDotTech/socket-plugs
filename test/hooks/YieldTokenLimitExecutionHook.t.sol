@@ -86,7 +86,7 @@ contract Setup is Test {
     }
 }
 
-contract TestYieldTokenLimitExecutionHook is Setup {
+contract TestController_YieldLimitExecHook is Setup {
     function testUpdateLimitParams() external {
         LimitParams memory burnLimitParams = hook__.getSendingLimitParams(
             _connector
@@ -252,7 +252,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         uint256 updatedAmount = yieldToken__.convertToShares(withdrawAmount);
         bytes memory payload = bytes("");
 
-        uint256 totalYield = hook__.totalYield();
+        uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
         uint256 siblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
         vm.startPrank(_controller);
@@ -268,10 +268,14 @@ contract TestYieldTokenLimitExecutionHook is Setup {
             );
         vm.stopPrank();
 
-        uint256 newTotalYield = hook__.totalYield();
+        uint256 newTotalYield = hook__.totalUnderlyingAssets();
         uint256 newSiblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
-        assertEq(totalYield - updatedAmount, newTotalYield, "total yield sus");
+        assertEq(
+            totalUnderlyingAssets - updatedAmount,
+            newTotalYield,
+            "total yield sus"
+        );
         assertEq(
             siblingYield - updatedAmount,
             newSiblingYield,
@@ -317,8 +321,8 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         uint256 updatedAmount = yieldToken__.convertToShares(withdrawAmount);
         bytes memory payload = abi.encode(options, bytes(""));
 
-        uint256 tokenYield = yieldToken__.totalYield();
-        uint256 totalYield = hook__.totalYield();
+        uint256 tokenYield = yieldToken__.totalUnderlyingAssets();
+        uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
         uint256 siblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
         vm.startPrank(_controller);
@@ -343,8 +347,8 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         );
         vm.stopPrank();
 
-        uint256 newTokenYield = yieldToken__.totalYield();
-        uint256 newTotalYield = hook__.totalYield();
+        uint256 newTokenYield = yieldToken__.totalUnderlyingAssets();
+        uint256 newTotalYield = hook__.totalUnderlyingAssets();
         uint256 newSiblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(
@@ -352,7 +356,11 @@ contract TestYieldTokenLimitExecutionHook is Setup {
             newTokenYield,
             "token total yield sus"
         );
-        assertEq(totalYield - updatedAmount, newTotalYield, "total yield sus");
+        assertEq(
+            totalUnderlyingAssets - updatedAmount,
+            newTotalYield,
+            "total yield sus"
+        );
         assertEq(
             siblingYield - updatedAmount,
             newSiblingYield,
@@ -400,7 +408,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         uint256 yield = _initialSupply + 100;
 
         bytes memory data = abi.encode((yield), bytes(""));
-        uint256 totalYield = hook__.totalYield();
+        uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
         uint256 siblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
         vm.startPrank(_controller);
@@ -415,11 +423,11 @@ contract TestYieldTokenLimitExecutionHook is Setup {
 
         vm.stopPrank();
 
-        uint256 newTotalYield = hook__.totalYield();
+        uint256 newTotalYield = hook__.totalUnderlyingAssets();
         uint256 newSiblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(
-            totalYield + yield - siblingYield,
+            totalUnderlyingAssets + yield - siblingYield,
             newTotalYield,
             "newTotalYield sus"
         );
@@ -456,7 +464,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         );
         vm.stopPrank();
 
-        uint256 newTotalYield = yieldToken__.totalYield();
+        uint256 newTotalYield = yieldToken__.totalUnderlyingAssets();
         assertEq(yield, newTotalYield, "newTotalYield sus");
         assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
         assertEq(cacheData.connectorCache, abi.encode(0), "connectorCache sus");
@@ -468,7 +476,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         uint256 amount = 100;
         address receiver = _raju;
         bytes memory data = abi.encode((yield), bytes(""));
-        uint256 totalYield = hook__.totalYield();
+        uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
         uint256 siblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
         uint256 limit = hook__.getCurrentReceivingLimit(_connector);
@@ -485,13 +493,13 @@ contract TestYieldTokenLimitExecutionHook is Setup {
 
         vm.stopPrank();
 
-        uint256 newTotalYield = hook__.totalYield();
+        uint256 newTotalYield = hook__.totalUnderlyingAssets();
         uint256 newSiblingYield = hook__.poolLockedAmounts(_connectorPoolId);
         uint256 consumed = amount > limit ? amount - limit : amount;
         uint256 shares = yieldToken__.calculateMintAmount(consumed);
 
         assertEq(
-            totalYield + yield - siblingYield,
+            totalUnderlyingAssets + yield - siblingYield,
             newTotalYield,
             "newTotalYield sus"
         );
@@ -536,7 +544,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         vm.stopPrank();
 
         (, uint256 pending) = abi.decode(postHookData, (uint256, uint256));
-        uint256 newTotalYield = yieldToken__.totalYield();
+        uint256 newTotalYield = yieldToken__.totalUnderlyingAssets();
 
         assertEq(pending, 0, "pending sus");
         assertEq(yield, newTotalYield, "newTotalYield sus");

@@ -13,7 +13,7 @@ interface IStrategy {
     function estimatedTotalAssets()
         external
         view
-        returns (uint256 totalAssets_);
+        returns (uint256 totalUnderlyingAssets_);
 
     function invest() external;
 }
