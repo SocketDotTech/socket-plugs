@@ -117,10 +117,12 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
 
         // ensure vault have enough idle assets
         if (transferInfo.amount > totalAssets()) revert NotEnoughAssets();
-        (bool pullFromStrategy, bytes memory payload_) = abi.decode(
+
+        (bytes memory options_, bytes memory payload_) = abi.decode(
             params_.transferInfo.data,
-            (bool, bytes)
+            (bytes, bytes)
         );
+        bool pullFromStrategy = abi.decode(options_, (bool));
 
         if (transferInfo.amount > totalIdle) {
             if (pullFromStrategy) {
