@@ -3,14 +3,14 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
-import "../../contracts/controllers/BridgeController.sol";
+import "../../contracts/controllers/TokenController.sol";
 import "../../contracts/common/Errors.sol";
 import "../../contracts/controllers/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
 import "../../contracts/hooks/LimitExecutionHook.sol";
 import "forge-std/console.sol";
 import "../../contracts/utils/Gauge.sol";
 
-abstract contract TestBaseController is Test {
+contract TestSuperTokenController is Test {
     uint256 _c = 1000;
     address immutable _admin = address(uint160(_c++));
     address immutable _raju = address(uint160(_c++));
@@ -19,7 +19,6 @@ abstract contract TestBaseController is Test {
     address immutable _connector2 = address(uint160(_c++));
     address immutable _wrongConnector = address(uint160(_c++));
     uint32 _siblingChainSlug = uint32(_c++);
-    uint256 immutable _connectorPoolId = _c++;
     bytes32 _messageId = bytes32(_c++);
     LimitExecutionHook hook__;
     uint256 constant _burnMaxLimit = 200 ether;
@@ -31,12 +30,21 @@ abstract contract TestBaseController is Test {
     uint256 constant _bootstrapTime = 100;
     bool isFiatTokenV2_1;
     ERC20 _token;
-    BridgeController _controller;
+    TokenController _controller;
 
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
-    event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     event ConnectorStatusUpdated(address connector, bool status);
+
+    function setUp() external {
+        isFiatTokenV2_1 = false;
+        vm.startPrank(_admin);
+        _token = new MintableToken("Moon", "MOON", 18);
+        _controller = new TokenController(address(_token));
+        hook__ = new LimitExecutionHook(_admin, address(_controller));
+        _controller.updateHook(address(hook__));
+        vm.stopPrank();
+    }
 
     function _setLimits(address[] memory connectors_) internal {
         UpdateLimitParams[] memory u = new UpdateLimitParams[](
@@ -65,17 +73,7 @@ abstract contract TestBaseController is Test {
 
     function _setupConnectors(address[] memory connectors_) internal {
         _setLimits(connectors_);
-        _setConnectorPoolId(connectors_);
         _setConnectorStatus(connectors_);
-    }
-
-    function _setConnectorPoolId(address[] memory connectors_) internal {
-        uint256[] memory poolIds = new uint256[](connectors_.length);
-        for (uint256 i = 0; i < connectors_.length; i++) {
-            poolIds[i] = _connectorPoolId;
-        }
-        vm.prank(_admin);
-        _controller.updateConnectorPoolId(connectors_, poolIds);
     }
 
     function _setConnectorStatus(address[] memory connectors_) internal {
@@ -85,16 +83,6 @@ abstract contract TestBaseController is Test {
         }
         vm.prank(_admin);
         _controller.updateConnectorStatus(connectors_, statuses);
-    }
-
-    function testSetInvalidPoolId() external {
-        address[] memory connectors = new address[](1);
-        uint256[] memory poolIds = new uint256[](1);
-        connectors[0] = _connector;
-        poolIds[0] = 0;
-        vm.prank(_admin);
-        vm.expectRevert(InvalidPoolId.selector);
-        _controller.updateConnectorPoolId(connectors, poolIds);
     }
 
     function testWithdrawConnectorUnavail() external {
@@ -121,60 +109,6 @@ abstract contract TestBaseController is Test {
             _siblingChainSlug,
             abi.encode(_raju, withdrawAmount, bytes32(0), new bytes(0))
         );
-    }
-
-    function testInvalidPoolIdReceiveInbound() external {
-        // Not setting connectorPoolId
-        address[] memory connectors = new address[](1);
-        connectors[0] = _connector;
-        uint256 withdrawAmount = 2 ether;
-        _setLimits(connectors);
-        _setConnectorStatus(connectors);
-
-        bytes memory payload_ = abi.encode(
-            _raju,
-            withdrawAmount,
-            bytes32(0),
-            new bytes(0)
-        );
-        vm.prank(_connector);
-        vm.expectRevert(InvalidPoolId.selector);
-        _controller.receiveInbound(_siblingChainSlug, payload_);
-    }
-
-    function testInvalidPoolIdWithdraw() external {
-        uint256 withdrawAmount = 2 ether;
-        address[] memory connectors = new address[](1);
-        connectors[0] = _wrongConnector;
-        _setLimits(connectors);
-        _setConnectorStatus(connectors);
-
-        connectors[0] = _connector;
-        _setLimits(connectors);
-        _setConnectorStatus(connectors);
-        _setConnectorPoolId(connectors);
-
-        vm.prank(_connector);
-        _controller.receiveInbound(
-            _siblingChainSlug,
-            abi.encode(_raju, withdrawAmount, bytes32(0), new bytes(0))
-        );
-        deal(_raju, _fees);
-
-        vm.startPrank(_raju);
-        if (isFiatTokenV2_1) {
-            _token.approve(address(_controller), withdrawAmount);
-        }
-        vm.expectRevert(InvalidPoolId.selector);
-        _controller.bridge{value: _fees}(
-            _raju,
-            withdrawAmount,
-            _msgGasLimit,
-            _wrongConnector,
-            new bytes(0),
-            new bytes(0)
-        );
-        vm.stopPrank();
     }
 
     function testWithdrawLimitHit() external {
@@ -291,57 +225,6 @@ abstract contract TestBaseController is Test {
         vm.stopPrank();
     }
 
-    function testWithdrawPoolConnectors() external {
-        address[] memory connectors = new address[](2);
-        connectors[0] = _connector;
-        connectors[1] = _connector2;
-        _setupConnectors(connectors);
-
-        uint256 totalAmount = 20 ether;
-        uint256 withdrawAmount = 5 ether;
-        uint256 withdrawAmount2 = 15 ether;
-        vm.prank(_connector);
-        _controller.receiveInbound(
-            _siblingChainSlug,
-            abi.encode(_raju, totalAmount, bytes32(0), new bytes(0))
-        );
-        deal(_raju, _fees * 2);
-
-        uint256 rajuBalBefore = _token.balanceOf(_raju);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
-
-        assertEq(poolLockedBefore, totalAmount, "pool locked sus");
-
-        vm.startPrank(_raju);
-        if (isFiatTokenV2_1) {
-            _token.approve(address(_controller), totalAmount);
-        }
-
-        _mockConnectorAndBridge(_connector, _raju, withdrawAmount);
-
-        _mockConnectorAndBridge(_connector2, _raju, withdrawAmount2);
-
-        vm.stopPrank();
-
-        uint256 rajuBalAfter = _token.balanceOf(_raju);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
-
-        assertEq(
-            rajuBalAfter,
-            rajuBalBefore - withdrawAmount - withdrawAmount2,
-            "raju balance sus"
-        );
-        assertEq(
-            poolLockedAfter,
-            poolLockedBefore - withdrawAmount - withdrawAmount2,
-            "connector locked sus"
-        );
-    }
-
     function _mockConnectorAndBridge(
         address connector_,
         address receiver_,
@@ -401,9 +284,6 @@ abstract contract TestBaseController is Test {
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 totalMintedBefore = _controller.totalMinted();
         uint256 burnLimitBefore = hook__.getCurrentSendingLimit(_connector);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
 
         assertTrue(
             withdrawAmount <= hook__.getCurrentSendingLimit(_connector),
@@ -420,9 +300,6 @@ abstract contract TestBaseController is Test {
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 totalMintedAfter = _controller.totalMinted();
         uint256 burnLimitAfter = hook__.getCurrentSendingLimit(_connector);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
 
         assertEq(
             rajuBalAfter,
@@ -438,11 +315,6 @@ abstract contract TestBaseController is Test {
             burnLimitAfter,
             burnLimitBefore - withdrawAmount,
             "burn limit sus"
-        );
-        assertEq(
-            poolLockedAfter,
-            poolLockedBefore - withdrawAmount,
-            "connector locked sus"
         );
     }
 
@@ -463,9 +335,6 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitBefore = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
 
         assertTrue(depositAmount <= mintLimitBefore, "limit hit");
 
@@ -484,9 +353,6 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitAfter = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
 
         assertEq(
             totalMintedAfter,
@@ -509,11 +375,6 @@ abstract contract TestBaseController is Test {
             mintLimitBefore - depositAmount,
             "mint limit sus"
         );
-        assertEq(
-            poolLockedAfter,
-            poolLockedBefore + depositAmount,
-            "connector locked amount sus"
-        );
     }
 
     function testPartConsumeInboundReceive() external {
@@ -533,9 +394,6 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitBefore = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
 
         assertTrue(mintLimitBefore > 0, "no mint limit available");
         assertTrue(depositAmount > mintLimitBefore, "mint not partial");
@@ -555,9 +413,6 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitAfter = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
 
         assertEq(
             totalMintedAfter,
@@ -580,11 +435,6 @@ abstract contract TestBaseController is Test {
             "total pending amount sus"
         );
         assertEq(mintLimitAfter, 0, "mint limit sus");
-        assertEq(
-            poolLockedAfter,
-            poolLockedBefore + depositAmount,
-            "connector locked amount sus"
-        );
     }
 
     function testMintPendingConnectorUnavail() external {
@@ -592,7 +442,6 @@ abstract contract TestBaseController is Test {
         address[] memory connectors = new address[](1);
         connectors[0] = _connector;
         _setLimits(connectors);
-        _setConnectorPoolId(connectors);
 
         uint256 depositAmount = 2 ether;
         deal(address(_token), address(_controller), depositAmount, true);
@@ -740,27 +589,3 @@ abstract contract TestBaseController is Test {
         );
     }
 }
-
-contract TestNormalController is TestBaseController {
-    function setUp() external {
-        isFiatTokenV2_1 = false;
-        vm.startPrank(_admin);
-        _token = new MintableToken("Moon", "MOON", 18);
-        _controller = new BridgeController(address(_token));
-        hook__ = new LimitExecutionHook(_admin, address(_controller));
-        _controller.updateHook(address(hook__));
-        vm.stopPrank();
-    }
-}
-
-// contract TestFiatTokenV2_1_Controller is TestBridgeController {
-//     function setUp() external {
-//         isFiatTokenV2_1 = true;
-//         vm.startPrank(_admin);
-//         _token = new FiatTokenV2_1_Mintable("Moon", "MOON", 18);
-//         _controller = new FiatTokenV2_1_Controller(
-//             address(_token)
-//         );
-//         vm.stopPrank();
-//     }
-// }

@@ -8,6 +8,7 @@ import "./common/Errors.sol";
 import "solmate/utils/ReentrancyGuard.sol";
 import "./interfaces/IHub.sol";
 import "./utils/RescueBase.sol";
+import "./common/Constants.sol";
 
 abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     address public immutable token;
@@ -41,7 +42,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     );
 
     constructor(address token_) AccessControl(msg.sender) {
-        if (token_.code.length == 0) revert InvalidTokenContract();
+        if (token_!=ETH_ADDRESS &&  token_.code.length == 0) revert InvalidTokenContract();
         token = token_;
     }
 
@@ -104,9 +105,13 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
             );
         }
 
+        uint256 fees = address(token) == ETH_ADDRESS
+            ? msg.value - transferInfo.amount
+            : msg.value;
+
         bytes32 messageId = IConnector(connector_).getMessageId();
         bytes32 returnedMessageId = IConnector(connector_).outbound{
-            value: msg.value
+            value: fees
         }(
             msgGasLimit_,
             abi.encode(

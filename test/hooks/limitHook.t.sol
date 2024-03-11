@@ -72,9 +72,10 @@ contract TestLimitHook is Test {
     function testUpdateLimitParams() external {
         _setLimits();
 
-        LimitHook.LimitParams memory burnLimitParams = limitHook__
-            .getSendingLimitParams(_connector1);
-        LimitHook.LimitParams memory mintLimitParams = limitHook__
+        LimitParams memory burnLimitParams = limitHook__.getSendingLimitParams(
+            _connector1
+        );
+        LimitParams memory mintLimitParams = limitHook__
             .getReceivingLimitParams(_connector1);
 
         assertEq(

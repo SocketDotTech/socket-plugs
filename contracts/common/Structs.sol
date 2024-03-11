@@ -54,3 +54,10 @@ struct CacheData {
     bytes identifierCache;
     bytes connectorCache;
 }
+
+struct LimitParams {
+    uint256 lastUpdateTimestamp;
+    uint256 ratePerSecond;
+    uint256 maxLimit;
+    uint256 lastUpdateLimit;
+}

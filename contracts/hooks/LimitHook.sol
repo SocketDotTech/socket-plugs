@@ -1,6 +1,7 @@
 pragma solidity 0.8.13;
 
 import "./plugins/LimitPlugin.sol";
+import "../interfaces/IController.sol";
 
 contract LimitHook is LimitPlugin {
     /**
@@ -103,14 +104,6 @@ contract LimitHook is LimitPlugin {
         }
     }
 
-    function _getConnectorPendingAmount(
-        bytes memory connectorCache_
-    ) internal view returns (uint256) {
-        if (connectorCache_.length > 0) {
-            return abi.decode(connectorCache_, (uint256));
-        } else return 0;
-    }
-
     // /**
     //  * @notice Handles pre-retry hook logic before execution.
     //  * @dev This function can be used to mint funds which were in a pending state due to limits.
@@ -184,5 +177,41 @@ contract LimitHook is LimitPlugin {
         if (pendingAmount == 0) {
             cacheData.identifierCache = new bytes(0);
         }
+    }
+
+    function _getConnectorPendingAmount(
+        bytes memory connectorCache_
+    ) internal view returns (uint256) {
+        if (connectorCache_.length > 0) {
+            return abi.decode(connectorCache_, (uint256));
+        } else return 0;
+    }
+
+    function getConnectorPendingAmount(
+        address connector_
+    ) external returns (uint256) {
+        bytes memory cache = IController(controller).connectorCache(connector_);
+        return _getConnectorPendingAmount(cache);
+    }
+
+    function _getIdentifierPendingAmount(
+        bytes memory identifierCache_
+    ) internal view returns (uint256) {
+        if (identifierCache_.length > 0) {
+            (address receiver, uint256 pendingAmount) = abi.decode(
+                identifierCache_,
+                (address, uint256)
+            );
+            return pendingAmount;
+        } else return 0;
+    }
+
+    function getIdentifierPendingAmount(
+        bytes32 messageId_
+    ) external returns (uint256) {
+        bytes memory cache = IController(controller).identifierCache(
+            messageId_
+        );
+        return _getIdentifierPendingAmount(cache);
     }
 }

@@ -1,13 +1,7 @@
 pragma solidity 0.8.13;
+import "../common/Structs.sol";
 
 abstract contract Gauge {
-    struct LimitParams {
-        uint256 lastUpdateTimestamp;
-        uint256 ratePerSecond;
-        uint256 maxLimit;
-        uint256 lastUpdateLimit;
-    }
-
     error AmountOutsideLimit();
 
     function _getCurrentLimit(

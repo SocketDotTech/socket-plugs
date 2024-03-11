@@ -73,11 +73,7 @@ contract Vault is Base {
                 TransferInfo(receiver_, amount_, execPayload_)
             );
 
-        ERC20(token).safeTransferFrom(
-            msg.sender,
-            address(this),
-            transferInfo.amount
-        );
+        _receiveTokens(transferInfo.amount);
 
         _afterBridge(
             msgGasLimit_,
@@ -116,7 +112,7 @@ contract Vault is Base {
             transferInfo
         );
 
-        ERC20(token).safeTransfer(transferInfo.receiver, transferInfo.amount);
+        _transferTokens(transferInfo.receiver, transferInfo.amount);
 
         _afterMint(unlockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
@@ -135,8 +131,31 @@ contract Vault is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        ERC20(token).safeTransfer(transferInfo.receiver, transferInfo.amount);
+        _transferTokens(transferInfo.receiver, transferInfo.amount);
 
         _afterRetry(connector_, messageId_, postRetryHookData);
+    }
+
+    function _transferTokens (
+        address receiver_,
+        uint256 amount_
+    ) internal {
+        if (address(token) == ETH_ADDRESS) {
+            SafeTransferLib.safeTransferETH(receiver_, amount_);
+        } else {
+            ERC20(token).safeTransfer(receiver_, amount_);
+        }
+    }
+
+    function _receiveTokens (
+        uint256 amount_
+    ) internal {
+        if (address(token) != ETH_ADDRESS) {
+            ERC20(token).safeTransferFrom(
+                msg.sender,
+                address(this),
+                amount_
+            );
+        }
     }
 }
