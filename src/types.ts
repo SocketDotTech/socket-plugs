@@ -35,6 +35,7 @@ export enum SuperBridgeContracts {
   ConnectorPlug = "ConnectorPlug",
   ERC20VaultWithPayload = "ERC20VaultWithPayload",
   NativeVaultWithPayload = "NativeVaultWithPayload",
+  ControllerWithPayload = "ControllerWithPayload",
 }
 
 export type ProjectAddresses = {

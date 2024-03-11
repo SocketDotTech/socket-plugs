@@ -13,8 +13,8 @@ import {
 } from "../../src";
 import { getToken } from "../constants/config";
 
-const srcChain = ChainSlug.LYRA_TESTNET;
-const dstChain = ChainSlug.SEPOLIA;
+const srcChain = ChainSlug.REYA_CRONOS;
+const dstChain = ChainSlug.OPTIMISM_SEPOLIA;
 const amount = "1";
 
 let amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
@@ -46,7 +46,10 @@ export const main = async () => {
     const socketSigner = getSignerFromChainSlug(srcChain);
 
     const controller: Contract = (
-      await getInstance(SuperBridgeContracts.Controller, controllerAddr)
+      await getInstance(
+        SuperBridgeContracts.ControllerWithPayload,
+        controllerAddr
+      )
     ).connect(socketSigner);
     const tokenContract: Contract = (
       await getInstance("ERC20", tokenAddr)
@@ -87,6 +90,7 @@ export const main = async () => {
       amountBN,
       gasLimit,
       connectorAddr,
+      utils.arrayify("0x"),
       { ...overrides[srcChain], value: fees }
     );
     console.log("Tokens burnt", withdrawTx.hash);

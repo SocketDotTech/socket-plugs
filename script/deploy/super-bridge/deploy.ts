@@ -220,10 +220,10 @@ const deployAppChainContracts = async (
     const controller: Contract = await getOrDeploy(
       pc.isFiatTokenV2_1
         ? SuperBridgeContracts.FiatTokenV2_1_Controller
-        : SuperBridgeContracts.Controller,
+        : SuperBridgeContracts.ControllerWithPayload,
       pc.isFiatTokenV2_1
         ? "contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
-        : "contracts/superbridge/Controller.sol",
+        : "contracts/superbridge/payload/ControllerWithPayload.sol",
       [
         deployParams.addresses[SuperBridgeContracts.MintableToken],
         exchangeRate.address,

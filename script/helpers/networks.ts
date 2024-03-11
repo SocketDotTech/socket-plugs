@@ -43,7 +43,7 @@ export const overrides: {
   [ChainSlug.SEPOLIA]: {
     type: 0,
     gasLimit,
-    gasPrice: 10_000_000_000,
+    gasPrice: 50_000_000_000,
   },
   [ChainSlug.AEVO_TESTNET]: {
     type,

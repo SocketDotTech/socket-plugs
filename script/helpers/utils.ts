@@ -39,12 +39,16 @@ export const getOrDeploy = async (
 
   let contract: Contract;
   let storedContactAddress = deployUtils.addresses[contractName];
-  if (contractName === SuperBridgeContracts.FiatTokenV2_1_Controller) {
+  if (
+    contractName === SuperBridgeContracts.FiatTokenV2_1_Controller ||
+    contractName === SuperBridgeContracts.ControllerWithPayload
+  ) {
     storedContactAddress =
       deployUtils.addresses[SuperBridgeContracts.Controller];
-  } else if (contractName === SuperBridgeContracts.ERC20VaultWithPayload) {
-    storedContactAddress = deployUtils.addresses[SuperBridgeContracts.Vault];
-  } else if (contractName === SuperBridgeContracts.NativeVaultWithPayload) {
+  } else if (
+    contractName === SuperBridgeContracts.ERC20VaultWithPayload ||
+    contractName === SuperBridgeContracts.NativeVaultWithPayload
+  ) {
     storedContactAddress = deployUtils.addresses[SuperBridgeContracts.Vault];
   }
 

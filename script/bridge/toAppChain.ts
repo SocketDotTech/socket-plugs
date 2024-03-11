@@ -11,8 +11,8 @@ import {
 } from "../../src";
 import { getToken } from "../constants/config";
 
-const srcChain = ChainSlug.SEPOLIA;
-const dstChain = ChainSlug.LYRA_TESTNET;
+const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
+const dstChain = ChainSlug.REYA_CRONOS;
 const amount = "1";
 
 const gasLimit = 500_000;
