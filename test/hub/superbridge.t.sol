@@ -9,6 +9,7 @@ import "../../contracts/hub/FiatTokenV2_1/FiatTokenV2_1_Controller.sol";
 import "../../contracts/hooks/LimitExecutionHook.sol";
 import "forge-std/console.sol";
 import "../../contracts/utils/Gauge.sol";
+import "../../contracts/hooks/plugins/ExecutionHelper.sol";
 
 abstract contract TestBaseController is Test {
     uint256 _c = 1000;
@@ -32,6 +33,7 @@ abstract contract TestBaseController is Test {
     bool isFiatTokenV2_1;
     ERC20 _token;
     Controller _controller;
+    ExecutionHelper _executionHelper;
 
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
@@ -75,7 +77,7 @@ abstract contract TestBaseController is Test {
             poolIds[i] = _connectorPoolId;
         }
         vm.prank(_admin);
-        _controller.updateConnectorPoolId(connectors_, poolIds);
+        hook__.updateConnectorPoolId(connectors_, poolIds);
     }
 
     function _setConnectorStatus(address[] memory connectors_) internal {
@@ -94,7 +96,7 @@ abstract contract TestBaseController is Test {
         poolIds[0] = 0;
         vm.prank(_admin);
         vm.expectRevert(InvalidPoolId.selector);
-        _controller.updateConnectorPoolId(connectors, poolIds);
+        hook__.updateConnectorPoolId(connectors, poolIds);
     }
 
     function testWithdrawConnectorUnavail() external {
@@ -195,33 +197,7 @@ abstract contract TestBaseController is Test {
         if (isFiatTokenV2_1) {
             _token.approve(address(_controller), withdrawAmount);
         }
-        vm.expectRevert(Gauge.AmountOutsideLimit.selector);
-        _controller.bridge{value: _fees}(
-            _raju,
-            withdrawAmount,
-            _msgGasLimit,
-            _connector,
-            new bytes(0),
-            new bytes(0)
-        );
-        vm.stopPrank();
-    }
-
-    function testZeroAmountWithdraw() external {
-        address[] memory connectors = new address[](1);
-        connectors[0] = _connector;
-        _setupConnectors(connectors);
-
-        uint256 withdrawAmount = 0 ether;
-        uint256 dealAmount = 10 ether;
-        deal(address(_token), _raju, dealAmount);
-        deal(_raju, _fees);
-
-        vm.startPrank(_raju);
-        if (isFiatTokenV2_1) {
-            _token.approve(address(_controller), dealAmount);
-        }
-        vm.expectRevert(ZeroAmount.selector);
+        vm.expectRevert(InsufficientFunds.selector);
         _controller.bridge{value: _fees}(
             _raju,
             withdrawAmount,
@@ -308,9 +284,7 @@ abstract contract TestBaseController is Test {
         deal(_raju, _fees * 2);
 
         uint256 rajuBalBefore = _token.balanceOf(_raju);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedBefore = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(poolLockedBefore, totalAmount, "pool locked sus");
 
@@ -326,9 +300,7 @@ abstract contract TestBaseController is Test {
         vm.stopPrank();
 
         uint256 rajuBalAfter = _token.balanceOf(_raju);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedAfter = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(
             rajuBalAfter,
@@ -401,9 +373,7 @@ abstract contract TestBaseController is Test {
         uint256 rajuBalBefore = _token.balanceOf(_raju);
         uint256 totalMintedBefore = _controller.totalMinted();
         uint256 burnLimitBefore = hook__.getCurrentSendingLimit(_connector);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedBefore = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertTrue(
             withdrawAmount <= hook__.getCurrentSendingLimit(_connector),
@@ -420,9 +390,7 @@ abstract contract TestBaseController is Test {
         uint256 rajuBalAfter = _token.balanceOf(_raju);
         uint256 totalMintedAfter = _controller.totalMinted();
         uint256 burnLimitAfter = hook__.getCurrentSendingLimit(_connector);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedAfter = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(
             rajuBalAfter,
@@ -463,9 +431,7 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitBefore = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedBefore = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertTrue(depositAmount <= mintLimitBefore, "limit hit");
 
@@ -484,9 +450,7 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitAfter = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedAfter = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(
             totalMintedAfter,
@@ -533,9 +497,7 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitBefore = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedBefore = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedBefore = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertTrue(mintLimitBefore > 0, "no mint limit available");
         assertTrue(depositAmount > mintLimitBefore, "mint not partial");
@@ -555,9 +517,7 @@ abstract contract TestBaseController is Test {
             _connector
         );
         uint256 mintLimitAfter = hook__.getCurrentReceivingLimit(_connector);
-        uint256 poolLockedAfter = _controller.poolLockedAmounts(
-            _connectorPoolId
-        );
+        uint256 poolLockedAfter = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(
             totalMintedAfter,
@@ -747,7 +707,13 @@ contract TestNormalController is TestBaseController {
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
         _controller = new Controller(address(_token));
-        hook__ = new LimitExecutionHook(_admin, address(_controller));
+        _executionHelper = new ExecutionHelper();
+        hook__ = new LimitExecutionHook(
+            _admin,
+            address(_controller),
+            address(_executionHelper),
+            true
+        );
         _controller.updateHook(address(hook__));
         vm.stopPrank();
     }

@@ -157,7 +157,11 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
     {
         (postRetryHookData, transferInfo) = super.preRetryHook(params_);
         uint256 sharesToMint = asset__.calculateMintAmount(transferInfo.amount);
-        transferInfo = TransferInfo(transferInfo.receiver, sharesToMint, bytes(""));
+        transferInfo = TransferInfo(
+            transferInfo.receiver,
+            sharesToMint,
+            bytes("")
+        );
     }
 
     // /**

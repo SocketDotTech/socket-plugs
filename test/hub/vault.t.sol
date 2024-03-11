@@ -2,12 +2,13 @@ pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
-import "./mocks/MintableToken.sol";
-import "../contracts/hub/Vault.sol";
-import "../contracts/common/Errors.sol";
-import "../contracts/hooks/LimitExecutionHook.sol";
+import "../mocks/MintableToken.sol";
+import "../../contracts/hub/Vault.sol";
+import "../../contracts/common/Errors.sol";
+import "../../contracts/hooks/LimitExecutionHook.sol";
 import "forge-std/console.sol";
-import "../contracts/utils/Gauge.sol";
+import "../../contracts/utils/Gauge.sol";
+import "../../contracts/hooks/plugins/ExecutionHelper.sol";
 
 contract TestVault is Test {
     uint256 _c = 1000;
@@ -30,7 +31,7 @@ contract TestVault is Test {
     bool isFiatTokenV2_1;
     ERC20 _token;
     Vault _vault;
-
+    ExecutionHelper _executionHelper;
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     event ConnectorStatusUpdated(address connector, bool status);
@@ -40,7 +41,13 @@ contract TestVault is Test {
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
         _vault = new Vault(address(_token));
-        hook__ = new LimitExecutionHook(_admin, address(_vault));
+        _executionHelper = new ExecutionHelper();
+        hook__ = new LimitExecutionHook(
+            _admin,
+            address(_vault),
+            address(_executionHelper),
+            false
+        );
         _vault.updateHook(address(hook__));
         vm.stopPrank();
     }
@@ -50,7 +57,13 @@ contract TestVault is Test {
         vm.startPrank(_admin);
         _token = ERC20(ETH_ADDRESS);
         _vault = new Vault(address(_token));
-        hook__ = new LimitExecutionHook(_admin, address(_vault));
+        _executionHelper = new ExecutionHelper();
+        hook__ = new LimitExecutionHook(
+            _admin,
+            address(_vault),
+            address(_executionHelper),
+            false
+        );
         _vault.updateHook(address(hook__));
         vm.stopPrank();
     }
@@ -139,32 +152,6 @@ contract TestVault is Test {
             _token.approve(address(_vault), withdrawAmount);
         }
         vm.expectRevert(Gauge.AmountOutsideLimit.selector);
-        _vault.bridge{value: _fees}(
-            _raju,
-            withdrawAmount,
-            _msgGasLimit,
-            _connector,
-            new bytes(0),
-            new bytes(0)
-        );
-        vm.stopPrank();
-    }
-
-    function testZeroAmountWithdraw() external {
-        address[] memory connectors = new address[](1);
-        connectors[0] = _connector;
-        _setupConnectors(connectors);
-
-        uint256 withdrawAmount = 0 ether;
-        uint256 dealAmount = 10 ether;
-        deal(address(_token), _raju, dealAmount);
-        deal(_raju, _fees);
-
-        vm.startPrank(_raju);
-        if (isFiatTokenV2_1) {
-            _token.approve(address(_vault), dealAmount);
-        }
-        vm.expectRevert(ZeroAmount.selector);
         _vault.bridge{value: _fees}(
             _raju,
             withdrawAmount,

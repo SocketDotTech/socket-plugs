@@ -8,6 +8,7 @@ import "../mocks/MockSocket.sol";
 import "../../contracts/hooks/LimitExecutionHook.sol";
 import "forge-std/console.sol";
 import "../../contracts/utils/Gauge.sol";
+import "../../contracts/hooks/plugins/ExecutionHelper.sol";
 
 contract TestLimitExecutionHook is Test {
     uint256 _c = 1000;
@@ -36,6 +37,7 @@ contract TestLimitExecutionHook is Test {
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
     uint32 _otherSiblingSlug;
+    ExecutionHelper _executionHelper;
 
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
@@ -46,8 +48,14 @@ contract TestLimitExecutionHook is Test {
         controller__ = address(uint160(_c++));
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
+        _executionHelper = new ExecutionHelper();
+        hook__ = new LimitExecutionHook(
+            _admin,
+            address(controller__),
+            address(_executionHelper),
+            false
+        );
 
-        hook__ = new LimitExecutionHook(_admin, controller__);
         _token = new MintableToken("Moon", "MOON", 18);
 
         _token.mint(_admin, _initialSupply);

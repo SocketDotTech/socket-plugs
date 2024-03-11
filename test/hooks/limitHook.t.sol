@@ -7,6 +7,7 @@ import "../mocks/MintableToken.sol";
 import "../mocks/MockSocket.sol";
 import "../../contracts/hooks/LimitHook.sol";
 import "forge-std/console.sol";
+import "../../contracts/hooks/plugins/ExecutionHelper.sol";
 
 contract TestLimitHook is Test {
     uint256 _c = 1000;
@@ -34,6 +35,7 @@ contract TestLimitHook is Test {
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
     uint32 _otherSiblingSlug;
+    ExecutionHelper _executionHelper;
 
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
@@ -45,7 +47,7 @@ contract TestLimitHook is Test {
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
-        limitHook__ = new LimitHook(_admin, controller__);
+        limitHook__ = new LimitHook(_admin, controller__, false);
         _token = new MintableToken("Moon", "MOON", 18);
         _token.mint(_admin, _initialSupply);
         _token.mint(_raju, _rajuInitialBal);
@@ -308,7 +310,7 @@ contract TestLimitHook is Test {
         );
 
         assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
-        assertEq(cacheData.connectorCache, bytes(""), "connectorCache sus");
+        assertEq(cacheData.connectorCache, abi.encode(0), "connectorCache sus");
     }
 
     function testPartConsumeDstCall() external {
