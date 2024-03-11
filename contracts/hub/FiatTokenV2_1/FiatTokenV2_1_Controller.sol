@@ -1,12 +1,7 @@
 pragma solidity 0.8.13;
 
-import "solmate/utils/SafeTransferLib.sol";
-import {Controller} from "../Controller.sol";
-import {IMintableERC20} from "../../interfaces/IMintableERC20.sol";
 import {IFiatTokenV2_1_Mintable} from "./IFiatTokenV2_1_Mintable.sol";
-import {AccessControl} from "../../utils/AccessControl.sol";
-import "../../interfaces/IHook.sol";
-import "../../common/Constants.sol";
+import "../Controller.sol";
 
 contract FiatTokenV2_1_Controller is Controller {
     using SafeTransferLib for ERC20;

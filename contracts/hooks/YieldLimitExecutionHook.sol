@@ -49,13 +49,13 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
         uint128 rebalanceDelay_,
         address strategy_,
         address asset_,
-        address controller_,
+        address vault_,
         address executionHelper_,
         bool useControllerPools_
     )
         LimitExecutionHook(
             msg.sender,
-            controller_,
+            vault_,
             executionHelper_,
             useControllerPools_
         )
@@ -118,10 +118,12 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
 
         // ensure vault have enough idle assets
         if (transferInfo.amount > totalAssets()) revert NotEnoughAssets();
-        (bool pullFromStrategy, bytes memory payload_) = abi.decode(
+
+        (bytes memory options_, bytes memory payload_) = abi.decode(
             params_.transferInfo.data,
-            (bool, bytes)
+            (bytes, bytes)
         );
+        bool pullFromStrategy = abi.decode(options_, (bool));
 
         if (transferInfo.amount > totalIdle) {
             if (pullFromStrategy) {

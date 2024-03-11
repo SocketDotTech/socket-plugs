@@ -714,7 +714,7 @@ contract TestNormalController is TestBaseController {
             address(_executionHelper),
             true
         );
-        _controller.updateHook(address(hook__));
+        _controller.updateHook(address(hook__), false);
         vm.stopPrank();
     }
 }

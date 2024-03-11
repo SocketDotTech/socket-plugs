@@ -16,11 +16,8 @@ contract YieldToken is YieldTokenBase {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint8 decimals_,
-        address controller_
-    ) YieldTokenBase(name_, symbol_, decimals_) AccessControl(msg.sender) {
-        _grantRole(MINTER_ROLE, controller_);
-    }
+        uint8 decimals_
+    ) YieldTokenBase(name_, symbol_, decimals_) AccessControl(msg.sender) {}
 
     // move to hook
     // fix to round up and check other cases
@@ -31,8 +28,7 @@ contract YieldToken is YieldTokenBase {
         // total yield -> total underlying from all chains
         // yield sent from src chain includes new amount hence subtracted here
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
-        uint256 totalAssets = totalYield - assets_;
-        return supply == 0 ? assets_ : assets_.mulDivUp(supply, totalAssets);
+        return supply == 0 ? assets_ : assets_.mulDivUp(supply, totalYield);
     }
 
     function burn(

@@ -10,9 +10,9 @@ contract MockYieldTokenHook is YieldTokenLimitExecutionHook {
         address executionHelper_
     ) YieldTokenLimitExecutionHook(asset_, controller_, executionHelper_) {}
 
-    function updateSiblingYield(address connector_, uint256 yield_) external {
-        // poolLockedAmounts[connector_] = yield_;
-        lastSyncTimestamp[connector_] = block.timestamp;
+    function updateSiblingYield(uint256 poolId_, uint256 yield_) external {
+        poolLockedAmounts[poolId_] = yield_;
+        lastSyncTimestamp[poolId_] = block.timestamp;
     }
 
     function updateTotalYield(uint256 yield_) external {

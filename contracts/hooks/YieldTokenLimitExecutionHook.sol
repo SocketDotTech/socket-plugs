@@ -27,7 +27,7 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
 
     // total yield
     uint256 public totalYield;
-    mapping(address => uint256) public lastSyncTimestamp;
+    mapping(uint256 => uint256) public lastSyncTimestamp;
 
     // if true, no funds can be invested in the strategy
     bool public emergencyShutdown;
@@ -102,7 +102,7 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
         isVaultOrToken
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 newYield, ) = abi.decode(
+        (uint256 newYield, bytes memory payload) = abi.decode(
             params_.transferInfo.data,
             (uint256, bytes)
         );
@@ -122,6 +122,7 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
         postHookData = abi.encode(consumedAmount, pendingAmount);
         transferInfo = params_.transferInfo;
         transferInfo.amount = sharesToMint;
+        transferInfo.data = payload;
     }
 
     /**
