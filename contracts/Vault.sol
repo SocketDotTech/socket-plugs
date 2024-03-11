@@ -136,10 +136,7 @@ contract Vault is Base {
         _afterRetry(connector_, messageId_, postRetryHookData);
     }
 
-    function _transferTokens (
-        address receiver_,
-        uint256 amount_
-    ) internal {
+    function _transferTokens(address receiver_, uint256 amount_) internal {
         if (address(token) == ETH_ADDRESS) {
             SafeTransferLib.safeTransferETH(receiver_, amount_);
         } else {
@@ -147,15 +144,9 @@ contract Vault is Base {
         }
     }
 
-    function _receiveTokens (
-        uint256 amount_
-    ) internal {
+    function _receiveTokens(uint256 amount_) internal {
         if (address(token) != ETH_ADDRESS) {
-            ERC20(token).safeTransferFrom(
-                msg.sender,
-                address(this),
-                amount_
-            );
+            ERC20(token).safeTransferFrom(msg.sender, address(this), amount_);
         }
     }
 }

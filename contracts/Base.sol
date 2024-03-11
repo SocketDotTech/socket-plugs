@@ -42,7 +42,8 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     );
 
     constructor(address token_) AccessControl(msg.sender) {
-        if (token_!=ETH_ADDRESS &&  token_.code.length == 0) revert InvalidTokenContract();
+        if (token_ != ETH_ADDRESS && token_.code.length == 0)
+            revert InvalidTokenContract();
         token = token_;
     }
 

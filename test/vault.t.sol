@@ -43,7 +43,7 @@ contract TestVault is Test {
         hook__ = new LimitExecutionHook(_admin, address(_vault));
         _vault.updateHook(address(hook__));
         vm.stopPrank();
-    }   
+    }
 
     function _setLimits(address[] memory connectors_) internal {
         UpdateLimitParams[] memory u = new UpdateLimitParams[](
@@ -269,7 +269,6 @@ contract TestVault is Test {
     }
 
     function testBridge() external {
-
         address[] memory connectors = new address[](1);
         connectors[0] = _connector;
         _setupConnectors(connectors);
@@ -315,7 +314,7 @@ contract TestVault is Test {
         );
     }
 
-        function testNativeBridge() external {
+    function testNativeBridge() external {
         vm.startPrank(_admin);
         _token = ERC20(ETH_ADDRESS);
         _vault = new Vault(ETH_ADDRESS);
@@ -375,9 +374,8 @@ contract TestVault is Test {
         uint256 pendingUnlocksBefore = hook__.getIdentifierPendingAmount(
             _messageId
         );
-        uint256 connectorPendingUnlocksBefore = hook__.getConnectorPendingAmount(
-            _connector
-        );
+        uint256 connectorPendingUnlocksBefore = hook__
+            .getConnectorPendingAmount(_connector);
         uint256 unlockLimitBefore = hook__.getCurrentReceivingLimit(_connector);
 
         assertTrue(depositAmount <= unlockLimitBefore, "limit hit");
@@ -402,7 +400,11 @@ contract TestVault is Test {
             rajuBalBefore + depositAmount,
             "raju balance sus"
         );
-        assertEq(pendingUnlocksAfter, pendingUnlocksBefore, "pending unlocks sus");
+        assertEq(
+            pendingUnlocksAfter,
+            pendingUnlocksBefore,
+            "pending unlocks sus"
+        );
         assertEq(
             connectorPendingUnlocksAfter,
             connectorPendingUnlocksBefore,
@@ -427,9 +429,8 @@ contract TestVault is Test {
         uint256 pendingUnlocksBefore = hook__.getIdentifierPendingAmount(
             _messageId
         );
-        uint256 connectorPendingUnlocksBefore = hook__.getConnectorPendingAmount(
-            _connector
-        );
+        uint256 connectorPendingUnlocksBefore = hook__
+            .getConnectorPendingAmount(_connector);
         uint256 unlockLimitBefore = hook__.getCurrentReceivingLimit(_connector);
 
         assertTrue(unlockLimitBefore > 0, "no unlock limit available");
@@ -512,9 +513,8 @@ contract TestVault is Test {
         uint256 pendingUnlocksBefore = hook__.getIdentifierPendingAmount(
             _messageId
         );
-        uint256 connectorPendingUnlocksBefore = hook__.getConnectorPendingAmount(
-            _connector
-        );
+        uint256 connectorPendingUnlocksBefore = hook__
+            .getConnectorPendingAmount(_connector);
         assertEq(rajuBalBefore, _unlockMaxLimit, "raju bal before sus");
         assertEq(
             pendingUnlocksBefore,
@@ -544,7 +544,11 @@ contract TestVault is Test {
 
         assertEq(rajuBalAfter, depositAmount, "raju bal after sus");
         assertEq(pendingUnlocksAfter, 0, "pending unlock after sus");
-        assertEq(connectorPendingUnlocksAfter, 0, "total pending unlock after sus");
+        assertEq(
+            connectorPendingUnlocksAfter,
+            0,
+            "total pending unlock after sus"
+        );
     }
 
     function testPartConsumeUnlockPending() external {
@@ -566,9 +570,8 @@ contract TestVault is Test {
         uint256 pendingUnlocksBefore = hook__.getIdentifierPendingAmount(
             _messageId
         );
-        uint256 connectorPendingUnlocksBefore = hook__.getConnectorPendingAmount(
-            _connector
-        );
+        uint256 connectorPendingUnlocksBefore = hook__
+            .getConnectorPendingAmount(_connector);
         uint256 newUnlock = time * _unlockRate;
 
         assertEq(rajuBalBefore, _unlockMaxLimit, "raju bal before sus");
@@ -584,7 +587,10 @@ contract TestVault is Test {
         );
         assertTrue(depositAmount - _unlockMaxLimit > 0, "what to unlock?");
 
-        assertTrue(newUnlock < depositAmount - _unlockMaxLimit, "too much time");
+        assertTrue(
+            newUnlock < depositAmount - _unlockMaxLimit,
+            "too much time"
+        );
 
         skip(time);
         _vault.retry(_connector, _messageId);
@@ -597,7 +603,11 @@ contract TestVault is Test {
             _connector
         );
 
-        assertEq(rajuBalAfter, _unlockMaxLimit + newUnlock, "raju bal after sus");
+        assertEq(
+            rajuBalAfter,
+            _unlockMaxLimit + newUnlock,
+            "raju bal after sus"
+        );
         assertEq(
             pendingUnlocksAfter,
             depositAmount - _unlockMaxLimit - newUnlock,
@@ -610,9 +620,7 @@ contract TestVault is Test {
         );
     }
 
-
     function testPartConsumeNativeUnlockPending() external {
-
         vm.startPrank(_admin);
         _token = ERC20(ETH_ADDRESS);
         _vault = new Vault(ETH_ADDRESS);
@@ -636,9 +644,8 @@ contract TestVault is Test {
         uint256 pendingUnlocksBefore = hook__.getIdentifierPendingAmount(
             _messageId
         );
-        uint256 connectorPendingUnlocksBefore = hook__.getConnectorPendingAmount(
-            _connector
-        );
+        uint256 connectorPendingUnlocksBefore = hook__
+            .getConnectorPendingAmount(_connector);
         uint256 newUnlock = time * _unlockRate;
 
         assertEq(rajuBalBefore, _unlockMaxLimit, "raju bal before sus");
@@ -654,7 +661,10 @@ contract TestVault is Test {
         );
         assertTrue(depositAmount - _unlockMaxLimit > 0, "what to unlock?");
 
-        assertTrue(newUnlock < depositAmount - _unlockMaxLimit, "too much time");
+        assertTrue(
+            newUnlock < depositAmount - _unlockMaxLimit,
+            "too much time"
+        );
 
         skip(time);
         _vault.retry(_connector, _messageId);
@@ -667,7 +677,11 @@ contract TestVault is Test {
             _connector
         );
 
-        assertEq(rajuBalAfter, _unlockMaxLimit + newUnlock, "raju bal after sus");
+        assertEq(
+            rajuBalAfter,
+            _unlockMaxLimit + newUnlock,
+            "raju bal after sus"
+        );
         assertEq(
             pendingUnlocksAfter,
             depositAmount - _unlockMaxLimit - newUnlock,
