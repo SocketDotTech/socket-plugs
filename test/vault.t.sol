@@ -45,6 +45,16 @@ contract TestVault is Test {
         vm.stopPrank();
     }
 
+    function ethSetUp() public {
+        isFiatTokenV2_1 = false;
+        vm.startPrank(_admin);
+        _token = ERC20(ETH_ADDRESS);
+        _vault = new Vault(address(_token));
+        hook__ = new LimitExecutionHook(_admin, address(_vault));
+        _vault.updateHook(address(hook__));
+        vm.stopPrank();
+    }
+
     function _setLimits(address[] memory connectors_) internal {
         UpdateLimitParams[] memory u = new UpdateLimitParams[](
             connectors_.length * 2
@@ -235,6 +245,10 @@ contract TestVault is Test {
             _messageId,
             new bytes(0)
         );
+
+        uint256 msgValue = address(_token) == ETH_ADDRESS ? amount_ + _fees : _fees;
+
+
         vm.expectCall(
             connector_,
             abi.encodeCall(
@@ -251,14 +265,14 @@ contract TestVault is Test {
 
         vm.mockCall(
             connector_,
+            _fees,
             abi.encodeCall(
                 IConnector.outbound,
                 (_msgGasLimit, payload, new bytes(0))
             ),
             abi.encode(_messageId)
         );
-        uint256 fees = address(_token) == ETH_ADDRESS ? amount_ + _fees : _fees;
-        _vault.bridge{value: fees}(
+        _vault.bridge{value: msgValue}(
             receiver_,
             amount_,
             _msgGasLimit,
@@ -315,10 +329,7 @@ contract TestVault is Test {
     }
 
     function testNativeBridge() external {
-        vm.startPrank(_admin);
-        _token = ERC20(ETH_ADDRESS);
-        _vault = new Vault(ETH_ADDRESS);
-        vm.stopPrank();
+        ethSetUp();
         address[] memory connectors = new address[](1);
         connectors[0] = _connector;
         _setupConnectors(connectors);
@@ -621,10 +632,7 @@ contract TestVault is Test {
     }
 
     function testPartConsumeNativeUnlockPending() external {
-        vm.startPrank(_admin);
-        _token = ERC20(ETH_ADDRESS);
-        _vault = new Vault(ETH_ADDRESS);
-        vm.stopPrank();
+        ethSetUp();
 
         address[] memory connectors = new address[](1);
         connectors[0] = _connector;
