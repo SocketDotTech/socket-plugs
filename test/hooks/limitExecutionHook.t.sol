@@ -19,6 +19,8 @@ contract TestLimitExecutionHook is Test {
     address immutable _connector1 = address(uint160(_c++));
     address immutable _connector2 = address(uint160(_c++));
     address immutable _otherConnector = address(uint160(_c++));
+    bytes32 immutable _messageId = bytes32(_c++);
+
     uint256 constant _burnMaxLimit = 200 ether;
     uint256 constant _burnRate = 2 ether;
     uint256 constant _mintMaxLimit = 100 ether;
@@ -418,56 +420,13 @@ contract TestLimitExecutionHook is Test {
         cacheData = hook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector1,
+                _messageId,
                 connectorCache,
                 postHookData,
                 transferInfo
             )
         );
     }
-
-    // function testFullConsumePayloadSuccessDstCall() external {
-    //     _setLimits();
-    //     uint256 depositAmount = 2 ether;
-    //     bytes memory payload = bytes("0x");
-    //     bytes memory connectorCache = abi.encode(10 ether);
-    //     TransferInfo memory initialTransferInfo = TransferInfo(
-    //         _raju,
-    //         depositAmount,
-    //         payload
-    //     );
-    //     vm.startPrank(controller__);
-    //     (bytes memory postHookData, TransferInfo memory transferInfo) = hook__
-    //         .dstPreHookCall(
-    //             DstPreHookCallParams(
-    //                 _connector1,
-    //                 connectorCache,
-    //                 initialTransferInfo
-    //             )
-    //         );
-
-    //     assertEq(transferInfo.amount, depositAmount, "depositAmount sus");
-    //     assertEq(transferInfo.receiver, _raju, "raju address sus");
-    //     assertEq(
-    //         postHookData,
-    //         abi.encode(depositAmount, 0),
-    //         "postHookData sus"
-    //     );
-
-    //     vm.startPrank(controller__);
-
-    //     // Payload length > 0 , success
-    //     CacheData memory cacheData = hook__.dstPostHookCall(
-    //         DstPostHookCallParams(
-    //             _connector1,
-    //             connectorCache,
-    //             postHookData,
-    //             transferInfo
-    //         )
-    //     );
-
-    //     assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
-    //     assertEq(cacheData.connectorCache, connectorCache, "connectorCache sus");
-    // }
 
     function testFullConsumePreRetryHookCall() external {
         _setLimits();
@@ -722,6 +681,7 @@ contract TestLimitExecutionHook is Test {
         cacheData = hook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector1,
+                _messageId,
                 postRetryHookData_,
                 CacheData(
                     abi.encode(
@@ -735,82 +695,4 @@ contract TestLimitExecutionHook is Test {
             )
         );
     }
-
-    // function testPartConsumeRetryHookCall() external {
-    //     _setLimits();
-    //     uint256 pendingAmount = 200 ether;
-    //     uint256 connectorAlreadyPendingAmount = 100 ether;
-    //     vm.startPrank(controller__);
-    //     (
-    //         bytes memory postRetryHookData,
-    //         TransferInfo memory transferInfo
-    //     ) = hook__.preRetryHook(
-    //             PreRetryHookCallParams(
-    //                 _connector1,
-    //                 CacheData(
-    //                     abi.encode(_raju, pendingAmount),
-    //                     abi.encode(
-    //                         pendingAmount + connectorAlreadyPendingAmount
-    //                     )
-    //                 )
-    //             )
-    //         );
-
-    //     assertEq(
-    //         postRetryHookData,
-    //         abi.encode(_raju, _mintMaxLimit, pendingAmount - _mintMaxLimit),
-    //         "postHookData sus"
-    //     );
-    //     assertEq(transferInfo.receiver, _raju, "raju address sus");
-    //     assertEq(transferInfo.amount, _mintMaxLimit, "pending amount sus");
-    //     assertEq(transferInfo.data, bytes(""), "raju address sus");
-
-    //     // test 0 connector pendingAmount before
-    //     CacheData memory cacheData = hook__.postRetryHook(
-    //         PostRetryHookCallParams(
-    //             _connector1,
-    //             postRetryHookData,
-    //             CacheData(
-    //                 abi.encode(_raju, pendingAmount),
-    //                 abi.encode(pendingAmount)
-    //             )
-    //         )
-    //     );
-
-    //     assertEq(
-    //         cacheData.identifierCache,
-    //         abi.encode(_raju, pendingAmount - _mintMaxLimit),
-    //         "identifierCache sus"
-    //     );
-    //     assertEq(
-    //         cacheData.connectorCache,
-    //         abi.encode(pendingAmount - _mintMaxLimit),
-    //         "connectorCache sus"
-    //     );
-
-    //     // test non 0 connector pendingAmount before
-    //     cacheData = hook__.postRetryHook(
-    //         PostRetryHookCallParams(
-    //             _connector1,
-    //             postRetryHookData,
-    //             CacheData(
-    //                 abi.encode(_raju, pendingAmount),
-    //                 abi.encode(pendingAmount + connectorAlreadyPendingAmount)
-    //             )
-    //         )
-    //     );
-
-    //     assertEq(
-    //         cacheData.identifierCache,
-    //         abi.encode(_raju, pendingAmount - _mintMaxLimit),
-    //         "identifierCache sus"
-    //     );
-    //     assertEq(
-    //         cacheData.connectorCache,
-    //         abi.encode(
-    //             pendingAmount + connectorAlreadyPendingAmount - _mintMaxLimit
-    //         ),
-    //         "connectorCache sus"
-    //     );
-    // }
 }

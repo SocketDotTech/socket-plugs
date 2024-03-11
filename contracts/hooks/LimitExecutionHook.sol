@@ -9,6 +9,8 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     bool public useControllerPools;
     ExecutionHelper executionHelper__;
 
+    event MessageExecuted(bytes32 indexed messageId, address indexed receiver);
+
     /**
      * @notice Constructor for creating a new SuperToken.
      * @param owner_ Owner of this contract.
@@ -21,13 +23,9 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     ) HookBase(owner_, controller_) {
         useControllerPools = useControllerPools_;
         executionHelper__ = ExecutionHelper(executionHelper_);
+        hookType = LIMIT_EXECUTION_HOOK;
     }
 
-    /**
-     * @dev This function calls the srcHookCall function of the connector contract,
-     * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
-     * the updated receiver, amount, and extradata.
-     */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     )
@@ -48,19 +46,6 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         return params_.transferInfo;
     }
 
-    // /**
-    //  * @notice This function is called before the execution of a destination hook.
-    //  * @dev It checks if the sibling chain is supported, consumes a part of the limit, and prepares post-hook data.
-    //  * @param receiver_ The receiver of the funds.
-    //  * @param amount_ The amount of funds.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param connector_ The address of the bridge contract.
-    //  * @param extradata_ Additional data to be passed to the connector contract.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @return updatedReceiver The updated receiver of the funds.
-    //  * @return consumedAmount The amount consumed from the limit.
-    //  * @return postHookData The post-hook data to be processed after the hook execution.
-    //  */
     function dstPreHookCall(
         DstPreHookCallParams calldata params_
     )
@@ -81,19 +66,6 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         transferInfo.amount = consumedAmount;
     }
 
-    // /**
-    //  * @notice Handles post-hook logic after the execution of a destination hook.
-    //  * @dev This function processes post-hook data to update the identifier cache and sibling chain cache.
-    //  * @param receiver_ The receiver of the funds.
-    //  * @param amount_ The amount of funds.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param connector_ The address of the bridge contract.
-    //  * @param extradata_ Additional data passed to the connector contract.
-    //  * @param postHookData_ The post-hook data containing consumed and pending amounts.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @return newIdentifierCache The updated identifier cache.
-    //  * @return newConnectorCache The updated sibling chain cache.
-    //  */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) public virtual isVaultOrToken returns (CacheData memory cacheData) {
@@ -117,7 +89,15 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             execPayload
         );
 
-        if (pendingAmount == 0) {
+        if (pendingAmount > 0) {
+            emit TokensPending(
+                params_.connector,
+                params_.transferInfo.receiver,
+                consumedAmount,
+                pendingAmount,
+                params_.messageId
+            );
+        } else {
             if (execPayload.length > 0) {
                 // execute
                 bool success = executionHelper__.execute(
@@ -125,21 +105,17 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
                     execPayload
                 );
 
-                if (success) cacheData.identifierCache = new bytes(0);
+                if (success) {
+                    emit MessageExecuted(
+                        params_.messageId,
+                        params_.transferInfo.receiver
+                    );
+                    cacheData.identifierCache = new bytes(0);
+                }
             } else cacheData.identifierCache = new bytes(0);
         }
     }
 
-    // /**
-    //  * @notice Handles pre-retry hook logic before execution.
-    //  * @dev This function can be used to mint funds which were in a pending state due to limits.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param identifierCache_ Identifier cache containing pending mint information.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @return updatedReceiver The updated receiver of the funds.
-    //  * @return consumedAmount The amount consumed from the limit.
-    //  * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
-    //  */
     function preRetryHook(
         PreRetryHookCallParams calldata params_
     )
@@ -172,16 +148,6 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
     }
 
-    // /**
-    //  * @notice Handles post-retry hook logic after execution.
-    //  * @dev This function updates the identifier cache and sibling chain cache based on the post-hook data.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param identifierCache_ Identifier cache containing pending mint information.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @param postRetryHookData_ The post-hook data containing updated receiver and consumed/pending amounts.
-    //  * @return newIdentifierCache The updated identifier cache.
-    //  * @return newConnectorCache The updated sibling chain cache.
-    //  */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
     ) public virtual isVaultOrToken returns (CacheData memory cacheData) {
@@ -211,13 +177,25 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             connector,
             execPayload
         );
+
+        emit PendingTokensBridged(
+            params_.connector,
+            receiver,
+            consumedAmount,
+            pendingAmount,
+            params_.messageId
+        );
+
         if (pendingAmount == 0) {
             // receiver is not an input from user, can receiver check
             // no connector check required here, as already done in preRetryHook call in same tx
 
             // execute
             bool success = executionHelper__.execute(receiver, execPayload);
-            if (success) cacheData.identifierCache = new bytes(0);
+            if (success) {
+                emit MessageExecuted(params_.messageId, receiver);
+                cacheData.identifierCache = new bytes(0);
+            }
         }
     }
 

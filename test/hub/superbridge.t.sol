@@ -21,7 +21,7 @@ abstract contract TestBaseController is Test {
     address immutable _wrongConnector = address(uint160(_c++));
     uint32 _siblingChainSlug = uint32(_c++);
     uint256 immutable _connectorPoolId = _c++;
-    bytes32 _messageId = bytes32(_c++);
+    bytes32 immutable _messageId = bytes32(_c++);
     LimitExecutionHook hook__;
     uint256 constant _burnMaxLimit = 200 ether;
     uint256 constant _burnRate = 2 ether;

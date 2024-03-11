@@ -13,10 +13,6 @@ abstract contract LimitPlugin is Gauge, HookBase {
     mapping(address => LimitParams) _sendingLimitParams;
 
     ////////////////////////////////////////////////////////
-    ////////////////////// ERRORS //////////////////////////
-    ////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////
     ////////////////////// EVENTS //////////////////////////
     ////////////////////////////////////////////////////////
 
@@ -25,19 +21,19 @@ abstract contract LimitPlugin is Gauge, HookBase {
 
     // Emitted when pending tokens are minted to the receiver
     event PendingTokensBridged(
-        uint32 siblingChainSlug,
+        address connector,
         address receiver,
-        uint256 mintAmount,
+        uint256 consumedAmount,
         uint256 pendingAmount,
-        bytes32 identifier
+        bytes32 messageId
     );
     // Emitted when the transfer reaches the limit, and the token mint is added to the pending queue
     event TokensPending(
-        uint32 siblingChainSlug,
+        address connector,
         address receiver,
+        uint256 consumedAmount,
         uint256 pendingAmount,
-        uint256 totalPendingAmount,
-        bytes32 identifier
+        bytes32 messageId
     );
 
     /**
