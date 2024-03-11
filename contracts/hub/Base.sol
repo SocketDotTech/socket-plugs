@@ -1,13 +1,13 @@
 pragma solidity 0.8.13;
 
-import {IMintableERC20} from "./interfaces/IMintableERC20.sol";
-import {IConnector} from "./interfaces/IConnector.sol";
+import {IMintableERC20} from "../interfaces/IMintableERC20.sol";
+import {IConnector} from "../interfaces/IConnector.sol";
 import "solmate/utils/SafeTransferLib.sol";
-import "./interfaces/IHook.sol";
-import "./common/Errors.sol";
+import "../interfaces/IHook.sol";
+import "../common/Errors.sol";
 import "solmate/utils/ReentrancyGuard.sol";
-import "./interfaces/IHub.sol";
-import "./utils/RescueBase.sol";
+import "../interfaces/IHub.sol";
+import "../utils/RescueBase.sol";
 
 abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     address public immutable token;
@@ -21,7 +21,6 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
 
     mapping(address => bool) public validConnectors;
 
-    event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     event ConnectorStatusUpdated(address connector, bool status);
 
     // emitted when message hook is updated
@@ -75,7 +74,6 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
         if (transferInfo_.receiver == address(0)) revert ZeroAddressReceiver();
-        if (transferInfo_.amount == 0) revert ZeroAmount();
         if (!validConnectors[connector_]) revert InvalidConnector();
 
         if (address(hook__) != address(0)) {

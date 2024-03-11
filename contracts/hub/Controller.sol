@@ -1,29 +1,12 @@
 pragma solidity 0.8.13;
 
-import "../Base.sol";
+import "./Base.sol";
 
-interface IYieldToken {
-    function updateYield(uint256 amount_) external;
-
-    function mint(address user_, uint256 amount_) external returns (uint256);
-
-    function burn(address user_, uint256 amount_) external returns (uint256);
-
-    function calculateMintAmount(uint256 amount_) external returns (uint256);
-
-    function convertToShares(uint256 assets) external view returns (uint256);
-}
-
-contract YieldTokenController is Base {
+contract Controller is Base {
     uint256 public totalMinted;
 
     constructor(address token_) Base(token_) {}
 
-    // todo: limit check then convert
-
-    // limits on shares here
-    // options_ here is now a boolean which indicates if we want to enable withdrawing
-    // from strategy
     function bridge(
         address receiver_,
         uint256 amount_,
@@ -32,7 +15,6 @@ contract YieldTokenController is Base {
         bytes calldata execPayload_,
         bytes calldata options_
     ) external payable nonReentrant {
-        // limits on shares
         (
             TransferInfo memory transferInfo,
             bytes memory postHookData
@@ -45,7 +27,6 @@ contract YieldTokenController is Base {
         // re check this logic for mint and mint use cases and if other minter involved
         totalMinted -= transferInfo.amount;
         _burn(msg.sender, transferInfo.amount);
-
         _afterBridge(
             msgGasLimit_,
             connector_,
@@ -67,13 +48,12 @@ contract YieldTokenController is Base {
             bytes memory extraData
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
+        // convert to shares
         TransferInfo memory transferInfo = TransferInfo(
             receiver,
             lockAmount,
             extraData
         );
-
-        // pending will consider the yield at the time of receive inbound only even if i increase/decrease later
         bytes memory postHookData;
         (postHookData, transferInfo) = _beforeMint(
             siblingChainSlug_,
@@ -106,15 +86,12 @@ contract YieldTokenController is Base {
         _afterRetry(connector_, messageId_, postRetryHookData);
     }
 
-    function _burn(
-        address user_,
-        uint256 burnAmount_
-    ) internal virtual returns (uint256 shares) {
-        shares = IYieldToken(token).burn(user_, burnAmount_);
+    function _burn(address user_, uint256 burnAmount_) internal virtual {
+        IMintableERC20(token).burn(user_, burnAmount_);
     }
 
     function _mint(address user_, uint256 mintAmount_) internal virtual {
         if (mintAmount_ == 0) return;
-        IYieldToken(token).mint(user_, mintAmount_);
+        IMintableERC20(token).mint(user_, mintAmount_);
     }
 }

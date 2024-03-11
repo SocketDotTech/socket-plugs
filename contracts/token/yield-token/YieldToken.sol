@@ -38,7 +38,7 @@ contract YieldToken is YieldTokenBase {
     function burn(
         address user_,
         uint256 shares_
-    ) external nonReentrant onlyRole(MINTER_ROLE) returns (uint256 assets) {
+    ) external nonReentrant onlyRole(MINTER_ROLE) {
         _burn(user_, shares_);
     }
 
@@ -46,12 +46,7 @@ contract YieldToken is YieldTokenBase {
     function mint(
         address receiver_,
         uint256 amount_
-    )
-        external
-        nonReentrant
-        onlyRole(MINTER_ROLE)
-        returns (uint256 sharesToMint)
-    {
+    ) external nonReentrant onlyRole(MINTER_ROLE) {
         _mint(receiver_, amount_);
     }
 

@@ -1,7 +1,7 @@
 pragma solidity 0.8.13;
 
 import "./Base.sol";
-import "./interfaces/IConnector.sol";
+import "../interfaces/IConnector.sol";
 import "solmate/tokens/ERC20.sol";
 
 /**
@@ -73,11 +73,12 @@ contract Vault is Base {
                 TransferInfo(receiver_, amount_, execPayload_)
             );
 
-        ERC20(token).safeTransferFrom(
-            msg.sender,
-            address(this),
-            transferInfo.amount
-        );
+        if (transferInfo.amount != 0)
+            ERC20(token).safeTransferFrom(
+                msg.sender,
+                address(this),
+                transferInfo.amount
+            );
 
         _afterBridge(
             msgGasLimit_,
@@ -116,7 +117,11 @@ contract Vault is Base {
             transferInfo
         );
 
-        ERC20(token).safeTransfer(transferInfo.receiver, transferInfo.amount);
+        if (transferInfo.amount != 0)
+            ERC20(token).safeTransfer(
+                transferInfo.receiver,
+                transferInfo.amount
+            );
 
         _afterMint(unlockAmount, messageId, postHookData, transferInfo);
         emit TokensMinted(
@@ -135,7 +140,12 @@ contract Vault is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        ERC20(token).safeTransfer(transferInfo.receiver, transferInfo.amount);
+
+        if (transferInfo.amount != 0)
+            ERC20(token).safeTransfer(
+                transferInfo.receiver,
+                transferInfo.amount
+            );
 
         _afterRetry(connector_, messageId_, postRetryHookData);
     }

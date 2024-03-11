@@ -19,6 +19,7 @@ interface IYieldToken {
     function convertToShares(uint256 assets) external view returns (uint256);
 }
 
+// limits on underlying or visible tokens
 contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
@@ -26,15 +27,21 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
     uint256 public constant MAX_BPS = 10_000;
     IYieldToken public immutable asset__;
 
+    // total yield
     uint256 public totalYield;
-    // connector => total yield
-    mapping(address => uint256) public siblingTotalYield;
     mapping(address => uint256) public lastSyncTimestamp;
+
+    // connectorPoolId => totalLockedAmount
+    mapping(uint256 => uint256) public poolLockedAmounts;
+
+    // connector => connectorPoolId
+    mapping(address => uint256) public connectorPoolIds;
 
     // if true, no funds can be invested in the strategy
     bool public emergencyShutdown;
 
     event ShutdownStateUpdated(bool shutdownState);
+    event ConnectorPoolIdUpdated(address connector, uint256 poolId);
 
     modifier notShutdown() {
         if (emergencyShutdown) revert VaultShutdown();
@@ -48,6 +55,18 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         asset__ = IYieldToken(asset_);
     }
 
+    function updateConnectorPoolId(
+        address[] calldata connectors,
+        uint256[] calldata poolIds
+    ) external onlyOwner {
+        uint256 length = connectors.length;
+        for (uint256 i; i < length; i++) {
+            if (poolIds[i] == 0) revert InvalidPoolId();
+            connectorPoolIds[connectors[i]] = poolIds[i];
+            emit ConnectorPoolIdUpdated(connectors[i], poolIds[i]);
+        }
+    }
+
     // assumed transfer info inputs are validated at controller
     // transfer info data is untrusted
     function srcPreHookCall(
@@ -58,18 +77,22 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         isVaultOrToken
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
-        if (params_.transferInfo.amount > siblingTotalYield[params_.connector])
+        uint256 connectorPoolId = connectorPoolIds[params_.connector];
+        if (connectorPoolId == 0) revert InvalidPoolId();
+
+        uint256 amount = params_.transferInfo.amount;
+
+        if (amount > poolLockedAmounts[connectorPoolId])
             revert InsufficientFunds();
 
-        _limitSrcHook(params_.connector, params_.transferInfo.amount);
-        postSrcHookData = abi.encode(params_.transferInfo.amount);
+        _limitSrcHook(params_.connector, amount);
+        postSrcHookData = abi.encode(amount);
 
-        uint256 shares = asset__.convertToShares(params_.transferInfo.amount);
-        totalYield -= shares;
-        siblingTotalYield[params_.connector] -= shares;
+        totalYield -= amount;
+        poolLockedAmounts[connectorPoolId] -= amount; // underflow revert expected
 
         transferInfo = params_.transferInfo;
-        transferInfo.amount = shares;
+        transferInfo.amount = asset__.convertToShares(amount);
     }
 
     function srcPostHookCall(
@@ -110,26 +133,24 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
             (uint256, bytes)
         );
 
-        totalYield =
-            totalYield +
-            newYield -
-            siblingTotalYield[params_.connector];
-        siblingTotalYield[params_.connector] = newYield;
+        uint256 connectorPoolId = connectorPoolIds[params_.connector];
+        if (connectorPoolId == 0) revert InvalidPoolId();
+
+        totalYield = totalYield + newYield - poolLockedAmounts[connectorPoolId];
+        poolLockedAmounts[connectorPoolId] = newYield;
 
         if (params_.transferInfo.amount == 0)
             return (abi.encode(0, 0), transferInfo);
 
-        uint256 sharesToMint = asset__.calculateMintAmount(
+        (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
+            params_.connector,
             params_.transferInfo.amount
         );
-        (uint256 consumedShares, uint256 pendingAmount) = _limitDstHook(
-            params_.connector,
-            sharesToMint
-        );
+        uint256 sharesToMint = asset__.calculateMintAmount(consumedAmount);
 
-        postHookData = abi.encode(consumedShares, pendingAmount);
+        postHookData = abi.encode(consumedAmount, pendingAmount);
         transferInfo = params_.transferInfo;
-        transferInfo.amount = consumedShares;
+        transferInfo.amount = sharesToMint;
     }
 
     /**
@@ -230,9 +251,10 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
             params_.connector,
             pendingMint
         );
+        uint256 sharesToMint = asset__.calculateMintAmount(consumedAmount);
 
-        postRetryHookData = abi.encode(receiver, consumedAmount, pendingAmount);
-        transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
+        postRetryHookData = abi.encode(consumedAmount, pendingAmount);
+        transferInfo = TransferInfo(receiver, sharesToMint, bytes(""));
     }
 
     // /**
@@ -249,7 +271,7 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
         PostRetryHookCallParams calldata params_
     ) external isVaultOrToken notShutdown returns (CacheData memory cacheData) {
         (
-            ,
+            address receiver,
             uint256 pendingMint,
             address connector,
             bytes memory execPayload
@@ -258,8 +280,10 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
                 (address, uint256, address, bytes)
             );
 
-        (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
-            .decode(params_.postRetryHookData, (address, uint256, uint256));
+        (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
+            params_.postRetryHookData,
+            (uint256, uint256)
+        );
 
         if (pendingAmount == 0 && receiver != address(0)) {
             // receiver is not an input from user, can receiver check
@@ -275,6 +299,13 @@ contract YieldTokenLimitExecutionHook is LimitPlugin, ExecutionHelper {
                     connector,
                     execPayload
                 );
+        } else {
+            cacheData.identifierCache = abi.encode(
+                receiver,
+                pendingMint - consumedAmount,
+                connector,
+                execPayload
+            );
         }
         uint256 connectorPendingAmount = abi.decode(
             params_.cacheData.connectorCache,

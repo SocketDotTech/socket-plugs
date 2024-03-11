@@ -99,13 +99,16 @@ contract LimitHook is LimitPlugin {
                 abi.encode(connectorPendingAmount + pendingAmount)
             );
         } else {
-            cacheData = CacheData(bytes(""), params_.connectorCache);
+            cacheData = CacheData(
+                bytes(""),
+                abi.encode(connectorPendingAmount + pendingAmount)
+            );
         }
     }
 
     function _getConnectorPendingAmount(
         bytes memory connectorCache_
-    ) internal view returns (uint256) {
+    ) internal pure returns (uint256) {
         if (connectorCache_.length > 0) {
             return abi.decode(connectorCache_, (uint256));
         } else return 0;
