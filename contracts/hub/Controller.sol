@@ -5,8 +5,20 @@ import "./Base.sol";
 contract Controller is Base {
     uint256 public totalMinted;
 
-    constructor(address token_) Base(token_) {}
+    constructor(address token_) Base(token_) {
+        hubType = NORMAL_CONTROLLER;
+    }
 
+    /**
+     * @notice Bridges tokens between chains.
+     * @dev This function allows bridging tokens between different chains.
+     * @param receiver_ The address to receive the bridged tokens.
+     * @param amount_ The amount of tokens to bridge.
+     * @param msgGasLimit_ The gas limit for the execution of the bridging process.
+     * @param connector_ The address of the connector contract responsible for the bridge.
+     * @param execPayload_ The payload for executing the bridging process on the connector.
+     * @param options_ Additional options for the bridging process.
+     */
     function bridge(
         address receiver_,
         uint256 amount_,
@@ -36,7 +48,12 @@ contract Controller is Base {
         );
     }
 
-    // receive inbound assuming connector called
+    /**
+     * @notice Receives inbound tokens from another chain.
+     * @dev This function is used to receive tokens from another chain.
+     * @param siblingChainSlug_ The identifier of the sibling chain.
+     * @param payload_ The payload containing the inbound tokens.
+     */
     function receiveInbound(
         uint32 siblingChainSlug_,
         bytes memory payload_
@@ -72,6 +89,12 @@ contract Controller is Base {
         );
     }
 
+    /**
+     * @notice Retry a failed transaction.
+     * @dev This function allows retrying a failed transaction sent through a connector.
+     * @param connector_ The address of the connector contract responsible for the failed transaction.
+     * @param messageId_ The unique identifier of the failed transaction.
+     */
     function retry(
         address connector_,
         bytes32 messageId_

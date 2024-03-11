@@ -18,6 +18,8 @@ contract Setup is Test {
     address immutable _otherConnector = address(uint160(_c++));
     address immutable _executionHelper = address(uint160(_c++));
 
+    bytes32 constant messageId = bytes32(0);
+
     // limits
     uint256 constant _burnMaxLimit = 200;
     uint256 constant _burnRate = 2;
@@ -355,6 +357,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
         hook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector,
+                messageId,
                 bytes(""),
                 bytes(""),
                 TransferInfo(_raju, 0, bytes(""))
@@ -415,6 +418,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     CacheData memory cacheData = hook__.dstPostHookCall(
     //         DstPostHookCallParams(
     //             _connector,
+    //              messageId,
     //             abi.encode(0),
     //             postHookData,
     //             transferInfo
@@ -494,6 +498,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     CacheData memory cacheData = hook__.dstPostHookCall(
     //         DstPostHookCallParams(
     //             _connector,
+    //              messageId,
     //             abi.encode(0),
     //             postHookData,
     //             transferInfo
@@ -541,6 +546,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
         hook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector,
+                messageId,
                 bytes(""),
                 CacheData(bytes(""), bytes(""))
             )
@@ -564,6 +570,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
         hook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector,
+                messageId,
                 bytes(""),
                 CacheData(bytes(""), bytes(""))
             )

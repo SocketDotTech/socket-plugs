@@ -9,16 +9,29 @@ abstract contract ConnectorPoolPlugin is HookBase {
     mapping(address => uint256) public connectorPoolIds;
 
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
+    event PoolLockedAmountUpdated(uint256 poolId, uint256 amount);
 
     function updateConnectorPoolId(
         address[] calldata connectors,
-        uint256[] calldata poolIds
+        uint256[] calldata poolIds_
     ) external onlyOwner {
         uint256 length = connectors.length;
         for (uint256 i; i < length; i++) {
-            if (poolIds[i] == 0) revert InvalidPoolId();
-            connectorPoolIds[connectors[i]] = poolIds[i];
-            emit ConnectorPoolIdUpdated(connectors[i], poolIds[i]);
+            if (poolIds_[i] == 0) revert InvalidPoolId();
+            connectorPoolIds[connectors[i]] = poolIds_[i];
+            emit ConnectorPoolIdUpdated(connectors[i], poolIds_[i]);
+        }
+    }
+
+    function updatePoolLockedAmounts(
+        uint256[] calldata poolIds_,
+        uint256[] calldata amounts_
+    ) external onlyOwner {
+        uint256 length = poolIds_.length;
+        for (uint256 i; i < length; i++) {
+            if (poolIds_[i] == 0) revert InvalidPoolId();
+            poolLockedAmounts[poolIds_[i]] = amounts_[i];
+            emit PoolLockedAmountUpdated(poolIds_[i], amounts_[i]);
         }
     }
 
@@ -28,7 +41,7 @@ abstract contract ConnectorPoolPlugin is HookBase {
         if (amount_ > poolLockedAmounts[connectorPoolId])
             revert InsufficientFunds();
 
-        poolLockedAmounts[connectorPoolId] -= amount_; // underflow revert expected
+        poolLockedAmounts[connectorPoolId] -= amount_;
     }
 
     function _poolDstHook(

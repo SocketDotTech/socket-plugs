@@ -17,20 +17,9 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         bool useControllerPools_
     ) HookBase(owner_, controller_) {
         useControllerPools = useControllerPools_;
+        hookType = LIMIT_HOOK;
     }
 
-    // /**
-    //  * @dev This function calls the srcHookCall function of the connector contract,
-    //  * passing in the receiver, amount, siblingChainSlug, extradata, and msg.sender, and returns
-    //  * the updated receiver, amount, and extradata.
-    //  * @param receiver_ The receiver of the funds.
-    //  * @param amount_ The amount of funds.
-    //  * @param siblingChainSlug_ The sibling chain identifier.
-    //  * @param extradata_ Additional data to be passed to the connector contract.
-    //  * @return updatedReceiver The updated receiver of the funds.
-    //  * @return updatedAmount The updated amount of funds.
-    //  * @return updatedExtradata The updated extradata.
-    //  */
     function srcPreHookCall(
         SrcPreHookCallParams memory params_
     )
@@ -51,19 +40,6 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         return params_.transferInfo;
     }
 
-    // /**
-    //  * @notice Handles pre-hook logic before the execution of a destination hook.
-    //  * @dev This function checks if the sibling chain is supported, consumes a part of the limit, and prepares post-hook data.
-    //  * @param receiver_ The receiver of the funds.
-    //  * @param amount_ The amount of funds.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param connector_ The address of the connector contract.
-    //  * @param extradata_ Additional data to be passed to the connector contract.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @return updatedReceiver The updated receiver of the funds.
-    //  * @return consumedAmount The amount consumed from the limit.
-    //  * @return postHookData The post-hook data to be processed after the hook execution.
-    //  */
     function dstPreHookCall(
         DstPreHookCallParams memory params_
     )
@@ -83,22 +59,9 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         transferInfo.amount = consumedAmount;
     }
 
-    // /**
-    //  * @notice Handles post-hook logic after the execution of a destination hook.
-    //  * @dev This function processes post-hook data to update the identifier cache and sibling chain cache.
-    //  * @param receiver_ The receiver of the funds.
-    //  * @param amount_ The amount of funds.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param bridge_ The address of the bridge contract.
-    //  * @param extradata_ Additional data passed to the connector contract.
-    //  * @param postHookData_ The post-hook data containing consumed and pending amounts.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @return newIdentifierCache The updated identifier cache.
-    //  * @return newConnectorCache The updated sibling chain cache.
-    //  */
     function dstPostHookCall(
         DstPostHookCallParams memory params_
-    ) external view isVaultOrToken returns (CacheData memory cacheData) {
+    ) external isVaultOrToken returns (CacheData memory cacheData) {
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
             (uint256, uint256)
@@ -111,6 +74,14 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
                 abi.encode(params_.transferInfo.receiver, pendingAmount),
                 abi.encode(connectorPendingAmount + pendingAmount)
             );
+
+            emit TokensPending(
+                params_.connector,
+                params_.transferInfo.receiver,
+                consumedAmount,
+                pendingAmount,
+                params_.messageId
+            );
         } else {
             cacheData = CacheData(
                 bytes(""),
@@ -119,16 +90,6 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         }
     }
 
-    // /**
-    //  * @notice Handles pre-retry hook logic before execution.
-    //  * @dev This function can be used to mint funds which were in a pending state due to limits.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param identifierCache_ Identifier cache containing pending mint information.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @return updatedReceiver The updated receiver of the funds.
-    //  * @return consumedAmount The amount consumed from the limit.
-    //  * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
-    //  */
     function preRetryHook(
         PreRetryHookCallParams memory params_
     )
@@ -157,16 +118,6 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         transferInfo = TransferInfo(updatedReceiver, consumedAmount, bytes(""));
     }
 
-    // /**
-    //  * @notice Handles post-retry hook logic after execution.
-    //  * @dev This function can be used to update caches after retrying a hook.
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param identifierCache_ Identifier cache containing pending mint information.
-    //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @param postRetryHookData_ The post-hook data to be processed after the retry hook execution.
-    //  * @return newIdentifierCache The updated identifier cache.
-    //  * @return newConnectorCache The updated sibling chain cache.
-    //  */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
     )
@@ -180,6 +131,15 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
             uint256 consumedAmount,
             uint256 pendingAmount
         ) = abi.decode(params_.postRetryHookData, (address, uint256, uint256));
+
+        // code reaches here after minting/unlocking the pending amount
+        emit PendingTokensBridged(
+            params_.connector,
+            updatedReceiver,
+            consumedAmount,
+            pendingAmount,
+            params_.messageId
+        );
 
         uint256 connectorPendingAmount = _getConnectorPendingAmount(
             params_.cacheData.connectorCache

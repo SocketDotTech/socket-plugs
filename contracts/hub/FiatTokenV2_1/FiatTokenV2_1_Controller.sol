@@ -6,7 +6,9 @@ import "../Controller.sol";
 contract FiatTokenV2_1_Controller is Controller {
     using SafeTransferLib for ERC20;
 
-    constructor(address token_) Controller(token_) {}
+    constructor(address token_) Controller(token_) {
+        hubType = FIAT_TOKEN_CONTROLLER;
+    }
 
     function _burn(address user_, uint256 burnAmount_) internal override {
         ERC20(token).safeTransferFrom(user_, address(this), burnAmount_);

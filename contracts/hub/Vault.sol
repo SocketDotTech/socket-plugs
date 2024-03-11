@@ -46,17 +46,20 @@ contract Vault is Base {
     //  * @param token_ token contract address which is to be bridged.
     //  */
 
-    constructor(address token_) Base(token_) {}
+    constructor(address token_) Base(token_) {
+        hubType = token_ == ETH_ADDRESS ? NATIVE_VAULT : ERC20_VAULT;
+    }
 
-    // /**
-    //  * @notice this function is called by users to bridge their funds to a sibling chain
-    //  * @dev it is payable to receive message bridge fees to be paid.
-    //  * @param receiver_ address receiving bridged tokens
-    //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
-    //  * @param sendingAmount_ amount bridged
-    //  * @param msgGasLimit_ min gas limit needed for execution at destination
-    //  * @param options_ additional message bridge options can be provided using this param
-    //  */
+    /**
+     * @notice Bridges tokens between chains.
+     * @dev This function allows bridging tokens between different chains.
+     * @param receiver_ The address to receive the bridged tokens.
+     * @param amount_ The amount of tokens to bridge.
+     * @param msgGasLimit_ The gas limit for the execution of the bridging process.
+     * @param connector_ The address of the connector contract responsible for the bridge.
+     * @param execPayload_ The payload for executing the bridging process on the connector.
+     * @param options_ Additional options for the bridging process.
+     */
     function bridge(
         address receiver_,
         uint256 amount_,
@@ -85,9 +88,10 @@ contract Vault is Base {
     }
 
     /**
-     * @notice this function receives the message from message bridge
-     * @dev Only bridge can call this function.
-     * @param payload_ payload which is decoded to get `receiver`, `amount to mint`, `message id` and `payload` to execute after token transfer.
+     * @notice Receives inbound tokens from another chain.
+     * @dev This function is used to receive tokens from another chain.
+     * @param siblingChainSlug_ The identifier of the sibling chain.
+     * @param payload_ The payload containing the inbound tokens.
      */
     function receiveInbound(
         uint32 siblingChainSlug_,
@@ -123,6 +127,12 @@ contract Vault is Base {
         );
     }
 
+    /**
+     * @notice Retry a failed transaction.
+     * @dev This function allows retrying a failed transaction sent through a connector.
+     * @param connector_ The address of the connector contract responsible for the failed transaction.
+     * @param messageId_ The unique identifier of the failed transaction.
+     */
     function retry(
         address connector_,
         bytes32 messageId_

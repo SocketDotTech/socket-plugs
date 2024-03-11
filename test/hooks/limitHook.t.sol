@@ -17,6 +17,8 @@ contract TestLimitHook is Test {
     address immutable _connector1 = address(uint160(_c++));
     address immutable _connector2 = address(uint160(_c++));
     address immutable _otherConnector = address(uint160(_c++));
+    bytes32 immutable _messageId = bytes32(_c++);
+
     uint256 constant _burnMaxLimit = 200 ether;
     uint256 constant _burnRate = 2 ether;
     uint256 constant _mintMaxLimit = 100 ether;
@@ -303,6 +305,7 @@ contract TestLimitHook is Test {
         CacheData memory cacheData = limitHook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector1,
+                _messageId,
                 bytes(""),
                 postHookData,
                 TransferInfo(_raju, depositAmount, bytes(""))
@@ -341,6 +344,7 @@ contract TestLimitHook is Test {
         CacheData memory cacheData = limitHook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector1,
+                _messageId,
                 bytes(""),
                 postHookData,
                 TransferInfo(_raju, depositAmount, bytes(""))
@@ -382,6 +386,7 @@ contract TestLimitHook is Test {
         CacheData memory cacheData = limitHook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector1,
+                _messageId,
                 connectorCacheBefore,
                 postHookData,
                 TransferInfo(_raju, depositAmount, bytes(""))
@@ -424,6 +429,7 @@ contract TestLimitHook is Test {
         CacheData memory cacheData = limitHook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector1,
+                _messageId,
                 postRetryHookData,
                 CacheData(
                     abi.encode(_raju, pendingAmount),
@@ -439,6 +445,7 @@ contract TestLimitHook is Test {
         cacheData = limitHook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector1,
+                _messageId,
                 postRetryHookData,
                 CacheData(
                     abi.encode(_raju, pendingAmount),
@@ -488,6 +495,7 @@ contract TestLimitHook is Test {
         CacheData memory cacheData = limitHook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector1,
+                _messageId,
                 postRetryHookData,
                 CacheData(
                     abi.encode(_raju, pendingAmount),
@@ -511,6 +519,7 @@ contract TestLimitHook is Test {
         cacheData = limitHook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector1,
+                _messageId,
                 postRetryHookData,
                 CacheData(
                     abi.encode(_raju, pendingAmount),

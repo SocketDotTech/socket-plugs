@@ -22,6 +22,7 @@ contract Setup is Test {
     uint256 constant _mintMaxLimit = 100;
     uint256 constant _mintRate = 1;
     uint256 constant _bootstrapTime = 100;
+    bytes32 constant messageId = bytes32(0);
 
     // yield token
     uint256 constant _initialSupply = 100000;
@@ -386,6 +387,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         hook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector,
+                messageId,
                 bytes(""),
                 bytes(""),
                 TransferInfo(_raju, 0, bytes(""))
@@ -446,6 +448,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         CacheData memory cacheData = hook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector,
+                messageId,
                 abi.encode(0),
                 postHookData,
                 transferInfo
@@ -524,6 +527,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         CacheData memory cacheData = hook__.dstPostHookCall(
             DstPostHookCallParams(
                 _connector,
+                messageId,
                 abi.encode(0),
                 postHookData,
                 transferInfo
@@ -560,6 +564,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         hook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector,
+                messageId,
                 bytes(""),
                 CacheData(bytes(""), bytes(""))
             )
@@ -583,6 +588,7 @@ contract TestYieldTokenLimitExecutionHook is Setup {
         hook__.postRetryHook(
             PostRetryHookCallParams(
                 _connector,
+                messageId,
                 bytes(""),
                 CacheData(bytes(""), bytes(""))
             )

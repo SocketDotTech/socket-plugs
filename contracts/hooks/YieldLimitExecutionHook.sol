@@ -64,6 +64,7 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
         debtRatio = debtRatio_;
         rebalanceDelay = rebalanceDelay_;
         strategy = IStrategy(strategy_);
+        hookType = LIMIT_EXECUTION_YIELD_HOOK;
     }
 
     /**

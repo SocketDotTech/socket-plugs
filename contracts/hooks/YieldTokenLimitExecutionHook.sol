@@ -45,6 +45,7 @@ contract YieldTokenLimitExecutionHook is LimitExecutionHook {
         address executionHelper_
     ) LimitExecutionHook(msg.sender, controller_, executionHelper_, true) {
         asset__ = IYieldToken(asset_);
+        hookType = LIMIT_EXECUTION_YIELD_TOKEN_HOOK;
     }
 
     // assumed transfer info inputs are validated at controller

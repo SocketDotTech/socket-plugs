@@ -12,8 +12,8 @@ import "../common/Constants.sol";
 
 abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     address public immutable token;
+    bytes32 public hubType;
     IHook public hook__;
-
     // message identifier => cache
     mapping(bytes32 => bytes) public identifierCache;
 
@@ -73,6 +73,18 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         }
     }
 
+    /**
+     * @notice Executes pre-bridge operations before initiating a token bridge transfer.
+     * @dev This internal function is called before initiating a token bridge transfer.
+     * It validates the receiver address and the connector, and if a pre-hook contract is defined,
+     * it executes the source pre-hook call.
+     * @param connector_ The address of the connector responsible for the transfer.
+     * @param transferInfo_ Information about the transfer.
+     * @return transferInfo Information about the transfer after pre-bridge operations.
+     * @return postHookData Data returned from the pre-hook call.
+     * @dev Reverts with `ZeroAddressReceiver` if the receiver address is zero.
+     * Reverts with `InvalidConnector` if the connector address is not valid.
+     */
     function _beforeBridge(
         address connector_,
         TransferInfo memory transferInfo_
@@ -90,6 +102,18 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         }
     }
 
+    /**
+     * @notice Executes post-bridge operations after completing a token bridge transfer.
+     * @dev This internal function is called after completing a token bridge transfer.
+     * It executes the source post-hook call if a hook contract is defined, calculates fees,
+     * calls the outbound function of the connector, and emits an event for tokens withdrawn.
+     * @param msgGasLimit_ The gas limit for the outbound call.
+     * @param connector_ The address of the connector responsible for the transfer.
+     * @param options_ Additional options for the outbound call.
+     * @param postSrcHookData_ Data returned from the source post-hook call.
+     * @param transferInfo_ Information about the transfer.
+     * @dev Reverts with `MessageIdMisMatched` if the returned message ID does not match the expected message ID.
+     */
     function _afterBridge(
         uint256 msgGasLimit_,
         address connector_,
@@ -137,7 +161,18 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         );
     }
 
-    // receive inbound assuming connector called
+    /**
+     * @notice Executes pre-mint operations before minting tokens.
+     * @dev This internal function is called before minting tokens.
+     * It validates the caller as a valid connector, checks if the receiver is not this contract, the bridge contract,
+     * or the token contract, and executes the destination pre-hook call if a hook contract is defined.
+     * @param transferInfo_ Information about the transfer.
+     * @return postHookData Data returned from the destination pre-hook call.
+     * @return transferInfo Information about the transfer after pre-mint operations.
+     * @dev Reverts with `InvalidConnector` if the caller is not a valid connector.
+     * Reverts with `CannotTransferOrExecuteOnBridgeContracts` if the receiver is this contract, the bridge contract,
+     * or the token contract.
+     */
     function _beforeMint(
         uint32,
         TransferInfo memory transferInfo_
@@ -165,6 +200,14 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         }
     }
 
+    /**
+     * @notice Executes post-mint operations after minting tokens.
+     * @dev This internal function is called after minting tokens.
+     * It executes the destination post-hook call if a hook contract is defined and updates cache data.
+     * @param messageId_ The unique identifier for the mint transaction.
+     * @param postHookData_ Data returned from the destination pre-hook call.
+     * @param transferInfo_ Information about the mint transaction.
+     */
     function _afterMint(
         uint256,
         bytes32 messageId_,
@@ -175,6 +218,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
             CacheData memory cacheData = hook__.dstPostHookCall(
                 DstPostHookCallParams(
                     msg.sender,
+                    messageId_,
                     connectorCache[msg.sender],
                     postHookData_,
                     transferInfo_
@@ -186,6 +230,18 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         }
     }
 
+    /**
+     * @notice Executes pre-retry operations before retrying a failed transaction.
+     * @dev This internal function is called before retrying a failed transaction.
+     * It validates the connector, retrieves cache data for the given message ID,
+     * and executes the pre-retry hook if defined.
+     * @param connector_ The address of the connector responsible for the failed transaction.
+     * @param messageId_ The unique identifier for the failed transaction.
+     * @return postRetryHookData Data returned from the pre-retry hook call.
+     * @return transferInfo Information about the transfer.
+     * @dev Reverts with `InvalidConnector` if the connector is not valid.
+     * Reverts with `NoPendingData` if there is no pending data for the given message ID.
+     */
     function _beforeRetry(
         address connector_,
         bytes32 messageId_
@@ -209,6 +265,15 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         );
     }
 
+    /**
+     * @notice Executes post-retry operations after retrying a failed transaction.
+     * @dev This internal function is called after retrying a failed transaction.
+     * It retrieves cache data for the given message ID, executes the post-retry hook if defined,
+     * and updates cache data.
+     * @param connector_ The address of the connector responsible for the failed transaction.
+     * @param messageId_ The unique identifier for the failed transaction.
+     * @param postRetryHookData Data returned from the pre-retry hook call.
+     */
     function _afterRetry(
         address connector_,
         bytes32 messageId_,
@@ -220,7 +285,12 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         );
 
         (cacheData) = hook__.postRetryHook(
-            PostRetryHookCallParams(connector_, postRetryHookData, cacheData)
+            PostRetryHookCallParams(
+                connector_,
+                messageId_,
+                postRetryHookData,
+                cacheData
+            )
         );
         identifierCache[messageId_] = cacheData.identifierCache;
         connectorCache[connector_] = cacheData.connectorCache;
@@ -233,6 +303,15 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         // );
     }
 
+    /**
+     * @notice Retrieves the minimum fees required for a transaction from a connector.
+     * @dev This function returns the minimum fees required for a transaction from the specified connector,
+     * based on the provided message gas limit and payload size.
+     * @param connector_ The address of the connector.
+     * @param msgGasLimit_ The gas limit for the transaction.
+     * @param payloadSize_ The size of the payload for the transaction.
+     * @return totalFees The total minimum fees required for the transaction.
+     */
     function getMinFees(
         address connector_,
         uint256 msgGasLimit_,
