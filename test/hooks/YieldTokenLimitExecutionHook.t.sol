@@ -44,7 +44,7 @@ contract Setup is Test {
 
     function setUp() external {
         vm.startPrank(_admin);
-        yieldToken__ = new YieldToken("Moon", "MOON", 18, _controller);
+        yieldToken__ = new YieldToken("Moon", "MOON", 18);
         hook__ = new MockYieldTokenHook(
             address(yieldToken__),
             _controller,

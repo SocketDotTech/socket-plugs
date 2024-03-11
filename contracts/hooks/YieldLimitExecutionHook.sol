@@ -49,13 +49,13 @@ contract YieldLimitExecutionHook is LimitExecutionHook {
         uint128 rebalanceDelay_,
         address strategy_,
         address asset_,
-        address controller_,
+        address vault_,
         address executionHelper_,
         bool useControllerPools_
     )
         LimitExecutionHook(
             msg.sender,
-            controller_,
+            vault_,
             executionHelper_,
             useControllerPools_
         )
