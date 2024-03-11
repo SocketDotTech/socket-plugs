@@ -4,7 +4,7 @@ import "solmate/tokens/ERC20.sol";
 
 // this is a mock token used in tests, other projects' token to be used here
 contract MockExecutableReceiver {
-    ERC20 public token__;
+    ERC20 public token;
     address public admin;
     uint256 public counter;
 
@@ -13,7 +13,7 @@ contract MockExecutableReceiver {
 
     constructor(address admin_, address token_) {
         admin = admin_;
-        token__ = ERC20(token_);
+        token = ERC20(token_);
     }
 
     function incrementCounter() external {
@@ -24,7 +24,7 @@ contract MockExecutableReceiver {
         if (amount_ > 50 && counter == 0) {
             revert InvalidAmount();
         }
-        bool success = token__.transfer(admin, amount_);
+        bool success = token.transfer(admin, amount_);
         if (!success) revert TransferFailed();
     }
 }
