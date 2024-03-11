@@ -48,7 +48,7 @@ contract TestVault is Test {
             address(_executionHelper),
             false
         );
-        _vault.updateHook(address(hook__));
+        _vault.updateHook(address(hook__), false);
         vm.stopPrank();
     }
 
@@ -64,7 +64,7 @@ contract TestVault is Test {
             address(_executionHelper),
             false
         );
-        _vault.updateHook(address(hook__));
+        _vault.updateHook(address(hook__), false);
         vm.stopPrank();
     }
 

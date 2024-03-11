@@ -52,8 +52,13 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
      * @dev should be carefully migrated as it can risk user funds
      * @param hook_ new hook address
      */
-    function updateHook(address hook_) external virtual onlyOwner {
+    function updateHook(
+        address hook_,
+        bool approve_
+    ) external virtual onlyOwner {
         hook__ = IHook(hook_);
+        if (approve_)
+            SafeTransferLib.safeApprove(ERC20(token), hook_, type(uint256).max);
         emit HookUpdated(hook_);
     }
 
