@@ -274,11 +274,9 @@ const connect = async (
           integration,
           localConnectorPlug,
           siblingConnectorPlug,
-        })
+        });
 
-        console.log(getAddresses(chain, getMode()).integrations[
-          sibling
-          ])
+        console.log(getAddresses(chain, getMode()).integrations[sibling]);
 
         const switchboard = getAddresses(chain, getMode()).integrations[
           sibling

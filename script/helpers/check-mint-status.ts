@@ -2,7 +2,7 @@ import {
   getOwnerAndNominee,
   getProjectAddresses,
   OWNABLE_ABI,
-  ZERO_ADDRESS
+  ZERO_ADDRESS,
 } from "./utils";
 import { Contract, ethers } from "ethers";
 import { getProviderFromChainSlug, getSignerFromChainSlug } from "./networks";
@@ -12,64 +12,63 @@ import { tokenDecimals } from "../../src";
 
 const MINTABLE_ABI = [
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "name": "minters",
-    "outputs": [
+    name: "minters",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "name": "permitted",
-    "outputs": [
+    name: "permitted",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "name": "isMinter",
-    "outputs": [
+    name: "isMinter",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
-  }
+    stateMutability: "view",
+    type: "function",
+  },
 ];
-
 
 export const main = async () => {
   try {
@@ -84,7 +83,11 @@ export const main = async () => {
         // Vault
         const token = addresses[chain][currency].MintableToken;
         const controller = addresses[chain][currency].Controller;
-        const mintable = new Contract(token, MINTABLE_ABI, getProviderFromChainSlug(+chain));
+        const mintable = new Contract(
+          token,
+          MINTABLE_ABI,
+          getProviderFromChainSlug(+chain)
+        );
         let isMinter;
         try {
           isMinter = await mintable.minters(controller);
@@ -97,7 +100,9 @@ export const main = async () => {
         }
 
         console.log(
-          `Vault (${controller}) for ${currency} (${token}) on chain ${chain} ${isMinter ? "can" : "cannot"} mint`
+          `Vault (${controller}) for ${currency} (${token}) on chain ${chain} ${
+            isMinter ? "can" : "cannot"
+          } mint`
         );
       }
     }
