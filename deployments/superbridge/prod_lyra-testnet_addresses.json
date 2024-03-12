@@ -47,15 +47,15 @@
     },
     "USDT": {
       "isAppChain": true,
-      "MintableToken": "0x0fd4d2dEc9c5830516176e5A1ee552f9431A1b09",
-      "ExchangeRate": "0xD130D78222eFB44F2ffC76b7a7Ab3d35D9447b26",
-      "Controller": "0x570058c7F5bA470aa46c93Dfd7cCf7FC6f0bd46b",
+      "MintableToken": "0xDBDB04FbB2603430A6bD4ECb01141b61726ef761",
+      "ExchangeRate": "0xee7fC05b59FDB3b3d193ac062404B5F1e9B31DA8",
+      "Controller": "0x76607aED3879a5C5452AEEDfdffEdD5bad1fda27",
       "connectors": {
         "11155111": {
-          "FAST": "0xCb441109Cbc88a47CD1Feef063aaad74b92037cD"
+          "FAST": "0x009d9DA843013443b68BE494c009bf3A354E6317"
         },
         "11155420": {
-          "FAST": "0x447e9fcdF4e5e0da6FDdEe4818dA24D4988F5286"
+          "FAST": "0x110D2486277956877b1984538274fa09bEEaf764"
         }
       }
     },

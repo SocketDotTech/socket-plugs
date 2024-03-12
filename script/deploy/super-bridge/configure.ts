@@ -268,6 +268,18 @@ const connect = async (
         const localConnectorPlug = localConnectorAddresses[integration];
         if (!localConnectorPlug || !siblingConnectorPlug) continue;
 
+        console.log("connecting plugs for ", {
+          chain,
+          sibling,
+          integration,
+          localConnectorPlug,
+          siblingConnectorPlug,
+        })
+
+        console.log(getAddresses(chain, getMode()).integrations[
+          sibling
+          ])
+
         const switchboard = getAddresses(chain, getMode()).integrations[
           sibling
         ][integration]?.switchboard;
