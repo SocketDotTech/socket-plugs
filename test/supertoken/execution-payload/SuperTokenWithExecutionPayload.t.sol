@@ -25,7 +25,7 @@ contract TestSuperTokenWithExecutionPayload is Test {
     address switchboard;
 
     MockSocket _socket;
-    ExecutionHelper _executionHelper;
+    ExecutionHelperPlugin _executionHelper;
 
     SocketPlug superTokenPlug;
     SuperTokenWithExecutionPayload superToken;
@@ -66,7 +66,7 @@ contract TestSuperTokenWithExecutionPayload is Test {
         vm.startPrank(_admin);
 
         _socket = new MockSocket();
-        _executionHelper = new ExecutionHelper();
+        _executionHelper = new ExecutionHelperPlugin();
 
         notSuperTokenArb = new MintableToken("Moon", "MOON", 18);
         notSuperTokenOpt = new MintableToken("Moon", "MOON", 18);

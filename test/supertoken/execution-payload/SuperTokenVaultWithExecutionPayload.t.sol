@@ -25,7 +25,7 @@ contract TestSuperTokenVaultLimitsWithExecutionPayload is Test {
     MintableToken _token;
     SuperTokenVaultWithExecutionPayload _locker;
     SocketPlug _lockerPlug;
-    ExecutionHelper _executionHelper;
+    ExecutionHelperPlugin _executionHelper;
     address _socket;
 
     uint32 _siblingSlug;
@@ -43,7 +43,7 @@ contract TestSuperTokenVaultLimitsWithExecutionPayload is Test {
         _token = new MintableToken("Moon", "MOON", 18);
 
         _lockerPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
-        _executionHelper = new ExecutionHelper();
+        _executionHelper = new ExecutionHelperPlugin();
 
         _locker = new SuperTokenVaultWithExecutionPayload(
             address(_token),

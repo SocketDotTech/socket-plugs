@@ -114,7 +114,7 @@ export const main = async () => {
             return;
           }
           contract = await getInstance(
-            SuperBridgeContracts.Controller,
+            SuperBridgeContracts.ControllerWithPayload,
             a.Controller
           );
         } else {
@@ -123,7 +123,10 @@ export const main = async () => {
             console.log("Vault not found");
             return;
           }
-          contract = await getInstance(SuperBridgeContracts.Vault, a.Vault);
+          contract = await getInstance(
+            SuperBridgeContracts.ERC20VaultWithPayload,
+            a.Vault
+          );
         }
 
         contract = contract.connect(socketSigner);
@@ -134,6 +137,17 @@ export const main = async () => {
         await tx.wait();
 
         console.log(`Setting vault limits for ${chain} - COMPLETED`);
+
+        console.log("setting execution helper");
+        tx = await contract.updateExecutionHelper(
+          addr[SuperBridgeContracts.ExecutionHelper],
+          {
+            ...overrides[chain],
+          }
+        );
+        console.log(chain, tx.hash);
+        await tx.wait();
+        console.log("execution helper done");
 
         if (
           addr.isAppChain &&

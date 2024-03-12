@@ -1,6 +1,12 @@
 {
   "80001": [
     [
+      "0xA858f95c50240A6a28E5cd323869cE77ee7677Bd",
+      "ExecutionHelper",
+      "contracts/superbridge/payload/ExecutionHelper.sol",
+      []
+    ],
+    [
       "0xF5541Ea3ee034D8f7C397bf77556f07e7562dF9A",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
@@ -28,6 +34,12 @@
     ]
   ],
   "421614": [
+    [
+      "0x4caE6101A2645AE58038Aeb04079621458b00753",
+      "ExecutionHelper",
+      "contracts/superbridge/payload/ExecutionHelper.sol",
+      []
+    ],
     [
       "0x7dE4937420935c7C8767b06eCd7F7dC54e2D7C9b",
       "ConnectorPlug",
@@ -57,6 +69,12 @@
   ],
   "11155111": [
     [
+      "0x4F3e01e8f7d0224b5988Cb0FBf7f6D156B9255cD",
+      "ExecutionHelper",
+      "contracts/superbridge/payload/ExecutionHelper.sol",
+      []
+    ],
+    [
       "0x42229a5DDC5E32149311265F6F4BC016EaB778FC",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
@@ -85,6 +103,12 @@
   ],
   "11155420": [
     [
+      "0xD664eF6159562190ea6D1AFa3f0Ea1C0D77D14E3",
+      "ExecutionHelper",
+      "contracts/superbridge/payload/ExecutionHelper.sol",
+      []
+    ],
+    [
       "0x805Dc5ac616bCB1A59a446eb1777C0Cc3Aa0c3Fe",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
@@ -112,6 +136,12 @@
     ]
   ],
   "89346161": [
+    [
+      "0xB6fb3062405985F700fa23758A3053162ddBeFb9",
+      "ExecutionHelper",
+      "contracts/superbridge/payload/ExecutionHelper.sol",
+      []
+    ],
     [
       "0x11695Ff9EE5E600b90BcbD651D1758A9B240A2d8",
       "ConnectorPlug",

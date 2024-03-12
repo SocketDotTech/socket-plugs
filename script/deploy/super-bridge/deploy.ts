@@ -214,6 +214,15 @@ const deployAppChainContracts = async (
     deployParams.addresses[SuperBridgeContracts.ExchangeRate] =
       exchangeRate.address;
 
+    const executionHelper: Contract = await getOrDeploy(
+      SuperBridgeContracts.ExecutionHelper,
+      "contracts/superbridge/payload/ExecutionHelper.sol",
+      [],
+      deployParams
+    );
+    deployParams.addresses[SuperBridgeContracts.ExecutionHelper] =
+      executionHelper.address;
+
     if (!deployParams.addresses[SuperBridgeContracts.MintableToken])
       throw new Error("Token not found on app chain");
 
@@ -244,6 +253,15 @@ const deployNonAppChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
+    const executionHelper: Contract = await getOrDeploy(
+      SuperBridgeContracts.ExecutionHelper,
+      "contracts/superbridge/payload/ExecutionHelper.sol",
+      [],
+      deployParams
+    );
+    deployParams.addresses[SuperBridgeContracts.ExecutionHelper] =
+      executionHelper.address;
+
     let vault: Contract;
     if (pc.nativeVaultChains?.includes(deployParams.currentChainSlug)) {
       vault = await getOrDeploy(

@@ -17,7 +17,7 @@ abstract contract ExecutablePayloadBase is Base {
         bytes payload;
     }
 
-    ExecutionHelper public executionHelper__;
+    ExecutionHelperPlugin public executionHelper__;
 
     // messageId => PendingExecutionDetails
     mapping(bytes32 => PendingExecutionDetails) public pendingExecutions;
@@ -41,7 +41,7 @@ abstract contract ExecutablePayloadBase is Base {
     function updateExecutionHelper(
         address executionHelper_
     ) external onlyOwner {
-        executionHelper__ = ExecutionHelper(executionHelper_);
+        executionHelper__ = ExecutionHelperPlugin(executionHelper_);
         emit ExecutionHelperUpdated(executionHelper_);
     }
 

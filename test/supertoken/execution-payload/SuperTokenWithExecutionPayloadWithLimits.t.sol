@@ -23,7 +23,7 @@ contract TestSuperTokenWithExecutionPayloadWithLimits is Test {
     uint256 constant _initialSupply = 100000;
     uint256 constant _rajuInitialBal = 1000;
 
-    ExecutionHelper _executionHelper;
+    ExecutionHelperPlugin _executionHelper;
     SocketPlug superTokenPlug;
     SuperTokenWithExecutionPayload _token;
     address _socket;
@@ -41,7 +41,7 @@ contract TestSuperTokenWithExecutionPayloadWithLimits is Test {
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
-        _executionHelper = new ExecutionHelper();
+        _executionHelper = new ExecutionHelperPlugin();
         superTokenPlug = new SocketPlug(address(_socket), _admin, _siblingSlug);
         _token = new SuperTokenWithExecutionPayload(
             "Moon",

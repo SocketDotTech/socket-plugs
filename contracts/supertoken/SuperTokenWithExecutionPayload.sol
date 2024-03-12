@@ -107,7 +107,7 @@ contract SuperTokenWithExecutionPayload is ERC20, ExecutablePayloadBase {
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(initialSupplyHolder_, initialSupply_);
         bridge__ = IMessageBridge(bridge_);
-        executionHelper__ = ExecutionHelper(executionHelper_);
+        executionHelper__ = ExecutionHelperPlugin(executionHelper_);
     }
 
     /**

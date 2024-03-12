@@ -6,7 +6,7 @@ import "../../libraries/ExcessivelySafeCall.sol";
  * @title ExecutionHelper
  * @notice It is an untrusted contract used for payload execution by Super token and Vault.
  */
-contract ExecutionHelper {
+contract ExecutionHelperPlugin {
     using ExcessivelySafeCall for address;
     uint16 private constant MAX_COPY_BYTES = 0;
 

@@ -102,7 +102,7 @@ contract SuperTokenVaultWithExecutionPayload is ExecutablePayloadBase {
         if (token_.code.length == 0) revert InvalidTokenContract();
         token__ = ERC20(token_);
         bridge__ = IMessageBridge(bridge_);
-        executionHelper__ = ExecutionHelper(executionHelper_);
+        executionHelper__ = ExecutionHelperPlugin(executionHelper_);
     }
 
     /**
