@@ -43,7 +43,7 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
                             YIELD STORAGE
     //////////////////////////////////////////////////////////////*/
 
-    uint8 public decimalOffset;
+    uint8 public immutable decimalOffset;
 
     // Timestamp of last rebalance
     uint256 public lastSyncTimestamp;
