@@ -16,8 +16,12 @@ contract YieldToken is YieldTokenBase {
     constructor(
         string memory name_,
         string memory symbol_,
-        uint8 decimals_
-    ) YieldTokenBase(name_, symbol_, decimals_) AccessControl(msg.sender) {}
+        uint8 decimals_,
+        uint8 decimalOffset_
+    )
+        YieldTokenBase(name_, symbol_, decimals_, decimalOffset_)
+        AccessControl(msg.sender)
+    {}
 
     // move to hook
     // fix to round up and check other cases
@@ -26,12 +30,12 @@ contract YieldToken is YieldTokenBase {
     ) external view returns (uint256) {
         // total supply -> total shares
         // total yield -> total underlying from all chains
-        // yield sent from src chain includes new amount hence subtracted here
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
         return
-            supply == 0
-                ? underlyingAssets_
-                : underlyingAssets_.mulDivUp(supply, totalUnderlyingAssets);
+            underlyingAssets_.mulDivUp(
+                supply + 10 ** decimalOffset,
+                totalUnderlyingAssets + 1
+            );
     }
 
     function burn(
@@ -59,17 +63,5 @@ contract YieldToken is YieldTokenBase {
     function _updateTotalUnderlyingAssets(uint256 amount_) internal {
         lastSyncTimestamp = block.timestamp;
         totalUnderlyingAssets = amount_;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-    function maxWithdraw(address owner) public view virtual returns (uint256) {
-        return convertToAssets(convertToAssets(_balanceOf[owner]));
-    }
-
-    function maxRedeem(address owner) public view virtual returns (uint256) {
-        return convertToAssets(_balanceOf[owner]);
     }
 }

@@ -43,6 +43,8 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
                             YIELD STORAGE
     //////////////////////////////////////////////////////////////*/
 
+    uint8 public decimalOffset;
+
     // Timestamp of last rebalance
     uint256 public lastSyncTimestamp;
 
@@ -53,10 +55,16 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(string memory _name, string memory _symbol, uint8 _decimals) {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals,
+        uint8 _decimalOffset
+    ) {
         name = _name;
         symbol = _symbol;
         decimals = _decimals;
+        decimalOffset = _decimalOffset;
 
         INITIAL_CHAIN_ID = block.chainid;
         INITIAL_DOMAIN_SEPARATOR = computeDomainSeparator();
@@ -71,9 +79,10 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     ) public view virtual returns (uint256) {
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
         return
-            supply == 0
-                ? underlyingAssets
-                : underlyingAssets.mulDivDown(supply, totalUnderlyingAssets);
+            underlyingAssets.mulDivDown(
+                supply + 10 ** decimalOffset,
+                totalUnderlyingAssets + 1
+            );
     }
 
     function convertToAssets(
@@ -81,9 +90,10 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     ) public view virtual returns (uint256) {
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
         return
-            supply == 0
-                ? shares
-                : shares.mulDivDown(totalUnderlyingAssets, supply);
+            shares.mulDivUp(
+                totalUnderlyingAssets + 1,
+                supply + 10 ** decimalOffset
+            );
     }
 
     function balanceOf(address user_) external view returns (uint256) {
