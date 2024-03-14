@@ -29,6 +29,7 @@ contract SetupYieldBridge is Test {
     uint32 _chainSlug;
     uint32 _otherChainSlug;
     uint256 immutable _connectorPoolId = 1;
+    uint8 constant _decimalOffset = 1;
 
     MockSocket socket__;
     ExecutionHelper executionHelper__;
@@ -126,7 +127,7 @@ contract SetupYieldBridge is Test {
     }
 
     function _setupController() internal {
-        yieldToken__ = new YieldToken("Moon", "MOON", 18);
+        yieldToken__ = new YieldToken("Moon", "MOON", 18, _decimalOffset);
         controller__ = new Controller(address(yieldToken__));
         controllerHook__ = new MockYieldTokenHook(
             address(yieldToken__),

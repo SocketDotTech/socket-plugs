@@ -27,6 +27,7 @@ contract Setup is Test {
     // yield token
     uint256 constant _initialSupply = 100000;
     uint256 constant _rajuInitialBal = 1000;
+    uint8 constant _decimalOffset = 1;
 
     // dl
     uint32 _slug = uint32(_c++);
@@ -45,7 +46,7 @@ contract Setup is Test {
 
     function setUp() external {
         vm.startPrank(_admin);
-        yieldToken__ = new YieldToken("Moon", "MOON", 18);
+        yieldToken__ = new YieldToken("Moon", "MOON", 18, _decimalOffset);
         hook__ = new MockYieldTokenHook(
             address(yieldToken__),
             _controller,
