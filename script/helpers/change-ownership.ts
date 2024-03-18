@@ -7,11 +7,9 @@ import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { ChainSlug } from "@socket.tech/dl-core";
 
 const chainToExpectedOwner = {
-  [ChainSlug.MAINNET]: "",
-  [ChainSlug.OPTIMISM]: "",
-  [ChainSlug.LYRA]: "",
-  [ChainSlug.BASE]: "",
-  [ChainSlug.ARBITRUM]: "",
+  [ChainSlug.OPTIMISM]: "0xa75509cB7c50362AC59908e2A8c3922aDF3EEF54",
+  [ChainSlug.ARBITRUM]: "0xa75509cB7c50362AC59908e2A8c3922aDF3EEF54",
+  [ChainSlug.AEVO]: "0xa75509cB7c50362AC59908e2A8c3922aDF3EEF54",
 };
 
 async function getOwnerAndNominee(contract: ethers.Contract) {

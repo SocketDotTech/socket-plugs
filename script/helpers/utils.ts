@@ -219,9 +219,8 @@ let addresses: ProjectAddresses;
 export const getProjectAddresses = async (): Promise<ProjectAddresses> => {
   if (!addresses)
     try {
-      addresses = await import(
-        `../../deployments/superbridge/${getMode()}_${getProject()}_addresses.json`
-      );
+      addresses =
+        await require(`../../deployments/superbridge/${getMode()}_${getProject()}_addresses.json`);
     } catch (e) {
       console.log("addresses not found", e);
       throw new Error("addresses not found");
