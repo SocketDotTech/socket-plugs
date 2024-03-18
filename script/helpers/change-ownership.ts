@@ -4,13 +4,14 @@ import { getSignerFromChainSlug, overrides } from "./networks";
 import { isAppChain } from "./constants";
 import { getSocketOwner } from "../constants/config";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
+import { ChainSlug } from "@socket.tech/dl-core";
 
 const chainToExpectedOwner = {
-  1: "0x246d38588b16Dd877c558b245e6D5a711C649fCF",
-  10: "0xD4C00FE7657791C2A43025dE483F05E49A5f76A6",
-  957: "0xB176A44D819372A38cee878fB0603AEd4d26C5a5",
-  8453: "0xbfA8B86391c5eCAd0eBe2B158D9Cd9866DDBAaDa",
-  42161: "0x2CcF21e5912e9ecCcB0ecdEe9744E5c507cf88AE",
+  [ChainSlug.MAINNET]: "",
+  [ChainSlug.OPTIMISM]: "",
+  [ChainSlug.LYRA]: "",
+  [ChainSlug.BASE]: "",
+  [ChainSlug.ARBITRUM]: "",
 };
 
 async function getOwnerAndNominee(contract: ethers.Contract) {
@@ -27,8 +28,16 @@ export const main = async () => {
   try {
     const addresses = await getProjectAddresses();
     for (const chain of Object.keys(addresses)) {
-      if (chain === "default") continue;
       console.log(`\nChecking addresses for chain ${chain}`);
+      if (!chainToExpectedOwner?.[+chain]) {
+        console.error(`Expected owner not found for chain ${chain}`);
+        throw new Error(`Expected owner not found for chain ${chain}`);
+      }
+      console.log(
+        `Expected owner found for chain ${chain}, ${
+          chainToExpectedOwner[+chain]
+        }`
+      );
       for (const token of Object.keys(addresses[chain])) {
         if (isAppChain(+chain)) {
           // ExchangeRate and Controller
