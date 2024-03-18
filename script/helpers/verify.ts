@@ -31,7 +31,6 @@ export const main = async () => {
       Number(c)
     );
 
-    console.log(chains);
     if (!chains) return;
 
     for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {

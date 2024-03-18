@@ -1,9 +1,8 @@
-import { BigNumber, Contract, ethers, Wallet } from "ethers";
+import { BigNumber, Contract, Wallet } from "ethers";
 
 import {
   ChainSlug,
   IntegrationTypes,
-  CORE_CONTRACTS,
   getAddresses,
 } from "@socket.tech/dl-core";
 
@@ -42,11 +41,10 @@ type UpdateLimitParams = [
 let pc: ProjectTokenConstants;
 
 async function execute(
-  contract: ethers.Contract,
+  contract: Contract,
   method: string,
   args: any[],
-  chain: number,
-  optionalOverrides?: any
+  chain: number
 ) {
   if (getDryRun()) {
     console.log("=".repeat(20));
@@ -58,7 +56,6 @@ async function execute(
   } else {
     let tx = await contract.functions[method](...args, {
       ...overrides[chain],
-      ...(optionalOverrides || {}),
     });
     console.log(`Sent on chain: ${chain} txHash: ${tx.hash}`);
     await tx.wait();

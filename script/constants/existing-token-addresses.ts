@@ -1,7 +1,9 @@
 import { ChainSlug } from "@socket.tech/dl-core/dist/src/enums/chainSlug";
-import { Tokens } from "../../../src";
+import { Tokens } from "../../src";
 
-export const TokenDetails = {
+export const ExistingTokenAddresses: {
+  [key in ChainSlug]?: { [key in Tokens]?: string };
+} = {
   [ChainSlug.MAINNET]: {
     [Tokens.USDC]: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     [Tokens.USDT]: "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -31,5 +33,17 @@ export const TokenDetails = {
     [Tokens.USDC]: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
     [Tokens.WSTETH]: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+  },
+  [ChainSlug.ARBITRUM_SEPOLIA]: {
+    [Tokens.USDC]: "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+    [Tokens.WETH]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+  },
+  [ChainSlug.SEPOLIA]: {
+    [Tokens.USDC]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+    [Tokens.WETH]: "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa",
+  },
+  [ChainSlug.OPTIMISM_SEPOLIA]: {
+    [Tokens.USDC]: "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+    [Tokens.WETH]: "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
   },
 };

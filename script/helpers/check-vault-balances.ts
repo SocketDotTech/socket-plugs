@@ -1,45 +1,37 @@
-import {
-  getOwnerAndNominee,
-  getProjectAddresses,
-  OWNABLE_ABI,
-  ZERO_ADDRESS,
-} from "./utils";
+import { getProjectAddresses } from "./utils";
 import { ethers } from "ethers";
-import { getProviderFromChainSlug, getSignerFromChainSlug } from "./networks";
+import { getProviderFromChainSlug } from "./networks";
 import { isAppChain } from "./constants";
-import { ERC20, ERC20__factory } from "../../typechain-types";
+import { ERC20__factory } from "../../typechain-types";
 import { tokenDecimals } from "../../src";
 
 export const main = async () => {
   try {
     const addresses = await getProjectAddresses();
     for (const chain of Object.keys(addresses)) {
-      if (chain === "default") continue;
       console.log(`\nChecking addresses for chain ${chain}`);
-      for (const currency of Object.keys(addresses[chain])) {
-        if (currency === "default") continue;
+      for (const token of Object.keys(addresses[chain])) {
         if (isAppChain(+chain)) continue;
 
-        // Vault
-        const currAddress = addresses[chain][currency].NonMintableToken;
-        const erc20 = ERC20__factory.connect(
-          currAddress,
+        const tokenAddress = addresses[chain][token].NonMintableToken;
+        const tokenContract = ERC20__factory.connect(
+          tokenAddress,
           getProviderFromChainSlug(+chain)
         );
-        const vaultBalance = await erc20.balanceOf(
-          addresses[chain][currency].Vault
+        const vaultBalance = await tokenContract.balanceOf(
+          addresses[chain][token].Vault
         );
 
         console.log(
-          `Vault for ${currency} on chain ${chain} has balance: ${ethers.utils.formatUnits(
+          `Vault for ${token} on chain ${chain} has balance: ${ethers.utils.formatUnits(
             vaultBalance,
-            tokenDecimals[currency]
+            tokenDecimals[token]
           )}`
         );
       }
     }
   } catch (error) {
-    console.log("Error while sending transaction", error);
+    console.error("Error while checking vault balances", error);
   }
 };
 
