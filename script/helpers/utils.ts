@@ -292,3 +292,15 @@ export const getPoolIdHex = (
     getIntegrationTypeConsts(it, chainSlug).poolCount
   );
 };
+
+export async function getOwnerAndNominee(contract: Contract) {
+  const owner = await contract.owner();
+  try {
+    const nominee = await contract.nominee();
+    return [owner, nominee, 0];
+  } catch (error) {}
+  const pendingOwner = await contract.pendingOwner();
+  return [owner, pendingOwner, 1];
+}
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
