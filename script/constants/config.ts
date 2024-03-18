@@ -49,8 +49,8 @@ export const getTokenProject = () => {
 };
 
 export const getDryRun = () => {
-  if (!process.env.DRY_RUN) throw new Error("Dry mode not mentioned");
+  if (!process.env.DRY_RUN) throw new Error("Dry run not mentioned");
   if (process.env.DRY_RUN !== "true" && process.env.DRY_RUN !== "false")
-    throw new Error("Dry mode is invalid, must be either 'true' or 'false'");
+    throw new Error("Dry run is invalid, must be either 'true' or 'false'");
   return process.env.DRY_RUN === "true";
 };

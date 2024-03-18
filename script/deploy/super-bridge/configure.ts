@@ -40,6 +40,8 @@ type UpdateLimitParams = [
 
 let pc: ProjectTokenConstants;
 
+const execSummary = [];
+
 async function execute(
   contract: Contract,
   method: string,
@@ -47,17 +49,21 @@ async function execute(
   chain: number
 ) {
   if (getDryRun()) {
-    console.log("=".repeat(20));
-    console.log(
-      `DRY RUN - Calling '${method}' on ${contract.address} on chain ${chain} with args:`
+    execSummary.push("");
+    execSummary.push(
+      `DRY RUN - Call '${method}' on ${contract.address} on chain ${chain} with args:`
     );
-    console.log(args);
-    console.log("=".repeat(20));
+    args.forEach((a) => execSummary.push(a));
+    execSummary.push(
+      "RAW CALLDATA - " +
+        (await contract.populateTransaction[method](...args)).data
+    );
+    execSummary.push("");
   } else {
     let tx = await contract.functions[method](...args, {
       ...overrides[chain],
     });
-    console.log(`Sent on chain: ${chain} txHash: ${tx.hash}`);
+    console.log(`o   Sent on chain: ${chain} txHash: ${tx.hash}`);
     await tx.wait();
   }
 }
@@ -81,15 +87,17 @@ export const main = async () => {
         let siblingSlugs: ChainSlug[] = Object.keys(connectors).map((k) =>
           parseInt(k)
         ) as ChainSlug[];
-        console.log(`Configuring ${chain} for ${siblingSlugs}`);
 
         await connect(addr, addresses, chain, siblingSlugs, socketSigner);
 
+        console.log(
+          `-   Checking limits and pool ifs for chain ${chain}, siblings ${siblingSlugs}`
+        );
         let contract: Contract;
         if (addr.isAppChain) {
           const a = addr as AppChainAddresses;
           if (!a.Controller) {
-            console.log("Controller not found");
+            console.error("Controller not found");
             return;
           }
           contract = await getInstance(
@@ -99,7 +107,7 @@ export const main = async () => {
         } else {
           const a = addr as NonAppChainAddresses;
           if (!a.Vault) {
-            console.log("Vault not found");
+            console.error("Vault not found");
             return;
           }
           contract = await getInstance(SuperBridgeContracts.Vault, a.Vault);
@@ -168,6 +176,10 @@ export const main = async () => {
                 mintLimit,
                 mintRate,
               ]);
+            } else {
+              console.log(
+                `✔   Deposit limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+              );
             }
 
             // burn/unlock/withdraw limits
@@ -192,11 +204,31 @@ export const main = async () => {
                 burnLimit,
                 burnRate,
               ]);
+            } else {
+              console.log(
+                `✔   Withdraw limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+              );
             }
 
-            if (chain === pc.appChain) {
-              connectorAddresses.push(itConnectorAddress);
-              connectorPoolIds.push(getPoolIdHex(sibling, it));
+            if (
+              chain === pc.appChain &&
+              chain !== ChainSlug.AEVO &&
+              chain !== ChainSlug.AEVO_TESTNET
+            ) {
+              const poolId: BigNumber = await contract.connectorPoolIds(
+                itConnectorAddress
+              );
+              const poolIdHex =
+                "0x" + BigInt(poolId.toString()).toString(16).padStart(64, "0");
+
+              if (poolIdHex !== getPoolIdHex(sibling, it)) {
+                connectorAddresses.push(itConnectorAddress);
+                connectorPoolIds.push(getPoolIdHex(sibling, it));
+              } else {
+                console.log(
+                  `✔   Pool id already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+                );
+              }
             }
           }
         }
@@ -209,7 +241,6 @@ export const main = async () => {
           [updateLimitParams],
           chain
         );
-        console.log(`Setting vault limits for ${chain} - COMPLETED`);
 
         if (
           addr.isAppChain &&
@@ -222,21 +253,19 @@ export const main = async () => {
             [connectorAddresses, connectorPoolIds],
             chain
           );
-          console.log(`Setting pool Ids for ${chain} - COMPLETED`);
         }
       })
     );
+
+    if (execSummary.length) {
+      console.log("=".repeat(100));
+      execSummary.forEach((t) => console.log(t));
+      console.log("=".repeat(100));
+    }
   } catch (error) {
-    console.log("Error while sending transaction", error);
+    console.error("Error while sending transaction", error);
   }
 };
-
-// const switchboardName = (it: IntegrationTypes) =>
-//   it === IntegrationTypes.fast
-//     ? CORE_CONTRACTS.FastSwitchboard
-//     : it === IntegrationTypes.optimistic
-//     ? CORE_CONTRACTS.OptimisticSwitchboard
-//     : CORE_CONTRACTS.NativeSwitchboard;
 
 const connect = async (
   addr: TokenAddresses,
@@ -246,7 +275,9 @@ const connect = async (
   socketSigner: Wallet
 ) => {
   try {
-    console.log("connecting plugs for ", chain, siblingSlugs);
+    console.log(
+      `-   Checking connection for chain ${chain}, siblings ${siblingSlugs}`
+    );
 
     for (let sibling of siblingSlugs) {
       const localConnectorAddresses: ConnectorAddresses | undefined =
@@ -265,16 +296,6 @@ const connect = async (
         const localConnectorPlug = localConnectorAddresses[integration];
         if (!localConnectorPlug || !siblingConnectorPlug) continue;
 
-        console.log("connecting plugs for ", {
-          chain,
-          sibling,
-          integration,
-          localConnectorPlug,
-          siblingConnectorPlug,
-        });
-
-        console.log(getAddresses(chain, getMode()).integrations[sibling]);
-
         const switchboard = getAddresses(chain, getMode()).integrations[
           sibling
         ][integration]?.switchboard;
@@ -291,7 +312,7 @@ const connect = async (
         );
 
         if (config[0].toLowerCase() === siblingConnectorPlug.toLowerCase()) {
-          console.log("already set, confirming ", { config });
+          console.log(`✔   Already connected ${chain}, ${sibling}`);
           continue;
         }
 
@@ -311,7 +332,7 @@ const connect = async (
       }
     }
   } catch (error) {
-    console.log("error while connecting plugs: ", error);
+    console.error("error while configuring: ", error);
   }
 };
 
