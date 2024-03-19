@@ -102,6 +102,7 @@ const config: HardhatUserConfig = {
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       base: process.env.BASESCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
+      reya_cronos: "none",
     },
     customChains: [
       {
@@ -142,6 +143,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api.basescan.org/api",
           browserURL: "https://basescan.org/",
+        },
+      },
+      {
+        network: "reya_cronos",
+        chainId: hardhatChainNameToSlug[HardhatChainName.REYA_CRONOS],
+        urls: {
+          apiURL: "https://reya-cronos.blockscout.com/api",
+          browserURL: "https://reya-cronos.blockscout.com/",
         },
       },
     ],
