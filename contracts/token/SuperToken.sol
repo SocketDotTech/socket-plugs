@@ -21,7 +21,6 @@ contract SuperToken is ERC20, RescueBase {
      * @param initialSupplyHolder_ address to which initial supply will be minted
      * @param owner_ owner of this contract
      * @param initialSupply_ initial supply of super token
-     * @param controller_ controller address
      */
     constructor(
         string memory name_,
@@ -29,11 +28,9 @@ contract SuperToken is ERC20, RescueBase {
         uint8 decimals_,
         address initialSupplyHolder_,
         address owner_,
-        uint256 initialSupply_,
-        address controller_
+        uint256 initialSupply_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(initialSupplyHolder_, initialSupply_);
-        _grantRole(CONTROLLER_ROLE, controller_);
     }
 
     function burn(

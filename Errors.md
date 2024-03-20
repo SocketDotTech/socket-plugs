@@ -9,3 +9,5 @@ Error codes for errors in this project -
 - InvalidTokenAddress() - 0x1eb00b06
 - InvalidPoolId() - 0x0afa7ee8
 - ZeroAmount() - 0x1f2a2005
+- InvalidTokenContract() - 29bdfb34
+
