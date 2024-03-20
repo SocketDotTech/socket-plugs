@@ -25,3 +25,5 @@ yarn.lock
 .git/*
 *.jpg
 lcov.info
+*.toml
+*.txt
