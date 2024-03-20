@@ -47,3 +47,10 @@ export const getTokenProject = () => {
     throw new Error("Token project not mentioned");
   return process.env.TOKEN_PROJECT as Project;
 };
+
+export const getDryRun = () => {
+  if (!process.env.DRY_RUN) throw new Error("Dry run not mentioned");
+  if (process.env.DRY_RUN !== "true" && process.env.DRY_RUN !== "false")
+    throw new Error("Dry run is invalid, must be either 'true' or 'false'");
+  return process.env.DRY_RUN === "true";
+};

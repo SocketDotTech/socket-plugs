@@ -3,7 +3,6 @@ import { BigNumber, Contract, Wallet } from "ethers";
 import {
   ChainSlug,
   IntegrationTypes,
-  CORE_CONTRACTS,
   getAddresses,
 } from "@socket.tech/dl-core";
 
@@ -29,7 +28,7 @@ import {
   ProjectAddresses,
   TokenAddresses,
 } from "../../../src";
-import { getMode, getToken } from "../../constants/config";
+import { getDryRun, getMode, getToken } from "../../constants/config";
 import { ProjectTokenConstants } from "../../constants/types";
 
 type UpdateLimitParams = [
@@ -40,6 +39,34 @@ type UpdateLimitParams = [
 ];
 
 let pc: ProjectTokenConstants;
+
+const execSummary = [];
+
+async function execute(
+  contract: Contract,
+  method: string,
+  args: any[],
+  chain: number
+) {
+  if (getDryRun()) {
+    execSummary.push("");
+    execSummary.push(
+      `DRY RUN - Call '${method}' on ${contract.address} on chain ${chain} with args:`
+    );
+    args.forEach((a) => execSummary.push(a));
+    execSummary.push(
+      "RAW CALLDATA - " +
+        (await contract.populateTransaction[method](...args)).data
+    );
+    execSummary.push("");
+  } else {
+    let tx = await contract.functions[method](...args, {
+      ...overrides[chain],
+    });
+    console.log(`o   Sent on chain: ${chain} txHash: ${tx.hash}`);
+    await tx.wait();
+  }
+}
 
 export const main = async () => {
   try {
@@ -60,9 +87,33 @@ export const main = async () => {
         let siblingSlugs: ChainSlug[] = Object.keys(connectors).map((k) =>
           parseInt(k)
         ) as ChainSlug[];
-        console.log(`Configuring ${chain} for ${siblingSlugs}`);
 
         await connect(addr, addresses, chain, siblingSlugs, socketSigner);
+
+        console.log(
+          `-   Checking limits and pool ifs for chain ${chain}, siblings ${siblingSlugs}`
+        );
+        let contract: Contract;
+        if (addr.isAppChain) {
+          const a = addr as AppChainAddresses;
+          if (!a.Controller) {
+            console.error("Controller not found");
+            return;
+          }
+          contract = await getInstance(
+            SuperBridgeContracts.Controller,
+            a.Controller
+          );
+        } else {
+          const a = addr as NonAppChainAddresses;
+          if (!a.Vault) {
+            console.error("Vault not found");
+            return;
+          }
+          contract = await getInstance(SuperBridgeContracts.Vault, a.Vault);
+        }
+
+        contract = contract.connect(socketSigner);
 
         const updateLimitParams: UpdateLimitParams[] = [];
         const connectorAddresses: string[] = [];
@@ -81,90 +132,140 @@ export const main = async () => {
               siblingConnectorAddresses[it];
             if (!itConnectorAddress) continue;
 
+            let lockParams;
+            if (addr.isAppChain) {
+              lockParams = await contract.functions.getMintLimitParams(
+                itConnectorAddress
+              );
+            } else {
+              lockParams = await contract.functions.getLockLimitParams(
+                itConnectorAddress
+              );
+            }
+
+            let unlockParams;
+            if (addr.isAppChain) {
+              unlockParams = await contract.functions.getBurnLimitParams(
+                itConnectorAddress
+              );
+            } else {
+              unlockParams = await contract.functions.getUnlockLimitParams(
+                itConnectorAddress
+              );
+            }
+
             // mint/lock/deposit limits
-            updateLimitParams.push([
-              true,
-              itConnectorAddress,
-              getLimitBN(it, isAppChain(sibling) ? chain : sibling, true),
-              getRateBN(it, isAppChain(sibling) ? chain : sibling, true),
-            ]);
+            const mintLimit = getLimitBN(
+              it,
+              isAppChain(sibling) ? chain : sibling,
+              true
+            );
+            const mintRate = getRateBN(
+              it,
+              isAppChain(sibling) ? chain : sibling,
+              true
+            );
+
+            if (
+              !mintLimit.eq(lockParams[0]["maxLimit"]) ||
+              !mintRate.eq(lockParams[0]["ratePerSecond"])
+            ) {
+              updateLimitParams.push([
+                true,
+                itConnectorAddress,
+                mintLimit,
+                mintRate,
+              ]);
+            } else {
+              console.log(
+                `✔   Deposit limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+              );
+            }
 
             // burn/unlock/withdraw limits
-            updateLimitParams.push([
-              false,
-              itConnectorAddress,
-              getLimitBN(it, isAppChain(sibling) ? chain : sibling, false),
-              getRateBN(it, isAppChain(sibling) ? chain : sibling, false),
-            ]);
+            const burnLimit = getLimitBN(
+              it,
+              isAppChain(sibling) ? chain : sibling,
+              false
+            );
+            const burnRate = getRateBN(
+              it,
+              isAppChain(sibling) ? chain : sibling,
+              false
+            );
 
-            if (chain === pc.appChain) {
-              connectorAddresses.push(itConnectorAddress);
-              connectorPoolIds.push(getPoolIdHex(sibling, it));
+            if (
+              !burnLimit.eq(unlockParams[0]["maxLimit"]) ||
+              !burnRate.eq(unlockParams[0]["ratePerSecond"])
+            ) {
+              updateLimitParams.push([
+                false,
+                itConnectorAddress,
+                burnLimit,
+                burnRate,
+              ]);
+            } else {
+              console.log(
+                `✔   Withdraw limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+              );
+            }
+
+            if (
+              chain === pc.appChain &&
+              chain !== ChainSlug.AEVO &&
+              chain !== ChainSlug.AEVO_TESTNET
+            ) {
+              const poolId: BigNumber = await contract.connectorPoolIds(
+                itConnectorAddress
+              );
+              const poolIdHex =
+                "0x" + BigInt(poolId.toString()).toString(16).padStart(64, "0");
+
+              if (poolIdHex !== getPoolIdHex(sibling, it)) {
+                connectorAddresses.push(itConnectorAddress);
+                connectorPoolIds.push(getPoolIdHex(sibling, it));
+              } else {
+                console.log(
+                  `✔   Pool id already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+                );
+              }
             }
           }
         }
 
         if (!updateLimitParams.length) return;
 
-        let contract: Contract;
-        if (addr.isAppChain) {
-          const a = addr as AppChainAddresses;
-          if (!a.Controller) {
-            console.log("Controller not found");
-            return;
-          }
-          contract = await getInstance(
-            SuperBridgeContracts.Controller,
-            a.Controller
-          );
-        } else {
-          const a = addr as NonAppChainAddresses;
-          if (!a.Vault) {
-            console.log("Vault not found");
-            return;
-          }
-          contract = await getInstance(SuperBridgeContracts.Vault, a.Vault);
-        }
-
-        contract = contract.connect(socketSigner);
-        let tx = await contract.updateLimitParams(updateLimitParams, {
-          ...overrides[chain],
-        });
-        console.log(chain, tx.hash);
-        await tx.wait();
-
-        console.log(`Setting vault limits for ${chain} - COMPLETED`);
+        await execute(
+          contract,
+          "updateLimitParams",
+          [updateLimitParams],
+          chain
+        );
 
         if (
           addr.isAppChain &&
           connectorAddresses.length &&
           connectorPoolIds.length
         ) {
-          let tx = await contract.updateConnectorPoolId(
-            connectorAddresses,
-            connectorPoolIds,
-            {
-              ...overrides[chain],
-            }
+          await execute(
+            contract,
+            "updateConnectorPoolId",
+            [connectorAddresses, connectorPoolIds],
+            chain
           );
-          console.log(chain, tx.hash);
-          await tx.wait();
-
-          console.log(`Setting pool Ids for ${chain} - COMPLETED`);
         }
       })
     );
+
+    if (execSummary.length) {
+      console.log("=".repeat(100));
+      execSummary.forEach((t) => console.log(t));
+      console.log("=".repeat(100));
+    }
   } catch (error) {
-    console.log("Error while sending transaction", error);
+    console.error("Error while sending transaction", error);
   }
 };
-
-// const switchboardName = (it: IntegrationTypes) =>
-//   it === IntegrationTypes.fast
-//     ? CORE_CONTRACTS.FastSwitchboard
-//     : it === IntegrationTypes.optimistic
-//     ? CORE_CONTRACTS.OptimisticSwitchboard
-//     : CORE_CONTRACTS.NativeSwitchboard;
 
 const connect = async (
   addr: TokenAddresses,
@@ -174,7 +275,9 @@ const connect = async (
   socketSigner: Wallet
 ) => {
   try {
-    console.log("connecting plugs for ", chain, siblingSlugs);
+    console.log(
+      `-   Checking connection for chain ${chain}, siblings ${siblingSlugs}`
+    );
 
     for (let sibling of siblingSlugs) {
       const localConnectorAddresses: ConnectorAddresses | undefined =
@@ -209,7 +312,7 @@ const connect = async (
         );
 
         if (config[0].toLowerCase() === siblingConnectorPlug.toLowerCase()) {
-          console.log("already set, confirming ", { config });
+          console.log(`✔   Already connected ${chain}, ${sibling}`);
           continue;
         }
 
@@ -220,17 +323,16 @@ const connect = async (
           )
         ).connect(socketSigner);
 
-        let tx = await connectorContract.functions["connect"](
-          siblingConnectorPlug,
-          switchboard,
-          { ...overrides[chain] }
+        await execute(
+          connectorContract,
+          "connect",
+          [siblingConnectorPlug, switchboard],
+          chain
         );
-        console.log(chain, tx.hash);
-        await tx.wait();
       }
     }
   } catch (error) {
-    console.log("error while connecting plugs: ", error);
+    console.error("error while configuring: ", error);
   }
 };
 

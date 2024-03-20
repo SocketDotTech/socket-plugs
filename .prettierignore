@@ -9,8 +9,7 @@ out
 typechain-types
 
 .DS_Store
-.env
-.env.example
+.env*
 .gas-snapshot
 .gitignore
 .gitmodules
@@ -27,3 +26,4 @@ yarn.lock
 lcov.info
 *.toml
 *.txt
+.idea
