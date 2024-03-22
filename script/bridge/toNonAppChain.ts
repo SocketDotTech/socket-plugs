@@ -12,9 +12,10 @@ import {
   tokenDecimals,
 } from "../../src";
 import { getToken } from "../constants/config";
+import { checkSendingLimit } from "./common";
 
-const srcChain = ChainSlug.LYRA_TESTNET;
-const dstChain = ChainSlug.SEPOLIA;
+const srcChain = ChainSlug.AEVO_TESTNET;
+const dstChain = ChainSlug.OPTIMISM_SEPOLIA;
 const amount = "1";
 
 let amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
@@ -58,10 +59,7 @@ export const main = async () => {
     );
     if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
-    const limit: BigNumber = await controller.getCurrentBurnLimit(
-      connectorAddr
-    );
-    if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
+    await checkSendingLimit(addr, connectorAddr, amountBN, socketSigner);
 
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
@@ -80,13 +78,15 @@ export const main = async () => {
     console.log(`withdrawing ${amountBN} from app chain to ${dstChain}`);
 
     const socket: Contract = getSocket(srcChain, socketSigner);
-    const fees = await controller.getMinFees(connectorAddr, gasLimit);
+    const fees = await controller.getMinFees(connectorAddr, gasLimit, 0);
 
-    const withdrawTx = await controller.withdrawFromAppChain(
+    const withdrawTx = await controller.bridge(
       socketSigner.address,
       amountBN,
       gasLimit,
       connectorAddr,
+      "0x",
+      "0x",
       { ...overrides[srcChain], value: fees }
     );
     console.log("Tokens burnt", withdrawTx.hash);

@@ -5,26 +5,44 @@ import {
 } from "@socket.tech/dl-core";
 import { TokenConstants } from "../types";
 import { getSocketOwner } from "../config";
-import { SuperTokenType } from "../../../src";
+import { Hooks, ProjectType, Tokens } from "../../../src";
 
 const tc: TokenConstants = {
   [DeploymentMode.PROD]: {
-    type: SuperTokenType.WITH_LIMIT,
-    projectName: "test",
-    tokenName: "test",
-    tokenSymbol: "TEST",
-    tokenDecimal: 18,
-    initialSupplyOwner: getSocketOwner(),
-    owner: getSocketOwner(),
-    initialSupply: 0,
-    superTokenChains: [ChainSlug.ARBITRUM_SEPOLIA],
-    vaultTokens: {
-      [ChainSlug.OPTIMISM_SEPOLIA]:
-        "0x8df294e199C461891AAB8e7A0584a5Ffb9f3e241",
+    [Tokens.USDC]: {
+      superTokenChains: [ChainSlug.OPTIMISM_SEPOLIA],
+      vaultChains: [ChainSlug.AEVO_TESTNET],
+      hook: Hooks.LIMIT_EXECUTION_HOOK,
+      projectType: ProjectType.SUPERTOKEN,
+      tokenInfo: {
+        name: "USDC",
+        symbol: "USDC",
+        decimals: 6,
+        initialSupply: 1000,
+        initialSupplyOwner: getSocketOwner(),
+        owner: getSocketOwner(),
+      },
+      limits: {
+        [ChainSlug.AEVO_TESTNET]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "50000",
+            sendingRate: "0.5787",
+            receivingLimit: "50000",
+            receivingRate: "0.5787",
+            poolCount: 0,
+          },
+        },
+        [ChainSlug.OPTIMISM_SEPOLIA]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "50000",
+            sendingRate: "0.5787",
+            receivingLimit: "50000",
+            receivingRate: "0.5787",
+            poolCount: 0,
+          },
+        },
+      },
     },
-    integrationType: IntegrationTypes.fast,
-    bridgeLimit: "150000",
-    bridgeRate: "1.7361",
   },
 };
 

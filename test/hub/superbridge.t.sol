@@ -707,7 +707,7 @@ contract TestNormalController is TestBaseController {
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
         _controller = new Controller(address(_token));
-        _executionHelper = new ExecutionHelper();
+        _executionHelper = new ExecutionHelper(_admin);
         hook__ = new LimitExecutionHook(
             _admin,
             address(_controller),

@@ -50,7 +50,7 @@ contract TestLimitExecutionHook is Test {
         controller__ = address(uint160(_c++));
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
-        _executionHelper = new ExecutionHelper();
+        _executionHelper = new ExecutionHelper(_admin);
         hook__ = new LimitExecutionHook(
             _admin,
             address(controller__),

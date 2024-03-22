@@ -27,9 +27,11 @@ import {
   NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
+  HookContracts,
 } from "../../../src";
 import { getDryRun, getMode, getToken } from "../../constants/config";
 import { ProjectTokenConstants } from "../../constants/types";
+import { LIMIT_UPDATER_ROLE } from "../../constants/roles";
 
 type UpdateLimitParams = [
   boolean,
@@ -63,7 +65,7 @@ async function execute(
     let tx = await contract.functions[method](...args, {
       ...overrides[chain],
     });
-    console.log(`o   Sent on chain: ${chain} txHash: ${tx.hash}`);
+    console.log(`o   Sent on chain: ${chain} function: ${method} txHash: ${tx.hash}`);
     await tx.wait();
   }
 }
@@ -73,9 +75,7 @@ export const main = async () => {
     const addresses = await getProjectAddresses();
     pc = getProjectTokenConstants();
 
-    const nonAppChainsList: ChainSlug[] = Object.keys(pc.nonAppChains).map(
-      (k) => parseInt(k)
-    );
+    const nonAppChainsList: ChainSlug[] = pc.nonAppChains;
     await Promise.all(
       [pc.appChain, ...nonAppChainsList].map(async (chain) => {
         const addr: TokenAddresses | undefined = addresses[chain]?.[getToken()];
@@ -88,172 +88,72 @@ export const main = async () => {
           parseInt(k)
         ) as ChainSlug[];
 
-        await connect(addr, addresses, chain, siblingSlugs, socketSigner);
-
-        console.log(
-          `-   Checking limits and pool ifs for chain ${chain}, siblings ${siblingSlugs}`
-        );
-        let contract: Contract;
+        let hubContract: Contract;
         if (addr.isAppChain) {
-          const a = addr as AppChainAddresses;
-          if (!a.Controller) {
-            console.error("Controller not found");
-            return;
-          }
-          contract = await getInstance(
+          hubContract = await getInstance(
             SuperBridgeContracts.Controller,
-            a.Controller
+            addr[SuperBridgeContracts.Controller]
           );
         } else {
-          const a = addr as NonAppChainAddresses;
-          if (!a.Vault) {
-            console.error("Vault not found");
-            return;
-          }
-          contract = await getInstance(SuperBridgeContracts.Vault, a.Vault);
-        }
-
-        contract = contract.connect(socketSigner);
-
-        const updateLimitParams: UpdateLimitParams[] = [];
-        const connectorAddresses: string[] = [];
-        const connectorPoolIds: string[] = [];
-
-        for (let sibling of siblingSlugs) {
-          const siblingConnectorAddresses: ConnectorAddresses | undefined =
-            connectors[sibling];
-          if (!siblingConnectorAddresses) continue;
-
-          const integrationTypes: IntegrationTypes[] = Object.keys(
-            siblingConnectorAddresses
-          ) as unknown as IntegrationTypes[];
-          for (let it of integrationTypes) {
-            const itConnectorAddress: string | undefined =
-              siblingConnectorAddresses[it];
-            if (!itConnectorAddress) continue;
-
-            let lockParams;
-            if (addr.isAppChain) {
-              lockParams = await contract.functions.getMintLimitParams(
-                itConnectorAddress
-              );
-            } else {
-              lockParams = await contract.functions.getLockLimitParams(
-                itConnectorAddress
-              );
-            }
-
-            let unlockParams;
-            if (addr.isAppChain) {
-              unlockParams = await contract.functions.getBurnLimitParams(
-                itConnectorAddress
-              );
-            } else {
-              unlockParams = await contract.functions.getUnlockLimitParams(
-                itConnectorAddress
-              );
-            }
-
-            // mint/lock/deposit limits
-            const mintLimit = getLimitBN(
-              it,
-              isAppChain(sibling) ? chain : sibling,
-              true
-            );
-            const mintRate = getRateBN(
-              it,
-              isAppChain(sibling) ? chain : sibling,
-              true
-            );
-
-            if (
-              !mintLimit.eq(lockParams[0]["maxLimit"]) ||
-              !mintRate.eq(lockParams[0]["ratePerSecond"])
-            ) {
-              updateLimitParams.push([
-                true,
-                itConnectorAddress,
-                mintLimit,
-                mintRate,
-              ]);
-            } else {
-              console.log(
-                `✔   Deposit limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
-              );
-            }
-
-            // burn/unlock/withdraw limits
-            const burnLimit = getLimitBN(
-              it,
-              isAppChain(sibling) ? chain : sibling,
-              false
-            );
-            const burnRate = getRateBN(
-              it,
-              isAppChain(sibling) ? chain : sibling,
-              false
-            );
-
-            if (
-              !burnLimit.eq(unlockParams[0]["maxLimit"]) ||
-              !burnRate.eq(unlockParams[0]["ratePerSecond"])
-            ) {
-              updateLimitParams.push([
-                false,
-                itConnectorAddress,
-                burnLimit,
-                burnRate,
-              ]);
-            } else {
-              console.log(
-                `✔   Withdraw limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
-              );
-            }
-
-            if (
-              chain === pc.appChain &&
-              chain !== ChainSlug.AEVO &&
-              chain !== ChainSlug.AEVO_TESTNET
-            ) {
-              const poolId: BigNumber = await contract.connectorPoolIds(
-                itConnectorAddress
-              );
-              const poolIdHex =
-                "0x" + BigInt(poolId.toString()).toString(16).padStart(64, "0");
-
-              if (poolIdHex !== getPoolIdHex(sibling, it)) {
-                connectorAddresses.push(itConnectorAddress);
-                connectorPoolIds.push(getPoolIdHex(sibling, it));
-              } else {
-                console.log(
-                  `✔   Pool id already set for chain ${chain}, sibling ${sibling}, integration ${it}`
-                );
-              }
-            }
-          }
-        }
-
-        if (!updateLimitParams.length) return;
-
-        await execute(
-          contract,
-          "updateLimitParams",
-          [updateLimitParams],
-          chain
-        );
-
-        if (
-          addr.isAppChain &&
-          connectorAddresses.length &&
-          connectorPoolIds.length
-        ) {
-          await execute(
-            contract,
-            "updateConnectorPoolId",
-            [connectorAddresses, connectorPoolIds],
-            chain
+          hubContract = await getInstance(
+            SuperBridgeContracts.Vault,
+            addr[SuperBridgeContracts.Vault]
           );
         }
+
+        hubContract = hubContract.connect(socketSigner);
+
+        await connect(addr, addresses, chain, siblingSlugs, socketSigner);
+        await updateConnectorStatus(
+          chain,
+          siblingSlugs,
+          addr,
+          connectors,
+          hubContract
+        );
+
+        console.log(
+          `-   Checking limits and pool ids for chain ${chain}, siblings ${siblingSlugs}`
+        );
+        let hookContract: Contract;
+
+        if (addr[HookContracts.LimitHook]) {
+          hookContract = await getInstance(
+            HookContracts.LimitHook,
+            addr[HookContracts.LimitHook]
+          );
+        }
+        if (addr[HookContracts.LimitExecutionHook]) {
+          hookContract = await getInstance(
+            HookContracts.LimitExecutionHook,
+            addr[HookContracts.LimitExecutionHook]
+          );
+          
+          await setHookInExecutionHelper(
+            chain,
+            socketSigner,
+            hookContract,
+            addr
+          );
+        }
+
+        if (!hookContract) {
+          console.log("Hook not found for chain: ", chain);
+          return;
+        }
+
+        // console.log("Hook contract: ", hookContract.address);
+        hookContract = hookContract.connect(socketSigner);
+
+        await setHookInHub(chain, hubContract, hookContract);
+
+        await updateLimitsAndPoolId(
+          chain,
+          siblingSlugs,
+          addr,
+          connectors,
+          hookContract
+        );
       })
     );
 
@@ -264,6 +164,248 @@ export const main = async () => {
     }
   } catch (error) {
     console.error("Error while sending transaction", error);
+  }
+};
+
+const setHookInHub = async (
+  chain: ChainSlug,
+  hubContract: Contract,
+  hookContract: Contract,
+) => {
+
+  let storedHookAddress = await hubContract.hook__();
+  if (storedHookAddress === hookContract.address) {
+    console.log(`✔   Hook already set on Hub for chain ${chain}`);
+    return;
+  } {
+    console.log("stored address in Hub: ", storedHookAddress, "hookContract: ", hookContract.address);
+  }
+  await execute(
+    hubContract,
+    "updateHook",
+    [hookContract.address, false],
+    chain
+  );
+};
+
+const setHookInExecutionHelper = async (
+  chain: ChainSlug,
+  socketSigner: Wallet,
+  hookContract: Contract,
+  addr: TokenAddresses
+) => {
+
+  let executionHelperContract = await getInstance(
+    HookContracts.ExecutionHelper,
+    addr[HookContracts.ExecutionHelper]
+  );
+  executionHelperContract =
+    executionHelperContract.connect(socketSigner);
+  
+  let storedHookAddress = await executionHelperContract.hook();
+  if (storedHookAddress === hookContract.address) {
+    console.log(`✔   Hook already set on Execution Helper for chain ${chain}`);
+    return;
+  } {
+    console.log("stored address in EH: ", storedHookAddress, "hookContract: ", hookContract.address);
+  }
+    
+
+  await execute(
+    executionHelperContract,
+    "setHook",
+    [hookContract.address],
+    chain
+  );
+};
+
+const updateConnectorStatus = async (
+  chain: ChainSlug,
+  siblingSlugs: ChainSlug[],
+  addr: TokenAddresses,
+  connectors: Connectors,
+  hubContract: Contract
+) => {
+  const connectorAddresses: string[] = [];
+
+  for (let sibling of siblingSlugs) {
+    const siblingConnectorAddresses: ConnectorAddresses | undefined =
+      connectors[sibling];
+    if (!siblingConnectorAddresses) continue;
+
+    const integrationTypes: IntegrationTypes[] = Object.keys(
+      siblingConnectorAddresses
+    ) as unknown as IntegrationTypes[];
+    for (let it of integrationTypes) {
+      const itConnectorAddress: string | undefined =
+        siblingConnectorAddresses[it];
+      if (!itConnectorAddress) continue;
+
+      // console.log(
+      //   { itConnectorAddress, chain, sibling, connectors },
+      //   hubContract.address,
+      //   hubContract.validConnectors
+      // );
+      let connectorStatus = await hubContract.callStatic.validConnectors(
+        itConnectorAddress
+      );
+      if (!connectorStatus) {
+        connectorAddresses.push(itConnectorAddress);
+      }
+    }
+  }
+  if (connectorAddresses.length) {
+    await execute(
+      hubContract,
+      "updateConnectorStatus",
+      [connectorAddresses, new Array(connectorAddresses.length).fill(true)],
+      chain
+    );
+  } else {
+    console.log(`✔   Connector status already set for chain ${chain}`);
+  }
+};
+
+const updateLimitsAndPoolId = async (
+  chain: ChainSlug,
+  siblingSlugs: ChainSlug[],
+  addr: TokenAddresses,
+  connectors: Connectors,
+  hookContract: Contract
+) => {
+  const updateLimitParams: UpdateLimitParams[] = [];
+  const connectorAddresses: string[] = [];
+  const connectorPoolIds: string[] = [];
+  // console.log({ chain, siblingSlugs, addr, connectors });
+
+  let hasRole = await hookContract.hasRole(LIMIT_UPDATER_ROLE, hookContract.signer.getAddress());
+  if (!hasRole) {
+    console.log("Adding limit updater role to signer", hookContract.signer.getAddress()," on chain : ", chain);
+    await execute(
+      hookContract,
+      "grantRole",
+      [LIMIT_UPDATER_ROLE, hookContract.signer.getAddress()],
+      chain
+    );
+  } else {
+    console.log("✔   Limit updater role already set on hook for chain ", chain);
+  }
+  for (let sibling of siblingSlugs) {
+    const siblingConnectorAddresses: ConnectorAddresses | undefined =
+      connectors[sibling];
+    if (!siblingConnectorAddresses) continue;
+
+    const integrationTypes: IntegrationTypes[] = Object.keys(
+      siblingConnectorAddresses
+    ) as unknown as IntegrationTypes[];
+    for (let it of integrationTypes) {
+      const itConnectorAddress: string | undefined =
+        siblingConnectorAddresses[it];
+      if (!itConnectorAddress) continue;
+      // console.log({ itConnectorAddress });
+      let sendingParams = await hookContract.getSendingLimitParams(
+        itConnectorAddress
+      );
+
+      // console.log({ sendingParams });
+      let receivingParams = await hookContract.getReceivingLimitParams(
+        itConnectorAddress
+      );
+
+      // mint/lock/deposit limits
+      const sendingLimit = getLimitBN(
+        it,
+        isAppChain(sibling) ? chain : sibling,
+        true
+      );
+      const sendingRate = getRateBN(
+        it,
+        isAppChain(sibling) ? chain : sibling,
+        true
+      );
+      if (
+        !sendingLimit.eq(sendingParams["maxLimit"]) ||
+        !sendingRate.eq(sendingParams["ratePerSecond"])
+      ) {
+        updateLimitParams.push([
+          true,
+          itConnectorAddress,
+          sendingLimit,
+          sendingRate,
+        ]);
+      } else {
+        console.log(
+          `✔   Sending limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+        );
+      }
+
+      const receivingLimit = getLimitBN(
+        it,
+        isAppChain(sibling) ? chain : sibling,
+        false
+      );
+      const receivingRate = getRateBN(
+        it,
+        isAppChain(sibling) ? chain : sibling,
+        false
+      );
+
+      if (
+        !receivingLimit.eq(receivingParams["maxLimit"]) ||
+        !receivingRate.eq(receivingParams["ratePerSecond"])
+      ) {
+        updateLimitParams.push([
+          false,
+          itConnectorAddress,
+          receivingLimit,
+          receivingRate,
+        ]);
+      } else {
+        console.log(
+          `✔   Receiving limit already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+        );
+      }
+
+      if (
+        chain === pc.appChain
+        // chain !== ChainSlug.AEVO &&
+        // chain !== ChainSlug.AEVO_TESTNET
+      ) {
+        const poolId: BigNumber = await hookContract.connectorPoolIds(
+          itConnectorAddress
+        );
+        console.log({itConnectorAddress, poolId})
+        const poolIdHex =
+          "0x" + BigInt(poolId.toString()).toString(16).padStart(64, "0");
+
+        if (poolIdHex !== getPoolIdHex(sibling, it)) {
+          connectorAddresses.push(itConnectorAddress);
+          connectorPoolIds.push(getPoolIdHex(sibling, it));
+        } else {
+          console.log(
+            `✔   Pool id already set for chain ${chain}, sibling ${sibling}, integration ${it}`
+          );
+        }
+      }
+    }
+  }
+
+  if (updateLimitParams.length) {
+    await execute(
+      hookContract,
+      "updateLimitParams",
+      [updateLimitParams],
+      chain
+    );
+  }
+
+  if (addr.isAppChain && connectorAddresses.length && connectorPoolIds.length) {
+    await execute(
+      hookContract,
+      "updateConnectorPoolId",
+      [connectorAddresses, connectorPoolIds],
+      chain
+    );
   }
 };
 
@@ -305,8 +447,11 @@ const connect = async (
             `switchboard not found for ${chain}, ${sibling}, ${integration}`
           );
         }
-
-        let config = await socketContract.getPlugConfig(
+        // console.log(
+        //   { localConnectorPlug, sibling, switchboard },
+        //   socketContract.address
+        // );
+        let config = await socketContract.callStatic.getPlugConfig(
           localConnectorPlug,
           sibling
         );

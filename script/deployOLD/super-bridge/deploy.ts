@@ -28,8 +28,6 @@ import {
   NonAppChainAddresses,
   ProjectAddresses,
   TokenAddresses,
-  Hooks,
-  HookContracts,
 } from "../../../src";
 import { isAppChain, getProjectTokenConstants } from "../../helpers/constants";
 import { ProjectTokenConstants } from "../../constants/types";
@@ -63,10 +61,11 @@ export const main = async () => {
     } catch (error) {
       addresses = {} as ProjectAddresses;
     }
-    const nonAppChainsList: ChainSlug[] = pc.nonAppChains;
-    const hook = pc?.hook;
+    const nonAppChainsList: ChainSlug[] = Object.keys(pc.nonAppChains).map(
+      (k) => parseInt(k)
+    );
     await Promise.all(
-      [pc.appChain, ...pc.nonAppChains].map(async (chain: ChainSlug) => {
+      [pc.appChain, ...nonAppChainsList].map(async (chain: ChainSlug) => {
         let allDeployed = false;
         const signer = getSignerFromChainSlug(chain);
 
@@ -75,14 +74,13 @@ export const main = async () => {
           : ({} as TokenAddresses);
 
         const siblings = isAppChain(chain) ? nonAppChainsList : [pc.appChain];
-        // console.log({ siblings, hook });
+
         while (!allDeployed) {
           const results: ReturnObj = await deploy(
             isAppChain(chain),
             signer,
             chain,
             siblings,
-            hook,
             chainAddresses
           );
 
@@ -104,7 +102,6 @@ const deploy = async (
   socketSigner: Wallet,
   chainSlug: number,
   siblings: number[],
-  hook: Hooks,
   deployedAddresses: TokenAddresses
 ): Promise<ReturnObj> => {
   let allDeployed = false;
@@ -113,7 +110,6 @@ const deploy = async (
     addresses: deployedAddresses,
     signer: socketSigner,
     currentChainSlug: chainSlug,
-    hook,
   };
 
   try {
@@ -129,7 +125,7 @@ const deploy = async (
       deployUtils = await deployConnectors(sibling, deployUtils);
     }
     allDeployed = true;
-    // console.log(deployUtils.addresses);
+    console.log(deployUtils.addresses);
     console.log("Contracts deployed!");
   } catch (error) {
     console.log(
@@ -154,7 +150,7 @@ const deployConnectors = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
-    if (!deployParams?.addresses) throw new Error("Addresses not found!");
+    if (!deployParams.addresses) throw new Error("Addresses not found!");
 
     let integrationTypes: IntegrationTypes[];
     const socket: string = getAddresses(
@@ -167,18 +163,20 @@ const deployConnectors = async (
       const a = addr as AppChainAddresses;
       if (!a.Controller) throw new Error("Controller not found!");
       hub = a.Controller;
-      integrationTypes = Object.keys(pc.limits[sibling]) as IntegrationTypes[];
+      integrationTypes = Object.keys(
+        pc.nonAppChains[sibling]
+      ) as IntegrationTypes[];
     } else {
       const a = addr as NonAppChainAddresses;
       if (!a.Vault) throw new Error("Vault not found!");
       hub = a.Vault;
       integrationTypes = Object.keys(
-        pc.limits[deployParams.currentChainSlug]
+        pc.nonAppChains[deployParams.currentChainSlug]
       ) as IntegrationTypes[];
     }
 
     for (let intType of integrationTypes) {
-      // console.log(hub, socket, sibling);
+      console.log(hub, socket, sibling);
       const connector: Contract = await getOrDeployConnector(
         [hub, socket, sibling],
         deployParams,
@@ -186,7 +184,7 @@ const deployConnectors = async (
         intType
       );
 
-      // console.log("connectors", sibling.toString(), intType, connector.address);
+      console.log("connectors", sibling.toString(), intType, connector.address);
 
       deployParams.addresses = createObj(
         deployParams.addresses,
@@ -195,7 +193,7 @@ const deployConnectors = async (
       );
     }
 
-    // console.log(deployParams.addresses);
+    console.log(deployParams.addresses);
     console.log("Connector Contracts deployed!");
   } catch (error) {
     console.log("Error in deploying connector contracts", error);
@@ -208,6 +206,15 @@ const deployAppChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
+    const exchangeRate: Contract = await getOrDeploy(
+      SuperBridgeContracts.ExchangeRate,
+      "contracts/superbridge/ExchangeRate.sol",
+      [],
+      deployParams
+    );
+    deployParams.addresses[SuperBridgeContracts.ExchangeRate] =
+      exchangeRate.address;
+
     if (!deployParams.addresses[SuperBridgeContracts.MintableToken])
       throw new Error("Token not found on app chain");
 
@@ -216,18 +223,18 @@ const deployAppChainContracts = async (
         ? SuperBridgeContracts.FiatTokenV2_1_Controller
         : SuperBridgeContracts.Controller,
       pc.isFiatTokenV2_1
-        ? "contracts/hub/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
-        : "contracts/hub/Controller.sol",
-      [deployParams.addresses[SuperBridgeContracts.MintableToken]],
+        ? "contracts/superbridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
+        : "contracts/superbridge/Controller.sol",
+      [
+        deployParams.addresses[SuperBridgeContracts.MintableToken],
+        exchangeRate.address,
+      ],
       deployParams
     );
     deployParams.addresses[SuperBridgeContracts.Controller] =
       controller.address;
-
-    deployParams = await deployHookContracts(true, deployParams);
-
-    // console.log(deployParams.addresses);
-    console.log(deployParams.currentChainSlug, " Chain Contracts deployed!");
+    console.log(deployParams.addresses);
+    console.log("Chain Contracts deployed!");
   } catch (error) {
     console.log("Error in deploying chain contracts", error);
   }
@@ -250,100 +257,19 @@ const deployNonAppChainContracts = async (
       throw new Error(
         `Token not found on chain ${deployParams.currentChainSlug}`
       );
-    console.log("nonMintableToken", nonMintableToken);
+
     const vault: Contract = await getOrDeploy(
       SuperBridgeContracts.Vault,
-      "contracts/hub/Vault.sol",
+      "contracts/superbridge/Vault.sol",
       [nonMintableToken],
       deployParams
     );
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
-    // console.log(deployParams.addresses);
-
-    deployParams = await deployHookContracts(false, deployParams);
-    console.log(deployParams.currentChainSlug, " Chain Contracts deployed!");
+    console.log(deployParams.addresses);
+    console.log("Chain Contracts deployed!");
   } catch (error) {
     console.log("Error in deploying chain contracts", error);
   }
-  return deployParams;
-};
-
-const deployHookContracts = async (
-  isAppChain: boolean,
-  deployParams: DeployParams
-) => {
-  const hook = deployParams.hook;
-  if (!hook) return deployParams;
-
-  let contractName: string;
-  let path: string;
-  let args: any[] = [];
-  if (hook == Hooks.LIMIT_HOOK) {
-    contractName = HookContracts.LimitHook;
-    args = [
-      getSocketOwner(),
-      isAppChain
-        ? deployParams.addresses[SuperBridgeContracts.Controller]
-        : deployParams.addresses[SuperBridgeContracts.Vault],
-      isAppChain, // useControllerPools
-    ];
-  } else if (hook == Hooks.LIMIT_EXECUTION_HOOK) {
-    contractName = HookContracts.LimitExecutionHook;
-
-    deployParams = await deployExecutionHelper(deployParams);
-
-    args = [
-      getSocketOwner(),
-      isAppChain
-        ? deployParams.addresses[SuperBridgeContracts.Controller]
-        : deployParams.addresses[SuperBridgeContracts.Vault],
-      deployParams.addresses[HookContracts.ExecutionHelper],
-      isAppChain, // useControllerPools
-    ];
-  }
-  //  else if (hook == Hooks.YIELD_LIMIT_EXECUTION_HOOK) {
-  //   if (isAppChain) {
-  //     contractName = HookContracts.ControllerYieldLimitExecutionHook;
-  //     args = [
-  //       pc.hookInfo?.yieldToken,
-  //       isAppChain
-  //         ? deployParams.addresses[SuperBridgeContracts.Controller]
-  //         : deployParams.addresses[SuperBridgeContracts.Vault]
-  //     ];
-  //   } else {
-  //     contractName = HookContracts.VaultYieldLimitExecutionHook;
-  //   }
-  // }
-
-  if (!contractName) return deployParams;
-
-  path = `contracts/hooks/${contractName}.sol`;
-
-  const hookContract: Contract = await getOrDeploy(
-    contractName,
-    path,
-    args,
-    deployParams
-  );
-  deployParams.addresses[contractName] = hookContract.address;
-
-  // console.log(deployParams.addresses);
-  console.log("Hook Contracts deployed!");
-
-  return deployParams;
-};
-
-const deployExecutionHelper = async (deployParams: DeployParams) => {
-  let contractName = HookContracts.ExecutionHelper;
-  let path = `contracts/hooks/plugins/${contractName}.sol`;
-
-  const executionHelperContract: Contract = await getOrDeploy(
-    contractName,
-    path,
-    [getSocketOwner()],
-    deployParams
-  );
-  deployParams.addresses[contractName] = executionHelperContract.address;
   return deployParams;
 };
 

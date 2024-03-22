@@ -41,7 +41,7 @@ contract TestVault is Test {
         vm.startPrank(_admin);
         _token = new MintableToken("Moon", "MOON", 18);
         _vault = new Vault(address(_token));
-        _executionHelper = new ExecutionHelper();
+        _executionHelper = new ExecutionHelper(_admin);
         hook__ = new LimitExecutionHook(
             _admin,
             address(_vault),
@@ -57,7 +57,7 @@ contract TestVault is Test {
         vm.startPrank(_admin);
         _token = ERC20(ETH_ADDRESS);
         _vault = new Vault(address(_token));
-        _executionHelper = new ExecutionHelper();
+        _executionHelper = new ExecutionHelper(_admin);
         hook__ = new LimitExecutionHook(
             _admin,
             address(_vault),

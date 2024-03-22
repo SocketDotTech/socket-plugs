@@ -26,6 +26,10 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         hookType = LIMIT_EXECUTION_HOOK;
     }
 
+    function setExecutionHelper(address executionHelper_) external onlyOwner {
+        executionHelper__ = ExecutionHelper(executionHelper_);
+    }
+
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     )

@@ -8,12 +8,15 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import { getMode, getProject, getToken } from "../constants/config";
+import { getMode, getProject, getToken, getTokenProject } from "../constants/config";
 import {
   ProjectAddresses,
   SuperTokenChainAddresses,
   SuperBridgeContracts,
   TokenAddresses,
+  Hooks,
+  SuperTokenAddresses,
+  SuperTokenProjectAddresses,
 } from "../../src";
 import { getIntegrationTypeConsts } from "./constants";
 
@@ -23,9 +26,10 @@ export const deploymentsPath = path.join(
 );
 
 export interface DeployParams {
-  addresses: TokenAddresses | SuperTokenChainAddresses;
+  addresses: TokenAddresses | SuperTokenAddresses;
   signer: Wallet;
   currentChainSlug: number;
+  hook?: Hooks;
 }
 
 export const getOrDeploy = async (
@@ -191,6 +195,35 @@ export const storeAddresses = async (
     deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
   const outputExists = fs.existsSync(addressesPath);
   let deploymentAddresses: ProjectAddresses = {};
+  if (outputExists) {
+    const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
+    deploymentAddresses = JSON.parse(deploymentAddressesString);
+  }
+
+  deploymentAddresses = createObj(
+    deploymentAddresses,
+    [chainSlug.toString(), getToken()],
+    addresses
+  );
+  // deploymentAddresses[chainSlug][token] = addresses;
+  fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
+};
+
+export const storeSuperTokenAddresses = async (
+  addresses: SuperTokenAddresses,
+  chainSlug: ChainSlug,
+  fileName: string,
+  tokenName = getToken().toString(),
+  pathToDeployments = deploymentsPath
+) => {
+  if (!fs.existsSync(pathToDeployments)) {
+    await fs.promises.mkdir(pathToDeployments, { recursive: true });
+  }
+
+  const addressesPath =
+    deploymentsPath + `${getMode()}_${getTokenProject()}_addresses.json`;
+  const outputExists = fs.existsSync(addressesPath);
+  let deploymentAddresses: SuperTokenProjectAddresses = {};
   if (outputExists) {
     const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
     deploymentAddresses = JSON.parse(deploymentAddressesString);

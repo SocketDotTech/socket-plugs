@@ -1,4 +1,4 @@
-import { BigNumber, Contract, utils } from "ethers";
+import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getProjectAddresses, getInstance } from "../helpers/utils";
@@ -7,16 +7,19 @@ import {
   SuperBridgeContracts,
   ChainAddresses,
   NonAppChainAddresses,
-  tokenDecimals,
+  tokenDecimals
 } from "../../src";
 import { getToken } from "../constants/config";
+import { checkSendingLimit } from "./common";
 
-const srcChain = ChainSlug.SEPOLIA;
-const dstChain = ChainSlug.LYRA_TESTNET;
-const amount = "1";
+const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
+const dstChain = ChainSlug.AEVO_TESTNET;
+const amount = "0";
+// const amount = "1";
 
 const gasLimit = 500_000;
 const amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
+
 
 export const main = async () => {
   try {
@@ -49,14 +52,12 @@ export const main = async () => {
       await getInstance("ERC20", tokenAddr)
     ).connect(socketSigner);
 
+    console.log("checking balance and approval...")
     // approve
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
     );
     if (balance.lt(amountBN)) throw new Error("Not enough balance");
-
-    const limit: BigNumber = await vault.getCurrentLockLimit(connectorAddr);
-    if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
 
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
@@ -70,16 +71,22 @@ export const main = async () => {
       await approveTx.wait();
     }
 
+    console.log("checking sending limit...")
+    await checkSendingLimit(addr, connectorAddr, amountBN, socketSigner);
+
+
     // deposit
     console.log(`depositing ${amountBN} to app chain from ${srcChain}`);
 
-    const fees = await vault.getMinFees(connectorAddr, gasLimit);
+    const fees = await vault.getMinFees(connectorAddr, gasLimit, 0);
 
-    const depositTx = await vault.depositToAppChain(
+    const depositTx = await vault.bridge(
       socketSigner.address,
       amountBN,
       gasLimit,
       connectorAddr,
+      "0x",
+      "0x",
       { ...overrides[srcChain], value: fees }
     );
     console.log("Tokens deposited: ", depositTx.hash);

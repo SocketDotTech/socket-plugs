@@ -79,7 +79,7 @@ contract SetupYieldBridge is Test {
         vm.startPrank(_admin);
 
         socket__ = new MockSocket();
-        executionHelper__ = new ExecutionHelper();
+        executionHelper__ = new ExecutionHelper(_admin);
 
         _setupVault();
         _setupController();
