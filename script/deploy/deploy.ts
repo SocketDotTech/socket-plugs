@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { Contract, Wallet } from "ethers";
-import { getSignerFromChainSlug } from "../../helpers/networks";
+import { getSignerFromChainSlug } from "../helpers/networks";
 import {
   ChainSlug,
   IntegrationTypes,
@@ -17,7 +17,7 @@ import {
   isSuperBridge,
   isSuperToken,
   getProjectName,
-} from "../../constants/config";
+} from "../constants/config";
 import {
   DeployParams,
   createObj,
@@ -26,7 +26,7 @@ import {
   storeAddresses,
   getOrDeployConnector,
   getSuperTokenAddresses,
-} from "../../helpers/utils";
+} from "../helpers/utils";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
@@ -42,17 +42,17 @@ import {
   CommonContracts,
   SuperTokenContracts,
   SuperTokenProjectAddresses,
-} from "../../../src";
+} from "../../src";
 import {
   isAppChain,
   getBridgeProjectTokenConstants,
   getSuperTokenConstants,
-} from "../../helpers/projectConstants";
+} from "../helpers/projectConstants";
 import {
   ProjectTokenConstants,
   SuperTokenConstants,
-} from "../../constants/types";
-import { ExistingTokenAddresses } from "../../constants/existing-token-addresses";
+} from "../constants/types";
+import { ExistingTokenAddresses } from "../constants/existing-token-addresses";
 
 export interface ReturnObj {
   allDeployed: boolean;

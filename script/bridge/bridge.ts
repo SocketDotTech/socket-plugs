@@ -25,7 +25,7 @@ import {
   isSuperBridge,
   isSuperToken,
 } from "../constants/config";
-import { checkSendingLimit } from "./common";
+import { checkSendingLimit } from "./utils";
 
 const srcChain = ChainSlug.AEVO_TESTNET;
 const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
