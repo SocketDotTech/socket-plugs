@@ -8,7 +8,12 @@ import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
 import { overrides } from "./networks";
-import { getMode, getProject, getToken, getTokenProject } from "../constants/config";
+import {
+  getMode,
+  getProject,
+  getToken,
+  getTokenProject,
+} from "../constants/config";
 import {
   ProjectAddresses,
   SuperTokenChainAddresses,

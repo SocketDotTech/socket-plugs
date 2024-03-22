@@ -65,7 +65,9 @@ async function execute(
     let tx = await contract.functions[method](...args, {
       ...overrides[chain],
     });
-    console.log(`o   Sent on chain: ${chain} function: ${method} txHash: ${tx.hash}`);
+    console.log(
+      `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.hash}`
+    );
     await tx.wait();
   }
 }
@@ -128,7 +130,7 @@ export const main = async () => {
             HookContracts.LimitExecutionHook,
             addr[HookContracts.LimitExecutionHook]
           );
-          
+
           await setHookInExecutionHelper(
             chain,
             socketSigner,
@@ -170,15 +172,20 @@ export const main = async () => {
 const setHookInHub = async (
   chain: ChainSlug,
   hubContract: Contract,
-  hookContract: Contract,
+  hookContract: Contract
 ) => {
-
   let storedHookAddress = await hubContract.hook__();
   if (storedHookAddress === hookContract.address) {
     console.log(`✔   Hook already set on Hub for chain ${chain}`);
     return;
-  } {
-    console.log("stored address in Hub: ", storedHookAddress, "hookContract: ", hookContract.address);
+  }
+  {
+    console.log(
+      "stored address in Hub: ",
+      storedHookAddress,
+      "hookContract: ",
+      hookContract.address
+    );
   }
   await execute(
     hubContract,
@@ -194,22 +201,25 @@ const setHookInExecutionHelper = async (
   hookContract: Contract,
   addr: TokenAddresses
 ) => {
-
   let executionHelperContract = await getInstance(
     HookContracts.ExecutionHelper,
     addr[HookContracts.ExecutionHelper]
   );
-  executionHelperContract =
-    executionHelperContract.connect(socketSigner);
-  
+  executionHelperContract = executionHelperContract.connect(socketSigner);
+
   let storedHookAddress = await executionHelperContract.hook();
   if (storedHookAddress === hookContract.address) {
     console.log(`✔   Hook already set on Execution Helper for chain ${chain}`);
     return;
-  } {
-    console.log("stored address in EH: ", storedHookAddress, "hookContract: ", hookContract.address);
   }
-    
+  {
+    console.log(
+      "stored address in EH: ",
+      storedHookAddress,
+      "hookContract: ",
+      hookContract.address
+    );
+  }
 
   await execute(
     executionHelperContract,
@@ -278,9 +288,17 @@ const updateLimitsAndPoolId = async (
   const connectorPoolIds: string[] = [];
   // console.log({ chain, siblingSlugs, addr, connectors });
 
-  let hasRole = await hookContract.hasRole(LIMIT_UPDATER_ROLE, hookContract.signer.getAddress());
+  let hasRole = await hookContract.hasRole(
+    LIMIT_UPDATER_ROLE,
+    hookContract.signer.getAddress()
+  );
   if (!hasRole) {
-    console.log("Adding limit updater role to signer", hookContract.signer.getAddress()," on chain : ", chain);
+    console.log(
+      "Adding limit updater role to signer",
+      hookContract.signer.getAddress(),
+      " on chain : ",
+      chain
+    );
     await execute(
       hookContract,
       "grantRole",
@@ -374,7 +392,7 @@ const updateLimitsAndPoolId = async (
         const poolId: BigNumber = await hookContract.connectorPoolIds(
           itConnectorAddress
         );
-        console.log({itConnectorAddress, poolId})
+        console.log({ itConnectorAddress, poolId });
         const poolIdHex =
           "0x" + BigInt(poolId.toString()).toString(16).padStart(64, "0");
 

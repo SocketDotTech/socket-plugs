@@ -60,7 +60,7 @@ export type SuperTokenConstants = {
     initialSupplyOwner: string;
     owner: string;
     initialSupply: number;
-  },
+  };
   hookInfo?: {
     yieldToken?: string;
     debtRatio?: number;

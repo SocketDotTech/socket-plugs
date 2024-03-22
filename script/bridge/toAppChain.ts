@@ -7,7 +7,7 @@ import {
   SuperBridgeContracts,
   ChainAddresses,
   NonAppChainAddresses,
-  tokenDecimals
+  tokenDecimals,
 } from "../../src";
 import { getToken } from "../constants/config";
 import { checkSendingLimit } from "./common";
@@ -19,7 +19,6 @@ const amount = "0";
 
 const gasLimit = 500_000;
 const amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
-
 
 export const main = async () => {
   try {
@@ -52,7 +51,7 @@ export const main = async () => {
       await getInstance("ERC20", tokenAddr)
     ).connect(socketSigner);
 
-    console.log("checking balance and approval...")
+    console.log("checking balance and approval...");
     // approve
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
@@ -71,9 +70,8 @@ export const main = async () => {
       await approveTx.wait();
     }
 
-    console.log("checking sending limit...")
+    console.log("checking sending limit...");
     await checkSendingLimit(addr, connectorAddr, amountBN, socketSigner);
-
 
     // deposit
     console.log(`depositing ${amountBN} to app chain from ${srcChain}`);

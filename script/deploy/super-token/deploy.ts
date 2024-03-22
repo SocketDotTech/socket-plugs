@@ -34,8 +34,14 @@ import {
   SuperTokenContracts,
   CommonContracts,
 } from "../../../src";
-import { isSuperTokenVaultChain, getSuperTokenConstants } from "../../helpers/constants";
-import { ProjectTokenConstants, SuperTokenConstants } from "../../constants/types";
+import {
+  isSuperTokenVaultChain,
+  getSuperTokenConstants,
+} from "../../helpers/constants";
+import {
+  ProjectTokenConstants,
+  SuperTokenConstants,
+} from "../../constants/types";
 import { ExistingTokenAddresses } from "../../constants/existing-token-addresses";
 
 export interface ReturnObj {
@@ -65,7 +71,7 @@ export const main = async () => {
       addresses = await getProjectAddresses();
     } catch (error) {
       addresses = {} as SuperTokenProjectAddresses;
-    } 
+    }
     const allChains = [...tc.vaultChains, ...tc.superTokenChains];
     const hook = tc?.hook;
     await Promise.all(
@@ -165,7 +171,8 @@ const deployConnectors = async (
       getMode()
     ).Socket;
     let hub: string;
-    const addr: SuperTokenAddresses = deployParams.addresses as SuperTokenAddresses;
+    const addr: SuperTokenAddresses =
+      deployParams.addresses as SuperTokenAddresses;
     if (isSuperTokenVaultChain) {
       const a = addr as SuperTokenControllerChainAddresses;
       if (!a.Controller) throw new Error("Controller not found!");
@@ -244,21 +251,16 @@ const deployVaultChainContracts = async (
 const deployControllerChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
-
-
-
   try {
-
     await deploySuperToken(deployParams);
 
     const controller: Contract = await getOrDeploy(
-        CommonContracts.Controller,
-       "contracts/hub/Controller.sol",
+      CommonContracts.Controller,
+      "contracts/hub/Controller.sol",
       [],
       deployParams
     );
-    deployParams.addresses[CommonContracts.Controller] =
-      controller.address;
+    deployParams.addresses[CommonContracts.Controller] = controller.address;
 
     deployParams = await deployHookContracts(true, deployParams);
 
@@ -268,9 +270,6 @@ const deployControllerChainContracts = async (
     console.log("Error in deploying chain contracts", error);
   }
   return deployParams;
-
-
-  
 };
 
 const deployHookContracts = async (

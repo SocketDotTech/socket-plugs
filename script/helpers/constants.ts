@@ -1,10 +1,7 @@
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { BigNumber, utils } from "ethers";
 import { tokenDecimals } from "../../src";
-import {
-  ProjectTokenConstants,
-  SuperTokenConstants,
-} from "../constants/types";
+import { ProjectTokenConstants, SuperTokenConstants } from "../constants/types";
 import {
   getMode,
   getProject,
@@ -17,7 +14,6 @@ export const isAppChain = (chain: ChainSlug) =>
 
 export const isSuperTokenVaultChain = (chain: ChainSlug) =>
   getSuperTokenConstants().vaultChains.includes(chain);
-
 
 let pc: ProjectTokenConstants;
 export const getProjectTokenConstants = (): ProjectTokenConstants => {
