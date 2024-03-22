@@ -20,8 +20,10 @@ export type ProjectConstants = {
 };
 
 export type ProjectTokenConstants = {
-  nonAppChains: ChainSlug[];
-  appChain: ChainSlug;
+  nonAppChains?: ChainSlug[];
+  appChain?: ChainSlug;
+  superTokenChains?: ChainSlug[];
+  vaultChains?: ChainSlug[];
   isFiatTokenV2_1?: boolean;
   hook?: Hooks;
   hookInfo?: {
@@ -29,6 +31,14 @@ export type ProjectTokenConstants = {
     rebalanceDelay?: number;
     strategy?: string;
     underlyingAsset?: string;
+  };
+  superTokenInfo?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+    initialSupplyOwner: string;
+    owner: string;
+    initialSupply: number;
   };
   projectType: ProjectType;
   limits?: {
@@ -38,16 +48,14 @@ export type ProjectTokenConstants = {
         sendingRate: string;
         receivingLimit: string;
         receivingRate: string;
-        poolCount: number;
+        poolCount?: number;
       };
     };
   };
 };
 
 export type TokenConstants = {
-  [key in DeploymentMode]?: {
-    [key in Tokens]?: SuperTokenConstants;
-  };
+  [key in DeploymentMode]?: SuperTokenConstants;
 };
 export type SuperTokenConstants = {
   superTokenChains: ChainSlug[];

@@ -34,14 +34,20 @@ export enum Hooks {
 }
 
 export enum ProjectType {
-  SUPERBRIDGE = "SUPERBRIDGE",
-  SUPERTOKEN = "SUPERTOKEN",
+  SUPERBRIDGE = "superbridge",
+  SUPERTOKEN = "supertoken",
 }
 
 export enum CommonContracts {
   Vault = "Vault",
   Controller = "Controller",
   NonMintableToken = "NonMintableToken",
+}
+
+export enum TokenContracts {
+  NonMintableToken = "NonMintableToken",
+  MintableToken = "MintableToken",
+  SuperToken = "SuperToken"
 }
 
 ////// **** SUPER BRIDGE TYPES **** //////
@@ -130,11 +136,7 @@ export type SuperTokenProjectAddresses = {
   [chainSlug in ChainSlug]?: SuperTokenChainAddresses;
 };
 
-export type SuperTokenChainAddresses = {
-  [token in Tokens]?: SuperTokenAddresses;
-};
-
-export type SuperTokenAddresses =
+export type SuperTokenChainAddresses =
   | SuperTokenControllerChainAddresses
   | SuperTokenVaultChainAddresses;
 

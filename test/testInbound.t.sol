@@ -18,7 +18,7 @@ contract TestInbound is Test {
 
     function testInbound() external {
         vm.selectFork(fork);
-        vm.startPrank(_connector);
+        vm.prank(_connector);
         controller.receiveInbound(
             uint32(0x00AA37DC),
             bytes(

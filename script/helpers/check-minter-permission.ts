@@ -1,4 +1,4 @@
-import { getProjectAddresses } from "./utils";
+import { getSuperBridgeAddresses } from "./utils";
 import { Contract } from "ethers";
 import { getProviderFromChainSlug } from "./networks";
 import { isAppChain } from "./constants";
@@ -6,7 +6,7 @@ import { MINTABLE_ABI } from "../constants/abis/mintable";
 
 export const main = async () => {
   try {
-    const addresses = await getProjectAddresses();
+    const addresses = await getSuperBridgeAddresses();
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {

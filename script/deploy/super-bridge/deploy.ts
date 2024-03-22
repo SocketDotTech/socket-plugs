@@ -10,14 +10,15 @@ import {
 } from "@socket.tech/dl-core";
 import {
   getMode,
-  getProject,
+  getSuperBridgeProject,
+  getProjectType,
   getSocketOwner,
   getToken,
 } from "../../constants/config";
 import {
   DeployParams,
   createObj,
-  getProjectAddresses,
+  getSuperBridgeAddresses,
   getOrDeploy,
   storeAddresses,
   getOrDeployConnector,
@@ -30,8 +31,14 @@ import {
   TokenAddresses,
   Hooks,
   HookContracts,
+  ProjectType,
+  Project,
 } from "../../../src";
-import { isAppChain, getProjectTokenConstants } from "../../helpers/constants";
+import {
+  isAppChain,
+  getBridgeProjectTokenConstants,
+  getSuperTokenConstants,
+} from "../../helpers/constants";
 import { ProjectTokenConstants } from "../../constants/types";
 import { ExistingTokenAddresses } from "../../constants/existing-token-addresses";
 
@@ -40,6 +47,7 @@ export interface ReturnObj {
   deployedAddresses: TokenAddresses;
 }
 
+let projectType: ProjectType;
 let pc: ProjectTokenConstants;
 
 /**
@@ -48,25 +56,28 @@ let pc: ProjectTokenConstants;
 export const main = async () => {
   console.log("========================================================");
   console.log("MODE", getMode());
-  console.log("PROJECT", getProject());
+  projectType = getProjectType();
+  console.log("PROJECT", getSuperBridgeProject());
   console.log("TOKEN", getToken());
   console.log(
-    `Make sure ${getMode()}_${getProject()}_addresses.json and ${getMode()}_${getProject()}_verification.json is cleared for given networks if redeploying!!`
+    `Make sure ${getMode()}_${getSuperBridgeProject()}_addresses.json and ${getMode()}_${getSuperBridgeProject()}_verification.json is cleared for given networks if redeploying!!`
   );
   console.log(`Owner address configured to ${getSocketOwner()}`);
   console.log("========================================================");
-  pc = getProjectTokenConstants();
+  if (projectType == ProjectType.SUPERBRIDGE) pc = getBridgeProjectTokenConstants();
+  else if (projectType == ProjectType.SUPERTOKEN) pc = getSuperTokenConstants();
+
   try {
     let addresses: ProjectAddresses;
     try {
-      addresses = await getProjectAddresses();
+      addresses = await getSuperBridgeAddresses();
     } catch (error) {
       addresses = {} as ProjectAddresses;
     }
-    const nonAppChainsList: ChainSlug[] = pc.nonAppChains;
+    const allChains = [...pc.vaultChains, ...pc.superTokenChains];
     const hook = pc?.hook;
     await Promise.all(
-      [pc.appChain, ...pc.nonAppChains].map(async (chain: ChainSlug) => {
+      allChains.map(async (chain: ChainSlug) => {
         let allDeployed = false;
         const signer = getSignerFromChainSlug(chain);
 
@@ -74,7 +85,12 @@ export const main = async () => {
           ? (addresses[chain]?.[getToken()] as TokenAddresses)
           : ({} as TokenAddresses);
 
-        const siblings = isAppChain(chain) ? nonAppChainsList : [pc.appChain];
+        let siblings: ChainSlug[];
+        if (projectType == ProjectType.SUPERBRIDGE)
+          siblings = isAppChain(chain) ? pc.nonAppChains : [pc.appChain];
+        else if (projectType == ProjectType.SUPERTOKEN)
+          siblings = allChains.filter((c) => c !== chain);
+
         // console.log({ siblings, hook });
         while (!allDeployed) {
           const results: ReturnObj = await deploy(
@@ -118,7 +134,9 @@ const deploy = async (
 
   try {
     const addr = deployUtils.addresses as TokenAddresses;
-    addr.isAppChain = isAppChain;
+    if (projectType == ProjectType.SUPERBRIDGE) {
+      addr.isAppChain = isAppChain;
+    }
     if (isAppChain) {
       deployUtils = await deployAppChainContracts(deployUtils);
     } else {
@@ -141,7 +159,7 @@ const deploy = async (
   await storeAddresses(
     deployUtils.addresses as TokenAddresses,
     deployUtils.currentChainSlug,
-    `${getMode()}_${getProject().toLowerCase()}_addresses.json`
+    `${getMode()}_${getSuperBridgeProject().toLowerCase()}_addresses.json`
   );
   return {
     allDeployed,
@@ -251,6 +269,11 @@ const deployNonAppChainContracts = async (
         `Token not found on chain ${deployParams.currentChainSlug}`
       );
     console.log("nonMintableToken", nonMintableToken);
+    if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])
+    deployParams.addresses[SuperBridgeContracts.NonMintableToken] = nonMintableToken;
+
+
+
     const vault: Contract = await getOrDeploy(
       SuperBridgeContracts.Vault,
       "contracts/hub/Vault.sol",

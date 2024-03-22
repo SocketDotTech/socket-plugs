@@ -1,0 +1,24 @@
+{
+  "11155112": {
+    "SuperToken": "0xFBce5C9fF02d882Ec581f2Ac6f0B12936Bb9C51c",
+    "Controller": "0x741E79e75fB81f85a5CAAd45E2b26d356615310B",
+    "ExecutionHelper": "0x1Dc06CF1E6CD52e6a111fBEC4030c651A0030663",
+    "LimitExecutionHook": "0x503dF8d82487d6287972F0716632792Dc64eF692",
+    "connectors": {
+      "11155420": {
+        "FAST": "0xa11e5de30A78756bbCb8f87a9442CaBbB6d35eeE"
+      }
+    }
+  },
+  "11155420": {
+    "Vault": "0x862568fABF9eaca1d419c93Ca5d9D59b4608137c",
+    "ExecutionHelper": "0xf75D0F5daAa22D93D577C4D9a6d81DB9C23bE41E",
+    "LimitExecutionHook": "0x7Ed52950F5641D603e59AC304CEC07A5433D786B",
+    "connectors": {
+      "11155112": {
+        "FAST": "0x19fF5EB35BbF1525B29ae96167B0c94aC5387DEd"
+      }
+    },
+    "NonMintableToken": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf"
+  }
+}

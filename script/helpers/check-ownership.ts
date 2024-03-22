@@ -1,4 +1,4 @@
-import { getOwnerAndNominee, getProjectAddresses, ZERO_ADDRESS } from "./utils";
+import { getOwnerAndNominee, getSuperBridgeAddresses, ZERO_ADDRESS } from "./utils";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "./networks";
 import { isAppChain } from "./constants";
@@ -6,7 +6,7 @@ import { OWNABLE_ABI } from "../constants/abis/ownable";
 
 export const main = async () => {
   try {
-    const addresses = await getProjectAddresses();
+    const addresses = await getSuperBridgeAddresses();
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {

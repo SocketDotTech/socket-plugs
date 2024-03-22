@@ -15,15 +15,14 @@ const pc: ProjectConstants = {
       hook: Hooks.LIMIT_EXECUTION_HOOK,
       projectType: ProjectType.SUPERBRIDGE,
       limits: {
-        // [ChainSlug.ARBITRUM_SEPOLIA]: {
-        //   [IntegrationTypes.fast]: {
-        //     sendingLimit: "50000",
-        //     sendingRate: "0.5787",
-        //     receivingLimit: "50000",
-        //     receivingRate: "0.5787",
-        //     poolCount: 0,
-        //   },
-        // },
+        [ChainSlug.AEVO_TESTNET]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "50000",
+            sendingRate: "0.5787",
+            receivingLimit: "50000",
+            receivingRate: "0.5787",
+          },
+        },
         [ChainSlug.OPTIMISM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
             sendingLimit: "50000",

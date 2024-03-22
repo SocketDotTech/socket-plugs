@@ -2,7 +2,7 @@ import hre from "hardhat";
 import fs from "fs";
 
 import { deploymentsPath, verify } from "./utils";
-import { getMode, getProject } from "../constants/config";
+import { getMode, getSuperBridgeProject } from "../constants/config";
 import {
   ChainSlug,
   ChainSlugToKey as ChainSlugToHardhatKey,
@@ -19,7 +19,8 @@ type VerifyArgs = [string, string, string, any[]];
 export const main = async () => {
   try {
     const path =
-      deploymentsPath + `${getMode()}_${getProject()}_verification.json`;
+      deploymentsPath +
+      `${getMode()}_${getSuperBridgeProject()}_verification.json`;
     if (!fs.existsSync(path)) {
       throw new Error("addresses.json not found");
     }

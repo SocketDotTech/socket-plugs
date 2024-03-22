@@ -1,12 +1,12 @@
 import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getProjectAddresses, getInstance } from "../helpers/utils";
-import { TokenAddresses, HookContracts } from "../../src";
+import { getSuperBridgeAddresses, getInstance } from "../helpers/utils";
+import { TokenAddresses, HookContracts, SuperTokenChainAddresses } from "../../src";
 import { getToken } from "../constants/config";
 
 export const checkSendingLimit = async (
-  addr: TokenAddresses,
+  addr: TokenAddresses | SuperTokenChainAddresses,
   connectorAddr: string,
   amountBN: BigNumber,
   socketSigner: Wallet
@@ -19,7 +19,7 @@ export const checkSendingLimit = async (
 };
 
 export const checkReceivingLimit = async (
-  addr: TokenAddresses,
+  addr: TokenAddresses | SuperTokenChainAddresses,
   connectorAddr: string,
   amountBN: BigNumber,
   socketSigner: Wallet
@@ -32,7 +32,7 @@ export const checkReceivingLimit = async (
 };
 
 export const getHookContract = async (
-  addr: TokenAddresses,
+  addr: TokenAddresses | SuperTokenChainAddresses,
   socketSigner: Wallet
 ) => {
   let instance: Contract;

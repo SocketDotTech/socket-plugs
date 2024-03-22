@@ -1,11 +1,15 @@
 import { BigNumber, Contract, utils } from "ethers";
 
-import { getSignerFromChainSlug, overrides } from "../../../helpers/networks";
+import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { getSocket, getInstance, getVault } from "./utils";
-import { SuperTokenChainAddresses, SuperTokenContracts } from "../../../../src";
-import { getSuperTokenProjectAddresses } from "../utils";
-import { getTokenConstants } from "../../../helpers/constants";
+import {
+  getSocket,
+  getInstance,
+  getVault,
+} from "../deploy/super-token/bridge/utils";
+import { SuperTokenChainAddresses, SuperTokenContracts } from "../../src";
+import { getSuperTokenAddresses } from "../deploy/super-token/utils";
+import { getTokenConstants } from "../helpers/constants";
 
 const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
 const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
@@ -15,7 +19,7 @@ const amount = "10";
 export const main = async () => {
   try {
     const config = getTokenConstants();
-    const addresses = await getSuperTokenProjectAddresses(
+    const addresses = await getSuperTokenAddresses(
       config.projectName.toLowerCase() + "_" + config.type.toLowerCase()
     );
 

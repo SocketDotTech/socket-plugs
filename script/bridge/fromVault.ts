@@ -1,86 +1,84 @@
-import { BigNumber, Contract, utils } from "ethers";
+import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getSuperBridgeAddresses, getInstance } from "../helpers/utils";
-
 import { ChainSlug } from "@socket.tech/dl-core";
-import { getSocket } from "./utils";
 import {
-  AppChainAddresses,
   SuperBridgeContracts,
   ChainAddresses,
+  NonAppChainAddresses,
   tokenDecimals,
 } from "../../src";
 import { getToken } from "../constants/config";
 import { checkSendingLimit } from "./common";
 
-const srcChain = ChainSlug.AEVO_TESTNET;
-const dstChain = ChainSlug.OPTIMISM_SEPOLIA;
-const amount = "1";
+const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
+const dstChain = ChainSlug.AEVO_TESTNET;
+const amount = "0";
+// const amount = "1";
 
-let amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
 const gasLimit = 500_000;
+const amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
 
 export const main = async () => {
   try {
     const addresses = await getSuperBridgeAddresses();
-
     const srcAddresses: ChainAddresses | undefined = addresses[srcChain];
     const dstAddresses: ChainAddresses | undefined = addresses[dstChain];
     if (!srcAddresses || !dstAddresses)
       throw new Error("chain addresses not found");
 
-    const addr: AppChainAddresses | undefined = srcAddresses[
+    const addr: NonAppChainAddresses | undefined = srcAddresses[
       getToken()
-    ] as AppChainAddresses;
+    ] as NonAppChainAddresses;
     if (!addr) throw new Error("Token addresses not found");
 
-    if (!addr.isAppChain) throw new Error("src should be app chain");
+    if (addr.isAppChain) throw new Error("src should not be app chain");
 
-    const controllerAddr = addr.Controller;
-    const tokenAddr = addr.MintableToken;
+    const vaultAddr = addr.Vault;
+    const tokenAddr = addr.NonMintableToken;
     const connectorAddr = addr.connectors?.[dstChain]?.FAST;
 
-    if (!controllerAddr || !tokenAddr || !connectorAddr)
+    if (!vaultAddr || !tokenAddr || !connectorAddr)
       throw new Error("Some contract addresses missing");
 
     const socketSigner = getSignerFromChainSlug(srcChain);
 
-    const controller: Contract = (
-      await getInstance(SuperBridgeContracts.Controller, controllerAddr)
+    const vault: Contract = (
+      await getInstance(SuperBridgeContracts.Vault, vaultAddr)
     ).connect(socketSigner);
     const tokenContract: Contract = (
       await getInstance("ERC20", tokenAddr)
     ).connect(socketSigner);
 
+    console.log("checking balance and approval...");
     // approve
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
     );
     if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
-    await checkSendingLimit(addr, connectorAddr, amountBN, socketSigner);
-
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
-      controller.address
+      vault.address
     );
     if (currentApproval.lt(amountBN)) {
-      const approveTx = await tokenContract.approve(
-        controller.address,
-        amountBN
-      );
+      const approveTx = await tokenContract.approve(vault.address, amountBN, {
+        ...overrides[srcChain],
+      });
       console.log("Tokens approved: ", approveTx.hash);
       await approveTx.wait();
     }
 
+    console.log("checking sending limit...");
+    await checkSendingLimit(addr, connectorAddr, amountBN, socketSigner);
+
     // deposit
-    console.log(`withdrawing ${amountBN} from app chain to ${dstChain}`);
+    console.log(`depositing ${amountBN} to app chain from ${srcChain}`);
 
-    const socket: Contract = getSocket(srcChain, socketSigner);
-    const fees = await controller.getMinFees(connectorAddr, gasLimit, 0);
+    const fees = await vault.getMinFees(connectorAddr, gasLimit, 0);
 
-    const withdrawTx = await controller.bridge(
+    const depositTx = await vault.bridge(
       socketSigner.address,
       amountBN,
       gasLimit,
@@ -89,11 +87,11 @@ export const main = async () => {
       "0x",
       { ...overrides[srcChain], value: fees }
     );
-    console.log("Tokens burnt", withdrawTx.hash);
+    console.log("Tokens deposited: ", depositTx.hash);
     console.log(
-      `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${withdrawTx.hash}`
+      `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`
     );
-    await withdrawTx.wait();
+    await depositTx.wait();
   } catch (error) {
     console.log("Error while sending transaction", error);
   }

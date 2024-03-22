@@ -1,4 +1,4 @@
-import { getProjectAddresses, ZERO_ADDRESS } from "./utils";
+import { getSuperBridgeAddresses, ZERO_ADDRESS } from "./utils";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug, overrides } from "./networks";
 import { isAppChain } from "./constants";
@@ -24,7 +24,7 @@ async function getOwnerAndNominee(contract: ethers.Contract) {
 
 export const main = async () => {
   try {
-    const addresses = await getProjectAddresses();
+    const addresses = await getSuperBridgeAddresses();
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       if (!chainToExpectedOwner?.[+chain]) {

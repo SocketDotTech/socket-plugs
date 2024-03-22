@@ -1,15 +1,21 @@
 import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getProjectAddresses, getInstance } from "../helpers/utils";
+import { getSuperBridgeAddresses, getInstance, getSuperTokenAddresses } from "../helpers/utils";
 import { ChainSlug } from "@socket.tech/dl-core";
 import {
   SuperBridgeContracts,
   ChainAddresses,
   NonAppChainAddresses,
   tokenDecimals,
+  ProjectType,
+  ProjectAddresses,
+  SuperTokenProjectAddresses,
+  SuperTokenChainAddresses,
+  CommonContracts,
+  TokenContracts,
 } from "../../src";
-import { getToken } from "../constants/config";
+import { getProjectType, getToken, isSuperBridge, isSuperToken } from "../constants/config";
 import { checkSendingLimit } from "./common";
 
 const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
@@ -22,30 +28,37 @@ const amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
 
 export const main = async () => {
   try {
-    const addresses = await getProjectAddresses();
-    const srcAddresses: ChainAddresses | undefined = addresses[srcChain];
-    const dstAddresses: ChainAddresses | undefined = addresses[dstChain];
+
+    let addresses : ProjectAddresses | SuperTokenProjectAddresses | undefined = {};
+    if (isSuperBridge()) {
+        addresses = await getSuperBridgeAddresses() as ProjectAddresses;
+    } else if (isSuperToken()) {
+        addresses = await getSuperTokenAddresses() as SuperTokenProjectAddresses;
+    }
+
+    const srcAddresses: ChainAddresses | SuperTokenChainAddresses | undefined = addresses[srcChain];
+    const dstAddresses: ChainAddresses | SuperTokenChainAddresses | undefined = addresses[dstChain];
     if (!srcAddresses || !dstAddresses)
       throw new Error("chain addresses not found");
 
-    const addr: NonAppChainAddresses | undefined = srcAddresses[
+    const addr: NonAppChainAddresses | SuperTokenChainAddresses | undefined = isSuperBridge() ?  srcAddresses[
       getToken()
-    ] as NonAppChainAddresses;
+    ] as NonAppChainAddresses : srcAddresses as SuperTokenChainAddresses;
     if (!addr) throw new Error("Token addresses not found");
 
-    if (addr.isAppChain) throw new Error("src should not be app chain");
+    if (addr["isAppChain"]) throw new Error("src should not be app chain");
 
-    const vaultAddr = addr.Vault;
-    const tokenAddr = addr.NonMintableToken;
+    const hubAddr = addr[CommonContracts.Vault] || addr[CommonContracts.Controller];
+    const tokenAddr = addr[TokenContracts.MintableToken] || addr[TokenContracts.NonMintableToken] || addr[TokenContracts.SuperToken];
     const connectorAddr = addr.connectors?.[dstChain]?.FAST;
 
-    if (!vaultAddr || !tokenAddr || !connectorAddr)
+    if (!hubAddr || !tokenAddr || !connectorAddr)
       throw new Error("Some contract addresses missing");
 
     const socketSigner = getSignerFromChainSlug(srcChain);
 
-    const vault: Contract = (
-      await getInstance(SuperBridgeContracts.Vault, vaultAddr)
+    const hub: Contract = (
+      await getInstance(SuperBridgeContracts.Vault, hubAddr)
     ).connect(socketSigner);
     const tokenContract: Contract = (
       await getInstance("ERC20", tokenAddr)
@@ -60,10 +73,10 @@ export const main = async () => {
 
     const currentApproval: BigNumber = await tokenContract.allowance(
       socketSigner.address,
-      vault.address
+      hub.address
     );
     if (currentApproval.lt(amountBN)) {
-      const approveTx = await tokenContract.approve(vault.address, amountBN, {
+      const approveTx = await tokenContract.approve(hub.address, amountBN, {
         ...overrides[srcChain],
       });
       console.log("Tokens approved: ", approveTx.hash);
@@ -74,11 +87,11 @@ export const main = async () => {
     await checkSendingLimit(addr, connectorAddr, amountBN, socketSigner);
 
     // deposit
-    console.log(`depositing ${amountBN} to app chain from ${srcChain}`);
+    console.log(`depositing ${amountBN} to ${dstChain} from ${srcChain}`);
 
-    const fees = await vault.getMinFees(connectorAddr, gasLimit, 0);
+    const fees = await hub.getMinFees(connectorAddr, gasLimit, 0);
 
-    const depositTx = await vault.bridge(
+    const depositTx = await hub.bridge(
       socketSigner.address,
       amountBN,
       gasLimit,
