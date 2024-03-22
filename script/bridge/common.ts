@@ -1,13 +1,11 @@
 import { BigNumber, Contract, Wallet, utils } from "ethers";
 
-import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getSuperBridgeAddresses, getInstance } from "../helpers/utils";
+import { getInstance } from "../helpers/utils";
 import {
   TokenAddresses,
   HookContracts,
   SuperTokenChainAddresses,
 } from "../../src";
-import { getToken } from "../constants/config";
 
 export const checkSendingLimit = async (
   addr: TokenAddresses | SuperTokenChainAddresses,

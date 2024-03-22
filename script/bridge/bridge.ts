@@ -27,8 +27,8 @@ import {
 } from "../constants/config";
 import { checkSendingLimit } from "./common";
 
-const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
-const dstChain = ChainSlug.AEVO_TESTNET;
+const srcChain = ChainSlug.AEVO_TESTNET;
+const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
 const amount = "0";
 // const amount = "1";
 
@@ -58,8 +58,6 @@ export const main = async () => {
         ? (srcAddresses[getToken()] as NonAppChainAddresses)
         : (srcAddresses as SuperTokenChainAddresses);
     if (!addr) throw new Error("Token addresses not found");
-
-    if (addr["isAppChain"]) throw new Error("src should not be app chain");
 
     const hubAddr =
       addr[CommonContracts.Vault] || addr[CommonContracts.Controller];

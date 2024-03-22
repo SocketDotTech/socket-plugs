@@ -5,7 +5,7 @@ import {
 } from "./utils";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "./networks";
-import { isAppChain } from "./constants";
+import { isAppChain } from "./projectConstants";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 
 export const main = async () => {

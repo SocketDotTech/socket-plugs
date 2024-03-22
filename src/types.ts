@@ -23,6 +23,7 @@ export enum Project {
   MODE = "mode",
   ANCIENT8_TESTNET2 = "ancient8-testnet2",
   LEAF_TESTNET = "leaf-testnet",
+  SAND_TESTNET = "sand-testnet",
 }
 
 export enum Hooks {

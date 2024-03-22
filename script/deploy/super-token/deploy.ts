@@ -37,7 +37,7 @@ import {
 import {
   isSuperTokenVaultChain,
   getSuperTokenConstants,
-} from "../../helpers/constants";
+} from "../../helpers/projectConstants";
 import {
   ProjectTokenConstants,
   SuperTokenConstants,

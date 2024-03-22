@@ -12,6 +12,7 @@ import {
   getSuperBridgeAddresses,
   getPoolIdHex,
   getSuperTokenAddresses,
+  getSocket,
 } from "../helpers/utils";
 import {
   getBridgeProjectTokenConstants,
@@ -19,8 +20,7 @@ import {
   getRateBN,
   isAppChain,
   getSuperTokenConstants,
-} from "../helpers/constants";
-import { getSocket } from "../bridge/utils";
+} from "../helpers/projectConstants";
 import {
   AppChainAddresses,
   SuperBridgeContracts,
@@ -34,16 +34,21 @@ import {
   SuperTokenProjectAddresses,
   ProjectType,
   SuperTokenContracts,
+  TokenContracts,
 } from "../../src";
 import {
   getDryRun,
   getMode,
   getProjectType,
   getToken,
+  isSuperBridge,
 } from "../constants/config";
 import { ProjectTokenConstants } from "../constants/types";
-import { LIMIT_UPDATER_ROLE, RESCUE_ROLE } from "../constants/roles";
-import { SuperToken } from "../../typechain-types";
+import {
+  CONTROLLER_ROLE,
+  LIMIT_UPDATER_ROLE,
+  RESCUE_ROLE,
+} from "../constants/roles";
 
 type UpdateLimitParams = [
   boolean,
@@ -146,6 +151,20 @@ export const main = async () => {
         console.log(
           `-   Checking limits and pool ids for chain ${chain}, siblings ${siblingSlugs}`
         );
+
+        if (addr[TokenContracts.SuperToken]) {
+          let superTokenContract = await getInstance(
+            TokenContracts.SuperToken,
+            addr[TokenContracts.SuperToken]
+          );
+          superTokenContract = superTokenContract.connect(socketSigner);
+
+          await setControllerRole(
+            chain,
+            superTokenContract,
+            hubContract.address
+          );
+        }
         let hookContract: Contract;
 
         if (addr[HookContracts.LimitHook]) {
@@ -309,27 +328,23 @@ const checkAndGrantRole = async (
   chain: ChainSlug,
   contract: Contract,
   roleName: string,
-  roleHash: string
+  roleHash: string,
+  userAddress = socketSignerAddress
 ) => {
-  let hasRole = await contract.hasRole(roleHash, socketSignerAddress);
+  let hasRole = await contract.hasRole(roleHash, userAddress);
   if (!hasRole) {
     console.log(
       `Adding ${roleName} role to signer`,
-      socketSignerAddress,
+      userAddress,
       " for contract: ",
       contract.address,
       " on chain : ",
       chain
     );
-    await execute(
-      contract,
-      "grantRole",
-      [roleHash, socketSignerAddress],
-      chain
-    );
+    await execute(contract, "grantRole", [roleHash, userAddress], chain);
   } else {
     console.log(
-      `✔ ${roleName} role already set on ${contract.address} for chain `,
+      `✔ ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
       chain
     );
   }
@@ -343,6 +358,20 @@ const setLimitUpdaterRole = async (
     hookContract,
     "limit updater",
     LIMIT_UPDATER_ROLE
+  );
+};
+
+const setControllerRole = async (
+  chain: ChainSlug,
+  superTokenContract: Contract,
+  controllerAddress: string
+) => {
+  await checkAndGrantRole(
+    chain,
+    superTokenContract,
+    "controller",
+    CONTROLLER_ROLE,
+    controllerAddress
   );
 };
 
@@ -535,7 +564,9 @@ const connect = async (
       const localConnectorAddresses: ConnectorAddresses | undefined =
         addr.connectors?.[sibling];
       const siblingConnectorAddresses: ConnectorAddresses | undefined =
-        addresses?.[sibling]?.[getToken()]?.connectors?.[chain];
+        isSuperBridge()
+          ? addresses?.[sibling]?.[getToken()]?.connectors?.[chain]
+          : addresses?.[sibling]?.["connectors"]?.[chain];
       if (!localConnectorAddresses || !siblingConnectorAddresses) continue;
 
       const integrationTypes: IntegrationTypes[] = Object.keys(

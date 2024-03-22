@@ -5,8 +5,12 @@ import { ContractFactory, Contract } from "ethers";
 import fs from "fs";
 import path from "path";
 import { Address } from "hardhat-deploy/dist/types";
-import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
-
+import {
+  ChainSlug,
+  IntegrationTypes,
+  getAddresses,
+} from "@socket.tech/dl-core";
+import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
 import {
   getMode,
@@ -15,6 +19,7 @@ import {
   getSuperBridgeProject,
   getToken,
   getTokenProject,
+  isSuperBridge,
 } from "../constants/config";
 import {
   ProjectAddresses,
@@ -25,7 +30,7 @@ import {
   SuperTokenProjectAddresses,
   ProjectType,
 } from "../../src";
-import { getIntegrationTypeConsts } from "./constants";
+import { getIntegrationTypeConsts } from "./projectConstants";
 
 export const deploymentsPath =
   getProjectType() === ProjectType.SUPERBRIDGE
@@ -187,6 +192,10 @@ export const getChainSlug = async (): Promise<number> => {
   return Number(network.config.chainId);
 };
 
+export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
+  return new Contract(getAddresses(chain, getMode()).Socket, socketABI, signer);
+};
+
 export const storeAddresses = async (
   addresses: TokenAddresses,
   chainSlug: ChainSlug,
@@ -199,9 +208,9 @@ export const storeAddresses = async (
   }
 
   const addressesPath =
-    deploymentsPath + `${getMode()}_${getSuperBridgeProject()}_addresses.json`;
+    deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
   const outputExists = fs.existsSync(addressesPath);
-  let deploymentAddresses: ProjectAddresses = {};
+  let deploymentAddresses: ProjectAddresses | SuperTokenProjectAddresses = {};
   if (outputExists) {
     const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
     deploymentAddresses = JSON.parse(deploymentAddressesString);
@@ -209,7 +218,9 @@ export const storeAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    [chainSlug.toString(), getToken()],
+    isSuperBridge()
+      ? [chainSlug.toString(), getToken()]
+      : [chainSlug.toString()],
     addresses
   );
   // deploymentAddresses[chainSlug][token] = addresses;

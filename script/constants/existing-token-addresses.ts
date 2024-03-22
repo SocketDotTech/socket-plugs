@@ -46,4 +46,7 @@ export const ExistingTokenAddresses: {
     [Tokens.USDC]: "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
     [Tokens.WETH]: "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
   },
+  [ChainSlug.AEVO_TESTNET]: {
+    [Tokens.USDC]: "0x4D435C00E09034ec2113F63088CCD0be0a0fd06e",
+  },
 };

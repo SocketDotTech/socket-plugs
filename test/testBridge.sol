@@ -10,14 +10,15 @@ contract TestInbound is Test {
     Vault public vault;
     uint256 fork;
     address constant user = 0x44A44837894B5eDC2Bde64567FC62599b3b88F4C;
-    address constant _connector = 0x19fF5EB35BbF1525B29ae96167B0c94aC5387DEd;
+    address constant _connector = 0x0D806Ad65fd85Ee3f86c9a7ea31708b657AB5928;
+    address constant hub = 0x59789e155D5973b59986CeB5d522b780Ca425ae8;
 
     function setUp() external {
-        fork = vm.createFork(
-            "https://aged-practical-general.optimism-sepolia.quiknode.pro/344829e65181310b0218877e756185c9c4d36508/"
-        );
-        controller = Controller(0x0FFee9dBEC6cd9C0dcB851c9A53e38104aAadbCD);
-        vault = Vault(0x862568fABF9eaca1d419c93Ca5d9D59b4608137c);
+        // fork = vm.createFork(
+        //     "https://l2-aevo-testnet-k1zx5a2ajj.t.conduit.xyz/"
+        // );
+
+        vault = Vault(hub);
     }
 
     function testBridgeMsg() external {

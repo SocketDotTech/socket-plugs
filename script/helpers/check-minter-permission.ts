@@ -1,7 +1,7 @@
 import { getSuperBridgeAddresses } from "./utils";
 import { Contract } from "ethers";
 import { getProviderFromChainSlug } from "./networks";
-import { isAppChain } from "./constants";
+import { isAppChain } from "./projectConstants";
 import { MINTABLE_ABI } from "../constants/abis/mintable";
 
 export const main = async () => {
