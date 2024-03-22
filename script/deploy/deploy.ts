@@ -48,10 +48,7 @@ import {
   getBridgeProjectTokenConstants,
   getSuperTokenConstants,
 } from "../helpers/projectConstants";
-import {
-  ProjectTokenConstants,
-  SuperTokenConstants,
-} from "../constants/types";
+import { ProjectTokenConstants, SuperTokenConstants } from "../constants/types";
 import { ExistingTokenAddresses } from "../constants/existing-token-addresses";
 
 export interface ReturnObj {
