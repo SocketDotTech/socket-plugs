@@ -280,7 +280,7 @@ export const getSuperTokenAddresses =
         throw new Error("addresses not found");
       }
     return superTokenAddresses;
-};
+  };
 
 export const storeVerificationParams = async (
   verificationDetail: any[],

@@ -1,7 +1,11 @@
 import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getSuperBridgeAddresses, getInstance, getSuperTokenAddresses } from "../helpers/utils";
+import {
+  getSuperBridgeAddresses,
+  getInstance,
+  getSuperTokenAddresses,
+} from "../helpers/utils";
 import { ChainSlug } from "@socket.tech/dl-core";
 import {
   SuperBridgeContracts,
@@ -15,7 +19,12 @@ import {
   CommonContracts,
   TokenContracts,
 } from "../../src";
-import { getProjectType, getToken, isSuperBridge, isSuperToken } from "../constants/config";
+import {
+  getProjectType,
+  getToken,
+  isSuperBridge,
+  isSuperToken,
+} from "../constants/config";
 import { checkSendingLimit } from "./common";
 
 const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
@@ -28,28 +37,36 @@ const amountBN = utils.parseUnits(amount, tokenDecimals[getToken()]);
 
 export const main = async () => {
   try {
-
-    let addresses : ProjectAddresses | SuperTokenProjectAddresses | undefined = {};
+    let addresses: ProjectAddresses | SuperTokenProjectAddresses | undefined =
+      {};
     if (isSuperBridge()) {
-        addresses = await getSuperBridgeAddresses() as ProjectAddresses;
+      addresses = (await getSuperBridgeAddresses()) as ProjectAddresses;
     } else if (isSuperToken()) {
-        addresses = await getSuperTokenAddresses() as SuperTokenProjectAddresses;
+      addresses =
+        (await getSuperTokenAddresses()) as SuperTokenProjectAddresses;
     }
 
-    const srcAddresses: ChainAddresses | SuperTokenChainAddresses | undefined = addresses[srcChain];
-    const dstAddresses: ChainAddresses | SuperTokenChainAddresses | undefined = addresses[dstChain];
+    const srcAddresses: ChainAddresses | SuperTokenChainAddresses | undefined =
+      addresses[srcChain];
+    const dstAddresses: ChainAddresses | SuperTokenChainAddresses | undefined =
+      addresses[dstChain];
     if (!srcAddresses || !dstAddresses)
       throw new Error("chain addresses not found");
 
-    const addr: NonAppChainAddresses | SuperTokenChainAddresses | undefined = isSuperBridge() ?  srcAddresses[
-      getToken()
-    ] as NonAppChainAddresses : srcAddresses as SuperTokenChainAddresses;
+    const addr: NonAppChainAddresses | SuperTokenChainAddresses | undefined =
+      isSuperBridge()
+        ? (srcAddresses[getToken()] as NonAppChainAddresses)
+        : (srcAddresses as SuperTokenChainAddresses);
     if (!addr) throw new Error("Token addresses not found");
 
     if (addr["isAppChain"]) throw new Error("src should not be app chain");
 
-    const hubAddr = addr[CommonContracts.Vault] || addr[CommonContracts.Controller];
-    const tokenAddr = addr[TokenContracts.MintableToken] || addr[TokenContracts.NonMintableToken] || addr[TokenContracts.SuperToken];
+    const hubAddr =
+      addr[CommonContracts.Vault] || addr[CommonContracts.Controller];
+    const tokenAddr =
+      addr[TokenContracts.MintableToken] ||
+      addr[TokenContracts.NonMintableToken] ||
+      addr[TokenContracts.SuperToken];
     const connectorAddr = addr.connectors?.[dstChain]?.FAST;
 
     if (!hubAddr || !tokenAddr || !connectorAddr)

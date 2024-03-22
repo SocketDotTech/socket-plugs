@@ -1,4 +1,8 @@
-import { getOwnerAndNominee, getSuperBridgeAddresses, ZERO_ADDRESS } from "./utils";
+import {
+  getOwnerAndNominee,
+  getSuperBridgeAddresses,
+  ZERO_ADDRESS,
+} from "./utils";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "./networks";
 import { isAppChain } from "./constants";

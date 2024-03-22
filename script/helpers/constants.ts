@@ -40,9 +40,10 @@ export const getSuperTokenConstants = (): SuperTokenConstants => {
 
 export const getConstants = () => {
   const projectType = getProjectType();
-  if (projectType === ProjectType.SUPERBRIDGE) return getBridgeProjectTokenConstants();
+  if (projectType === ProjectType.SUPERBRIDGE)
+    return getBridgeProjectTokenConstants();
   if (projectType === ProjectType.SUPERTOKEN) return getSuperTokenConstants();
-}
+};
 
 export const getIntegrationTypeConsts = (
   it: IntegrationTypes,

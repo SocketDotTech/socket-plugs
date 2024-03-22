@@ -328,7 +328,10 @@ const checkAndGrantRole = async (
       chain
     );
   } else {
-    console.log(`✔ ${roleName} role already set on ${contract.address} for chain `, chain);
+    console.log(
+      `✔ ${roleName} role already set on ${contract.address} for chain `,
+      chain
+    );
   }
 };
 const setLimitUpdaterRole = async (

@@ -6,7 +6,6 @@ import "../contracts/hub/Controller.sol";
 import "../contracts/hub/Vault.sol";
 
 contract TestInbound is Test {
-    
     Controller public controller;
     Vault public vault;
     uint256 fork;

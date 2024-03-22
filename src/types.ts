@@ -47,7 +47,7 @@ export enum CommonContracts {
 export enum TokenContracts {
   NonMintableToken = "NonMintableToken",
   MintableToken = "MintableToken",
-  SuperToken = "SuperToken"
+  SuperToken = "SuperToken",
 }
 
 ////// **** SUPER BRIDGE TYPES **** //////

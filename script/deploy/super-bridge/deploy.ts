@@ -64,7 +64,8 @@ export const main = async () => {
   );
   console.log(`Owner address configured to ${getSocketOwner()}`);
   console.log("========================================================");
-  if (projectType == ProjectType.SUPERBRIDGE) pc = getBridgeProjectTokenConstants();
+  if (projectType == ProjectType.SUPERBRIDGE)
+    pc = getBridgeProjectTokenConstants();
   else if (projectType == ProjectType.SUPERTOKEN) pc = getSuperTokenConstants();
 
   try {
@@ -270,9 +271,8 @@ const deployNonAppChainContracts = async (
       );
     console.log("nonMintableToken", nonMintableToken);
     if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])
-    deployParams.addresses[SuperBridgeContracts.NonMintableToken] = nonMintableToken;
-
-
+      deployParams.addresses[SuperBridgeContracts.NonMintableToken] =
+        nonMintableToken;
 
     const vault: Contract = await getOrDeploy(
       SuperBridgeContracts.Vault,

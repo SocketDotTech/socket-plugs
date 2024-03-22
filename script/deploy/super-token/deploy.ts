@@ -235,8 +235,8 @@ const deployVaultChainContracts = async (
       );
     console.log("nonMintableToken", nonMintableToken);
     if (!deployParams.addresses[CommonContracts.NonMintableToken])
-    deployParams.addresses[CommonContracts.NonMintableToken] = nonMintableToken;
-
+      deployParams.addresses[CommonContracts.NonMintableToken] =
+        nonMintableToken;
 
     const vault: Contract = await getOrDeploy(
       CommonContracts.Vault,
