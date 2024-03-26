@@ -71,7 +71,11 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         );
         if (pendingAmount > 0) {
             cacheData = CacheData(
-                abi.encode(params_.transferInfo.receiver, pendingAmount),
+                abi.encode(
+                    params_.transferInfo.receiver,
+                    pendingAmount,
+                    params_.connector
+                ),
                 abi.encode(connectorPendingAmount + pendingAmount)
             );
 
@@ -101,10 +105,14 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
             TransferInfo memory transferInfo
         )
     {
-        (address updatedReceiver, uint256 pendingMint) = abi.decode(
-            params_.cacheData.identifierCache,
-            (address, uint256)
-        );
+        (address updatedReceiver, uint256 pendingMint, address connector) = abi
+            .decode(
+                params_.cacheData.identifierCache,
+                (address, uint256, address)
+            );
+
+        if (connector != params_.connector) revert InvalidConnector();
+
         (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
             params_.connector,
             pendingMint
@@ -147,7 +155,11 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         cacheData.connectorCache = abi.encode(
             connectorPendingAmount - consumedAmount
         );
-        cacheData.identifierCache = abi.encode(updatedReceiver, pendingAmount);
+        cacheData.identifierCache = abi.encode(
+            updatedReceiver,
+            pendingAmount,
+            params_.connector
+        );
 
         if (pendingAmount == 0) {
             cacheData.identifierCache = new bytes(0);
@@ -167,9 +179,9 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         bytes memory identifierCache_
     ) internal view returns (uint256) {
         if (identifierCache_.length > 0) {
-            (address receiver, uint256 pendingAmount) = abi.decode(
+            (, uint256 pendingAmount, ) = abi.decode(
                 identifierCache_,
-                (address, uint256)
+                (address, uint256, address)
             );
             return pendingAmount;
         } else return 0;
