@@ -103,10 +103,9 @@ export const main = async () => {
       pc = getSuperTokenConstants();
     }
 
-    const allChains =
-      isSuperBridge()
-        ? [pc.appChain, ...pc.nonAppChains]
-        : [...pc.vaultChains, ...pc.superTokenChains];
+    const allChains = isSuperBridge()
+      ? [pc.appChain, ...pc.nonAppChains]
+      : [...pc.vaultChains, ...pc.superTokenChains];
 
     await Promise.all(
       allChains.map(async (chain) => {
@@ -363,13 +362,14 @@ const setRescueRoleForAllContracts = async (
   socketSigner: Wallet,
   addr: TokenAddresses | SuperTokenChainAddresses
 ) => {
-  let finalAddresses: (string | undefined) [] = [], contractAddresses: string[] = [];
-    contractAddresses.push(addr[SuperBridgeContracts.Controller]);
-    contractAddresses.push(addr[SuperBridgeContracts.Vault]);
-    contractAddresses.push(addr[SuperTokenContracts.SuperToken]);
-    contractAddresses.push(addr[HookContracts.LimitHook]);
-    contractAddresses.push(addr[HookContracts.LimitExecutionHook]);
-    contractAddresses.push(addr[HookContracts.ExecutionHelper]);
+  let finalAddresses: (string | undefined)[] = [],
+    contractAddresses: string[] = [];
+  contractAddresses.push(addr[SuperBridgeContracts.Controller]);
+  contractAddresses.push(addr[SuperBridgeContracts.Vault]);
+  contractAddresses.push(addr[SuperTokenContracts.SuperToken]);
+  contractAddresses.push(addr[HookContracts.LimitHook]);
+  contractAddresses.push(addr[HookContracts.LimitExecutionHook]);
+  contractAddresses.push(addr[HookContracts.ExecutionHelper]);
   let siblings = Object.keys(addr.connectors);
   for (let sibling of siblings) {
     let connectorAddresses = addr.connectors[sibling];
@@ -380,7 +380,7 @@ const setRescueRoleForAllContracts = async (
     }
   }
 
-  console.log({contractAddresses});
+  console.log({ contractAddresses });
   for (let contractAddress of contractAddresses) {
     if (!contractAddress) continue;
     let contract = await getInstance(
