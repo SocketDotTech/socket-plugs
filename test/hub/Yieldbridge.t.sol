@@ -4,8 +4,8 @@ import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 
 import "../../contracts/token/yield-token/YieldToken.sol";
-import {Vault} from "../../contracts/hub/Vault.sol";
-import {Controller} from "../../contracts/hub/Controller.sol";
+import {Vault} from "../../contracts/bridge/Vault.sol";
+import {Controller} from "../../contracts/bridge/Controller.sol";
 import {LimitExecutionHook} from "../../contracts/hooks/Vault_YieldLimitExecHook.sol";
 import {MockYieldTokenHook} from "../mocks/hooks/MockYieldTokenHook.sol";
 import {MockYieldBridgeHook} from "../mocks/hooks/MockYieldBridgeHook.sol";
