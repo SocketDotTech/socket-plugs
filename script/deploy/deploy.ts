@@ -103,12 +103,8 @@ export const main = async () => {
 
         let chainAddresses: TokenAddresses | SuperTokenChainAddresses =
           isSuperBridge()
-            ? addresses[chain]?.[getToken()]
-              ? (addresses[chain]?.[getToken()] as TokenAddresses)
-              : ({} as TokenAddresses)
-            : addresses[chain]
-            ? (addresses[chain] as SuperTokenChainAddresses)
-            : ({} as SuperTokenChainAddresses);
+            ? ((addresses[chain]?.[getToken()] ?? {}) as TokenAddresses)
+            : ((addresses[chain] ?? {}) as SuperTokenChainAddresses);
 
         let siblings: ChainSlug[], isAppchain: boolean;
         if (projectType == ProjectType.SUPERBRIDGE) {

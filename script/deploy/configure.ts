@@ -42,6 +42,7 @@ import {
   getProjectType,
   getToken,
   isSuperBridge,
+  isSuperToken,
 } from "../constants/config";
 import { ProjectTokenConstants } from "../constants/types";
 import {
@@ -94,23 +95,23 @@ export const main = async () => {
   try {
     let projectType = getProjectType();
     let addresses: ProjectAddresses | SuperTokenProjectAddresses;
-    if (projectType == ProjectType.SUPERBRIDGE) {
+    if (isSuperBridge()) {
       addresses = await getSuperBridgeAddresses();
       pc = getBridgeProjectTokenConstants();
-    } else if (projectType === ProjectType.SUPERTOKEN) {
+    } else if (isSuperToken()) {
       addresses = await getSuperTokenAddresses();
       pc = getSuperTokenConstants();
     }
 
     const allChains =
-      pc.projectType == ProjectType.SUPERBRIDGE
+      isSuperBridge()
         ? [pc.appChain, ...pc.nonAppChains]
         : [...pc.vaultChains, ...pc.superTokenChains];
 
     await Promise.all(
       allChains.map(async (chain) => {
         let addr: TokenAddresses | SuperTokenChainAddresses | undefined;
-        if (pc.projectType == ProjectType.SUPERBRIDGE)
+        if (isSuperBridge())
           addr = addresses[chain]?.[getToken()] as TokenAddresses;
         else addr = addresses[chain] as SuperTokenChainAddresses;
 
@@ -227,14 +228,6 @@ const setHookInHub = async (
     console.log(`✔   Hook already set on Hub for chain ${chain}`);
     return;
   }
-  {
-    console.log(
-      "stored address in Hub: ",
-      storedHookAddress,
-      "hookContract: ",
-      hookContract.address
-    );
-  }
   await execute(
     hubContract,
     "updateHook",
@@ -260,15 +253,6 @@ const setHookInExecutionHelper = async (
     console.log(`✔   Hook already set on Execution Helper for chain ${chain}`);
     return;
   }
-  {
-    console.log(
-      "stored address in EH: ",
-      storedHookAddress,
-      "hookContract: ",
-      hookContract.address
-    );
-  }
-
   await execute(
     executionHelperContract,
     "setHook",
@@ -299,11 +283,6 @@ const updateConnectorStatus = async (
         siblingConnectorAddresses[it];
       if (!itConnectorAddress) continue;
 
-      // console.log(
-      //   { itConnectorAddress, chain, sibling, connectors },
-      //   hubContract.address,
-      //   hubContract.validConnectors
-      // );
       let connectorStatus = await hubContract.callStatic.validConnectors(
         itConnectorAddress
       );
@@ -384,39 +363,26 @@ const setRescueRoleForAllContracts = async (
   socketSigner: Wallet,
   addr: TokenAddresses | SuperTokenChainAddresses
 ) => {
-  let contractAddresses: string[] = [];
-  if (addr[SuperBridgeContracts.Controller]) {
+  let finalAddresses: (string | undefined) [] = [], contractAddresses: string[] = [];
     contractAddresses.push(addr[SuperBridgeContracts.Controller]);
-  }
-  if (addr[SuperBridgeContracts.Vault]) {
     contractAddresses.push(addr[SuperBridgeContracts.Vault]);
-  }
-  if (addr[SuperTokenContracts.SuperToken]) {
     contractAddresses.push(addr[SuperTokenContracts.SuperToken]);
-  }
-  if (addr[HookContracts.LimitHook]) {
     contractAddresses.push(addr[HookContracts.LimitHook]);
-  }
-  if (addr[HookContracts.LimitExecutionHook]) {
     contractAddresses.push(addr[HookContracts.LimitExecutionHook]);
-  }
-  if (addr[HookContracts.ExecutionHelper]) {
     contractAddresses.push(addr[HookContracts.ExecutionHelper]);
-  }
   let siblings = Object.keys(addr.connectors);
   for (let sibling of siblings) {
     let connectorAddresses = addr.connectors[sibling];
     if (!connectorAddresses) continue;
     let integrationTypes = Object.keys(connectorAddresses);
     for (let it of integrationTypes) {
-      let connectorAddress = connectorAddresses[it];
-      if (!connectorAddress) continue;
-      contractAddresses.push(connectorAddress);
+      contractAddresses.push(connectorAddresses[it]);
     }
   }
 
-  // console.log({contractAddresses});
+  console.log({contractAddresses});
   for (let contractAddress of contractAddresses) {
+    if (!contractAddress) continue;
     let contract = await getInstance(
       SuperBridgeContracts.Controller,
       contractAddress
