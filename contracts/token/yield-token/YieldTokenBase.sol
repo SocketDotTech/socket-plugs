@@ -200,10 +200,10 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
                 "INVALID_SIGNER"
             );
 
-            allowance[recoveredAddress][spender] = value;
+            allowance[recoveredAddress][spender] = convertToShares(value);
         }
 
-        emit Approval(owner, spender, value);
+        emit Approval(owner, spender, convertToShares(value));
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
