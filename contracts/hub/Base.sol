@@ -57,7 +57,9 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         bool approve_
     ) external virtual onlyOwner {
         // remove the approval from the old hook
-        SafeTransferLib.safeApprove(ERC20(token), address(hook__), 0);
+        if (ERC20(token).allowance(address(this), address(hook__)) > 0) {
+            SafeTransferLib.safeApprove(ERC20(token), address(hook__), 0);
+        }
         if (approve_) {
             SafeTransferLib.safeApprove(ERC20(token), hook_, type(uint256).max);
         }
