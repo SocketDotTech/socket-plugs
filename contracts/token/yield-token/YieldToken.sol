@@ -31,7 +31,7 @@ contract YieldToken is YieldTokenBase {
         return
             supply == 0
                 ? underlyingAssets_
-                : underlyingAssets_.mulDivUp(supply, totalUnderlyingAssets);
+                : underlyingAssets_.mulDivDown(supply, totalUnderlyingAssets);
     }
 
     function burn(
