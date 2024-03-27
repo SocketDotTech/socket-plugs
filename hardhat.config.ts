@@ -70,6 +70,7 @@ const liveNetworks = [
   HardhatChainName.BASE,
   HardhatChainName.MODE,
   HardhatChainName.ANCIENT8_TESTNET2,
+  HardhatChainName.SYNDR_SEPOLIA_L3,
 ];
 
 let hardhatNetworkDetails = {};

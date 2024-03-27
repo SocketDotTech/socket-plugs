@@ -43,7 +43,7 @@ export const overrides: {
   [ChainSlug.SEPOLIA]: {
     type: 0,
     gasLimit,
-    gasPrice: 2_000_000_000,
+    gasPrice: 20_000_000_000,
   },
   [ChainSlug.AEVO_TESTNET]: {
     type,
@@ -88,7 +88,7 @@ export const overrides: {
   [ChainSlug.POLYGON_MUMBAI]: {
     // type: 1,
     gasLimit: 5_000_000,
-    // gasPrice: 20_000_000_000,
+    gasPrice: 100_000_000_000,
   },
   [ChainSlug.POLYGON_MAINNET]: {
     type: 1,
@@ -119,6 +119,11 @@ export const overrides: {
     type: 1,
     gasLimit,
     gasPrice: 10_000_000,
+  },
+  [ChainSlug.SYNDR_SEPOLIA_L3]: {
+    type: 1,
+    gasLimit: 500_000_000,
+    gasPrice: 1_000_000,
   },
 };
 
@@ -232,6 +237,11 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
       if (!process.env.ANCIENT8_TESTNET2_RPC)
         throw new Error("ANCIENT8_TESTNET2_RPC not configured");
       return process.env.ANCIENT8_TESTNET2_RPC;
+
+    case ChainSlug.SYNDR_SEPOLIA_L3:
+      if (!process.env.SYNDR_SEPOLIA_L3_RPC)
+        throw new Error("SYNDR_SEPOLIA_L3_RPC not configured");
+      return process.env.SYNDR_SEPOLIA_L3_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";

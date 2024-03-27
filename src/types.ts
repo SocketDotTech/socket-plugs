@@ -9,6 +9,7 @@ export enum Tokens {
   USDT = "USDT",
   SNX = "SNX",
   WSTETH = "wstETH",
+  DAI = "DAI",
 }
 
 export enum Project {
@@ -22,6 +23,7 @@ export enum Project {
   VICTION_TESTNET = "viction-testnet",
   MODE = "mode",
   ANCIENT8_TESTNET2 = "ancient8-testnet2",
+  SYNDR_SEPOLIA_L3 = "syndr-sepolia-l3",
 }
 
 ////// **** SUPER BRIDGE TYPES **** //////
@@ -80,6 +82,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
   [ChainSlug.MODE]: Project.MODE,
   [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
+  [ChainSlug.SYNDR_SEPOLIA_L3]: Project.SYNDR_SEPOLIA_L3,
 };
 
 ////// **** SUPER TOKEN TYPES **** //////
