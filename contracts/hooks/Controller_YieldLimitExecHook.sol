@@ -103,20 +103,13 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 newTotalUnderlyingAssets, bytes memory payload) = abi.decode(
+        (uint256 increasedYield, bytes memory payload) = abi.decode(
             params_.transferInfo.data,
             (uint256, bytes)
         );
 
-        uint256 oldTotalUnderlyingAssets = _poolDstHook(
-            params_.connector,
-            newTotalUnderlyingAssets,
-            false
-        );
-        totalUnderlyingAssets =
-            totalUnderlyingAssets +
-            newTotalUnderlyingAssets -
-            oldTotalUnderlyingAssets;
+        _poolDstHook(params_.connector, increasedYield);
+        totalUnderlyingAssets += increasedYield;
 
         if (params_.transferInfo.amount == 0)
             return (abi.encode(0, 0), transferInfo);
