@@ -139,16 +139,26 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
             if (pullFromStrategy) {
                 _withdrawFromStrategy(transferInfo.amount - totalIdle);
             } else {
-                (, uint256 pendingUnderlying) = abi.decode(
-                    postHookData,
-                    (uint256, uint256)
-                );
+
+                (uint256 consumedUnderlying, uint256 pendingUnderlying) = abi
+                    .decode(postHookData, (uint256, uint256));
+
                 pendingUnderlying += transferInfo.amount - totalIdle;
                 postHookData = abi.encode(
                     transferInfo.amount,
                     pendingUnderlying
                 );
                 transferInfo.amount = totalIdle;
+
+                // Update the lastUpdateLimit as consumedAmount is reduced to totalIdle. This is to ensure that the
+                // receiving limit is updated by correct transferred amount.
+                LimitParams storage receivingParams = _receivingLimitParams[
+                    params_.connector
+                ];
+
+                receivingParams.lastUpdateLimit +=
+                    consumedUnderlying -
+                    transferInfo.amount;
             }
             totalIdle = 0;
         } else totalIdle -= transferInfo.amount;
