@@ -57,7 +57,7 @@ contract TestLimitExecutionHook is Test {
             address(_executionHelper),
             false
         );
-
+        _executionHelper.setHook(address(hook__));
         _token = new MintableToken("Moon", "MOON", 18);
 
         _token.mint(_admin, _initialSupply);
@@ -198,6 +198,7 @@ contract TestLimitExecutionHook is Test {
             )
         );
         assertEq(transferInfo.data, payload, "extra data incorrect");
+        vm.stopPrank();
     }
 
     function testFullConsumeDstPreHookCall() external {
@@ -224,9 +225,10 @@ contract TestLimitExecutionHook is Test {
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(
             postHookData,
-            abi.encode(depositAmount, 0),
+            abi.encode(depositAmount, 0, depositAmount),
             "postHookData sus"
         );
+        vm.stopPrank();
     }
 
     function testEmptyPayloadDstPostCall() external {
@@ -271,7 +273,13 @@ contract TestLimitExecutionHook is Test {
 
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                pendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -323,7 +331,13 @@ contract TestLimitExecutionHook is Test {
 
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                pendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -352,7 +366,13 @@ contract TestLimitExecutionHook is Test {
 
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                pendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -379,7 +399,13 @@ contract TestLimitExecutionHook is Test {
 
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                pendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -407,7 +433,11 @@ contract TestLimitExecutionHook is Test {
             depositAmount,
             payload
         );
-        bytes memory postHookData = abi.encode(consumedAmount, pendingAmount);
+        bytes memory postHookData = abi.encode(
+            consumedAmount,
+            pendingAmount,
+            depositAmount
+        );
 
         vm.startPrank(controller__);
         if (failExecution) {
@@ -426,10 +456,12 @@ contract TestLimitExecutionHook is Test {
                 transferInfo
             )
         );
+        vm.stopPrank();
     }
 
     function testFullConsumePreRetryHookCall() external {
         _setLimits();
+        uint256 depositAmount = 10 ether;
         uint256 pendingAmount = 2 ether;
         uint256 connectorAlreadyPendingAmount = 10 ether;
         bytes memory payload = bytes("");
@@ -442,7 +474,13 @@ contract TestLimitExecutionHook is Test {
                 PreRetryHookCallParams(
                     _connector1,
                     CacheData(
-                        abi.encode(_raju, pendingAmount, _connector1, payload),
+                        abi.encode(
+                            _raju,
+                            pendingAmount,
+                            depositAmount,
+                            _connector1,
+                            payload
+                        ),
                         abi.encode(
                             connectorAlreadyPendingAmount + pendingAmount
                         )
@@ -457,10 +495,13 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(transferInfo.amount, pendingAmount, "pending amount sus");
+        vm.stopPrank();
     }
 
     function testPartConsumePreRetryHookCall() external {
         _setLimits();
+        uint256 depositAmount = 210 ether;
+
         uint256 pendingAmount = 200 ether;
         uint256 connectorAlreadyPendingAmount = 10 ether;
         bytes memory payload = bytes("");
@@ -473,7 +514,13 @@ contract TestLimitExecutionHook is Test {
                 PreRetryHookCallParams(
                     _connector1,
                     CacheData(
-                        abi.encode(_raju, pendingAmount, _connector1, payload),
+                        abi.encode(
+                            _raju,
+                            pendingAmount,
+                            depositAmount,
+                            _connector1,
+                            payload
+                        ),
                         abi.encode(
                             connectorAlreadyPendingAmount + pendingAmount
                         )
@@ -488,10 +535,12 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(transferInfo.amount, _mintMaxLimit, "pending amount sus");
+        vm.stopPrank();
     }
 
     function testEmptyPayloadPostRetryHookCall() external {
         // Full Consume
+        uint256 depositAmount = 10 ether;
         uint256 pendingAmount = 2 ether;
         uint256 connectorAlreadyPendingAmount = 10 ether;
         uint256 consumedAmount = pendingAmount;
@@ -504,6 +553,7 @@ contract TestLimitExecutionHook is Test {
         );
         CacheData memory cacheData = _postRetryHookCall(
             postRetryHookData,
+            depositAmount,
             pendingAmount,
             connectorAlreadyPendingAmount,
             payload,
@@ -517,6 +567,7 @@ contract TestLimitExecutionHook is Test {
         );
 
         // Part consume
+        depositAmount = 210 ether;
         pendingAmount = 200 ether;
         connectorAlreadyPendingAmount = 10 ether;
         consumedAmount = _mintMaxLimit;
@@ -529,6 +580,7 @@ contract TestLimitExecutionHook is Test {
         );
         cacheData = _postRetryHookCall(
             postRetryHookData,
+            depositAmount,
             pendingAmount,
             connectorAlreadyPendingAmount,
             payload,
@@ -536,7 +588,13 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, finalPendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                finalPendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -548,6 +606,7 @@ contract TestLimitExecutionHook is Test {
 
     function testPayloadSuccessPostRetryHookCall() external {
         // Full Consume
+        uint256 depositAmount = 10 ether;
         uint256 pendingAmount = 2 ether;
         uint256 connectorAlreadyPendingAmount = 10 ether;
         uint256 consumedAmount = pendingAmount;
@@ -560,6 +619,7 @@ contract TestLimitExecutionHook is Test {
         );
         CacheData memory cacheData = _postRetryHookCall(
             postRetryHookData,
+            depositAmount,
             pendingAmount,
             connectorAlreadyPendingAmount,
             payload,
@@ -585,6 +645,7 @@ contract TestLimitExecutionHook is Test {
         );
         cacheData = _postRetryHookCall(
             postRetryHookData,
+            depositAmount,
             pendingAmount,
             connectorAlreadyPendingAmount,
             payload,
@@ -592,7 +653,13 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, finalPendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                finalPendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -604,6 +671,7 @@ contract TestLimitExecutionHook is Test {
 
     function testPayloadFailPostRetryHookCall() external {
         // Full Consume
+        uint256 depositAmount = 10 ether;
         uint256 pendingAmount = 2 ether;
         uint256 connectorAlreadyPendingAmount = 10 ether;
         uint256 consumedAmount = pendingAmount;
@@ -616,6 +684,7 @@ contract TestLimitExecutionHook is Test {
         );
         CacheData memory cacheData = _postRetryHookCall(
             postRetryHookData,
+            depositAmount,
             pendingAmount,
             connectorAlreadyPendingAmount,
             payload,
@@ -623,7 +692,13 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, finalPendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                finalPendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -633,6 +708,7 @@ contract TestLimitExecutionHook is Test {
         );
 
         // Part consume
+        depositAmount = 210 ether;
         pendingAmount = 200 ether;
         connectorAlreadyPendingAmount = 10 ether;
         consumedAmount = _mintMaxLimit;
@@ -644,6 +720,7 @@ contract TestLimitExecutionHook is Test {
         );
         cacheData = _postRetryHookCall(
             postRetryHookData,
+            depositAmount,
             pendingAmount,
             connectorAlreadyPendingAmount,
             payload,
@@ -651,7 +728,13 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, finalPendingAmount, _connector1, payload),
+            abi.encode(
+                _raju,
+                finalPendingAmount,
+                depositAmount,
+                _connector1,
+                payload
+            ),
             "identifierCache sus"
         );
         assertEq(
@@ -663,6 +746,7 @@ contract TestLimitExecutionHook is Test {
 
     function _postRetryHookCall(
         bytes memory postRetryHookData_,
+        uint256 depositAmount_,
         uint256 pendingAmount_,
         uint256 connectorAlreadyPendingAmount_,
         bytes memory execPayload_,
@@ -687,6 +771,7 @@ contract TestLimitExecutionHook is Test {
                     abi.encode(
                         _raju,
                         pendingAmount_,
+                        depositAmount_,
                         _connector1,
                         execPayload_
                     ),
@@ -694,5 +779,6 @@ contract TestLimitExecutionHook is Test {
                 )
             )
         );
+        vm.stopPrank();
     }
 }

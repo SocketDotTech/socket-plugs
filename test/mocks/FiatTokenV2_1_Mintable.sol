@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "../../contracts/hub/FiatTokenV2_1/IFiatTokenV2_1_Mintable.sol";
+import "../../contracts/bridge/FiatTokenV2_1/IFiatTokenV2_1_Mintable.sol";
 
 // this is a mock token used in tests, other projects' token to be used here
 contract FiatTokenV2_1_Mintable is IFiatTokenV2_1_Mintable {

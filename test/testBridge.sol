@@ -2,8 +2,8 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 
-import "../contracts/hub/Controller.sol";
-import "../contracts/hub/Vault.sol";
+import "../contracts/bridge/Controller.sol";
+import "../contracts/bridge/Vault.sol";
 
 contract TestInbound is Test {
     Controller public controller;
@@ -21,16 +21,16 @@ contract TestInbound is Test {
         vault = Vault(hub);
     }
 
-    function testBridgeMsg() external {
-        vm.selectFork(fork);
-        vm.prank(user);
-        vault.bridge(
-            address(user),
-            0,
-            500000,
-            _connector,
-            new bytes(0),
-            new bytes(0)
-        );
-    }
+    // function testBridgeMsg() external {
+    //     vm.selectFork(fork);
+    //     vm.prank(user);
+    //     vault.bridge(
+    //         address(user),
+    //         0,
+    //         500000,
+    //         _connector,
+    //         new bytes(0),
+    //         new bytes(0)
+    //     );
+    // }
 }

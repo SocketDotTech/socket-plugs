@@ -232,15 +232,10 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         bytes memory identifierCache_
     ) internal view returns (uint256) {
         if (identifierCache_.length > 0) {
-            (
-                address receiver,
-                uint256 pendingAmount,
-                address connector,
-                bytes memory payload
-            ) = abi.decode(
-                    identifierCache_,
-                    (address, uint256, address, bytes)
-                );
+            (, uint256 pendingAmount, , , ) = abi.decode(
+                identifierCache_,
+                (address, uint256, uint256, address, bytes)
+            );
             return pendingAmount;
         } else return 0;
     }

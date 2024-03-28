@@ -434,7 +434,7 @@ contract TestController_YieldLimitExecHook is Setup {
 
         assertEq(transferInfo.amount, 0, "depositAmount sus");
         assertEq(transferInfo.receiver, address(0), "receiver sus");
-        assertEq(postHookData, abi.encode(0, 0), "post hook data sus");
+        assertEq(postHookData, abi.encode(0, 0, transferInfo.amount), "post hook data sus");
         assertEq(transferInfo.data, bytes(""), "data sus");
     }
 
@@ -505,7 +505,7 @@ contract TestController_YieldLimitExecHook is Setup {
         assertEq(transferInfo.receiver, receiver, "receiver sus");
         assertEq(
             postHookData,
-            abi.encode(consumed, amount - consumed),
+            abi.encode(consumed, amount - consumed, amount),
             "post hook data sus"
         );
         assertEq(transferInfo.data, bytes(""), "data sus");
@@ -588,13 +588,8 @@ contract TestController_YieldLimitExecHook is Setup {
         // should not allow hook calls
         hoax(_controller);
         vm.expectRevert(VaultShutdown.selector);
-        hook__.postRetryHook(
-            PostRetryHookCallParams(
-                _connector,
-                messageId,
-                bytes(""),
-                CacheData(bytes(""), bytes(""))
-            )
+        hook__.preRetryHook(
+            PreRetryHookCallParams(_connector, CacheData(bytes(""), bytes("")))
         );
     }
 }

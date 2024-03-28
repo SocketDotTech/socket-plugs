@@ -6,13 +6,13 @@ import "solmate/utils/SafeTransferLib.sol";
 import "../interfaces/IHook.sol";
 import "../common/Errors.sol";
 import "solmate/utils/ReentrancyGuard.sol";
-import "../interfaces/IHub.sol";
+import "../interfaces/IBridge.sol";
 import "../utils/RescueBase.sol";
 import "../common/Constants.sol";
 
-abstract contract Base is ReentrancyGuard, IHub, RescueBase {
+abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
     address public immutable token;
-    bytes32 public hubType;
+    bytes32 public bridgeType;
     IHook public hook__;
     // message identifier => cache
     mapping(bytes32 => bytes) public identifierCache;
@@ -57,11 +57,17 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
         bool approve_
     ) external virtual onlyOwner {
         // remove the approval from the old hook
-        if (ERC20(token).allowance(address(this), address(hook__)) > 0) {
-            SafeTransferLib.safeApprove(ERC20(token), address(hook__), 0);
-        }
-        if (approve_) {
-            SafeTransferLib.safeApprove(ERC20(token), hook_, type(uint256).max);
+        if (token != ETH_ADDRESS) {
+            if (ERC20(token).allowance(address(this), address(hook__)) > 0) {
+                SafeTransferLib.safeApprove(ERC20(token), address(hook__), 0);
+            }
+            if (approve_) {
+                SafeTransferLib.safeApprove(
+                    ERC20(token),
+                    hook_,
+                    type(uint256).max
+                );
+            }
         }
         hook__ = IHook(hook_);
 

@@ -5,25 +5,23 @@ import "./utils/RescueBase.sol";
 import {ISocket} from "./interfaces/ISocket.sol";
 import {IPlug} from "./interfaces/IPlug.sol";
 import {IConnector} from "./interfaces/IConnector.sol";
-import {IHub} from "./interfaces/IHub.sol";
+import {IBridge} from "./interfaces/IBridge.sol";
+import "./common/Errors.sol";
 
 contract ConnectorPlug is IConnector, IPlug, RescueBase {
-    IHub public immutable hub__;
+    IBridge public immutable bridge__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
     uint256 public messageIdPart;
 
-    error NotHub();
-    error NotSocket();
-
     event ConnectorPlugDisconnected();
 
     constructor(
-        address hub_,
+        address bridge_,
         address socket_,
         uint32 siblingChainSlug_
     ) AccessControl(msg.sender) {
-        hub__ = IHub(hub_);
+        bridge__ = IBridge(bridge_);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;
     }
@@ -33,7 +31,7 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
         bytes memory payload_,
         bytes memory
     ) external payable override returns (bytes32 messageId_) {
-        if (msg.sender != address(hub__)) revert NotHub();
+        if (msg.sender != address(bridge__)) revert NotBridge();
 
         return
             socket__.outbound{value: msg.value}(
@@ -50,7 +48,7 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
         bytes calldata payload_
     ) external payable override {
         if (msg.sender != address(socket__)) revert NotSocket();
-        hub__.receiveInbound(siblingChainSlug_, payload_);
+        bridge__.receiveInbound(siblingChainSlug_, payload_);
     }
 
     /**

@@ -2,7 +2,7 @@ pragma solidity 0.8.13;
 
 error SiblingNotSupported();
 error NotAuthorized();
-error NotHub();
+error NotBridge();
 error NotSocket();
 error ConnectorUnavailable();
 error InvalidPoolId();

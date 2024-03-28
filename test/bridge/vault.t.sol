@@ -3,7 +3,7 @@ pragma solidity 0.8.13;
 import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 import "../mocks/MintableToken.sol";
-import "../../contracts/hub/Vault.sol";
+import "../../contracts/bridge/Vault.sol";
 import "../../contracts/common/Errors.sol";
 import "../../contracts/hooks/LimitExecutionHook.sol";
 import "forge-std/console.sol";
@@ -48,6 +48,7 @@ contract TestVault is Test {
             address(_executionHelper),
             false
         );
+        _executionHelper.setHook(address(hook__));
         _vault.updateHook(address(hook__), false);
         vm.stopPrank();
     }
@@ -64,6 +65,7 @@ contract TestVault is Test {
             address(_executionHelper),
             false
         );
+        _executionHelper.setHook(address(hook__));
         _vault.updateHook(address(hook__), false);
         vm.stopPrank();
     }
@@ -91,6 +93,7 @@ contract TestVault is Test {
         hook__.grantRole(LIMIT_UPDATER_ROLE, _admin);
         hook__.updateLimitParams(u);
         skip(_bootstrapTime);
+        vm.stopPrank();
     }
 
     function _setupConnectors(address[] memory connectors_) internal {
