@@ -119,7 +119,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
             oldTotalUnderlyingAssets;
 
         if (params_.transferInfo.amount == 0)
-            return (abi.encode(0, 0), transferInfo);
+            return (abi.encode(0, 0, 0), transferInfo);
 
         (uint256 consumedUnderlying, uint256 pendingUnderlying) = _limitDstHook(
             params_.connector,
@@ -129,7 +129,11 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
             consumedUnderlying
         );
 
-        postHookData = abi.encode(consumedUnderlying, pendingUnderlying);
+        postHookData = abi.encode(
+            consumedUnderlying,
+            pendingUnderlying,
+            params_.transferInfo.amount
+        );
         transferInfo = params_.transferInfo;
         transferInfo.amount = sharesToMint;
         transferInfo.data = payload;
