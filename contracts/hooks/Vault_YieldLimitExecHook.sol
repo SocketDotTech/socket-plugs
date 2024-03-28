@@ -15,7 +15,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
-    uint256 public constant MAX_BPS = 10_000;
+    uint256 private constant MAX_BPS = 10_000;
 
     IStrategy public strategy; // address of the strategy contract
     ERC20 public immutable underlyingAsset__;
