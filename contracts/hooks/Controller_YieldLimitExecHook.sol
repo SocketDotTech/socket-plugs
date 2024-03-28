@@ -60,7 +60,6 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     )
         public
         override
-        isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
         super.srcPreHookCall(params_);
@@ -114,9 +113,10 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
 
         _poolDstHook(params_.connector, increasedUnderlying);
         totalUnderlyingAssets += increasedUnderlying;
+        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 
         if (params_.transferInfo.amount == 0)
-            return (abi.encode(0, 0), transferInfo);
+            return (abi.encode(0, 0, 0, address(0)), transferInfo);
 
         (uint256 consumedUnderlying, uint256 pendingUnderlying) = _limitDstHook(
             params_.connector,
@@ -167,17 +167,13 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
             params_.connectorCache
         );
 
+        uint256 pendingShares;
         if (pendingUnderlying > 0) {
             // totalShares * consumedU / totalU
             uint256 consumedShares = (params_.transferInfo.amount *
                 pendingUnderlying) / depositUnderlying;
 
-            uint256 pendingShares = params_.transferInfo.amount -
-                consumedShares;
-
-            cacheData.connectorCache = abi.encode(
-                connectorPendingShares + pendingShares
-            );
+            pendingShares = params_.transferInfo.amount - consumedShares;
 
             cacheData.identifierCache = abi.encode(
                 params_.transferInfo.receiver,
@@ -217,6 +213,10 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
                     );
             } else cacheData.identifierCache = new bytes(0);
         }
+
+        cacheData.connectorCache = abi.encode(
+            connectorPendingShares + pendingShares
+        );
     }
 
     // /**
@@ -234,6 +234,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     )
         public
         override
+        isVaultOrController
         notShutdown
         returns (
             bytes memory postRetryHookData,
