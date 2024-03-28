@@ -100,6 +100,8 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
     {
         if (transferInfo_.receiver == address(0)) revert ZeroAddressReceiver();
         if (!validConnectors[connector_]) revert InvalidConnector();
+        if (token == ETH_ADDRESS && msg.value < transferInfo_.amount)
+            revert InsufficientMsgValue();
 
         if (address(hook__) != address(0)) {
             (transferInfo, postHookData) = hook__.srcPreHookCall(
@@ -139,7 +141,7 @@ abstract contract Base is ReentrancyGuard, IHub, RescueBase {
             );
         }
 
-        uint256 fees = address(token) == ETH_ADDRESS
+        uint256 fees = token == ETH_ADDRESS
             ? msg.value - transferInfo.amount
             : msg.value;
 
