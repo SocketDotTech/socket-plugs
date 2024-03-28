@@ -32,10 +32,12 @@ contract YieldToken is YieldTokenBase {
         // total yield -> total underlying from all chains
         uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
         return
-            underlyingAssets_.mulDivUp(
-                supply + 10 ** decimalOffset,
-                totalUnderlyingAssets + 1
-            );
+            supply == 0
+                ? underlyingAssets_
+                : underlyingAssets_.mulDivDown(
+                    supply + 10 ** decimalOffset,
+                    totalUnderlyingAssets - underlyingAssets_ + 1
+                );
     }
 
     function burn(
@@ -61,7 +63,6 @@ contract YieldToken is YieldTokenBase {
     }
 
     function _updateTotalUnderlyingAssets(uint256 amount_) internal {
-        lastSyncTimestamp = block.timestamp;
         totalUnderlyingAssets = amount_;
     }
 }

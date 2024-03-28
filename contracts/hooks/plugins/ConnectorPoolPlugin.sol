@@ -46,29 +46,12 @@ abstract contract ConnectorPoolPlugin is HookBase {
 
     function _poolDstHook(
         address connector_,
-        uint256 amount_,
-        bool isIncreased
+        uint256 amount_
     ) internal returns (uint256 oldLockedAmount) {
         uint256 connectorPoolId = connectorPoolIds[connector_];
         if (connectorPoolId == 0) revert InvalidPoolId();
 
         oldLockedAmount = poolLockedAmounts[connectorPoolId];
-        if (isIncreased) {
-            _increaseLockedAmount(connectorPoolId, amount_);
-        } else _setLockedAmount(connectorPoolId, amount_);
-    }
-
-    function _setLockedAmount(
-        uint256 connectorPoolId_,
-        uint256 amount_
-    ) internal {
-        poolLockedAmounts[connectorPoolId_] = amount_;
-    }
-
-    function _increaseLockedAmount(
-        uint256 connectorPoolId_,
-        uint256 amount_
-    ) internal {
-        poolLockedAmounts[connectorPoolId_] += amount_;
+        poolLockedAmounts[connectorPoolId] += amount_;
     }
 }

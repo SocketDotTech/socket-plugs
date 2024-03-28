@@ -4,8 +4,8 @@ import "forge-std/Test.sol";
 import "solmate/tokens/ERC20.sol";
 
 import "../../contracts/token/yield-token/YieldToken.sol";
-import {Vault} from "../../contracts/hub/Vault.sol";
-import {Controller} from "../../contracts/hub/Controller.sol";
+import {Vault} from "../../contracts/bridge/Vault.sol";
+import {Controller} from "../../contracts/bridge/Controller.sol";
 import {LimitExecutionHook} from "../../contracts/hooks/Vault_YieldLimitExecHook.sol";
 import {MockYieldTokenHook} from "../mocks/hooks/MockYieldTokenHook.sol";
 import {MockYieldBridgeHook} from "../mocks/hooks/MockYieldBridgeHook.sol";
@@ -206,6 +206,7 @@ contract SetupYieldBridge is Test {
             bytes(""),
             bytes("")
         );
+        vm.stopPrank();
     }
 
     function _beforeWithdraw(
@@ -235,6 +236,7 @@ contract SetupYieldBridge is Test {
             bytes(""),
             abi.encode(pullFromStrategy_)
         );
+        vm.stopPrank();
     }
 
     function _updateSiblingYield(uint256 amount_) internal {
@@ -320,42 +322,26 @@ contract TestYieldBridge is SetupYieldBridge {
         _beforeDeposit(initialDepositAmount, _raju);
         _deposit(initialDepositAmount, _chainSlug, _raju, _raju);
 
-        uint256 depositAmount = 100;
-        _beforeDeposit(depositAmount, _raju);
-        uint256 rajuBalBefore = token__.balanceOf(_raju);
-        uint256 ramuBalBefore = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
+        uint256 withdrawAmount = 50;
+        _withdraw(withdrawAmount, _otherChainSlug, _raju, _raju, true);
 
         // add 10% yield
-        uint256 strategyYield = 10;
+        uint256 strategyYield = 100;
         _beforeDeposit(strategyYield, address(strategy__));
+        _deposit(0, _chainSlug, _raju, _raju);
 
-        uint256 expectedMintAmount = (initialDepositAmount * depositAmount) /
-            (initialDepositAmount + strategyYield);
-        uint256 expectedBalance = ((initialDepositAmount +
-            depositAmount +
-            strategyYield) * expectedMintAmount) /
-            (expectedMintAmount + initialDepositAmount);
+        uint256 ramuDepositAmount = 50;
+        _beforeDeposit(ramuDepositAmount, _ramu);
 
-        _deposit(depositAmount, _chainSlug, _raju, _ramu);
+        uint256 ramuInitialBalance = token__.balanceOf(_ramu);
+        _deposit(ramuDepositAmount, _chainSlug, _ramu, _ramu);
 
-        uint256 rajuBalAfter = token__.balanceOf(_raju);
-        uint256 ramuBalAfter = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
-        uint256 tokenSupplyAfter = yieldToken__.totalSupply();
+        withdrawAmount = yieldToken__.balanceOf(_ramu);
+        _withdraw(withdrawAmount, _otherChainSlug, _ramu, _ramu, true);
 
-        assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
-        assertEq(ramuBalAfter, ramuBalBefore + expectedBalance, "Ramu bal sus");
-        assertEq(
-            vaultBalAfter,
-            vaultBalBefore + depositAmount + strategyYield,
-            "SuperTokenVault bal sus"
-        );
-        assertEq(
-            tokenSupplyAfter,
-            depositAmount * 2 + strategyYield,
-            "token supply sus"
-        );
+        uint256 ramuFinalBalance = token__.balanceOf(_ramu);
+
+        assertEq(ramuInitialBalance, ramuFinalBalance);
     }
 
     // todo
@@ -436,36 +422,33 @@ contract TestYieldBridge is SetupYieldBridge {
         // );
     }
 
-    // todo fix
     function testWithdrawWithIncreasedYield() external {
         uint256 depositAmount = 100;
         uint256 withdrawAmount = 50;
 
         _beforeWithdraw(depositAmount, _raju, _chainSlug, _raju);
+
         uint256 strategyYield = 10;
         _beforeDeposit(strategyYield, address(strategy__));
-        _deposit(0, _chainSlug, address(0), address(0));
+        _deposit(0, _chainSlug, address(0), _raju);
 
         uint256 rajuBalBefore = yieldToken__.balanceOf(_raju);
         uint256 ramuBalBefore = token__.balanceOf(_ramu);
         uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
 
         assertTrue(rajuBalBefore >= withdrawAmount, "Raju got no balance");
-        console.log(rajuBalBefore);
-
         _withdraw(withdrawAmount, _otherChainSlug, _raju, _ramu, true);
 
         uint256 rajuBalAfter = yieldToken__.balanceOf(_raju);
         uint256 ramuBalAfter = token__.balanceOf(_ramu);
         uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
 
-        console.log(rajuBalAfter);
-
         assertEq(rajuBalAfter, rajuBalBefore - withdrawAmount, "Raju bal sus");
         assertEq(ramuBalAfter, ramuBalBefore + withdrawAmount, "Ramu bal sus");
+
         assertEq(
             vaultBalAfter,
-            vaultBalBefore - withdrawAmount + strategyYield,
+            vaultBalBefore - withdrawAmount,
             "SuperTokenVault bal sus"
         );
     }
@@ -493,5 +476,6 @@ contract TestYieldBridge is SetupYieldBridge {
             bytes(""),
             bytes("")
         );
+        vm.stopPrank();
     }
 }

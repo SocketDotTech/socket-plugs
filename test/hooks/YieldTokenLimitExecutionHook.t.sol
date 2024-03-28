@@ -406,9 +406,8 @@ contract TestController_YieldLimitExecHook is Setup {
     }
 
     function testDstPreHookForSync() external {
-        uint256 yield = _initialSupply + 100;
-
-        bytes memory data = abi.encode((yield), bytes(""));
+        uint256 amount = 100;
+        bytes memory data = abi.encode((amount), bytes(""));
         uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
         uint256 siblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
@@ -428,11 +427,11 @@ contract TestController_YieldLimitExecHook is Setup {
         uint256 newSiblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
         assertEq(
-            totalUnderlyingAssets + yield - siblingYield,
+            totalUnderlyingAssets + amount,
             newTotalYield,
             "newTotalYield sus"
         );
-        assertEq(yield, newSiblingYield, "newSiblingYield sus");
+        assertEq(siblingYield + amount, newSiblingYield, "newSiblingYield sus");
 
         assertEq(transferInfo.amount, 0, "depositAmount sus");
         assertEq(transferInfo.receiver, address(0), "receiver sus");
@@ -441,8 +440,8 @@ contract TestController_YieldLimitExecHook is Setup {
     }
 
     function testDstPostHookForSync() external {
-        uint256 yield = _initialSupply + 100;
-        bytes memory data = abi.encode((yield), bytes(""));
+        uint256 amount = 100;
+        bytes memory data = abi.encode((amount), bytes(""));
 
         vm.startPrank(_controller);
         (bytes memory postHookData, TransferInfo memory transferInfo) = hook__
@@ -466,17 +465,15 @@ contract TestController_YieldLimitExecHook is Setup {
         vm.stopPrank();
 
         uint256 newTotalYield = yieldToken__.totalUnderlyingAssets();
-        assertEq(yield, newTotalYield, "newTotalYield sus");
+        assertEq(amount + _initialSupply, newTotalYield, "newTotalYield sus");
         assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
         assertEq(cacheData.connectorCache, abi.encode(0), "connectorCache sus");
     }
 
     function testDstPreHookForDeposit() external {
-        uint256 yield = _initialSupply + 100;
-
         uint256 amount = 100;
         address receiver = _raju;
-        bytes memory data = abi.encode((yield), bytes(""));
+        bytes memory data = abi.encode((amount), bytes(""));
         uint256 totalUnderlyingAssets = hook__.totalUnderlyingAssets();
         uint256 siblingYield = hook__.poolLockedAmounts(_connectorPoolId);
 
@@ -500,11 +497,11 @@ contract TestController_YieldLimitExecHook is Setup {
         uint256 shares = yieldToken__.calculateMintAmount(consumed);
 
         assertEq(
-            totalUnderlyingAssets + yield - siblingYield,
+            totalUnderlyingAssets + amount,
             newTotalYield,
             "newTotalYield sus"
         );
-        assertEq(yield, newSiblingYield, "newSiblingYield sus");
+        assertEq(siblingYield + amount, newSiblingYield, "newSiblingYield sus");
 
         assertEq(transferInfo.receiver, receiver, "receiver sus");
         assertEq(
@@ -517,11 +514,9 @@ contract TestController_YieldLimitExecHook is Setup {
     }
 
     function testDstPostHookForDeposit() external {
-        uint256 yield = _initialSupply + 100;
-
         uint256 amount = 100;
         address receiver = _raju;
-        bytes memory data = abi.encode((yield), bytes(""));
+        bytes memory data = abi.encode((amount), bytes(""));
 
         vm.startPrank(_controller);
         (bytes memory postHookData, TransferInfo memory transferInfo) = hook__
@@ -548,7 +543,7 @@ contract TestController_YieldLimitExecHook is Setup {
         uint256 newTotalYield = yieldToken__.totalUnderlyingAssets();
 
         assertEq(pending, 0, "pending sus");
-        assertEq(yield, newTotalYield, "newTotalYield sus");
+        assertEq(amount + _initialSupply, newTotalYield, "newTotalYield sus");
         assertEq(
             cacheData.connectorCache,
             abi.encode(pending),
@@ -594,13 +589,8 @@ contract TestController_YieldLimitExecHook is Setup {
         // should not allow hook calls
         hoax(_controller);
         vm.expectRevert(VaultShutdown.selector);
-        hook__.postRetryHook(
-            PostRetryHookCallParams(
-                _connector,
-                messageId,
-                bytes(""),
-                CacheData(bytes(""), bytes(""))
-            )
+        hook__.preRetryHook(
+            PreRetryHookCallParams(_connector, CacheData(bytes(""), bytes("")))
         );
     }
 }
