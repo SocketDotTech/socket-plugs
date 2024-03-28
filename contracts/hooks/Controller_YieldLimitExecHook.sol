@@ -111,6 +111,8 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         _poolDstHook(params_.connector, increasedYield);
         totalUnderlyingAssets += increasedYield;
 
+        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
+
         if (params_.transferInfo.amount == 0)
             return (abi.encode(0, 0), transferInfo);
 
@@ -135,7 +137,6 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) public override notShutdown returns (CacheData memory cacheData) {
-        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
         return super.dstPostHookCall(params_);
     }
 
