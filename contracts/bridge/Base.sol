@@ -56,9 +56,15 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
         address hook_,
         bool approve_
     ) external virtual onlyOwner {
-        hook__ = IHook(hook_);
-        if (approve_)
+        // remove the approval from the old hook
+        if (ERC20(token).allowance(address(this), address(hook__)) > 0) {
+            SafeTransferLib.safeApprove(ERC20(token), address(hook__), 0);
+        }
+        if (approve_) {
             SafeTransferLib.safeApprove(ERC20(token), hook_, type(uint256).max);
+        }
+        hook__ = IHook(hook_);
+
         emit HookUpdated(hook_);
     }
 
@@ -94,6 +100,8 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
     {
         if (transferInfo_.receiver == address(0)) revert ZeroAddressReceiver();
         if (!validConnectors[connector_]) revert InvalidConnector();
+        if (token == ETH_ADDRESS && msg.value < transferInfo_.amount)
+            revert InsufficientMsgValue();
 
         if (address(hook__) != address(0)) {
             (transferInfo, postHookData) = hook__.srcPreHookCall(
@@ -133,7 +141,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
             );
         }
 
-        uint256 fees = address(token) == ETH_ADDRESS
+        uint256 fees = token == ETH_ADDRESS
             ? msg.value - transferInfo.amount
             : msg.value;
 

@@ -319,42 +319,26 @@ contract TestYieldBridge is SetupYieldBridge {
         _beforeDeposit(initialDepositAmount, _raju);
         _deposit(initialDepositAmount, _chainSlug, _raju, _raju);
 
-        uint256 depositAmount = 100;
-        _beforeDeposit(depositAmount, _raju);
-        uint256 rajuBalBefore = token__.balanceOf(_raju);
-        uint256 rajuBalBeforeYield = yieldToken__.balanceOf(_raju);
-        uint256 ramuBalBefore = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalBefore = vaultHook__.totalUnderlyingAssets();
+        uint256 withdrawAmount = 50;
+        _withdraw(withdrawAmount, _otherChainSlug, _raju, _raju, true);
 
         // add 10% yield
-        uint256 strategyYield = 10;
+        uint256 strategyYield = 100;
         _beforeDeposit(strategyYield, address(strategy__));
-        _deposit(depositAmount, _chainSlug, _raju, _ramu);
+        _deposit(0, _chainSlug, _raju, _raju);
 
-        uint256 rajuBalAfter = token__.balanceOf(_raju);
-        uint256 ramuBalAfter = yieldToken__.balanceOf(_ramu);
-        uint256 vaultBalAfter = vaultHook__.totalUnderlyingAssets();
-        uint256 tokenSupplyAfter = yieldToken__.totalSupply();
-        uint256 rajuBalAfterYield = yieldToken__.balanceOf(_raju);
+        uint256 ramuDepositAmount = 50;
+        _beforeDeposit(ramuDepositAmount, _ramu);
 
-        // assertEq(ramuBalAfter, ramuBalBefore + depositAmount, "Ramu bal sus");
-        // assertEq(
-        //     rajuBalAfterYield,
-        //     rajuBalBeforeYield + strategyYield,
-        //     "Raju yield bal sus"
-        // );
-        assertEq(rajuBalAfter, rajuBalBefore - depositAmount, "Raju bal sus");
+        uint256 ramuInitialBalance = token__.balanceOf(_ramu);
+        _deposit(ramuDepositAmount, _chainSlug, _ramu, _ramu);
 
-        assertEq(
-            vaultBalAfter,
-            vaultBalBefore + depositAmount + strategyYield,
-            "SuperTokenVault bal sus"
-        );
-        assertEq(
-            tokenSupplyAfter,
-            depositAmount * 2 + strategyYield,
-            "token supply sus"
-        );
+        withdrawAmount = yieldToken__.balanceOf(_ramu);
+        _withdraw(withdrawAmount, _otherChainSlug, _ramu, _ramu, true);
+
+        uint256 ramuFinalBalance = token__.balanceOf(_ramu);
+
+        assertEq(ramuInitialBalance, ramuFinalBalance);
     }
 
     // todo
