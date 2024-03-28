@@ -107,13 +107,13 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 increasedYield, bytes memory payload) = abi.decode(
+        (uint256 increasedUnderlying, bytes memory payload) = abi.decode(
             params_.transferInfo.data,
             (uint256, bytes)
         );
 
-        _poolDstHook(params_.connector, increasedYield);
-        totalUnderlyingAssets += increasedYield;
+        _poolDstHook(params_.connector, increasedUnderlying);
+        totalUnderlyingAssets += increasedUnderlying;
 
         if (params_.transferInfo.amount == 0)
             return (abi.encode(0, 0), transferInfo);
@@ -155,7 +155,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         (
             uint256 consumedUnderlying,
             uint256 pendingUnderlying,
-            uint256 depositAmount,
+            uint256 depositUnderlying,
             address receiver
         ) = abi.decode(
                 params_.postHookData,
@@ -170,7 +170,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         if (pendingUnderlying > 0) {
             // totalShares * consumedU / totalU
             uint256 consumedShares = (params_.transferInfo.amount *
-                pendingUnderlying) / depositAmount;
+                pendingUnderlying) / depositUnderlying;
 
             uint256 pendingShares = params_.transferInfo.amount -
                 consumedShares;
