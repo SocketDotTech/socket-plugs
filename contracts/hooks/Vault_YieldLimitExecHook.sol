@@ -130,7 +130,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
             if (pullFromStrategy) {
                 _withdrawFromStrategy(transferInfo.amount - totalIdle);
             } else {
-                (uint256 consumedAmount, uint256 pendingUnderlying) = abi
+                (uint256 consumedUnderlying, uint256 pendingUnderlying) = abi
                     .decode(postHookData, (uint256, uint256));
                 pendingUnderlying += transferInfo.amount - totalIdle;
                 postHookData = abi.encode(
@@ -146,7 +146,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
                 ];
 
                 receivingParams.lastUpdateLimit +=
-                    consumedAmount -
+                    consumedUnderlying -
                     transferInfo.amount;
             }
             totalIdle = 0;
