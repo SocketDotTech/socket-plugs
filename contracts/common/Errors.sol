@@ -21,3 +21,4 @@ error DebtRatioTooHigh();
 error NotEnoughAssets();
 error VaultShutdown();
 error InsufficientFunds();
+error InsufficientMsgValue();
