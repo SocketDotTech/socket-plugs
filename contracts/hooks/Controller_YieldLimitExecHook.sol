@@ -56,7 +56,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     )
         public
         override
-        isVaultOrController
+        notShutdown
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
         super.srcPreHookCall(params_);

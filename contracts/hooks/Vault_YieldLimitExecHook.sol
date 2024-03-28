@@ -164,7 +164,6 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         public
         override
         notShutdown
-        isVaultOrController
         returns (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
