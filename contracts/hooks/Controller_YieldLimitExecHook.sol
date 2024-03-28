@@ -24,7 +24,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
 
-    uint256 public constant MAX_BPS = 10_000;
+    uint256 private constant MAX_BPS = 10_000;
     IYieldToken public immutable yieldToken__;
 
     // total yield
