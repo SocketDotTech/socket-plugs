@@ -57,7 +57,6 @@ contract YieldToken is YieldTokenBase {
     }
 
     function _updateTotalUnderlyingAssets(uint256 amount_) internal {
-        lastSyncTimestamp = block.timestamp;
         totalUnderlyingAssets = amount_;
     }
 
