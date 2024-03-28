@@ -63,6 +63,7 @@ abstract contract TestBaseController is Test {
         hook__.grantRole(LIMIT_UPDATER_ROLE, _admin);
         hook__.updateLimitParams(u);
         skip(_bootstrapTime);
+        vm.stopPrank();
     }
 
     function _setupConnectors(address[] memory connectors_) internal {

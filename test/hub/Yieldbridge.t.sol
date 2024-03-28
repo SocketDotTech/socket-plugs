@@ -205,6 +205,7 @@ contract SetupYieldBridge is Test {
             bytes(""),
             bytes("")
         );
+        vm.stopPrank();
     }
 
     function _beforeWithdraw(
@@ -234,6 +235,7 @@ contract SetupYieldBridge is Test {
             bytes(""),
             abi.encode(pullFromStrategy_)
         );
+        vm.stopPrank();
     }
 
     function _updateSiblingYield(uint256 amount_) internal {
@@ -473,5 +475,6 @@ contract TestYieldBridge is SetupYieldBridge {
             bytes(""),
             bytes("")
         );
+        vm.stopPrank();
     }
 }

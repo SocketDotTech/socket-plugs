@@ -198,6 +198,7 @@ contract TestLimitExecutionHook is Test {
             )
         );
         assertEq(transferInfo.data, payload, "extra data incorrect");
+        vm.stopPrank();
     }
 
     function testFullConsumeDstPreHookCall() external {
@@ -227,6 +228,7 @@ contract TestLimitExecutionHook is Test {
             abi.encode(depositAmount, 0),
             "postHookData sus"
         );
+        vm.stopPrank();
     }
 
     function testEmptyPayloadDstPostCall() external {
@@ -426,6 +428,7 @@ contract TestLimitExecutionHook is Test {
                 transferInfo
             )
         );
+        vm.stopPrank();
     }
 
     function testFullConsumePreRetryHookCall() external {
@@ -457,6 +460,7 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(transferInfo.amount, pendingAmount, "pending amount sus");
+        vm.stopPrank();
     }
 
     function testPartConsumePreRetryHookCall() external {
@@ -488,6 +492,7 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(transferInfo.amount, _mintMaxLimit, "pending amount sus");
+        vm.stopPrank();
     }
 
     function testEmptyPayloadPostRetryHookCall() external {
@@ -694,5 +699,6 @@ contract TestLimitExecutionHook is Test {
                 )
             )
         );
+        vm.stopPrank();
     }
 }
