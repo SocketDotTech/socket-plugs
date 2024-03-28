@@ -31,7 +31,10 @@ contract YieldToken is YieldTokenBase {
         return
             supply == 0
                 ? underlyingAssets_
-                : underlyingAssets_.mulDivUp(supply, totalUnderlyingAssets);
+                : underlyingAssets_.mulDivDown(
+                    supply,
+                    totalUnderlyingAssets - underlyingAssets_
+                );
     }
 
     function burn(
@@ -57,19 +60,6 @@ contract YieldToken is YieldTokenBase {
     }
 
     function _updateTotalUnderlyingAssets(uint256 amount_) internal {
-        lastSyncTimestamp = block.timestamp;
         totalUnderlyingAssets = amount_;
-    }
-
-    /*//////////////////////////////////////////////////////////////
-                     DEPOSIT/WITHDRAWAL LIMIT LOGIC
-    //////////////////////////////////////////////////////////////*/
-
-    function maxWithdraw(address owner) public view virtual returns (uint256) {
-        return convertToAssets(convertToAssets(_balanceOf[owner]));
-    }
-
-    function maxRedeem(address owner) public view virtual returns (uint256) {
-        return convertToAssets(_balanceOf[owner]);
     }
 }
