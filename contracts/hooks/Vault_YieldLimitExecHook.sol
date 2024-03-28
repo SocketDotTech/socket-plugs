@@ -30,6 +30,8 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
     bool public emergencyShutdown; // if true, no funds can be invested in the strategy
 
+    uint256 public lastTotalUnderlyingAssetsSynced;
+
     event WithdrawFromStrategy(uint256 withdrawn);
     event Rebalanced(
         uint256 totalIdle,
@@ -92,14 +94,19 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         returns (TransferInfo memory transferInfo)
     {
         _checkDelayAndRebalance();
-        uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
+
+        uint256 totalUnderlyingAsset = strategy.estimatedTotalAssets() +
+            totalIdle;
+        uint256 totalYieldSync = totalUnderlyingAsset -
+            lastTotalUnderlyingAssetsSynced;
+        lastTotalUnderlyingAssetsSynced = totalUnderlyingAsset;
 
         transferInfo = srcPostHookCallParams_.transferInfo;
         if (srcPostHookCallParams_.transferInfo.amount == 0) {
-            transferInfo.data = abi.encode(expectedReturn, bytes(""));
+            transferInfo.data = abi.encode(totalYieldSync, bytes(""));
         } else {
             transferInfo.data = abi.encode(
-                expectedReturn,
+                totalYieldSync,
                 srcPostHookCallParams_.transferInfo.data
             );
         }
