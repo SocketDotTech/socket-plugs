@@ -353,7 +353,7 @@ contract TestLimitHook is Test {
 
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount),
+            abi.encode(_raju, pendingAmount, _connector1),
             "identifierCache sus"
         );
         assertEq(
@@ -410,7 +410,7 @@ contract TestLimitHook is Test {
                 PreRetryHookCallParams(
                     _connector1,
                     CacheData(
-                        abi.encode(_raju, pendingAmount),
+                        abi.encode(_raju, pendingAmount, _connector1),
                         abi.encode(pendingAmount)
                     )
                 )
@@ -432,7 +432,7 @@ contract TestLimitHook is Test {
                 _messageId,
                 postRetryHookData,
                 CacheData(
-                    abi.encode(_raju, pendingAmount),
+                    abi.encode(_raju, pendingAmount, _connector1),
                     abi.encode(pendingAmount)
                 )
             )
@@ -448,7 +448,7 @@ contract TestLimitHook is Test {
                 _messageId,
                 postRetryHookData,
                 CacheData(
-                    abi.encode(_raju, pendingAmount),
+                    abi.encode(_raju, pendingAmount, _connector1),
                     abi.encode(pendingAmount + 10 ether)
                 )
             )
@@ -474,7 +474,7 @@ contract TestLimitHook is Test {
                 PreRetryHookCallParams(
                     _connector1,
                     CacheData(
-                        abi.encode(_raju, pendingAmount),
+                        abi.encode(_raju, pendingAmount, _connector1),
                         abi.encode(
                             pendingAmount + connectorAlreadyPendingAmount
                         )
@@ -498,7 +498,7 @@ contract TestLimitHook is Test {
                 _messageId,
                 postRetryHookData,
                 CacheData(
-                    abi.encode(_raju, pendingAmount),
+                    abi.encode(_raju, pendingAmount, _connector1),
                     abi.encode(pendingAmount)
                 )
             )
@@ -506,7 +506,7 @@ contract TestLimitHook is Test {
 
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount - _mintMaxLimit),
+            abi.encode(_raju, pendingAmount - _mintMaxLimit, _connector1),
             "identifierCache sus"
         );
         assertEq(
@@ -530,7 +530,7 @@ contract TestLimitHook is Test {
 
         assertEq(
             cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount - _mintMaxLimit),
+            abi.encode(_raju, pendingAmount - _mintMaxLimit, _connector1),
             "identifierCache sus"
         );
         assertEq(

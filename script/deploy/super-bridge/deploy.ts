@@ -156,28 +156,28 @@ const deployConnectors = async (
       deployParams.currentChainSlug,
       getMode()
     ).Socket;
-    let hub: string;
+    let bridge: string;
     const addr: TokenAddresses = deployParams.addresses as TokenAddresses;
     if (addr.isAppChain) {
       const a = addr as AppChainAddresses;
       if (!a.Controller) throw new Error("Controller not found!");
-      hub = a.Controller;
+      bridge = a.Controller;
       integrationTypes = Object.keys(
         pc.nonAppChains[sibling]
       ) as IntegrationTypes[];
     } else {
       const a = addr as NonAppChainAddresses;
       if (!a.Vault) throw new Error("Vault not found!");
-      hub = a.Vault;
+      bridge = a.Vault;
       integrationTypes = Object.keys(
         pc.nonAppChains[deployParams.currentChainSlug]
       ) as IntegrationTypes[];
     }
 
     for (let intType of integrationTypes) {
-      console.log(hub, socket, sibling);
+      console.log(bridge, socket, sibling);
       const connector: Contract = await getOrDeployConnector(
-        [hub, socket, sibling],
+        [bridge, socket, sibling],
         deployParams,
         sibling,
         intType
