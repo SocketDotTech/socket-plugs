@@ -24,7 +24,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     using SafeTransferLib for IMintableERC20;
     using FixedPointMathLib for uint256;
 
-    uint256 public constant MAX_BPS = 10_000;
+    uint256 private constant MAX_BPS = 10_000;
     IYieldToken public immutable yieldToken__;
 
     // total yield
@@ -56,7 +56,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     )
         public
         override
-        isVaultOrController
+        notShutdown
         returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
     {
         super.srcPreHookCall(params_);
@@ -103,20 +103,13 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 newTotalUnderlyingAssets, bytes memory payload) = abi.decode(
+        (uint256 increasedYield, bytes memory payload) = abi.decode(
             params_.transferInfo.data,
             (uint256, bytes)
         );
 
-        uint256 oldTotalUnderlyingAssets = _poolDstHook(
-            params_.connector,
-            newTotalUnderlyingAssets,
-            false
-        );
-        totalUnderlyingAssets =
-            totalUnderlyingAssets +
-            newTotalUnderlyingAssets -
-            oldTotalUnderlyingAssets;
+        _poolDstHook(params_.connector, increasedYield);
+        totalUnderlyingAssets += increasedYield;
 
         yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 

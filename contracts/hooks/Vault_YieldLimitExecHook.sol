@@ -15,7 +15,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
 
-    uint256 public constant MAX_BPS = 10_000;
+    uint256 private constant MAX_BPS = 10_000;
 
     IStrategy public strategy; // address of the strategy contract
     ERC20 public immutable underlyingAsset__;
@@ -30,6 +30,8 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
     bool public emergencyShutdown; // if true, no funds can be invested in the strategy
 
+    uint256 public lastTotalUnderlyingAssetsSynced;
+
     event WithdrawFromStrategy(uint256 withdrawn);
     event Rebalanced(
         uint256 totalIdle,
@@ -38,6 +40,9 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         uint256 debtOutstanding
     );
     event ShutdownStateUpdated(bool shutdownState);
+    event DebtRatioUpdated(uint256 debtRatio);
+    event StrategyUpdated(address strategy);
+    event RebalanceDelayUpdated(uint128 rebalanceDelay);
 
     modifier notShutdown() {
         if (emergencyShutdown) revert VaultShutdown();
@@ -89,14 +94,19 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         returns (TransferInfo memory transferInfo)
     {
         _checkDelayAndRebalance();
-        uint256 expectedReturn = strategy.estimatedTotalAssets() + totalIdle;
+
+        uint256 totalUnderlyingAsset = strategy.estimatedTotalAssets() +
+            totalIdle;
+        uint256 totalYieldSync = totalUnderlyingAsset -
+            lastTotalUnderlyingAssetsSynced;
+        lastTotalUnderlyingAssetsSynced = totalUnderlyingAsset;
 
         transferInfo = srcPostHookCallParams_.transferInfo;
         if (srcPostHookCallParams_.transferInfo.amount == 0) {
-            transferInfo.data = abi.encode(expectedReturn, bytes(""));
+            transferInfo.data = abi.encode(totalYieldSync, bytes(""));
         } else {
             transferInfo.data = abi.encode(
-                expectedReturn,
+                totalYieldSync,
                 srcPostHookCallParams_.transferInfo.data
             );
         }
@@ -134,7 +144,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
                     postHookData,
                     (uint256, uint256)
                 );
-                pendingUnderlying += totalIdle - transferInfo.amount;
+                pendingUnderlying += transferInfo.amount - totalIdle;
                 postHookData = abi.encode(
                     transferInfo.amount,
                     pendingUnderlying
@@ -164,7 +174,6 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         public
         override
         notShutdown
-        isVaultOrController
         returns (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
@@ -326,17 +335,20 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     ////////////////////// SETTERS //////////////////////////
     ////////////////////////////////////////////////////////
 
-    // todo: add events
     function setDebtRatio(uint256 debtRatio_) external onlyOwner {
         if (debtRatio_ > MAX_BPS) revert DebtRatioTooHigh();
         debtRatio = debtRatio_;
+
+        emit DebtRatioUpdated(debtRatio_);
     }
 
     function setStrategy(address strategy_) external onlyOwner {
         strategy = IStrategy(strategy_);
+        emit StrategyUpdated(strategy_);
     }
 
     function setRebalanceDelay(uint128 rebalanceDelay_) external onlyOwner {
         rebalanceDelay = rebalanceDelay_;
+        emit RebalanceDelayUpdated(rebalanceDelay_);
     }
 }

@@ -31,7 +31,7 @@ contract YieldToken is YieldTokenBase {
         return
             supply == 0
                 ? underlyingAssets_
-                : underlyingAssets_.mulDivUp(
+                : underlyingAssets_.mulDivDown(
                     supply,
                     totalUnderlyingAssets - underlyingAssets_
                 );
@@ -60,7 +60,6 @@ contract YieldToken is YieldTokenBase {
     }
 
     function _updateTotalUnderlyingAssets(uint256 amount_) internal {
-        lastSyncTimestamp = block.timestamp;
         totalUnderlyingAssets = amount_;
     }
 
