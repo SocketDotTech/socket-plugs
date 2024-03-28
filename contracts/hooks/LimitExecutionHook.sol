@@ -127,12 +127,8 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             TransferInfo memory transferInfo
         )
     {
-        (
-            address receiver,
-            uint256 pendingMint,
-            address connector,
-            bytes memory execPayload
-        ) = abi.decode(
+        (address receiver, uint256 pendingMint, address connector, ) = abi
+            .decode(
                 params_.cacheData.identifierCache,
                 (address, uint256, address, bytes)
             );
