@@ -134,7 +134,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
                     postHookData,
                     (uint256, uint256)
                 );
-                pendingUnderlying += totalIdle - transferInfo.amount;
+                pendingUnderlying += transferInfo.amount - totalIdle;
                 postHookData = abi.encode(
                     transferInfo.amount,
                     pendingUnderlying

@@ -23,3 +23,4 @@ error VaultShutdown();
 error InsufficientFunds();
 error PermitDeadlineExpired();
 error InvalidSigner();
+error InsufficientMsgValue();
