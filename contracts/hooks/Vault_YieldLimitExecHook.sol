@@ -38,6 +38,9 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         uint256 debtOutstanding
     );
     event ShutdownStateUpdated(bool shutdownState);
+    event DebtRatioUpdated(uint256 debtRatio);
+    event StrategyUpdated(address strategy);
+    event RebalanceDelayUpdated(uint128 rebalanceDelay);
 
     modifier notShutdown() {
         if (emergencyShutdown) revert VaultShutdown();
@@ -326,17 +329,20 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     ////////////////////// SETTERS //////////////////////////
     ////////////////////////////////////////////////////////
 
-    // todo: add events
     function setDebtRatio(uint256 debtRatio_) external onlyOwner {
         if (debtRatio_ > MAX_BPS) revert DebtRatioTooHigh();
         debtRatio = debtRatio_;
+
+        emit DebtRatioUpdated(debtRatio_);
     }
 
     function setStrategy(address strategy_) external onlyOwner {
         strategy = IStrategy(strategy_);
+        emit StrategyUpdated(strategy_);
     }
 
     function setRebalanceDelay(uint128 rebalanceDelay_) external onlyOwner {
         rebalanceDelay = rebalanceDelay_;
+        emit RebalanceDelayUpdated(rebalanceDelay_);
     }
 }
