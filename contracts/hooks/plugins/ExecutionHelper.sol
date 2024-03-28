@@ -49,7 +49,7 @@ contract ExecutionHelper is RescueBase {
             MAX_COPY_BYTES,
             payload_
         );
-        
+
         messageId = bytes32(0);
         bridgeAmount = 0;
     }
