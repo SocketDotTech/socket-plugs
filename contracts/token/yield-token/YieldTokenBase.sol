@@ -5,6 +5,7 @@ import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import "../../utils/RescueBase.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {PermitDeadlineExpired, InvalidSigner} from "../../common/Errors.sol";
 
 abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     using FixedPointMathLib for uint256;
@@ -42,9 +43,6 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
     /*//////////////////////////////////////////////////////////////
                             YIELD STORAGE
     //////////////////////////////////////////////////////////////*/
-
-    // Timestamp of last rebalance
-    uint256 public lastSyncTimestamp;
 
     // total yield from all siblings
     uint256 public totalUnderlyingAssets;
@@ -167,7 +165,7 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        require(deadline >= block.timestamp, "PERMIT_DEADLINE_EXPIRED");
+        if (deadline < block.timestamp) revert PermitDeadlineExpired();
         // Unchecked because the only math done is incrementing
         // the owner's nonce which cannot realistically overflow.
         unchecked {
@@ -195,15 +193,13 @@ abstract contract YieldTokenBase is RescueBase, ReentrancyGuard, IERC20 {
                 s
             );
 
-            require(
-                recoveredAddress != address(0) && recoveredAddress == owner,
-                "INVALID_SIGNER"
-            );
+            if (recoveredAddress == address(0) || recoveredAddress != owner)
+                revert InvalidSigner();
 
-            allowance[recoveredAddress][spender] = value;
+            allowance[recoveredAddress][spender] = convertToShares(value);
         }
 
-        emit Approval(owner, spender, value);
+        emit Approval(owner, spender, convertToShares(value));
     }
 
     function DOMAIN_SEPARATOR() public view virtual returns (bytes32) {
