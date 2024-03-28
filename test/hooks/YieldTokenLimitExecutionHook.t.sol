@@ -434,7 +434,11 @@ contract TestController_YieldLimitExecHook is Setup {
 
         assertEq(transferInfo.amount, 0, "depositAmount sus");
         assertEq(transferInfo.receiver, address(0), "receiver sus");
-        assertEq(postHookData, abi.encode(0, 0, transferInfo.amount), "post hook data sus");
+        assertEq(
+            postHookData,
+            abi.encode(0, 0, transferInfo.amount),
+            "post hook data sus"
+        );
         assertEq(transferInfo.data, bytes(""), "data sus");
     }
 
