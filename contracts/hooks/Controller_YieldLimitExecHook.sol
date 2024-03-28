@@ -73,7 +73,6 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     )
         public
         override
-        notShutdown
         isVaultOrController
         returns (TransferInfo memory transferInfo)
     {
@@ -136,7 +135,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
      */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
-    ) public override notShutdown returns (CacheData memory cacheData) {
+    ) public override returns (CacheData memory cacheData) {
         return super.dstPostHookCall(params_);
     }
 
@@ -184,7 +183,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     //  */
     function postRetryHook(
         PostRetryHookCallParams calldata params_
-    ) public override notShutdown returns (CacheData memory cacheData) {
+    ) public override returns (CacheData memory cacheData) {
         return super.postRetryHook(params_);
     }
 
