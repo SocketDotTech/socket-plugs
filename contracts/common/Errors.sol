@@ -21,4 +21,6 @@ error DebtRatioTooHigh();
 error NotEnoughAssets();
 error VaultShutdown();
 error InsufficientFunds();
+error PermitDeadlineExpired();
+error InvalidSigner();
 error InsufficientMsgValue();
