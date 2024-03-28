@@ -13,6 +13,8 @@ contract ExecutionHelper is RescueBase {
     using ExcessivelySafeCall for address;
     uint16 private constant MAX_COPY_BYTES = 0;
     address public hook;
+    bytes32 public messageId;
+    uint256 public bridgeAmount;
 
     constructor(address owner_) AccessControl(owner_) {}
 
@@ -33,13 +35,22 @@ contract ExecutionHelper is RescueBase {
      */
     function execute(
         address target_,
-        bytes memory payload_
+        bytes memory payload_,
+        bytes32 messageId_,
+        uint256 bridgeAmount_
     ) external onlyHook returns (bool success) {
         if (target_ == address(this)) return false;
+
+        messageId = messageId_;
+        bridgeAmount = bridgeAmount_;
+
         (success, ) = target_.excessivelySafeCall(
             gasleft(),
             MAX_COPY_BYTES,
             payload_
         );
+        
+        messageId = bytes32(0);
+        bridgeAmount = 0;
     }
 }

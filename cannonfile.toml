@@ -1,46 +1,46 @@
-name = "socket-plugs"
-version = "0.1"
-description = "Socket Plugs"
+# name = "socket-plugs"
+# version = "0.1"
+# description = "Socket Plugs"
 
-[setting.owner]
-defaultValue = "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
-description="owner"
+# [setting.owner]
+# defaultValue = "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+# description="owner"
 
-# [contract.token]
-# artifact = "ERC20"
-# args = ["usdc", "USDC"]
-
-
-[contract.supertoken]
-artifact = "SuperToken"
-args = ["usdc", "USDC", "6",  "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", "1000000000000000000000000000"]
-from = "<%= settings.owner %>"
-
-[contract.vault]
-artifact = "Vault"
-args = ["<%= contracts.supertoken.address %>"]
-from = "<%= settings.owner %>"
+# # [contract.token]
+# # artifact = "ERC20"
+# # args = ["usdc", "USDC"]
 
 
-[invoke.grant_controller_role]
-target = ["supertoken"]
-func = "grantRole"
-args = ["0x7b765e0e932d348852a6f810bfa1ab891e259123f02db8cdcde614c570223357", "<%= contracts.vault.address %>"] ## keccak256("CONTROLLER_ROLE")
-from = "<%= settings.owner %>"
+# [contract.supertoken]
+# artifact = "SuperToken"
+# args = ["usdc", "USDC", "6",  "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", "1000000000000000000000000000"]
+# from = "<%= settings.owner %>"
 
-[contract.execution_helper]
-artifact = "ExecutionHelper"
-from = "<%= settings.owner %>"
-
-
-[contract.hook]
-artifact = "LimitExecutionHook"
-args = ["<%= contracts.supertoken.address %>"]
-from = "<%= settings.owner %>"
+# [contract.vault]
+# artifact = "Vault"
+# args = ["<%= contracts.supertoken.address %>"]
+# from = "<%= settings.owner %>"
 
 
+# [invoke.grant_controller_role]
+# target = ["supertoken"]
+# func = "grantRole"
+# args = ["0x7b765e0e932d348852a6f810bfa1ab891e259123f02db8cdcde614c570223357", "<%= contracts.vault.address %>"] ## keccak256("CONTROLLER_ROLE")
+# from = "<%= settings.owner %>"
 
-# [invoke.updateHook]
-# target = ["vault"]
-# func = "updateHook"
-# args = ["<%= settings.number %>"]
+# [contract.execution_helper]
+# artifact = "ExecutionHelper"
+# from = "<%= settings.owner %>"
+
+
+# [contract.hook]
+# artifact = "LimitExecutionHook"
+# args = ["<%= contracts.supertoken.address %>"]
+# from = "<%= settings.owner %>"
+
+
+
+# # [invoke.updateHook]
+# # target = ["vault"]
+# # func = "updateHook"
+# # args = ["<%= settings.number %>"]
