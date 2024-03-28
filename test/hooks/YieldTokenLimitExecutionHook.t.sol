@@ -588,13 +588,8 @@ contract TestController_YieldLimitExecHook is Setup {
         // should not allow hook calls
         hoax(_controller);
         vm.expectRevert(VaultShutdown.selector);
-        hook__.postRetryHook(
-            PostRetryHookCallParams(
-                _connector,
-                messageId,
-                bytes(""),
-                CacheData(bytes(""), bytes(""))
-            )
+        hook__.preRetryHook(
+            PreRetryHookCallParams(_connector, CacheData(bytes(""), bytes("")))
         );
     }
 }

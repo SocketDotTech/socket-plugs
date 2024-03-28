@@ -1,24 +1,12 @@
 pragma solidity 0.8.13;
 
 import "./Base.sol";
-import "../interfaces/IConnector.sol";
-import "solmate/tokens/ERC20.sol";
 
-/**
- * @title SuperToken
- * @notice A contract which enables bridging a token to its sibling chains.
- * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
- */
-contract Vault is Base {
-    using SafeTransferLib for ERC20;
-
-    // /**
-    //  * @notice constructor for creating a new SuperTokenVault.
-    //  * @param token_ token contract address which is to be bridged.
-    //  */
+contract Controller is Base {
+    uint256 public totalMinted;
 
     constructor(address token_) Base(token_) {
-        hubType = token_ == ETH_ADDRESS ? NATIVE_VAULT : ERC20_VAULT;
+        bridgeType = NORMAL_CONTROLLER;
     }
 
     /**
@@ -47,8 +35,10 @@ contract Vault is Base {
                 TransferInfo(receiver_, amount_, execPayload_)
             );
 
-        _receiveTokens(transferInfo.amount);
-
+        // to maintain socket dl specific accounting for super token
+        // re check this logic for mint and mint use cases and if other minter involved
+        totalMinted -= transferInfo.amount;
+        _burn(msg.sender, transferInfo.amount);
         _afterBridge(
             msgGasLimit_,
             connector_,
@@ -70,26 +60,27 @@ contract Vault is Base {
     ) external payable override nonReentrant {
         (
             address receiver,
-            uint256 unlockAmount,
+            uint256 lockAmount,
             bytes32 messageId,
             bytes memory extraData
         ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
 
+        // convert to shares
         TransferInfo memory transferInfo = TransferInfo(
             receiver,
-            unlockAmount,
+            lockAmount,
             extraData
         );
-
         bytes memory postHookData;
         (postHookData, transferInfo) = _beforeMint(
             siblingChainSlug_,
             transferInfo
         );
 
-        _transferTokens(transferInfo.receiver, transferInfo.amount);
+        _mint(transferInfo.receiver, transferInfo.amount);
+        totalMinted += transferInfo.amount;
 
-        _afterMint(unlockAmount, messageId, postHookData, transferInfo);
+        _afterMint(lockAmount, messageId, postHookData, transferInfo);
     }
 
     /**
@@ -106,22 +97,18 @@ contract Vault is Base {
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        _transferTokens(transferInfo.receiver, transferInfo.amount);
+        _mint(transferInfo.receiver, transferInfo.amount);
+        totalMinted += transferInfo.amount;
 
         _afterRetry(connector_, messageId_, postRetryHookData);
     }
 
-    function _transferTokens(address receiver_, uint256 amount_) internal {
-        if (amount_ == 0) return;
-        if (address(token) == ETH_ADDRESS) {
-            SafeTransferLib.safeTransferETH(receiver_, amount_);
-        } else {
-            ERC20(token).safeTransfer(receiver_, amount_);
-        }
+    function _burn(address user_, uint256 burnAmount_) internal virtual {
+        IMintableERC20(token).burn(user_, burnAmount_);
     }
 
-    function _receiveTokens(uint256 amount_) internal {
-        if (amount_ == 0 || address(token) == ETH_ADDRESS) return;
-        ERC20(token).safeTransferFrom(msg.sender, address(this), amount_);
+    function _mint(address user_, uint256 mintAmount_) internal virtual {
+        if (mintAmount_ == 0) return;
+        IMintableERC20(token).mint(user_, mintAmount_);
     }
 }
