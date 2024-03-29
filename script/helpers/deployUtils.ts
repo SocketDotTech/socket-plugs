@@ -269,14 +269,23 @@ export const storeAllAddresses = async (addresses: ProjectAddresses) => {
 let addresses: ProjectAddresses;
 let superTokenAddresses: SuperTokenProjectAddresses;
 export const getSuperBridgeAddresses = async (): Promise<ProjectAddresses> => {
-  if (!addresses)
-    try {
-      addresses =
-        await require(`../../deployments/superbridge/${getMode()}_${getProjectName()}_addresses.json`);
-    } catch (e) {
-      console.log("addresses not found", e);
-      throw new Error("addresses not found");
-    }
+  let path =
+    deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
+  console.log({ path });
+  let data;
+  try {
+    data = fs.readFileSync(path, "utf8");
+  } catch (error) {
+    console.log(error);
+  }
+  console.log({ data });
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    console.log(error);
+  }
+
+  console.log({ addresses });
   return addresses;
 };
 

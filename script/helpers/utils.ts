@@ -11,6 +11,8 @@ import { getIntegrationTypeConsts } from "./projectConstants";
 import { getInstance } from "./deployUtils";
 import {
   CommonContracts,
+  ConnectorAddresses,
+  Connectors,
   SuperBridgeContracts,
   SuperTokenChainAddresses,
   TokenAddresses,
@@ -130,3 +132,47 @@ export function readJSONFile(filePath: string): Promise<any> {
     return null;
   }
 }
+
+export const updateConnectorStatus = async (
+  chain: ChainSlug,
+  siblingSlugs: ChainSlug[],
+  connectors: Connectors,
+  bridgeContract: Contract,
+  newConnectorStatus: boolean
+) => {
+  const connectorAddresses: string[] = [];
+
+  for (let sibling of siblingSlugs) {
+    const siblingConnectorAddresses: ConnectorAddresses | undefined =
+      connectors[sibling];
+    if (!siblingConnectorAddresses) continue;
+
+    const integrationTypes: IntegrationTypes[] = Object.keys(
+      siblingConnectorAddresses
+    ) as unknown as IntegrationTypes[];
+    for (let it of integrationTypes) {
+      const itConnectorAddress: string | undefined =
+        siblingConnectorAddresses[it];
+      if (!itConnectorAddress) continue;
+
+      let currentConnectorStatus =
+        await bridgeContract.callStatic.validConnectors(itConnectorAddress);
+      if (currentConnectorStatus !== newConnectorStatus) {
+        connectorAddresses.push(itConnectorAddress);
+      }
+    }
+  }
+  if (connectorAddresses.length) {
+    await execute(
+      bridgeContract,
+      "updateConnectorStatus",
+      [
+        connectorAddresses,
+        new Array(connectorAddresses.length).fill(newConnectorStatus),
+      ],
+      chain
+    );
+  } else {
+    console.log(`✔   Connector status already set for chain ${chain}`);
+  }
+};

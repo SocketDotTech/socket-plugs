@@ -5,7 +5,7 @@ import {
   getSuperBridgeAddresses,
   getInstance,
   getSuperTokenAddresses,
-} from "../helpers/utils";
+} from "../helpers";
 import { ChainSlug } from "@socket.tech/dl-core";
 import {
   SuperBridgeContracts,

@@ -1,6 +1,6 @@
 import { BigNumber, Contract, Wallet, utils } from "ethers";
 
-import { getInstance } from "../helpers/utils";
+import { getInstance } from "../helpers";
 import {
   TokenAddresses,
   HookContracts,

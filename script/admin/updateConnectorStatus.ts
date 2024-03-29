@@ -1,12 +1,13 @@
 import { Contract } from "ethers";
 
-import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
+import { ChainSlug } from "@socket.tech/dl-core";
 
 import {
   getSuperBridgeAddresses,
   getSuperTokenAddresses,
   execute,
   getBridgeContract,
+  updateConnectorStatus,
   printExecSummary,
 } from "../helpers";
 import {
@@ -14,7 +15,6 @@ import {
   getSuperTokenConstants,
 } from "../helpers/projectConstants";
 import {
-  ConnectorAddresses,
   Connectors,
   ProjectAddresses,
   TokenAddresses,
@@ -24,7 +24,6 @@ import {
 import { getToken, isSuperBridge, isSuperToken } from "../constants/config";
 import { ProjectTokenConstants } from "../constants/types";
 import { connectorStatus, filterChains, siblingFilterChains } from "./utils";
-import { updateConnectorStatus } from "../deploy/configure";
 
 export enum ConnectorStatus {
   ACTIVE = "active",
@@ -34,18 +33,22 @@ export enum ConnectorStatus {
 let pc: ProjectTokenConstants;
 
 export const main = async () => {
-  console.log("ehre");
+  console.log("starting here");
   try {
     let addresses: ProjectAddresses | SuperTokenProjectAddresses;
     if (isSuperBridge()) {
       console.log("reached here");
-      addresses = (await getSuperBridgeAddresses()) as ProjectAddresses;
       pc = getBridgeProjectTokenConstants();
+
+      console.log(pc);
+      addresses = await getSuperBridgeAddresses();
+      console.log("reached here", pc);
+      console.log("reached here", addresses);
     } else if (isSuperToken()) {
       console.log("reached here token");
       pc = getSuperTokenConstants();
       console.log("reached here", pc);
-      addresses =
+      let newaddresses =
         (await getSuperTokenAddresses()) as SuperTokenProjectAddresses;
       console.log("reached here", addresses);
 
