@@ -17,6 +17,10 @@ interface IYieldToken {
     function convertToShares(
         uint256 underlyingAssets
     ) external view returns (uint256);
+
+    function transfer(address to_, uint256 amount_) external returns (bool);
+
+    function convertToAssets(uint256 shares) external view returns (uint256);
 }
 
 // limits on underlying or visible tokens
@@ -102,33 +106,37 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 increasedYield, bytes memory payload) = abi.decode(
+        (uint256 increasedUnderlying, bytes memory payload) = abi.decode(
             params_.transferInfo.data,
             (uint256, bytes)
         );
 
-        _poolDstHook(params_.connector, increasedYield);
-        totalUnderlyingAssets += increasedYield;
+        _poolDstHook(params_.connector, increasedUnderlying);
+        totalUnderlyingAssets += increasedUnderlying;
+        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 
         yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 
         if (params_.transferInfo.amount == 0)
-            return (abi.encode(0, 0, 0), transferInfo);
+            return (abi.encode(0, 0, 0, address(0)), transferInfo);
 
         (uint256 consumedUnderlying, uint256 pendingUnderlying) = _limitDstHook(
             params_.connector,
             params_.transferInfo.amount
         );
         uint256 sharesToMint = yieldToken__.calculateMintAmount(
-            consumedUnderlying
+            params_.transferInfo.amount
         );
 
         postHookData = abi.encode(
             consumedUnderlying,
             pendingUnderlying,
-            params_.transferInfo.amount
+            params_.transferInfo.amount,
+            params_.transferInfo.receiver
         );
+
         transferInfo = params_.transferInfo;
+        if (pendingUnderlying != 0) transferInfo.receiver = address(this);
         transferInfo.amount = sharesToMint;
         transferInfo.data = payload;
     }
@@ -139,8 +147,78 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
      */
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
-    ) public override returns (CacheData memory cacheData) {
-        return super.dstPostHookCall(params_);
+    )
+        public
+        override
+        isVaultOrController
+        notShutdown
+        returns (CacheData memory cacheData)
+    {
+        (
+            uint256 consumedUnderlying,
+            uint256 pendingUnderlying,
+            uint256 depositUnderlying,
+            address receiver
+        ) = abi.decode(
+                params_.postHookData,
+                (uint256, uint256, uint256, address)
+            );
+        bytes memory execPayload = params_.transferInfo.data;
+
+        uint256 connectorPendingShares = _getConnectorPendingAmount(
+            params_.connectorCache
+        );
+
+        uint256 pendingShares;
+        if (pendingUnderlying > 0) {
+            // totalShares * consumedU / totalU
+            uint256 consumedShares = (params_.transferInfo.amount *
+                pendingUnderlying) / depositUnderlying;
+
+            pendingShares = params_.transferInfo.amount - consumedShares;
+
+            cacheData.identifierCache = abi.encode(
+                params_.transferInfo.receiver,
+                pendingShares,
+                params_.connector,
+                execPayload
+            );
+            yieldToken__.transfer(receiver, consumedUnderlying);
+
+            emit TokensPending(
+                params_.connector,
+                params_.transferInfo.receiver,
+                consumedShares,
+                pendingShares,
+                params_.messageId
+            );
+        } else {
+            if (execPayload.length > 0) {
+                // execute
+                bool success = executionHelper__.execute(
+                    params_.transferInfo.receiver,
+                    execPayload
+                );
+
+                if (success) {
+                    emit MessageExecuted(
+                        params_.messageId,
+                        params_.transferInfo.receiver
+                    );
+                    cacheData.identifierCache = new bytes(0);
+                } else
+                    cacheData.identifierCache = abi.encode(
+                        params_.transferInfo.receiver,
+                        0,
+                        params_.connector,
+                        execPayload
+                    );
+            } else cacheData.identifierCache = new bytes(0);
+        }
+
+        cacheData.connectorCache = abi.encode(
+            connectorPendingShares + pendingShares
+        );
     }
 
     // /**
@@ -158,21 +236,37 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     )
         public
         override
+        isVaultOrController
         notShutdown
         returns (
             bytes memory postRetryHookData,
             TransferInfo memory transferInfo
         )
     {
-        (postRetryHookData, transferInfo) = super.preRetryHook(params_);
-        uint256 sharesToMint = yieldToken__.calculateMintAmount(
-            transferInfo.amount
+        (
+            address receiver,
+            uint256 totalPendingShares,
+            address connector,
+
+        ) = abi.decode(
+                params_.cacheData.identifierCache,
+                (address, uint256, address, bytes)
+            );
+
+        if (connector != params_.connector) revert InvalidConnector();
+
+        (uint256 consumedShares, uint256 pendingShares) = _limitDstHook(
+            params_.connector,
+            totalPendingShares
         );
-        transferInfo = TransferInfo(
-            transferInfo.receiver,
-            sharesToMint,
-            bytes("")
+
+        postRetryHookData = abi.encode(receiver, consumedShares, pendingShares);
+        uint256 consumedUnderlying = yieldToken__.convertToAssets(
+            consumedShares
         );
+        yieldToken__.transfer(receiver, consumedUnderlying);
+
+        transferInfo = TransferInfo(transferInfo.receiver, 0, bytes(""));
     }
 
     // /**
