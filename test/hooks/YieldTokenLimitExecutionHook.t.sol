@@ -434,13 +434,17 @@ contract TestController_YieldLimitExecHook is Setup {
 
         assertEq(transferInfo.amount, 0, "depositAmount sus");
         assertEq(transferInfo.receiver, address(0), "receiver sus");
-        assertEq(postHookData, abi.encode(0, 0), "post hook data sus");
+        assertEq(
+            postHookData,
+            abi.encode(0, 0, 0, address(0)),
+            "post hook data sus"
+        );
         assertEq(transferInfo.data, bytes(""), "data sus");
     }
 
     function testDstPostHookForSync() external {
-        uint256 amount = 100;
-        bytes memory data = abi.encode((amount), bytes(""));
+        uint256 increasedUnderlying = 100;
+        bytes memory data = abi.encode((increasedUnderlying), bytes(""));
 
         vm.startPrank(_controller);
         (bytes memory postHookData, TransferInfo memory transferInfo) = hook__
@@ -464,7 +468,11 @@ contract TestController_YieldLimitExecHook is Setup {
         vm.stopPrank();
 
         uint256 newTotalYield = yieldToken__.totalUnderlyingAssets();
-        assertEq(amount + _initialSupply, newTotalYield, "newTotalYield sus");
+        assertEq(
+            increasedUnderlying + _initialSupply,
+            newTotalYield,
+            "newTotalYield sus"
+        );
         assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
         assertEq(cacheData.connectorCache, abi.encode(0), "connectorCache sus");
     }
@@ -505,7 +513,7 @@ contract TestController_YieldLimitExecHook is Setup {
         assertEq(transferInfo.receiver, receiver, "receiver sus");
         assertEq(
             postHookData,
-            abi.encode(consumed, amount - consumed),
+            abi.encode(consumed, amount - consumed, amount, receiver),
             "post hook data sus"
         );
         assertEq(transferInfo.data, bytes(""), "data sus");
@@ -538,7 +546,10 @@ contract TestController_YieldLimitExecHook is Setup {
         );
         vm.stopPrank();
 
-        (, uint256 pending) = abi.decode(postHookData, (uint256, uint256));
+        (, uint256 pending, , ) = abi.decode(
+            postHookData,
+            (uint256, uint256, uint256, address)
+        );
         uint256 newTotalYield = yieldToken__.totalUnderlyingAssets();
 
         assertEq(pending, 0, "pending sus");
