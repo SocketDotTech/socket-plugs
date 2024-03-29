@@ -5,7 +5,7 @@ import { ContractFactory, Contract } from "ethers";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { getSignerFromChainSlug, overrides } from "./networks";
 import { getDryRun } from "../constants/config";
-import * as fs from 'fs';
+import * as fs from "fs";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
 import { getInstance } from "./deployUtils";
@@ -116,18 +116,17 @@ export const getBridgeContract = async (
   return bridgeContract;
 };
 
-
 // Function to read JSON file
 export function readJSONFile(filePath: string): Promise<any> {
-    try {
-        // Read file synchronously
-        console.log("readiang file")
-        const data = fs.readFileSync(filePath, 'utf8');
-        console.log("file ", data, )
-        console.log(JSON.parse(data))
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading JSON file:', error);
-        return null;
-    }
+  try {
+    // Read file synchronously
+    console.log("readiang file");
+    const data = fs.readFileSync(filePath, "utf8");
+    console.log("file ", data);
+    console.log(JSON.parse(data));
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error reading JSON file:", error);
+    return null;
+  }
 }

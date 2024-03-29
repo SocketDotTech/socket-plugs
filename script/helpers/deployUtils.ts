@@ -282,22 +282,22 @@ export const getSuperBridgeAddresses = async (): Promise<ProjectAddresses> => {
 
 export const getSuperTokenAddresses =
   async (): Promise<SuperTokenProjectAddresses> => {
-    console.log("here get supertoken ", {superTokenAddresses})
+    console.log("here get supertoken ", { superTokenAddresses });
     if (!superTokenAddresses) {
       try {
-        let path = deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
+        let path =
+          deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
         console.log(path);
-          let data; 
-          try {
-           data =   fs.readFileSync(path, 'utf8');
-            
-          } catch (error) {
-            console.log(error)
-          }
-          console.log("data", data)
-          superTokenAddresses = JSON.parse(data);
-        console.log("got data")
-        console.log({superTokenAddresses})
+        let data;
+        try {
+          data = fs.readFileSync(path, "utf8");
+        } catch (error) {
+          console.log(error);
+        }
+        console.log("data", data);
+        superTokenAddresses = JSON.parse(data);
+        console.log("got data");
+        console.log({ superTokenAddresses });
         console.log("superTokenAddresses", superTokenAddresses);
       } catch (e) {
         console.log("addresses not found", e);

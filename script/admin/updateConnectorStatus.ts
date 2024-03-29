@@ -44,15 +44,12 @@ export const main = async () => {
     } else if (isSuperToken()) {
       console.log("reached here token");
       pc = getSuperTokenConstants();
-    console.log("reached here", pc);
+      console.log("reached here", pc);
       addresses =
         (await getSuperTokenAddresses()) as SuperTokenProjectAddresses;
-    console.log("reached here", addresses);
+      console.log("reached here", addresses);
 
-      
-
-    console.log("reached here");
-
+      console.log("reached here");
     }
     console.log("reached here");
     if (!connectorStatus || !["active", "inactive"].includes(connectorStatus)) {
