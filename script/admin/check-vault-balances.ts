@@ -1,7 +1,7 @@
-import { getSuperBridgeAddresses } from "./utils";
+import { getSuperBridgeAddresses } from "../helpers";
 import { ethers } from "ethers";
-import { getProviderFromChainSlug } from "./networks";
-import { isAppChain } from "./projectConstants";
+import { getProviderFromChainSlug } from "../helpers/networks";
+import { isAppChain } from "../helpers/projectConstants";
 import { ERC20__factory } from "../../typechain-types";
 import { tokenDecimals } from "../../src";
 

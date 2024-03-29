@@ -13,7 +13,11 @@ import {
   getPoolIdHex,
   getSuperTokenAddresses,
   getSocket,
-} from "../helpers/utils";
+  execSummary,
+  execute,
+  printExecSummary,
+  getBridgeContract,
+} from "../helpers";
 import {
   getBridgeProjectTokenConstants,
   getLimitBN,
@@ -60,35 +64,6 @@ type UpdateLimitParams = [
 
 let pc: ProjectTokenConstants;
 
-const execSummary = [];
-
-async function execute(
-  contract: Contract,
-  method: string,
-  args: any[],
-  chain: number
-) {
-  if (getDryRun()) {
-    execSummary.push("");
-    execSummary.push(
-      `DRY RUN - Call '${method}' on ${contract.address} on chain ${chain} with args:`
-    );
-    args.forEach((a) => execSummary.push(a));
-    execSummary.push(
-      "RAW CALLDATA - " +
-        (await contract.populateTransaction[method](...args)).data
-    );
-    execSummary.push("");
-  } else {
-    let tx = await contract.functions[method](...args, {
-      ...overrides[chain],
-    });
-    console.log(
-      `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.hash}`
-    );
-    await tx.wait();
-  }
-}
 let socketSignerAddress: string;
 
 export const main = async () => {
@@ -96,10 +71,11 @@ export const main = async () => {
     let projectType = getProjectType();
     let addresses: ProjectAddresses | SuperTokenProjectAddresses;
     if (isSuperBridge()) {
-      addresses = await getSuperBridgeAddresses();
+      addresses = (await getSuperBridgeAddresses()) as ProjectAddresses;
       pc = getBridgeProjectTokenConstants();
     } else if (isSuperToken()) {
-      addresses = await getSuperTokenAddresses();
+      addresses =
+        (await getSuperTokenAddresses()) as SuperTokenProjectAddresses;
       pc = getSuperTokenConstants();
     }
 
@@ -124,28 +100,15 @@ export const main = async () => {
           parseInt(k)
         ) as ChainSlug[];
 
-        let hubContract: Contract;
-        if (addr["Controller"]) {
-          hubContract = await getInstance(
-            SuperBridgeContracts.Controller,
-            addr[SuperBridgeContracts.Controller]
-          );
-        } else {
-          hubContract = await getInstance(
-            SuperBridgeContracts.Vault,
-            addr[SuperBridgeContracts.Vault]
-          );
-        }
-
-        hubContract = hubContract.connect(socketSigner);
+        let bridgeContract: Contract = await getBridgeContract(chain, addr);
 
         await connect(addr, addresses, chain, siblingSlugs, socketSigner);
         await updateConnectorStatus(
           chain,
           siblingSlugs,
-          addr,
           connectors,
-          hubContract
+          bridgeContract,
+          true
         );
         await setRescueRoleForAllContracts(chain, socketSigner, addr);
         console.log(
@@ -162,7 +125,7 @@ export const main = async () => {
           await setControllerRole(
             chain,
             superTokenContract,
-            hubContract.address
+            bridgeContract.address
           );
         }
         let hookContract: Contract;
@@ -195,7 +158,7 @@ export const main = async () => {
         // console.log("Hook contract: ", hookContract.address);
         hookContract = hookContract.connect(socketSigner);
 
-        await setHookInHub(chain, hubContract, hookContract);
+        await setHookInBridge(chain, bridgeContract, hookContract);
 
         await updateLimitsAndPoolId(
           chain,
@@ -207,28 +170,24 @@ export const main = async () => {
       })
     );
 
-    if (execSummary.length) {
-      console.log("=".repeat(100));
-      execSummary.forEach((t) => console.log(t));
-      console.log("=".repeat(100));
-    }
+    printExecSummary();
   } catch (error) {
     console.error("Error while sending transaction", error);
   }
 };
 
-const setHookInHub = async (
+const setHookInBridge = async (
   chain: ChainSlug,
-  hubContract: Contract,
+  bridgeContract: Contract,
   hookContract: Contract
 ) => {
-  let storedHookAddress = await hubContract.hook__();
+  let storedHookAddress = await bridgeContract.hook__();
   if (storedHookAddress === hookContract.address) {
-    console.log(`✔   Hook already set on Hub for chain ${chain}`);
+    console.log(`✔   Hook already set on Bridge for chain ${chain}`);
     return;
   }
   await execute(
-    hubContract,
+    bridgeContract,
     "updateHook",
     [hookContract.address, false],
     chain
@@ -260,12 +219,12 @@ const setHookInExecutionHelper = async (
   );
 };
 
-const updateConnectorStatus = async (
+export const updateConnectorStatus = async (
   chain: ChainSlug,
   siblingSlugs: ChainSlug[],
-  addr: TokenAddresses | SuperTokenChainAddresses,
   connectors: Connectors,
-  hubContract: Contract
+  bridgeContract: Contract,
+  newConnectorStatus: boolean
 ) => {
   const connectorAddresses: string[] = [];
 
@@ -282,19 +241,21 @@ const updateConnectorStatus = async (
         siblingConnectorAddresses[it];
       if (!itConnectorAddress) continue;
 
-      let connectorStatus = await hubContract.callStatic.validConnectors(
-        itConnectorAddress
-      );
-      if (!connectorStatus) {
+      let currentConnectorStatus =
+        await bridgeContract.callStatic.validConnectors(itConnectorAddress);
+      if (currentConnectorStatus !== newConnectorStatus) {
         connectorAddresses.push(itConnectorAddress);
       }
     }
   }
   if (connectorAddresses.length) {
     await execute(
-      hubContract,
+      bridgeContract,
       "updateConnectorStatus",
-      [connectorAddresses, new Array(connectorAddresses.length).fill(true)],
+      [
+        connectorAddresses,
+        new Array(connectorAddresses.length).fill(newConnectorStatus),
+      ],
       chain
     );
   } else {
@@ -392,7 +353,7 @@ const setRescueRoleForAllContracts = async (
   }
 };
 
-const updateLimitsAndPoolId = async (
+export const updateLimitsAndPoolId = async (
   chain: ChainSlug,
   siblingSlugs: ChainSlug[],
   addr: TokenAddresses | SuperTokenChainAddresses,
@@ -467,7 +428,8 @@ const updateLimitsAndPoolId = async (
       }
 
       if (
-        chain === pc.appChain
+        isSuperBridge() &&
+        isAppChain(chain)
         // chain !== ChainSlug.AEVO &&
         // chain !== ChainSlug.AEVO_TESTNET
       ) {
@@ -498,7 +460,7 @@ const updateLimitsAndPoolId = async (
       chain
     );
   }
-  if (pc.projectType === ProjectType.SUPERTOKEN) return;
+  if (isSuperToken()) return;
   let addresses = addr as TokenAddresses;
   if (
     addresses.isAppChain &&

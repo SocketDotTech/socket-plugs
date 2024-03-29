@@ -1,7 +1,7 @@
-import { getSuperBridgeAddresses, ZERO_ADDRESS } from "./utils";
+import { getSuperBridgeAddresses, ZERO_ADDRESS } from "../helpers";
 import { ethers } from "ethers";
-import { getSignerFromChainSlug, overrides } from "./networks";
-import { isAppChain } from "./projectConstants";
+import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { isAppChain } from "../helpers/projectConstants";
 import { getSocketOwner } from "../constants/config";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { ChainSlug } from "@socket.tech/dl-core";

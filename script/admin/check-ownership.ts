@@ -2,10 +2,10 @@ import {
   getOwnerAndNominee,
   getSuperBridgeAddresses,
   ZERO_ADDRESS,
-} from "./utils";
+} from "../helpers";
 import { ethers } from "ethers";
-import { getSignerFromChainSlug } from "./networks";
-import { isAppChain } from "./projectConstants";
+import { getSignerFromChainSlug } from "../helpers/networks";
+import { isAppChain } from "../helpers/projectConstants";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 
 export const main = async () => {

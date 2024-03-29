@@ -19,7 +19,7 @@ export const isSuperTokenVaultChain = (chain: ChainSlug) =>
 let pc: ProjectTokenConstants;
 export const getBridgeProjectTokenConstants = (): ProjectTokenConstants => {
   if (pc) return pc;
-  const _pc = require(`../constants/project-constants/${getSuperBridgeProject()}`);
+  const _pc = require(`../constants/bridge-constants/${getSuperBridgeProject()}`);
   pc = _pc?.[getMode()]?.[getToken()];
   if (!pc)
     throw new Error(

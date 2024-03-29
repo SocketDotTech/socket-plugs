@@ -26,7 +26,7 @@ import {
   storeAddresses,
   getOrDeployConnector,
   getSuperTokenAddresses,
-} from "../helpers/utils";
+} from "../helpers";
 import {
   AppChainAddresses,
   SuperBridgeContracts,

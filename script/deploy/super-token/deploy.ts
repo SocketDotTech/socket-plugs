@@ -23,7 +23,7 @@ import {
   getOrDeployConnector,
   storeSuperTokenAddresses,
   getSuperTokenAddresses,
-} from "../../helpers/utils";
+} from "../../helpers";
 import {
   SuperTokenControllerChainAddresses,
   SuperTokenVaultChainAddresses,
