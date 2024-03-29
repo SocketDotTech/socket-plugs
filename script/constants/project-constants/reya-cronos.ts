@@ -3,48 +3,70 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Tokens } from "../../../src";
+import { Hooks, ProjectType, Tokens } from "../../../src";
 import { ProjectConstants } from "../types";
 
 const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
+      projectType: ProjectType.SUPERBRIDGE,
       appChain: ChainSlug.REYA_CRONOS,
-      nativeVaultChains: [],
-      nonAppChains: {
+      nonAppChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      hook: Hooks.LIMIT_EXECUTION_HOOK,
+      vaultChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      limits: {
+        [ChainSlug.REYA_CRONOS]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
+            poolCount: 0,
+          },
+        },
         [ChainSlug.ARBITRUM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
         [ChainSlug.POLYGON_MUMBAI]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
         [ChainSlug.SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
         [ChainSlug.OPTIMISM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
@@ -52,41 +74,63 @@ const pc: ProjectConstants = {
     },
     [Tokens.USDT]: {
       appChain: ChainSlug.REYA_CRONOS,
-      nativeVaultChains: [],
-      nonAppChains: {
+      projectType: ProjectType.SUPERBRIDGE,
+      nonAppChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      hook: Hooks.LIMIT_EXECUTION_HOOK,
+      vaultChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      limits: {
+        [ChainSlug.REYA_CRONOS]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
+            poolCount: 0,
+          },
+        },
         [ChainSlug.ARBITRUM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
         [ChainSlug.POLYGON_MUMBAI]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
         [ChainSlug.SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
         [ChainSlug.OPTIMISM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: "1.1574",
-            withdrawLimit: "100000",
-            withdrawRate: "1.1574",
+            sendingLimit: "100000",
+            sendingRate: "1.1574",
+            receivingLimit: "100000",
+            receivingRate: "1.1574",
             poolCount: 0,
           },
         },
@@ -94,41 +138,63 @@ const pc: ProjectConstants = {
     },
     [Tokens.DAI]: {
       appChain: ChainSlug.REYA_CRONOS,
-      nativeVaultChains: [],
-      nonAppChains: {
+      projectType: ProjectType.SUPERBRIDGE,
+      nonAppChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      hook: Hooks.LIMIT_EXECUTION_HOOK,
+      vaultChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      limits: {
+        [ChainSlug.REYA_CRONOS]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "100000",
+            sendingRate: ".1574",
+            receivingLimit: "100000",
+            receivingRate: ".1574",
+            poolCount: 0,
+          },
+        },
         [ChainSlug.ARBITRUM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: ".1574",
-            withdrawLimit: "100000",
-            withdrawRate: ".1574",
+            sendingLimit: "100000",
+            sendingRate: ".1574",
+            receivingLimit: "100000",
+            receivingRate: ".1574",
             poolCount: 0,
           },
         },
         [ChainSlug.POLYGON_MUMBAI]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: ".1574",
-            withdrawLimit: "100000",
-            withdrawRate: ".1574",
+            sendingLimit: "100000",
+            sendingRate: ".1574",
+            receivingLimit: "100000",
+            receivingRate: ".1574",
             poolCount: 0,
           },
         },
         [ChainSlug.SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: ".1574",
-            withdrawLimit: "100000",
-            withdrawRate: ".1574",
+            sendingLimit: "100000",
+            sendingRate: ".1574",
+            receivingLimit: "100000",
+            receivingRate: ".1574",
             poolCount: 0,
           },
         },
         [ChainSlug.OPTIMISM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "100000",
-            depositRate: ".1574",
-            withdrawLimit: "100000",
-            withdrawRate: ".1574",
+            sendingLimit: "100000",
+            sendingRate: ".1574",
+            receivingLimit: "100000",
+            receivingRate: ".1574",
             poolCount: 0,
           },
         },
@@ -136,45 +202,63 @@ const pc: ProjectConstants = {
     },
     [Tokens.WETH]: {
       appChain: ChainSlug.REYA_CRONOS,
-      nativeVaultChains: [
+      projectType: ProjectType.SUPERBRIDGE,
+      nonAppChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
-      nonAppChains: {
+      hook: Hooks.LIMIT_EXECUTION_HOOK,
+      vaultChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      limits: {
+        [ChainSlug.REYA_CRONOS]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "27.33",
+            sendingRate: "0.00031632",
+            receivingLimit: "27.33",
+            receivingRate: "0.00031632",
+            poolCount: 0,
+          },
+        },
         [ChainSlug.ARBITRUM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "27.33",
-            depositRate: "0.00031632",
-            withdrawLimit: "27.33",
-            withdrawRate: "0.00031632",
+            sendingLimit: "27.33",
+            sendingRate: "0.00031632",
+            receivingLimit: "27.33",
+            receivingRate: "0.00031632",
             poolCount: 0,
           },
         },
         [ChainSlug.POLYGON_MUMBAI]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "27.33",
-            depositRate: "0.00031632",
-            withdrawLimit: "27.33",
-            withdrawRate: "0.00031632",
+            sendingLimit: "27.33",
+            sendingRate: "0.00031632",
+            receivingLimit: "27.33",
+            receivingRate: "0.00031632",
             poolCount: 0,
           },
         },
         [ChainSlug.SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "27.33",
-            depositRate: "0.00031632",
-            withdrawLimit: "27.33",
-            withdrawRate: "0.00031632",
+            sendingLimit: "27.33",
+            sendingRate: "0.00031632",
+            receivingLimit: "27.33",
+            receivingRate: "0.00031632",
             poolCount: 0,
           },
         },
         [ChainSlug.OPTIMISM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "27.33",
-            depositRate: "0.00031632",
-            withdrawLimit: "27.33",
-            withdrawRate: "0.00031632",
+            sendingLimit: "27.33",
+            sendingRate: "0.00031632",
+            receivingLimit: "27.33",
+            receivingRate: "0.00031632",
             poolCount: 0,
           },
         },
@@ -182,41 +266,63 @@ const pc: ProjectConstants = {
     },
     [Tokens.WBTC]: {
       appChain: ChainSlug.REYA_CRONOS,
-      nativeVaultChains: [],
-      nonAppChains: {
+      projectType: ProjectType.SUPERBRIDGE,
+      nonAppChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      hook: Hooks.LIMIT_EXECUTION_HOOK,
+      vaultChains: [
+        ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.POLYGON_MUMBAI,
+        ChainSlug.SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
+      ],
+      limits: {
+        [ChainSlug.REYA_CRONOS]: {
+          [IntegrationTypes.fast]: {
+            sendingLimit: "1.41",
+            sendingRate: "0.00001632",
+            receivingLimit: "1.41",
+            receivingRate: "0.00001632",
+            poolCount: 0,
+          },
+        },
         [ChainSlug.ARBITRUM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "1.41",
-            depositRate: "0.00001632",
-            withdrawLimit: "1.41",
-            withdrawRate: "0.00001632",
+            sendingLimit: "1.41",
+            sendingRate: "0.00001632",
+            receivingLimit: "1.41",
+            receivingRate: "0.00001632",
             poolCount: 0,
           },
         },
         [ChainSlug.POLYGON_MUMBAI]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "1.41",
-            depositRate: "0.00001632",
-            withdrawLimit: "1.41",
-            withdrawRate: "0.00001632",
+            sendingLimit: "1.41",
+            sendingRate: "0.00001632",
+            receivingLimit: "1.41",
+            receivingRate: "0.00001632",
             poolCount: 0,
           },
         },
         [ChainSlug.SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "1.41",
-            depositRate: "0.00001632",
-            withdrawLimit: "1.41",
-            withdrawRate: "0.00001632",
+            sendingLimit: "1.41",
+            sendingRate: "0.00001632",
+            receivingLimit: "1.41",
+            receivingRate: "0.00001632",
             poolCount: 0,
           },
         },
         [ChainSlug.OPTIMISM_SEPOLIA]: {
           [IntegrationTypes.fast]: {
-            depositLimit: "1.41",
-            depositRate: "0.00001632",
-            withdrawLimit: "1.41",
-            withdrawRate: "0.00001632",
+            sendingLimit: "1.41",
+            sendingRate: "0.00001632",
+            receivingLimit: "1.41",
+            receivingRate: "0.00001632",
             poolCount: 0,
           },
         },

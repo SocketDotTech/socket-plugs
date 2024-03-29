@@ -3,55 +3,60 @@
     "USDC": {
       "isAppChain": false,
       "NonMintableToken": "0xD9edcC943ed9729B08E52Bb1e110FE43d1930773",
-      "Vault": "0xEC5b7075F581D46983EBe2Be6baB0f58Bf1E8C4b",
+      "Vault": "0x6A8Be071c1F37e0A5ABBbc7700769548f5bc1e46",
+      "ExecutionHelper": "0xeEA32DE4109f789605f3Ee749C7f80fEfA4541C4",
+      "LimitExecutionHook": "0x19637c083f2F9ED0e2e251955e6d5720A1Bd32fE",
       "connectors": {
         "89346161": {
-          "FAST": "0xF5b588306867992201fc78dE045bCe01BE6eA2fD"
+          "FAST": "0x1e8dA35545B665Cd4c2dF7861760Fa0BB9548e39"
         }
-      },
-      "ExecutionHelper": "0xA858f95c50240A6a28E5cd323869cE77ee7677Bd"
+      }
     },
     "USDT": {
       "isAppChain": false,
       "NonMintableToken": "0x4f8ecb190b9Ef36113127D97c7f9300875b6563F",
-      "ExecutionHelper": "0x4513F50921A0333f2067EBdB9369daa81BCfc24C",
-      "Vault": "0x792b49617491B936cbd61592f2c7d2E07D17e90d",
+      "Vault": "0x498323E95527b2A7fCC013D624f4F31939E6D90b",
+      "ExecutionHelper": "0xF3771618196cf97A81De99dE95767ed5Ad223557",
+      "LimitExecutionHook": "0xf5938DEAB5Dc1e87fE31E961Bd82AEFeecB60a66",
       "connectors": {
         "89346161": {
-          "FAST": "0xF873a063D74aE5F27AaC1ef6317095A383032775"
+          "FAST": "0x48973986790807f6aD14C1D6520fe779a414F25B"
         }
       }
     },
     "DAI": {
       "isAppChain": false,
       "NonMintableToken": "0x35479b023e508Ee9A7B533Dbb5B516BB6875F937",
-      "ExecutionHelper": "0x60e04bAB3d82A16a7963bCD44b494BD9BBB5F8fB",
-      "Vault": "0x28ac26B4f6A4483D11Ad209F08F7b4DbB7364fD9",
+      "Vault": "0x4615d376f13981A411885e0e416133038Ad6Ca4C",
+      "ExecutionHelper": "0x48f203Bf083C036355B395aCF8118f89DfdBf244",
+      "LimitExecutionHook": "0x6Fb6Da65CCCb205A439861110f41A422a046a90D",
       "connectors": {
         "89346161": {
-          "FAST": "0x6ec499b869716BB479a843cebe048A90ec6D343C"
+          "FAST": "0xFd0B7b552585fE1CFAF4226ecAfF5B03FEcA8549"
         }
       }
     },
     "WETH": {
       "isAppChain": false,
       "NonMintableToken": "0x6c7a28F6ae2D245B0130520B112FA3544a06d9AE",
-      "ExecutionHelper": "0x4F04f092daf8e0e3F30e0dCc3947A08C409a730F",
-      "Vault": "0xA63b923825A49137107Da6893E37f64E83aFfd81",
+      "Vault": "0xA53586c3fB181b244CC4Ee42222300b882396427",
+      "ExecutionHelper": "0x5D77d53a982caac4FC9BF5e21B9aa4C52731fCaA",
+      "LimitExecutionHook": "0xBc40F10f50a97af01650c43F174F28806e0Bf083",
       "connectors": {
         "89346161": {
-          "FAST": "0xd50426F73fd16d8D286c63EB8AE3838e0CeD6de1"
+          "FAST": "0xaDF21508f72Cc5b28F70cb22171995f817D5282A"
         }
       }
     },
     "WBTC": {
       "isAppChain": false,
       "NonMintableToken": "0x92c7a51BD507736AC0Dda48b5F35A4AaD0c2Bb4D",
-      "ExecutionHelper": "0xF65dE0C2dFE936159085ea8E0CeF6FAeff5C8c99",
-      "Vault": "0x0b7E87B305dE1fe6139E42f7f65736184057b073",
+      "Vault": "0x9b76a24AAb4D578440fdD5139f5E9d41025B6fCd",
+      "ExecutionHelper": "0x79D9d437C8E9BA83F0132EE46d3f5e1085a862bF",
+      "LimitExecutionHook": "0x3a62A1f82f24B715515E5110990105010615f4b5",
       "connectors": {
         "89346161": {
-          "FAST": "0xcB4064F135835dE26746Ff19C99808497f266A80"
+          "FAST": "0x47335842bB4f0eBC147A3F81C396A0FEA719eE71"
         }
       }
     }
@@ -60,55 +65,60 @@
     "USDC": {
       "isAppChain": false,
       "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
-      "Vault": "0x85314b664cB2e443C93F09EDb51088f76b048212",
+      "Vault": "0x86A0a4A05b73fc03bEC0eF7cFE1cab8cc406ce6B",
+      "ExecutionHelper": "0x331d17D86C0989E533516751C1af2A896CDbf46f",
+      "LimitExecutionHook": "0x3379f120917fb67728d6Db6065d9fDBBd1507A7B",
       "connectors": {
         "89346161": {
-          "FAST": "0xeD4F75f0C25963d2C61827261C2d7f84BF884c7F"
+          "FAST": "0x9e51CDbD0dC54E314B6b17C69ED34a98B8259A16"
         }
-      },
-      "ExecutionHelper": "0x4caE6101A2645AE58038Aeb04079621458b00753"
+      }
     },
     "USDT": {
       "isAppChain": false,
       "NonMintableToken": "0x66DFb9987C36c4be232156e70B085f664367599A",
-      "ExecutionHelper": "0x9838Fc33ea56F7664c677b1F2917c60d75a73BC6",
-      "Vault": "0x36580Ab5CC5db1E220e20156ad333Ef2229d1F2e",
+      "Vault": "0xbf47f1b6aeC8C1Ec47CeBa21f3B868567738C8b2",
+      "ExecutionHelper": "0x888f5426Bf4E387770A225d0097f0716aF98e7b5",
+      "LimitExecutionHook": "0xE71b58F3324d06786cA70b3c9695df23EEaaF630",
       "connectors": {
         "89346161": {
-          "FAST": "0x1485BdF9fd30e32cAb4E608158D9604f4d8110f3"
+          "FAST": "0x0C2e451925D0cF884bD534933c1581c20EC4AE7b"
         }
       }
     },
     "DAI": {
       "isAppChain": false,
       "NonMintableToken": "0x9a573B27D7298c6E2f4d2D4a41c37A0C8AF6accA",
-      "ExecutionHelper": "0xfD6d6D95eC911b2415F34C93d1a74e0c67E49370",
-      "Vault": "0x56aDAD63615A2605aF3F00C34DC4caD1AFaed5bF",
+      "Vault": "0xe7efbD883A5134F7feF40Fda9c4FD9ff445EF8a9",
+      "ExecutionHelper": "0x47DF1018Ad9CEA463C014f7Bdb39A531C2024510",
+      "LimitExecutionHook": "0x0c0Ed11E55EFF4bb8324e2497e6CA34FD2D87f67",
       "connectors": {
         "89346161": {
-          "FAST": "0x805Dc5ac616bCB1A59a446eb1777C0Cc3Aa0c3Fe"
+          "FAST": "0xb54D6f4E0bC876438506FB525f1E0F5bC8Cc7129"
         }
       }
     },
     "WETH": {
       "isAppChain": false,
-      "NonMintableToken": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-      "ExecutionHelper": "0x88618fD449836578a6FA6d19a256E21b7cac792b",
-      "Vault": "0xb72ef406330853C86e2Dbb003e422CaEe27E0Fcd",
+      "NonMintableToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "Vault": "0x4f5164Ea22a4Bf46FCE30C439eE6C6755b3525F6",
+      "ExecutionHelper": "0x79C06E5BD8e7a4dc151D7591eba71C2a5D49e2B6",
+      "LimitExecutionHook": "0x4f471ff392733b722992F012e40728e36c5e9848",
       "connectors": {
         "89346161": {
-          "FAST": "0xA78426325b5e32Affd5f4Bc8ab6575B24DCB1762"
+          "FAST": "0x791A471f4a355a7807870Eb633b59C867a79c0B7"
         }
       }
     },
     "WBTC": {
       "isAppChain": false,
       "NonMintableToken": "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
-      "ExecutionHelper": "0x1486AA8436A2e6Dc2C4D52A795A84f657f236CB7",
-      "Vault": "0x2d1abA6FaBAe80bF5C1C9EA433AAe9030E07CB22",
+      "Vault": "0xbA755214612C5A61fba9edec4155Dd3AC707cF4B",
+      "ExecutionHelper": "0xD34007319B34652615BA3BCfAefcb0d75b78FD07",
+      "LimitExecutionHook": "0xc71d74027264C5B664a9283f6F34D4ceB2544F75",
       "connectors": {
         "89346161": {
-          "FAST": "0xDC0258dc3dB980090E97EbF4f1FD9Cc3C5AD5894"
+          "FAST": "0x4972F3ef9191c1C0D99dE1e4ec6D346aeDE91878"
         }
       }
     }
@@ -117,55 +127,60 @@
     "USDC": {
       "isAppChain": false,
       "NonMintableToken": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-      "Vault": "0x8487daa5864a5cE18E5a89406c11EC748da33fbB",
+      "Vault": "0x5feF31D88C3EaEF04076D9C33D12AA9e95Cc5c59",
+      "ExecutionHelper": "0xc2dE372337308cEd2754d8d9bC0AB1A1B004C3be",
+      "LimitExecutionHook": "0x454bd326Fb446702C22E1b5097942dA1c9852aAC",
       "connectors": {
         "89346161": {
-          "FAST": "0x4BFDf43662cdf2Cc0A96C8697AC179819B6E5E91"
+          "FAST": "0x8d422bb223EDe166A6Ca821Fb472e07B446a243b"
         }
-      },
-      "ExecutionHelper": "0x4F3e01e8f7d0224b5988Cb0FBf7f6D156B9255cD"
+      }
     },
     "USDT": {
       "isAppChain": false,
       "NonMintableToken": "0xB4130e87A180b9448286B291331aEe8A9C154A3A",
-      "ExecutionHelper": "0xAE3dd4C0E3cA6823Cdbe9641B1938551cCb25a2d",
-      "Vault": "0xF9791c6AC0253005616A91dF42Ee59A699651d67",
+      "Vault": "0x1156bAFb7c72bfFC963038E5C65E8531F15a4a21",
+      "ExecutionHelper": "0xd21109653316B21853e3FAB84E4C1E06B9Ee4429",
+      "LimitExecutionHook": "0xFA3ff93563759625b630FD10d05843b8384d0150",
       "connectors": {
         "89346161": {
-          "FAST": "0x3694Ab37011764fA64A648C2d5d6aC0E9cD5F98e"
+          "FAST": "0x5D19D6B71975D12B31A36E62086c11c08F0ddBcf"
         }
       }
     },
     "DAI": {
       "isAppChain": false,
       "NonMintableToken": "0x255745E5C7Ae620b7f523F5E4A0Ead37660EC5d6",
-      "ExecutionHelper": "0xE00321E336691AC3A9Ac2d1a02970d22FE8861cF",
-      "Vault": "0x530654F6e96198bC269074156b321d8B91d10366",
+      "Vault": "0xF0CB21fc8583942F20ebc41Ff2C7089DBa843432",
+      "ExecutionHelper": "0x0948B1ce6B7e98B0c68D7480eE5B13c51965195B",
+      "LimitExecutionHook": "0x137f30B529535a96b2A60A4F9DeAeB3D34566215",
       "connectors": {
         "89346161": {
-          "FAST": "0xd95c5254Df051f378696100a7D7f29505e5cF5c9"
+          "FAST": "0xFfcBD42167550EdB20D64f99278537075723B4C8"
         }
       }
     },
     "WETH": {
       "isAppChain": false,
-      "NonMintableToken": "0x771d1Ae208377453D478dF08BbC38034F72aC833",
-      "ExecutionHelper": "0xffC2D8f660a5CC41273f1Db714EaEcd19D28d147",
-      "Vault": "0x4caE6101A2645AE58038Aeb04079621458b00753",
+      "NonMintableToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "Vault": "0x4FE1aDdCb348BF191164FB10605C8Beec8D42aBd",
+      "ExecutionHelper": "0x5333982087C2Db4f85d0Ed2CdE22b22ABC0fdae3",
+      "LimitExecutionHook": "0x450aa5c9a0809e5e704254F79CF3452031c01EDE",
       "connectors": {
         "89346161": {
-          "FAST": "0x858f61B6DE2edBF4d79e3B4baEB00b80cC146251"
+          "FAST": "0xD23678c7D554cb09CA7892d6521d40BFb02a05C8"
         }
       }
     },
     "WBTC": {
       "isAppChain": false,
       "NonMintableToken": "0x94BEff5da6201cB2C8F489196FD970B3DF5aA32A",
-      "ExecutionHelper": "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
-      "Vault": "0x9838Fc33ea56F7664c677b1F2917c60d75a73BC6",
+      "Vault": "0x0645095Dc03B9546DFDB2fC8e7a52959ec37efA1",
+      "ExecutionHelper": "0xb7A6DBA1D9035Cc7Fe20A2e40e5B2FB2E8F5Ddf9",
+      "LimitExecutionHook": "0x0D50d4336df62F86771B2Ef5db67be8c1896Ace1",
       "connectors": {
         "89346161": {
-          "FAST": "0x36580Ab5CC5db1E220e20156ad333Ef2229d1F2e"
+          "FAST": "0xd550Ce2BB4cC954542EfcF23Ea1147143Bd8F77C"
         }
       }
     }
@@ -174,55 +189,60 @@
     "USDC": {
       "isAppChain": false,
       "NonMintableToken": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
-      "Vault": "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
+      "Vault": "0x3379f120917fb67728d6Db6065d9fDBBd1507A7B",
       "connectors": {
         "89346161": {
-          "FAST": "0x9838Fc33ea56F7664c677b1F2917c60d75a73BC6"
+          "FAST": "0x9e51CDbD0dC54E314B6b17C69ED34a98B8259A16"
         }
       },
-      "ExecutionHelper": "0xD664eF6159562190ea6D1AFa3f0Ea1C0D77D14E3"
+      "ExecutionHelper": "0xbf47f1b6aeC8C1Ec47CeBa21f3B868567738C8b2",
+      "LimitExecutionHook": "0x888f5426Bf4E387770A225d0097f0716aF98e7b5"
     },
     "USDT": {
       "isAppChain": false,
       "NonMintableToken": "0x2d1abA6FaBAe80bF5C1C9EA433AAe9030E07CB22",
-      "ExecutionHelper": "0x20b2c1F9E555C424ed4F8D3079A9E784dAEA6770",
-      "Vault": "0xe0510E14D9ebE633872d485278D0f3e2bD5DDb3a",
+      "Vault": "0xbA755214612C5A61fba9edec4155Dd3AC707cF4B",
+      "ExecutionHelper": "0xD34007319B34652615BA3BCfAefcb0d75b78FD07",
+      "LimitExecutionHook": "0xc71d74027264C5B664a9283f6F34D4ceB2544F75",
       "connectors": {
         "89346161": {
-          "FAST": "0xBd79f26d3c86A19290e1745b433611399c5d54b2"
+          "FAST": "0x4972F3ef9191c1C0D99dE1e4ec6D346aeDE91878"
         }
       }
     },
     "DAI": {
       "isAppChain": false,
       "NonMintableToken": "0xDC0258dc3dB980090E97EbF4f1FD9Cc3C5AD5894",
-      "ExecutionHelper": "0xDc336B079BD0D39AE27011df648e103a472A1390",
-      "Vault": "0x3c903b4D5327C6665dE1EA64890399381C280dB5",
+      "Vault": "0x203eb6cE243Fb32242436F01b17631E9b25a27e2",
+      "ExecutionHelper": "0xCDb4A30CEBbf9d8C14e4e96fDe6EA7E40c6f3f5B",
+      "LimitExecutionHook": "0x70c46c24f9f923F44278C3B5451986C175c39F73",
       "connectors": {
         "89346161": {
-          "FAST": "0x04fB309B00e82d0265D057785b1d18F771F4402A"
+          "FAST": "0xDbd87a7546b3528741E4d548F2e62dF2962a7c5F"
         }
       }
     },
     "WETH": {
       "isAppChain": false,
-      "NonMintableToken": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
-      "ExecutionHelper": "0x10849E7Efb9F1EDC7Ce80D3cC6117E6A30D33D22",
-      "Vault": "0xF5D4ea96d2efbdAB9C63fA85d2c45e8B75dF640c",
+      "NonMintableToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "Vault": "0x2dc464B4f5Fd55ea19f0bdF71A8dc3584eeb64d7",
+      "ExecutionHelper": "0x322A8EA44716586b6BB31456055e61B28da4f1C1",
+      "LimitExecutionHook": "0xEB7F89394B325a021259939DA5Ba5EE83984b7F5",
       "connectors": {
         "89346161": {
-          "FAST": "0xC53D91C6D595b4259fa5649d77e1e31E648202A3"
+          "FAST": "0x13058f01BB8E2A93a600875aBE8647b30BE72765"
         }
       }
     },
     "WBTC": {
       "isAppChain": false,
       "NonMintableToken": "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7",
-      "ExecutionHelper": "0x8d422bb223EDe166A6Ca821Fb472e07B446a243b",
-      "Vault": "0x1156bAFb7c72bfFC963038E5C65E8531F15a4a21",
+      "Vault": "0x65ce0D9c5bbF43ee7A6011B3D077DD2FeA6b2726",
+      "ExecutionHelper": "0x78C39bA2c327821F6080A79146baf2Ae704a6384",
+      "LimitExecutionHook": "0x454Df13999c233193EEe9206aFb11E8c5321E340",
       "connectors": {
         "89346161": {
-          "FAST": "0xd21109653316B21853e3FAB84E4C1E06B9Ee4429"
+          "FAST": "0xa4E98b9724473A7371A437f7Ec076bC692219b7a"
         }
       }
     }
@@ -231,105 +251,105 @@
     "USDC": {
       "isAppChain": true,
       "MintableToken": "0x1b700A40A0707Dd5f0BC31cbc57D730558E5714d",
-      "ExchangeRate": "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
-      "Controller": "0xc5a5Ac67fff82Da72d1F862f1363E2b217a2A61A",
+      "Controller": "0x06eD13d8fad2f030D7591235Ac75F1693E147524",
       "connectors": {
         "80001": {
-          "FAST": "0x47E136cf4A96e1afa72e19022f9699Bbaa1BE60e"
+          "FAST": "0xF9791c6AC0253005616A91dF42Ee59A699651d67"
         },
         "421614": {
-          "FAST": "0xCd2E3CCb0Eeec6F2762dcD5D24a76583b69f3Ee1"
+          "FAST": "0xAE3dd4C0E3cA6823Cdbe9641B1938551cCb25a2d"
         },
         "11155111": {
-          "FAST": "0x1d43076909Ca139BFaC4EbB7194518bE3638fc76"
+          "FAST": "0x3694Ab37011764fA64A648C2d5d6aC0E9cD5F98e"
         },
         "11155420": {
-          "FAST": "0x9ca48cAF8AD2B081a0b633d6FCD803076F719fEa"
+          "FAST": "0xBF839f4dfF854F7a363A033D57ec872dC8556693"
         }
       },
-      "ExecutionHelper": "0xB6fb3062405985F700fa23758A3053162ddBeFb9"
+      "ExecutionHelper": "0xd947Dd2f18366F3FD1f2a707d3CA58F762D60519",
+      "LimitExecutionHook": "0xc29abF52c1Cc97F1f6308d5d54404c5a847497B0"
     },
     "USDT": {
       "isAppChain": true,
       "MintableToken": "0x9ADe781DacBD220f0161D98F496A2982b231A9d6",
-      "ExchangeRate": "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
-      "ExecutionHelper": "0x0fd9F11B9C54a9F100234EeEf9ee7873d73C2204",
-      "Controller": "0xE0361B2b4B1511e4a805086216011D0786747cCD",
+      "Controller": "0x85314b664cB2e443C93F09EDb51088f76b048212",
+      "ExecutionHelper": "0xeD4F75f0C25963d2C61827261C2d7f84BF884c7F",
+      "LimitExecutionHook": "0xf454aD8f5671e2e99deA37F6211060A400aAa9E9",
       "connectors": {
         "80001": {
-          "FAST": "0x4C9faD010D8be90Aba505c85eacc483dFf9b8Fa9"
+          "FAST": "0x530654F6e96198bC269074156b321d8B91d10366"
         },
         "421614": {
-          "FAST": "0x1281C1464449DB73bdAa30928BCC63Dc25D8D187"
+          "FAST": "0xE00321E336691AC3A9Ac2d1a02970d22FE8861cF"
         },
         "11155111": {
-          "FAST": "0x19609EeE157BC38E1A40E19c38218fC3900d97ac"
+          "FAST": "0xd95c5254Df051f378696100a7D7f29505e5cF5c9"
         },
         "11155420": {
-          "FAST": "0x771d1Ae208377453D478dF08BbC38034F72aC833"
+          "FAST": "0x7dE4937420935c7C8767b06eCd7F7dC54e2D7C9b"
         }
       }
     },
     "DAI": {
       "isAppChain": true,
       "MintableToken": "0x733299259C45726EE1bfc9bD0deebA58e48a1853",
-      "ExchangeRate": "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
-      "ExecutionHelper": "0x58900B39387633A0a0C80D1dBDFe879F20b4F2fb",
-      "Controller": "0x316945A9384824A0fc86d9BE779b76456f045ad6",
+      "Controller": "0xDee306Cf6C908d5F4f2c4A92d6Dc19035fE552EC",
+      "ExecutionHelper": "0x2b3A8ABa1E055e879594cB2767259e80441E0497",
+      "LimitExecutionHook": "0xffC2D8f660a5CC41273f1Db714EaEcd19D28d147",
       "connectors": {
         "80001": {
-          "FAST": "0x33BE2a7CF4Bb94d28131116F840d313Cab1eD2DA"
+          "FAST": "0x858f61B6DE2edBF4d79e3B4baEB00b80cC146251"
         },
         "421614": {
-          "FAST": "0x97c6031ff915b570A6A6cBEF4b6f94C2112f9416"
+          "FAST": "0x4caE6101A2645AE58038Aeb04079621458b00753"
         },
         "11155111": {
-          "FAST": "0x201c8d3AC4C261690e7C42A26bA49e614585c0D1"
+          "FAST": "0xfCEbb7F5f3827f2fb485D24d1342977630e6AC6c"
         },
         "11155420": {
-          "FAST": "0x031c67Ee65e508E96c184Fc8D8559B50CedeBaa9"
+          "FAST": "0x66DFb9987C36c4be232156e70B085f664367599A"
         }
       }
     },
     "WETH": {
       "isAppChain": true,
       "MintableToken": "0xC123B7aEb9D2B2e8a035217d5C29e317c91842E2",
-      "ExchangeRate": "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
-      "ExecutionHelper": "0xe22541aBaE4235909d70ac79f4D774Ad443008aa",
-      "Controller": "0x7D0e65D8914Dbd4259c6D430b79E5aEc2B08De9a",
+      "Controller": "0x9a573B27D7298c6E2f4d2D4a41c37A0C8AF6accA",
+      "ExecutionHelper": "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
+      "LimitExecutionHook": "0x9838Fc33ea56F7664c677b1F2917c60d75a73BC6",
       "connectors": {
         "80001": {
-          "FAST": "0x73019b64e31e699fFd27d54E91D686313C14191C"
+          "FAST": "0x1485BdF9fd30e32cAb4E608158D9604f4d8110f3"
         },
         "421614": {
-          "FAST": "0x7b9ed5C43E87DAFB03211651d4FA41fEa1Eb9b3D"
+          "FAST": "0x36580Ab5CC5db1E220e20156ad333Ef2229d1F2e"
         },
         "11155111": {
-          "FAST": "0xfD5849d46CE6Bac16C4BD39bA78638e9e9091b2c"
+          "FAST": "0xeCFad5D71026979aF7B04E8C1D64D3fBda7aCC9e"
         },
         "11155420": {
-          "FAST": "0x43193BF7bDacDFB4DE655AeaA0e62cce7900b1cb"
+          "FAST": "0xF64010ACE8f7333dF61F6D0ae3d08C5d4704D69A"
         }
       }
     },
     "WBTC": {
       "isAppChain": true,
       "MintableToken": "0xD382E2F0dF859ff9E82F963dcad1Aaee939c5E4F",
-      "ExchangeRate": "0x1Aba89fC7ff67D27ccaa51893c46FD1e5fEE924B",
-      "ExecutionHelper": "0x8d169dA827971aC5CEed406d3195614e297c648F",
-      "Controller": "0xBdE9e687F3A23Ebbc972c58D510dfc1f58Fb35EF",
+      "Controller": "0x0e276315EB155d28C7Aebd78AC118F967277a265",
+      "ExecutionHelper": "0xfD6d6D95eC911b2415F34C93d1a74e0c67E49370",
+      "LimitExecutionHook": "0x56aDAD63615A2605aF3F00C34DC4caD1AFaed5bF",
       "connectors": {
         "80001": {
-          "FAST": "0xe821234B2e1B66F23e3bA48b50E7cFD2724ba971"
+          "FAST": "0x8456C9F6b202eceBf4f7925603AD930ecF32342b"
         },
         "421614": {
-          "FAST": "0xFc1e42b0C3Ff8d69FBe639a6a674fF5f0FcE778D"
+          "FAST": "0x805Dc5ac616bCB1A59a446eb1777C0Cc3Aa0c3Fe"
         },
         "11155111": {
-          "FAST": "0xaf33761742beF3B7d0D0726671660CCF260fc5c3"
+          "FAST": "0x3504C46095dBB85C01571E8Fa9DE5C07501D4c02"
         },
         "11155420": {
-          "FAST": "0xC50Abb760555f73CCCa8C4D4ff56D4Bd4AAAAfC9"
+          "FAST": "0x4fD5e06E33e3d602DA1B5F8FE19a02Be2f1f0Dd2"
         }
       }
     }
