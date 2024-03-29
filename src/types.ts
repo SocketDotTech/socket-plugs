@@ -24,6 +24,7 @@ export enum Project {
   ANCIENT8_TESTNET2 = "ancient8-testnet2",
   LEAF_TESTNET = "leaf-testnet",
   SAND_TESTNET = "sand-testnet",
+  REYA_CRONOS = "reya-cronos",
 }
 
 export enum Hooks {
@@ -112,6 +113,7 @@ export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
   [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
   [ChainSlug.MODE]: Project.MODE,
   [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
+  [ChainSlug.REYA_CRONOS]: Project.REYA_CRONOS,
 };
 
 ////// **** SUPER TOKEN TYPES **** //////
