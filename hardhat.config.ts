@@ -104,6 +104,7 @@ const config: HardhatUserConfig = {
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
       lyra: "none",
       "lyra-testnet": "none",
+      reya_cronos: "none",
     },
     customChains: [
       {
@@ -162,6 +163,14 @@ const config: HardhatUserConfig = {
             "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz/api",
           browserURL:
             "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz/",
+        },
+      },
+      {
+        network: "reya_cronos",
+        chainId: hardhatChainNameToSlug[HardhatChainName.REYA_CRONOS],
+        urls: {
+          apiURL: "https://reya-cronos.blockscout.com/api",
+          browserURL: "https://reya-cronos.blockscout.com/",
         },
       },
     ],
