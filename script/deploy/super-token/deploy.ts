@@ -240,7 +240,7 @@ const deployVaultChainContracts = async (
 
     const vault: Contract = await getOrDeploy(
       CommonContracts.Vault,
-      "contracts/hub/Vault.sol",
+      "contracts/bridge/Vault.sol",
       [nonMintableToken],
       deployParams
     );
@@ -263,7 +263,7 @@ const deployControllerChainContracts = async (
 
     const controller: Contract = await getOrDeploy(
       CommonContracts.Controller,
-      "contracts/hub/Controller.sol",
+      "contracts/bridge/Controller.sol",
       [deployParams.addresses[SuperTokenContracts.SuperToken]],
       deployParams
     );

@@ -301,15 +301,15 @@ const deployControllerChainContracts = async (
           ? SuperBridgeContracts.FiatTokenV2_1_Controller
           : SuperBridgeContracts.Controller,
         pc.isFiatTokenV2_1
-          ? "contracts/hub/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
-          : "contracts/hub/Controller.sol",
+          ? "contracts/bridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
+          : "contracts/bridge/Controller.sol",
         [mintableToken],
         deployParams
       );
     } else if (isSuperToken()) {
       controller = await getOrDeploy(
         CommonContracts.Controller,
-        "contracts/hub/Controller.sol",
+        "contracts/bridge/Controller.sol",
         [mintableToken],
         deployParams
       );
@@ -351,7 +351,7 @@ const deployVaultChainContracts = async (
 
     const vault: Contract = await getOrDeploy(
       SuperBridgeContracts.Vault,
-      "contracts/hub/Vault.sol",
+      "contracts/bridge/Vault.sol",
       [nonMintableToken],
       deployParams
     );
