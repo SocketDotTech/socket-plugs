@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { DeploymentMode } from "@socket.tech/dl-core";
-import { Project, Tokens } from "../../src";
+import { Project, ProjectType, Tokens } from "../../src";
 
 export const getSocketOwner = () => {
   if (!process.env.SOCKET_OWNER_ADDRESS)
@@ -28,12 +28,26 @@ export const getMode = () => {
   return process.env.DEPLOYMENT_MODE as DeploymentMode;
 };
 
-export const getProject = () => {
+export const getSuperBridgeProject = () => {
   if (!process.env.PROJECT) throw new Error("Project not mentioned");
   if (!Object.values(Project).includes(process.env.PROJECT as Project))
     throw new Error("Project is invalid");
   return process.env.PROJECT as Project;
 };
+
+export const getProjectType = () => {
+  if (!process.env.PROJECT_TYPE) throw new Error("PROJECT_TYPE not mentioned");
+  if (
+    !Object.values(ProjectType).includes(
+      process.env.PROJECT_TYPE as ProjectType
+    )
+  )
+    throw new Error("project is invalid");
+  return process.env.PROJECT_TYPE as ProjectType;
+};
+
+export const isSuperBridge = () => getProjectType() === ProjectType.SUPERBRIDGE;
+export const isSuperToken = () => getProjectType() === ProjectType.SUPERTOKEN;
 
 export const getToken = () => {
   if (!process.env.TOKEN) throw new Error("Token not mentioned");
@@ -42,8 +56,21 @@ export const getToken = () => {
   return process.env.TOKEN as Tokens;
 };
 
+export const getProjectName = () => {
+  const projectType = getProjectType();
+  if (projectType === ProjectType.SUPERBRIDGE) return getSuperBridgeProject();
+  if (projectType === ProjectType.SUPERTOKEN) return getTokenProject();
+};
+
 export const getTokenProject = () => {
   if (!process.env.TOKEN_PROJECT)
     throw new Error("Token project not mentioned");
   return process.env.TOKEN_PROJECT as Project;
+};
+
+export const getDryRun = () => {
+  if (!process.env.DRY_RUN) throw new Error("Dry run not mentioned");
+  if (process.env.DRY_RUN !== "true" && process.env.DRY_RUN !== "false")
+    throw new Error("Dry run is invalid, must be either 'true' or 'false'");
+  return process.env.DRY_RUN === "true";
 };

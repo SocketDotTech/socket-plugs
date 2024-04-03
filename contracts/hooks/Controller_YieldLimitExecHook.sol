@@ -197,7 +197,9 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
                 // execute
                 bool success = executionHelper__.execute(
                     params_.transferInfo.receiver,
-                    execPayload
+                    execPayload,
+                    params_.messageId,
+                    depositUnderlying
                 );
 
                 if (success) {

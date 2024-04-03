@@ -139,13 +139,17 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
             if (pullFromStrategy) {
                 _withdrawFromStrategy(transferInfo.amount - totalIdle);
             } else {
-                (uint256 consumedUnderlying, uint256 pendingUnderlying) = abi
-                    .decode(postHookData, (uint256, uint256));
+                (
+                    uint256 consumedUnderlying,
+                    uint256 pendingUnderlying,
+                    uint256 bridgeUnderlying
+                ) = abi.decode(postHookData, (uint256, uint256, uint256));
 
                 pendingUnderlying += transferInfo.amount - totalIdle;
                 postHookData = abi.encode(
                     transferInfo.amount,
-                    pendingUnderlying
+                    pendingUnderlying,
+                    bridgeUnderlying
                 );
                 transferInfo.amount = totalIdle;
 

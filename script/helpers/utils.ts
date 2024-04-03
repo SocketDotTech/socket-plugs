@@ -5,27 +5,43 @@ import { ContractFactory, Contract } from "ethers";
 import fs from "fs";
 import path from "path";
 import { Address } from "hardhat-deploy/dist/types";
-import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
-
+import {
+  ChainSlug,
+  IntegrationTypes,
+  getAddresses,
+} from "@socket.tech/dl-core";
+import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
-import { getMode, getProject, getToken } from "../constants/config";
+import {
+  getMode,
+  getProjectName,
+  getProjectType,
+  getSuperBridgeProject,
+  getToken,
+  getTokenProject,
+  isSuperBridge,
+} from "../constants/config";
 import {
   ProjectAddresses,
   SuperTokenChainAddresses,
   SuperBridgeContracts,
   TokenAddresses,
+  Hooks,
+  SuperTokenProjectAddresses,
+  ProjectType,
 } from "../../src";
-import { getIntegrationTypeConsts } from "./constants";
+import { getIntegrationTypeConsts } from "./projectConstants";
 
-export const deploymentsPath = path.join(
-  __dirname,
-  `/../../deployments/superbridge/`
-);
+export const deploymentsPath =
+  getProjectType() === ProjectType.SUPERBRIDGE
+    ? path.join(__dirname, `/../../deployments/superbridge/`)
+    : path.join(__dirname, `/../../deployments/supertoken/`);
 
 export interface DeployParams {
   addresses: TokenAddresses | SuperTokenChainAddresses;
   signer: Wallet;
   currentChainSlug: number;
+  hook?: Hooks;
 }
 
 export const getOrDeploy = async (
@@ -53,7 +69,7 @@ export const getOrDeploy = async (
     console.log(
       `${contractName} deployed on ${
         deployUtils.currentChainSlug
-      } for ${getMode()}, ${getProject()} at address ${contract.address}`
+      } for ${getMode()}, ${getProjectName()} at address ${contract.address}`
     );
 
     await storeVerificationParams(
@@ -65,7 +81,7 @@ export const getOrDeploy = async (
     console.log(
       `${contractName} found on ${
         deployUtils.currentChainSlug
-      } for ${getMode()}, ${getProject()} at address ${contract.address}`
+      } for ${getMode()}, ${getProjectName()} at address ${contract.address}`
     );
   }
 
@@ -94,14 +110,14 @@ export const getOrDeployConnector = async (
     console.log(
       `${SuperBridgeContracts.ConnectorPlug} deployed on ${
         deployUtils.currentChainSlug
-      } for ${getMode()}, ${getProject()} at address ${contract.address}`
+      } for ${getMode()}, ${getProjectName()} at address ${contract.address}`
     );
 
     await storeVerificationParams(
       [
         contract.address,
         SuperBridgeContracts.ConnectorPlug,
-        "contracts/superbridge/ConnectorPlug.sol",
+        "contracts/ConnectorPlug.sol",
         args,
       ],
       deployUtils.currentChainSlug
@@ -114,7 +130,7 @@ export const getOrDeployConnector = async (
     console.log(
       `${SuperBridgeContracts.ConnectorPlug} found on ${
         deployUtils.currentChainSlug
-      } for ${getMode()}, ${getProject()} at address ${contract.address}`
+      } for ${getMode()}, ${getProjectName()} at address ${contract.address}`
     );
   }
 
@@ -176,6 +192,10 @@ export const getChainSlug = async (): Promise<number> => {
   return Number(network.config.chainId);
 };
 
+export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
+  return new Contract(getAddresses(chain, getMode()).Socket, socketABI, signer);
+};
+
 export const storeAddresses = async (
   addresses: TokenAddresses,
   chainSlug: ChainSlug,
@@ -188,9 +208,9 @@ export const storeAddresses = async (
   }
 
   const addressesPath =
-    deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
+    deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
   const outputExists = fs.existsSync(addressesPath);
-  let deploymentAddresses: ProjectAddresses = {};
+  let deploymentAddresses: ProjectAddresses | SuperTokenProjectAddresses = {};
   if (outputExists) {
     const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
     deploymentAddresses = JSON.parse(deploymentAddressesString);
@@ -198,7 +218,38 @@ export const storeAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    [chainSlug.toString(), getToken()],
+    isSuperBridge()
+      ? [chainSlug.toString(), getToken()]
+      : [chainSlug.toString()],
+    addresses
+  );
+  // deploymentAddresses[chainSlug][token] = addresses;
+  fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
+};
+
+export const storeSuperTokenAddresses = async (
+  addresses: SuperTokenChainAddresses,
+  chainSlug: ChainSlug,
+  fileName: string,
+  tokenName = getToken().toString(),
+  pathToDeployments = deploymentsPath
+) => {
+  if (!fs.existsSync(pathToDeployments)) {
+    await fs.promises.mkdir(pathToDeployments, { recursive: true });
+  }
+
+  const addressesPath =
+    deploymentsPath + `${getMode()}_${getTokenProject()}_addresses.json`;
+  const outputExists = fs.existsSync(addressesPath);
+  let deploymentAddresses: SuperTokenProjectAddresses = {};
+  if (outputExists) {
+    const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
+    deploymentAddresses = JSON.parse(deploymentAddressesString);
+  }
+
+  deploymentAddresses = createObj(
+    deploymentAddresses,
+    [chainSlug.toString()],
     addresses
   );
   // deploymentAddresses[chainSlug][token] = addresses;
@@ -211,23 +262,36 @@ export const storeAllAddresses = async (addresses: ProjectAddresses) => {
   }
 
   const addressesPath =
-    deploymentsPath + `${getMode()}_${getProject()}_addresses.json`;
+    deploymentsPath + `${getMode()}_${getSuperBridgeProject()}_addresses.json`;
   fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
 };
 
 let addresses: ProjectAddresses;
-export const getProjectAddresses = async (): Promise<ProjectAddresses> => {
+let superTokenAddresses: SuperTokenProjectAddresses;
+export const getSuperBridgeAddresses = async (): Promise<ProjectAddresses> => {
   if (!addresses)
     try {
-      addresses = await import(
-        `../../deployments/superbridge/${getMode()}_${getProject()}_addresses.json`
-      );
+      addresses =
+        await require(`../../deployments/superbridge/${getMode()}_${getSuperBridgeProject()}_addresses.json`);
     } catch (e) {
       console.log("addresses not found", e);
       throw new Error("addresses not found");
     }
   return addresses;
 };
+
+export const getSuperTokenAddresses =
+  async (): Promise<SuperTokenProjectAddresses> => {
+    if (!superTokenAddresses)
+      try {
+        superTokenAddresses =
+          await require(`../../deployments/supertoken/${getMode()}_${getTokenProject()}_addresses.json`);
+      } catch (e) {
+        console.log("addresses not found", e);
+        throw new Error("addresses not found");
+      }
+    return superTokenAddresses;
+  };
 
 export const storeVerificationParams = async (
   verificationDetail: any[],
@@ -237,7 +301,7 @@ export const storeVerificationParams = async (
     await fs.promises.mkdir(deploymentsPath);
   }
   const verificationPath =
-    deploymentsPath + `${getMode()}_${getProject()}_verification.json`;
+    deploymentsPath + `${getMode()}_${getProjectName()}_verification.json`;
   const outputExists = fs.existsSync(verificationPath);
   let verificationDetails: object = {};
   if (outputExists) {
@@ -292,3 +356,15 @@ export const getPoolIdHex = (
     getIntegrationTypeConsts(it, chainSlug).poolCount
   );
 };
+
+export async function getOwnerAndNominee(contract: Contract) {
+  const owner = await contract.owner();
+  try {
+    const nominee = await contract.nominee();
+    return [owner, nominee, 0];
+  } catch (error) {}
+  const pendingOwner = await contract.pendingOwner();
+  return [owner, pendingOwner, 1];
+}
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";

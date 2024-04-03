@@ -16,6 +16,7 @@ error InvalidExchangeRateContract();
 error InvalidConnector();
 error InvalidConnectorPoolId();
 error ZeroAddressReceiver();
+error ZeroAddress();
 error ZeroAmount();
 error DebtRatioTooHigh();
 error NotEnoughAssets();

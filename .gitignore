@@ -8,7 +8,9 @@ out/
 /broadcast/**/dry-run/
 
 # Dotenv file
-.env
+.env*
+!.env.example
+
 node_modules
 .DS_Store
 

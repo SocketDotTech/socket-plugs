@@ -1,8 +1,10 @@
 import {
   ChainSlug,
   DeploymentMode,
+  Hooks,
   IntegrationTypes,
   Project,
+  ProjectType,
   SuperTokenType,
   Tokens,
 } from "../../src";
@@ -18,39 +20,72 @@ export type ProjectConstants = {
 };
 
 export type ProjectTokenConstants = {
+  nonAppChains?: ChainSlug[];
+  appChain?: ChainSlug;
+  superTokenChains?: ChainSlug[];
+  vaultChains?: ChainSlug[];
   isFiatTokenV2_1?: boolean;
-  appChain: ChainSlug;
-  nonAppChains: {
+  hook?: Hooks;
+  hookInfo?: {
+    debtRatio?: number;
+    rebalanceDelay?: number;
+    strategy?: string;
+    underlyingAsset?: string;
+  };
+  superTokenInfo?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+    initialSupplyOwner: string;
+    owner: string;
+    initialSupply: number;
+  };
+  projectType: ProjectType;
+  limits?: {
     [key in ChainSlug]?: {
       [key in IntegrationTypes]?: {
-        depositLimit: string;
-        depositRate: string;
-        withdrawLimit: string;
-        withdrawRate: string;
-        poolCount: number;
+        sendingLimit: string;
+        sendingRate: string;
+        receivingLimit: string;
+        receivingRate: string;
+        poolCount?: number;
       };
     };
   };
 };
 
 export type TokenConstants = {
-  [key in DeploymentMode]?: TokenConfigs;
+  [key in DeploymentMode]?: SuperTokenConstants;
 };
-
-export type TokenConfigs = {
-  type: SuperTokenType;
-  projectName: string;
-  tokenName: string;
-  tokenSymbol: string;
-  tokenDecimal: number;
-  initialSupplyOwner: string;
-  owner: string;
-  initialSupply: number;
+export type SuperTokenConstants = {
   superTokenChains: ChainSlug[];
-  vaultTokens?: {
-    [key in ChainSlug]?: string;
+  vaultChains: ChainSlug[];
+  hook?: Hooks;
+  tokenInfo: {
+    name: string;
+    symbol: string;
+    decimals: number;
+    initialSupplyOwner: string;
+    owner: string;
+    initialSupply: number;
   };
-  integrationType: IntegrationTypes;
-  bridgeLimit: string;
-  bridgeRate: string;
+  hookInfo?: {
+    yieldToken?: string;
+    debtRatio?: number;
+    rebalanceDelay?: number;
+    strategy?: string;
+    underlyingAsset?: string;
+  };
+  projectType: ProjectType;
+  limits?: {
+    [key in ChainSlug]?: {
+      [key in IntegrationTypes]?: {
+        sendingLimit: string;
+        sendingRate: string;
+        receivingLimit: string;
+        receivingRate: string;
+        poolCount: number;
+      };
+    };
+  };
 };

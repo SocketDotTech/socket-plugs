@@ -2,7 +2,7 @@ import hre from "hardhat";
 import fs from "fs";
 
 import { deploymentsPath, verify } from "./utils";
-import { getMode, getProject } from "../constants/config";
+import { getMode, getSuperBridgeProject } from "../constants/config";
 import {
   ChainSlug,
   ChainSlugToKey as ChainSlugToHardhatKey,
@@ -19,7 +19,8 @@ type VerifyArgs = [string, string, string, any[]];
 export const main = async () => {
   try {
     const path =
-      deploymentsPath + `${getMode()}_${getProject()}_verification.json`;
+      deploymentsPath +
+      `${getMode()}_${getSuperBridgeProject()}_verification.json`;
     if (!fs.existsSync(path)) {
       throw new Error("addresses.json not found");
     }
@@ -30,6 +31,7 @@ export const main = async () => {
     const chains: ChainSlug[] = Object.keys(verificationParams).map((c) =>
       Number(c)
     );
+
     if (!chains) return;
 
     for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {
@@ -37,8 +39,6 @@ export const main = async () => {
       if (
         chain == ChainSlug.AEVO ||
         chain == ChainSlug.AEVO_TESTNET ||
-        chain == ChainSlug.LYRA ||
-        chain == ChainSlug.LYRA_TESTNET ||
         chain == ChainSlug.SX_NETWORK_TESTNET ||
         chain == ChainSlug.MODE_TESTNET ||
         chain == ChainSlug.VICTION_TESTNET ||

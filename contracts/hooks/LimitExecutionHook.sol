@@ -26,6 +26,10 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         hookType = LIMIT_EXECUTION_HOOK;
     }
 
+    function setExecutionHelper(address executionHelper_) external onlyOwner {
+        executionHelper__ = ExecutionHelper(executionHelper_);
+    }
+
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     )
@@ -61,7 +65,11 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             params_.connector,
             params_.transferInfo.amount
         );
-        postHookData = abi.encode(consumedAmount, pendingAmount);
+        postHookData = abi.encode(
+            consumedAmount,
+            pendingAmount,
+            params_.transferInfo.amount
+        );
         transferInfo = params_.transferInfo;
         transferInfo.amount = consumedAmount;
     }
@@ -71,10 +79,11 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     ) public virtual isVaultOrController returns (CacheData memory cacheData) {
         bytes memory execPayload = params_.transferInfo.data;
 
-        (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
-            params_.postHookData,
-            (uint256, uint256)
-        );
+        (
+            uint256 consumedAmount,
+            uint256 pendingAmount,
+            uint256 bridgeAmount
+        ) = abi.decode(params_.postHookData, (uint256, uint256, uint256));
 
         uint256 connectorPendingAmount = _getConnectorPendingAmount(
             params_.connectorCache
@@ -85,6 +94,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         cacheData.identifierCache = abi.encode(
             params_.transferInfo.receiver,
             pendingAmount,
+            bridgeAmount,
             params_.connector,
             execPayload
         );
@@ -102,7 +112,9 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
                 // execute
                 bool success = executionHelper__.execute(
                     params_.transferInfo.receiver,
-                    execPayload
+                    execPayload,
+                    params_.messageId,
+                    bridgeAmount
                 );
 
                 if (success) {
@@ -127,10 +139,15 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             TransferInfo memory transferInfo
         )
     {
-        (address receiver, uint256 pendingMint, address connector, ) = abi
-            .decode(
+        (
+            address receiver,
+            uint256 pendingMint,
+            ,
+            address connector,
+            bytes memory execPayload
+        ) = abi.decode(
                 params_.cacheData.identifierCache,
-                (address, uint256, address, bytes)
+                (address, uint256, uint256, address, bytes)
             );
 
         if (connector != params_.connector) revert InvalidConnector();
@@ -150,11 +167,12 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         (
             ,
             uint256 pendingMint,
+            uint256 bridgeAmount,
             address connector,
             bytes memory execPayload
         ) = abi.decode(
                 params_.cacheData.identifierCache,
-                (address, uint256, address, bytes)
+                (address, uint256, uint256, address, bytes)
             );
 
         (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
@@ -170,6 +188,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         cacheData.identifierCache = abi.encode(
             receiver,
             pendingAmount,
+            bridgeAmount,
             connector,
             execPayload
         );
@@ -187,7 +206,12 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             // no connector check required here, as already done in preRetryHook call in same tx
 
             // execute
-            bool success = executionHelper__.execute(receiver, execPayload);
+            bool success = executionHelper__.execute(
+                receiver,
+                execPayload,
+                params_.messageId,
+                bridgeAmount
+            );
             if (success) {
                 emit MessageExecuted(params_.messageId, receiver);
                 cacheData.identifierCache = new bytes(0);
@@ -208,15 +232,10 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         bytes memory identifierCache_
     ) internal view returns (uint256) {
         if (identifierCache_.length > 0) {
-            (
-                address receiver,
-                uint256 pendingAmount,
-                address connector,
-                bytes memory payload
-            ) = abi.decode(
-                    identifierCache_,
-                    (address, uint256, address, bytes)
-                );
+            (, uint256 pendingAmount, , , ) = abi.decode(
+                identifierCache_,
+                (address, uint256, uint256, address, bytes)
+            );
             return pendingAmount;
         } else return 0;
     }
