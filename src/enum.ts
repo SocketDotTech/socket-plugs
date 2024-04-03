@@ -24,6 +24,7 @@ export enum Project {
   SAND_TESTNET = "sand-testnet",
   SOUND_TESTNET = "sound-testnet",
   RAIN_TESTNET = "rain-testnet",
+  MIST_TESTNET = "mist-testnet",
 }
 
 export enum Hooks {

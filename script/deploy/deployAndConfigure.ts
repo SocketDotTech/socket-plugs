@@ -2,8 +2,12 @@ import { configure } from "./configure";
 import { deploy } from "./deploy";
 
 export const main = async () => {
-  await deploy();
-  await configure();
+  try {
+    await deploy();
+    await configure();
+  } catch (error) {
+    console.log("Error in deploy and configure: ", error);
+  }
 };
 
 main()

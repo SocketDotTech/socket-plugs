@@ -63,7 +63,7 @@ export const deployHookContracts = async (
   deployParams.addresses[contractName] = hookContract.address;
 
   // console.log(deployParams.addresses);
-  console.log("Hook Contracts deployed!");
+  console.log(deployParams.currentChainSlug, "Hook Contracts deployed! ✔");
 
   return deployParams;
 };

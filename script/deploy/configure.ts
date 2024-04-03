@@ -51,16 +51,18 @@ let tokens: Tokens[];
 let socketSignerAddress: string;
 
 export const configure = async () => {
-  try {
-    await verifyConstants();
-    ({ projectName, projectType, tokens } = getConfigs());
-
+  await verifyConstants();
+  ({ projectName, projectType, tokens } = getConfigs());
+  let allConfigured = false;
+  while (!allConfigured) {
     for (let token of tokens) {
       console.log(`\nConfiguring ${token}...`);
       pc[token] = getTokenConstants(token);
+      // console.log(pc[token]);
       let addresses: SBAddresses | STAddresses;
       try {
         addresses = getAllAddresses();
+        // console.log(addresses);
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
       }
@@ -68,8 +70,7 @@ export const configure = async () => {
         ...pc[token].controllerChains,
         ...pc[token].vaultChains,
       ];
-      const hookType = pc[token].hook.hookType;
-
+      // console.log(allChains);
       await Promise.all(
         allChains.map(async (chain) => {
           let addr: SBTokenAddresses | STTokenAddresses = (addresses[chain]?.[
@@ -137,10 +138,11 @@ export const configure = async () => {
         })
       );
     }
-    printExecSummary();
-  } catch (error) {
-    console.error("Error while sending transaction", error);
+
+    allConfigured = true;
   }
+
+  printExecSummary();
 };
 
 const setControllerRole = async (
@@ -228,6 +230,7 @@ const connect = async (
       }
     }
   } catch (error) {
-    console.error("error while configuring: ", error);
+    console.error("error while connecting: ", error);
+    throw error;
   }
 };

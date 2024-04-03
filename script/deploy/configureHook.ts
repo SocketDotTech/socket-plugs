@@ -9,13 +9,7 @@ import {
   SBTokenAddresses,
   STTokenAddresses,
 } from "../../src";
-import { getSocketOwner } from "../constants/config";
-import { LIMIT_UPDATER_ROLE } from "../constants/roles";
-import {
-  checkAndGrantRole,
-  getHookContract,
-  updateLimitsAndPoolId,
-} from "../helpers/common";
+import { getHookContract, updateLimitsAndPoolId } from "../helpers/common";
 
 export const configureHooks = async (
   chain: ChainSlug,
@@ -41,8 +35,6 @@ export const configureHooks = async (
       hookContractName as HookContracts
     )
   ) {
-    await setLimitUpdaterRole(chain, hookContract);
-
     await updateLimitsAndPoolId(
       chain,
       token,
@@ -54,18 +46,18 @@ export const configureHooks = async (
   }
 };
 
-export const setLimitUpdaterRole = async (
-  chain: ChainSlug,
-  hookContract: Contract
-) => {
-  await checkAndGrantRole(
-    chain,
-    hookContract,
-    "limit updater",
-    LIMIT_UPDATER_ROLE,
-    getSocketOwner()
-  );
-};
+// export const setLimitUpdaterRole = async (
+//   chain: ChainSlug,
+//   hookContract: Contract
+// ) => {
+//   await checkAndGrantRole(
+//     chain,
+//     hookContract,
+//     "limit updater",
+//     LIMIT_UPDATER_ROLE,
+//     getSocketOwner()
+//   );
+// };
 
 export const setHookInBridge = async (
   chain: ChainSlug,

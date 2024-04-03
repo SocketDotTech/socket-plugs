@@ -192,9 +192,7 @@ export const storeTokenAddresses = async (
 
   deploymentAddresses = createObj(
     deploymentAddresses,
-    isSuperBridge()
-      ? [chainSlug.toString(), tokenName]
-      : [chainSlug.toString()],
+    [chainSlug.toString(), tokenName],
     addresses
   );
   fs.writeFileSync(
