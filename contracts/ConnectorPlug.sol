@@ -24,6 +24,7 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
         bridge__ = IBridge(bridge_);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;
+        _grantRole(RESCUE_ROLE, msg.sender);
     }
 
     function outbound(

@@ -31,6 +31,7 @@ contract SuperToken is ERC20, RescueBase {
         uint256 initialSupply_
     ) ERC20(name_, symbol_, decimals_) AccessControl(owner_) {
         _mint(initialSupplyHolder_, initialSupply_);
+        _grantRole(RESCUE_ROLE, owner_);
     }
 
     function burn(

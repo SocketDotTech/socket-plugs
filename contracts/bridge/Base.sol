@@ -44,6 +44,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
         if (token_ != ETH_ADDRESS && token_.code.length == 0)
             revert InvalidTokenContract();
         token = token_;
+        _grantRole(RESCUE_ROLE, msg.sender);
     }
 
     /**

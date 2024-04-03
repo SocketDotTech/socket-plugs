@@ -16,7 +16,9 @@ contract ExecutionHelper is RescueBase {
     bytes32 public messageId;
     uint256 public bridgeAmount;
 
-    constructor(address owner_) AccessControl(owner_) {}
+    constructor(address owner_) AccessControl(owner_) {
+        _grantRole(RESCUE_ROLE, owner_);
+    }
 
     modifier onlyHook() {
         require(msg.sender == hook, "ExecutionHelper: only hook");
