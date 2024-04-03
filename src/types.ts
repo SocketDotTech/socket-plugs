@@ -107,7 +107,7 @@ export interface STControllerChainAddresses extends CommonAddresses {
 }
 
 export interface STVaultChainAddresses extends CommonAddresses {
-  [SuperTokenContracts.NonSuperToken]: string;
+  [CommonContracts.NonMintableToken]: string;
   [CommonContracts.Vault]: string;
 }
 

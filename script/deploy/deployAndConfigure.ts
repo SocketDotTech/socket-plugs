@@ -3,8 +3,8 @@ import { deploy } from "./deploy";
 
 export const main = async () => {
   try {
-    await deploy();
-    await configure();
+    let allAddresses = await deploy();
+    await configure(allAddresses);
   } catch (error) {
     console.log("Error in deploy and configure: ", error);
   }

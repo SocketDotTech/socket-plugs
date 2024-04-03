@@ -10,8 +10,8 @@ contract TestInbound is Test {
     Vault public vault;
     uint256 fork;
     address constant user = 0x44A44837894B5eDC2Bde64567FC62599b3b88F4C;
-    address constant _connector = 0x0D806Ad65fd85Ee3f86c9a7ea31708b657AB5928;
-    address constant hub = 0x59789e155D5973b59986CeB5d522b780Ca425ae8;
+    address constant _connector = 0x0f7d2F0b5C6973cC378ceD768bbb54d75B48a461;
+    address constant hub = 0x70659628aCd497ee492b9D5fFe3d6A0a9B60Ec82;
 
     function setUp() external {
         // fork = vm.createFork(

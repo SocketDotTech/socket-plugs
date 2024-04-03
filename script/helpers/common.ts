@@ -139,7 +139,7 @@ export const getTokenContract = async (
   if (isSuperToken()) {
     if (isSTVaultChain(chain, token)) {
       const a = addr as STVaultChainAddresses;
-      tokenAddress = a.NonSuperToken;
+      tokenAddress = a.NonMintableToken;
     } else {
       const a = addr as STControllerChainAddresses;
       tokenAddress = a.SuperToken;

@@ -56,6 +56,8 @@ export const deploy = async () => {
   await verifyConstants();
   ({ projectName, projectType, tokens } = getConfigs());
   printConfigs();
+  let allAddresses:SBAddresses | STAddresses = {};
+
   for (let token of tokens) {
     console.log(`Deploying contracts for ${token}...`);
     pc[token] = getTokenConstants(token);
@@ -103,10 +105,14 @@ export const deploy = async () => {
 
           allDeployed = results.allDeployed;
           chainAddresses = results.deployedAddresses;
+          if (!allAddresses[chain]) allAddresses[chain] = {};
+          allAddresses[chain][token] = chainAddresses;
         }
       })
     );
   }
+
+  return allAddresses;
 };
 /**
  * Deploys network-independent contracts

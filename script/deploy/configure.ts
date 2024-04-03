@@ -50,7 +50,7 @@ let tokens: Tokens[];
 
 let socketSignerAddress: string;
 
-export const configure = async () => {
+export const configure = async (allAddresses: SBAddresses | STAddresses) => {
   await verifyConstants();
   ({ projectName, projectType, tokens } = getConfigs());
   let allConfigured = false;
@@ -61,7 +61,7 @@ export const configure = async () => {
       // console.log(pc[token]);
       let addresses: SBAddresses | STAddresses;
       try {
-        addresses = getAllAddresses();
+        addresses = allAddresses ?? getAllAddresses();
         // console.log(addresses);
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
@@ -175,11 +175,12 @@ const connect = async (
     for (let sibling of siblingSlugs) {
       const localConnectorAddresses: ConnectorAddresses | undefined =
         addr.connectors?.[sibling];
-      const siblingConnectorAddresses: ConnectorAddresses | undefined =
-        isSuperBridge()
-          ? addresses?.[sibling]?.[token]?.connectors?.[chain]
-          : addresses?.[sibling]?.["connectors"]?.[chain];
-      if (!localConnectorAddresses || !siblingConnectorAddresses) continue;
+      const siblingConnectorAddresses: ConnectorAddresses | undefined = addresses?.[sibling]?.[token]?.connectors?.[chain];
+      if (!localConnectorAddresses || !siblingConnectorAddresses) {
+        throw new Error(
+          `connector addresses not found for ${chain}, ${sibling}`
+        );
+      };
 
       const integrationTypes: IntegrationTypes[] = Object.keys(
         localConnectorAddresses
@@ -189,7 +190,9 @@ const connect = async (
       for (let integration of integrationTypes) {
         const siblingConnectorPlug = siblingConnectorAddresses[integration];
         const localConnectorPlug = localConnectorAddresses[integration];
-        if (!localConnectorPlug || !siblingConnectorPlug) continue;
+        if (!localConnectorPlug || !siblingConnectorPlug) {
+          throw Error("Cant find plug addresses");
+        };
 
         const switchboard = getAddresses(chain, getMode()).integrations[
           sibling
@@ -208,7 +211,6 @@ const connect = async (
           localConnectorPlug,
           sibling
         );
-
         if (config[0].toLowerCase() === siblingConnectorPlug.toLowerCase()) {
           console.log(`✔   Already connected ${chain}, ${sibling}`);
           continue;
