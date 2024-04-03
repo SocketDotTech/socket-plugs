@@ -25,17 +25,13 @@
       "0x6b39f4D965f81fb2ffA57255398dF6aA43dB3C82",
       "ExecutionHelper",
       "contracts/hooks/plugins/ExecutionHelper.sol",
-      [
-        "0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"
-      ]
+      ["0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"]
     ],
     [
       "0x3A691755b3c5484fDd4A83C7FCC255B400BBAA5e",
       "Controller",
       "contracts/bridge/Controller.sol",
-      [
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
-      ]
+      ["0x565810cbfa3Cf1390963E5aFa2fB953795686339"]
     ],
     [
       "0x4A2AB2820BCAcaB67972428013Bf7b3cE80A45A6",
@@ -62,17 +58,13 @@
       "0x8bA825da83329C4953aBee562ECB517B68f51A53",
       "ExecutionHelper",
       "contracts/hooks/plugins/ExecutionHelper.sol",
-      [
-        "0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"
-      ]
+      ["0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"]
     ],
     [
       "0xB13D774150Ef91167E0790573990362219421924",
       "Controller",
       "contracts/bridge/Controller.sol",
-      [
-        "0x8537307810fC40F4073A12a38554D4Ff78EfFf41"
-      ]
+      ["0x8537307810fC40F4073A12a38554D4Ff78EfFf41"]
     ]
   ],
   "11155420": [
@@ -101,17 +93,13 @@
       "0x9366dEC74cFcFDfcc9c2712DE29844E616b2126d",
       "ExecutionHelper",
       "contracts/hooks/plugins/ExecutionHelper.sol",
-      [
-        "0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"
-      ]
+      ["0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"]
     ],
     [
       "0xcA05c1858A083801e812EfaD56d54d554CBdEB42",
       "Vault",
       "contracts/bridge/Vault.sol",
-      [
-        "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3"
-      ]
+      ["0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3"]
     ],
     [
       "0xF62F8013E6aF7a982E9C454D8985d524D9859dC2",
@@ -138,17 +126,13 @@
       "0xE764eCae36dE45c3fF6708EB68142fC31e293663",
       "ExecutionHelper",
       "contracts/hooks/plugins/ExecutionHelper.sol",
-      [
-        "0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"
-      ]
+      ["0x44A44837894B5eDC2Bde64567FC62599b3b88F4C"]
     ],
     [
       "0x29Bf395DF834f01924b56c6d846Bb45590ab5B78",
       "Vault",
       "contracts/bridge/Vault.sol",
-      [
-        "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf"
-      ]
+      ["0x6D290609b3F5F02D52F28d97C75a443ED8564cBf"]
     ]
   ]
 }

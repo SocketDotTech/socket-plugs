@@ -71,7 +71,6 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         strategy = IStrategy(strategy_);
         hookType = LIMIT_EXECUTION_YIELD_HOOK;
         _grantRole(LIMIT_UPDATER_ROLE, msg.sender);
-
     }
 
     /**

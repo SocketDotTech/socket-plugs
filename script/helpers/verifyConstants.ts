@@ -2,11 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { ChainSlug } from "@socket.tech/dl-core";
-import {
-  isSuperBridge,
-  isSuperToken,
-  getConfigs,
-} from "../constants/config";
+import { isSuperBridge, isSuperToken, getConfigs } from "../constants/config";
 import { checkMissingFields } from "../helpers";
 import { Hooks, ProjectType, Tokens, TokenConstants } from "../../src";
 import { getTokenConstants } from "../helpers/projectConstants";
@@ -18,7 +14,7 @@ let tokens: Tokens[];
 
 export const verifyConstants = async () => {
   try {
-    ({ projectName, projectType, tokens} = getConfigs());
+    ({ projectName, projectType, tokens } = getConfigs());
 
     for (let token of tokens) {
       pc[token] = getTokenConstants(token);

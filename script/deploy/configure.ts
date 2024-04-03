@@ -53,90 +53,90 @@ let socketSignerAddress: string;
 export const configure = async () => {
   try {
     await verifyConstants();
-    ({ projectName, projectType, tokens} = getConfigs());
+    ({ projectName, projectType, tokens } = getConfigs());
 
     for (let token of tokens) {
       console.log(`\nConfiguring ${token}...`);
-        pc[token] = getTokenConstants(token);
-        let addresses: SBAddresses | STAddresses;
-        try {
-          addresses = getAllAddresses();
-        } catch (error) {
-          addresses = {} as SBAddresses | STAddresses;
-        }
-        let allChains: ChainSlug[] = [
-          ...pc[token].controllerChains,
-          ...pc[token].vaultChains,
-        ];
-        const hookType = pc[token].hook.hookType;
-
-        await Promise.all(
-          allChains.map(async (chain) => {
-            let addr: SBTokenAddresses | STTokenAddresses = (addresses[chain]?.[
-              token
-            ] ?? {}) as SBTokenAddresses | STTokenAddresses;
-
-            const connectors: Connectors | undefined = addr.connectors;
-            if (!addr || !connectors) return;
-
-            const socketSigner = getSignerFromChainSlug(chain);
-            socketSignerAddress = await socketSigner.getAddress();
-
-            let siblingSlugs: ChainSlug[] = Object.keys(connectors).map((k) =>
-              parseInt(k)
-            ) as ChainSlug[];
-
-            let bridgeContract: Contract = await getBridgeContract(
-              chain,
-              token,
-              addr
-            );
-
-            await connect(
-              addr,
-              addresses,
-              chain,
-              token,
-              siblingSlugs,
-              socketSigner
-            );
-            await updateConnectorStatus(
-              chain,
-              siblingSlugs,
-              connectors,
-              bridgeContract,
-              true
-            );
-            console.log(
-              `-   Checking limits and pool ids for chain ${chain}, siblings ${siblingSlugs}`
-            );
-
-            if (isSuperToken() && addr[TokenContracts.SuperToken]) {
-              let superTokenContract = await getInstance(
-                TokenContracts.SuperToken,
-                addr[TokenContracts.SuperToken]
-              );
-              superTokenContract = superTokenContract.connect(socketSigner);
-
-              await setControllerRole(
-                chain,
-                superTokenContract,
-                bridgeContract.address
-              );
-            }
-
-            await configureHooks(
-              chain,
-              token,
-              bridgeContract,
-              socketSigner,
-              siblingSlugs,
-              connectors,
-              addr
-            );
-          })
-        );
+      pc[token] = getTokenConstants(token);
+      let addresses: SBAddresses | STAddresses;
+      try {
+        addresses = getAllAddresses();
+      } catch (error) {
+        addresses = {} as SBAddresses | STAddresses;
       }
+      let allChains: ChainSlug[] = [
+        ...pc[token].controllerChains,
+        ...pc[token].vaultChains,
+      ];
+      const hookType = pc[token].hook.hookType;
+
+      await Promise.all(
+        allChains.map(async (chain) => {
+          let addr: SBTokenAddresses | STTokenAddresses = (addresses[chain]?.[
+            token
+          ] ?? {}) as SBTokenAddresses | STTokenAddresses;
+
+          const connectors: Connectors | undefined = addr.connectors;
+          if (!addr || !connectors) return;
+
+          const socketSigner = getSignerFromChainSlug(chain);
+          socketSignerAddress = await socketSigner.getAddress();
+
+          let siblingSlugs: ChainSlug[] = Object.keys(connectors).map((k) =>
+            parseInt(k)
+          ) as ChainSlug[];
+
+          let bridgeContract: Contract = await getBridgeContract(
+            chain,
+            token,
+            addr
+          );
+
+          await connect(
+            addr,
+            addresses,
+            chain,
+            token,
+            siblingSlugs,
+            socketSigner
+          );
+          await updateConnectorStatus(
+            chain,
+            siblingSlugs,
+            connectors,
+            bridgeContract,
+            true
+          );
+          console.log(
+            `-   Checking limits and pool ids for chain ${chain}, siblings ${siblingSlugs}`
+          );
+
+          if (isSuperToken() && addr[TokenContracts.SuperToken]) {
+            let superTokenContract = await getInstance(
+              TokenContracts.SuperToken,
+              addr[TokenContracts.SuperToken]
+            );
+            superTokenContract = superTokenContract.connect(socketSigner);
+
+            await setControllerRole(
+              chain,
+              superTokenContract,
+              bridgeContract.address
+            );
+          }
+
+          await configureHooks(
+            chain,
+            token,
+            bridgeContract,
+            socketSigner,
+            siblingSlugs,
+            connectors,
+            addr
+          );
+        })
+      );
+    }
     printExecSummary();
   } catch (error) {
     console.error("Error while sending transaction", error);

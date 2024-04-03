@@ -54,9 +54,8 @@ let tokens: Tokens[];
 
 export const deploy = async () => {
   try {
-
     await verifyConstants();
-    ({ projectName, projectType, tokens} = getConfigs());
+    ({ projectName, projectType, tokens } = getConfigs());
     printConfigs();
     for (let token of tokens) {
       console.log(`Deploying contracts for ${token}...`);
@@ -106,7 +105,6 @@ export const deploy = async () => {
             allDeployed = results.allDeployed;
             chainAddresses = results.deployedAddresses;
           }
-
         })
       );
     }
@@ -234,7 +232,10 @@ const deployConnectors = async (
       );
     }
 
-    console.log(deployParams.currentChainSlug, " Connector Contracts deployed!");
+    console.log(
+      deployParams.currentChainSlug,
+      " Connector Contracts deployed!"
+    );
   } catch (error) {
     console.log("Error in deploying connector contracts", error);
   }
@@ -337,7 +338,10 @@ const deployVaultChainContracts = async (
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
 
     deployParams = await deployHookContracts(isVaultChain, false, deployParams);
-    console.log(deployParams.currentChainSlug, " Vault Chain Contracts deployed!");
+    console.log(
+      deployParams.currentChainSlug,
+      " Vault Chain Contracts deployed!"
+    );
   } catch (error) {
     console.log(
       "Error in deploying vault chain contracts: ",

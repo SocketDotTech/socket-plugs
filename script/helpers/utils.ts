@@ -2,7 +2,12 @@ import { ContractFactory, Contract } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { overrides } from "./networks";
-import { getDryRun, getMode, getProjectName, getProjectType } from "../constants/config";
+import {
+  getDryRun,
+  getMode,
+  getProjectName,
+  getProjectType,
+} from "../constants/config";
 import * as fs from "fs";
 import path from "path";
 
@@ -120,7 +125,7 @@ export const readJSONFile = (filePath: string) => {
     console.error("Error reading JSON file:", error);
     return null;
   }
-}
+};
 
 export const checkMissingFields = (fields: { [key: string]: any }) => {
   for (const field in fields) {

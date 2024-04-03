@@ -186,7 +186,9 @@ export const storeTokenAddresses = async (
   chainSlug: ChainSlug,
   tokenName: Tokens
 ) => {
-  let deploymentAddresses: SBAddresses | STAddresses = readJSONFile(getDeploymentPath());
+  let deploymentAddresses: SBAddresses | STAddresses = readJSONFile(
+    getDeploymentPath()
+  );
 
   deploymentAddresses = createObj(
     deploymentAddresses,
@@ -195,7 +197,10 @@ export const storeTokenAddresses = async (
       : [chainSlug.toString()],
     addresses
   );
-  fs.writeFileSync(getDeploymentPath(), JSON.stringify(deploymentAddresses, null, 2));
+  fs.writeFileSync(
+    getDeploymentPath(),
+    JSON.stringify(deploymentAddresses, null, 2)
+  );
 };
 
 export const storeAllAddresses = async (addresses: SBAddresses) => {

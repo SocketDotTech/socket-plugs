@@ -51,7 +51,9 @@ export const isSuperToken = () => getProjectType() === ProjectType.SUPERTOKEN;
 
 export const getTokens = () => {
   if (!process.env.TOKENS) throw new Error("TOKENS not mentioned");
-  let tokens = process.env.TOKENS.split(",").map((token) => token.trim() as Tokens);
+  let tokens = process.env.TOKENS.split(",").map(
+    (token) => token.trim() as Tokens
+  );
   tokens.forEach((token) => {
     if (!Object.values(Tokens).includes(token as Tokens))
       throw new Error("TOKENS are invalid");
@@ -67,17 +69,15 @@ export const getDryRun = () => {
 };
 
 export const getConfigs = () => {
-
   let projectType = getProjectType();
-    let projectName = getProjectName();
-    let tokens = getTokens();
-    let mode = getMode();
-    let socketOwner = getSocketOwner();
-    return { projectType, projectName, tokens, mode, socketOwner };
-}
+  let projectName = getProjectName();
+  let tokens = getTokens();
+  let mode = getMode();
+  let socketOwner = getSocketOwner();
+  return { projectType, projectName, tokens, mode, socketOwner };
+};
 
 export const printConfigs = () => {
-
   let { projectType, projectName, tokens, mode, socketOwner } = getConfigs();
   console.log("========================================================");
   console.log("MODE", mode);
@@ -89,4 +89,4 @@ export const printConfigs = () => {
   );
   console.log(`Owner address configured to ${socketOwner}`);
   console.log("========================================================");
-}
+};
