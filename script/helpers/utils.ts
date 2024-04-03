@@ -1,22 +1,42 @@
-import { Wallet } from "ethers";
-import { network, ethers, run } from "hardhat";
 import { ContractFactory, Contract } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
-import { getSignerFromChainSlug, overrides } from "./networks";
-import { getDryRun } from "../constants/config";
+import { overrides } from "./networks";
+import { getDryRun, getMode, getProjectName, getProjectType } from "../constants/config";
 import * as fs from "fs";
+import path from "path";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
-import { getInstance } from "./deployUtils";
-import {
-  CommonContracts,
-  ConnectorAddresses,
-  Connectors,
-  SuperBridgeContracts,
-  SuperTokenChainAddresses,
-  TokenAddresses,
-} from "../../src";
+
+export let deploymentPath: string;
+export const getDeploymentPath = () => {
+  if (deploymentPath) return deploymentPath;
+  deploymentPath = path.join(
+    __dirname,
+    `/../../deployments/${getProjectType()}/${getMode()}_${getProjectName()}_addresses.json`
+  );
+  return deploymentPath;
+};
+
+export let verificationPath: string;
+export const getVerificationPath = () => {
+  if (verificationPath) return verificationPath;
+  verificationPath = path.join(
+    __dirname,
+    `/../../deployments/${getProjectType()}/${getMode()}_${getProjectName()}_verification.json`
+  );
+  return verificationPath;
+};
+
+export let constantPath: string;
+export const getConstantPath = () => {
+  if (constantPath) return constantPath;
+  constantPath = path.join(
+    __dirname,
+    `/../constants/projectConstants/${getProjectType()}/${getProjectName()}`
+  );
+  return constantPath;
+};
 
 export function encodePoolId(chainSlug: number, poolCount: number) {
   const encodedValue = (BigInt(chainSlug) << BigInt(224)) | BigInt(poolCount);
@@ -28,11 +48,12 @@ export function encodePoolId(chainSlug: number, poolCount: number) {
 
 export const getPoolIdHex = (
   chainSlug: ChainSlug,
+  token: string,
   it: IntegrationTypes
 ): string => {
   return encodePoolId(
     chainSlug,
-    getIntegrationTypeConsts(it, chainSlug).poolCount
+    getIntegrationTypeConsts(it, chainSlug, token).poolCount
   );
 };
 
@@ -86,46 +107,14 @@ export const printExecSummary = () => {
   }
 };
 
-export const getBridgeContract = async (
-  chain: ChainSlug,
-  addr: TokenAddresses | SuperTokenChainAddresses
-) => {
-  const socketSigner = getSignerFromChainSlug(chain);
-
-  let bridgeContract: Contract;
-  let vaultAddress = addr[CommonContracts.Vault];
-  let controllerAddress = addr[CommonContracts.Controller];
-
-  if (vaultAddress && controllerAddress) {
-    throw new Error("Both vault and controller addresses found");
-  }
-  if (!vaultAddress && !controllerAddress) {
-    throw new Error("vault and controller addresses not found");
-  }
-  if (addr[CommonContracts.Controller]) {
-    bridgeContract = await getInstance(
-      SuperBridgeContracts.Controller,
-      addr[SuperBridgeContracts.Controller]
-    );
-  } else if (addr[CommonContracts.Vault]) {
-    bridgeContract = await getInstance(
-      SuperBridgeContracts.Vault,
-      addr[SuperBridgeContracts.Vault]
-    );
-  }
-
-  bridgeContract = bridgeContract.connect(socketSigner);
-  return bridgeContract;
-};
-
 // Function to read JSON file
-export function readJSONFile(filePath: string): Promise<any> {
+export const readJSONFile = (filePath: string) => {
   try {
-    // Read file synchronously
-    console.log("readiang file");
+    let fileExists = fs.existsSync(filePath);
+    if (!fileExists) {
+      fs.writeFileSync(filePath, "{}");
+    }
     const data = fs.readFileSync(filePath, "utf8");
-    console.log("file ", data);
-    console.log(JSON.parse(data));
     return JSON.parse(data);
   } catch (error) {
     console.error("Error reading JSON file:", error);
@@ -133,46 +122,11 @@ export function readJSONFile(filePath: string): Promise<any> {
   }
 }
 
-export const updateConnectorStatus = async (
-  chain: ChainSlug,
-  siblingSlugs: ChainSlug[],
-  connectors: Connectors,
-  bridgeContract: Contract,
-  newConnectorStatus: boolean
-) => {
-  const connectorAddresses: string[] = [];
-
-  for (let sibling of siblingSlugs) {
-    const siblingConnectorAddresses: ConnectorAddresses | undefined =
-      connectors[sibling];
-    if (!siblingConnectorAddresses) continue;
-
-    const integrationTypes: IntegrationTypes[] = Object.keys(
-      siblingConnectorAddresses
-    ) as unknown as IntegrationTypes[];
-    for (let it of integrationTypes) {
-      const itConnectorAddress: string | undefined =
-        siblingConnectorAddresses[it];
-      if (!itConnectorAddress) continue;
-
-      let currentConnectorStatus =
-        await bridgeContract.callStatic.validConnectors(itConnectorAddress);
-      if (currentConnectorStatus !== newConnectorStatus) {
-        connectorAddresses.push(itConnectorAddress);
-      }
+export const checkMissingFields = (fields: { [key: string]: any }) => {
+  for (const field in fields) {
+    let value = fields[field];
+    if (!value) {
+      throw Error(`missing field : ${field}`);
     }
-  }
-  if (connectorAddresses.length) {
-    await execute(
-      bridgeContract,
-      "updateConnectorStatus",
-      [
-        connectorAddresses,
-        new Array(connectorAddresses.length).fill(newConnectorStatus),
-      ],
-      chain
-    );
-  } else {
-    console.log(`✔   Connector status already set for chain ${chain}`);
   }
 };

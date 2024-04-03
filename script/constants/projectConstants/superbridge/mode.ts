@@ -3,15 +3,16 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Tokens } from "../../../src";
+import { Tokens } from "../../../../src";
 import { ProjectConstants } from "../types";
 
 const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
-      appChain: ChainSlug.SX_NETWORK_TESTNET,
+      isFiatTokenV2_1: true,
+      appChain: ChainSlug.MODE,
       nonAppChains: {
-        [ChainSlug.POLYGON_MUMBAI]: {
+        [ChainSlug.OPTIMISM]: {
           [IntegrationTypes.fast]: {
             depositLimit: "10000",
             depositRate: "0.11574",
@@ -20,7 +21,16 @@ const pc: ProjectConstants = {
             poolCount: 0,
           },
         },
-        [ChainSlug.SEPOLIA]: {
+        [ChainSlug.ARBITRUM]: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000",
+            depositRate: "0.11574",
+            withdrawLimit: "10000",
+            withdrawRate: "0.11574",
+            poolCount: 0,
+          },
+        },
+        [ChainSlug.BASE]: {
           [IntegrationTypes.fast]: {
             depositLimit: "10000",
             depositRate: "0.11574",

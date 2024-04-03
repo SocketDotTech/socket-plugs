@@ -28,7 +28,7 @@ export const getMode = () => {
   return process.env.DEPLOYMENT_MODE as DeploymentMode;
 };
 
-export const getSuperBridgeProject = () => {
+export const getProjectName = () => {
   if (!process.env.PROJECT) throw new Error("Project not mentioned");
   if (!Object.values(Project).includes(process.env.PROJECT as Project))
     throw new Error("Project is invalid");
@@ -49,23 +49,14 @@ export const getProjectType = () => {
 export const isSuperBridge = () => getProjectType() === ProjectType.SUPERBRIDGE;
 export const isSuperToken = () => getProjectType() === ProjectType.SUPERTOKEN;
 
-export const getToken = () => {
-  if (!process.env.TOKEN) throw new Error("Token not mentioned");
-  if (!Object.values(Tokens).includes(process.env.TOKEN as Tokens))
-    throw new Error("Token is invalid");
-  return process.env.TOKEN as Tokens;
-};
-
-export const getProjectName = () => {
-  const projectType = getProjectType();
-  if (projectType === ProjectType.SUPERBRIDGE) return getSuperBridgeProject();
-  if (projectType === ProjectType.SUPERTOKEN) return getTokenProject();
-};
-
-export const getTokenProject = () => {
-  if (!process.env.TOKEN_PROJECT)
-    throw new Error("Token project not mentioned");
-  return process.env.TOKEN_PROJECT as Project;
+export const getTokens = () => {
+  if (!process.env.TOKENS) throw new Error("TOKENS not mentioned");
+  let tokens = process.env.TOKENS.split(",").map((token) => token.trim() as Tokens);
+  tokens.forEach((token) => {
+    if (!Object.values(Tokens).includes(token as Tokens))
+      throw new Error("TOKENS are invalid");
+  });
+  return tokens;
 };
 
 export const getDryRun = () => {
@@ -74,3 +65,28 @@ export const getDryRun = () => {
     throw new Error("Dry run is invalid, must be either 'true' or 'false'");
   return process.env.DRY_RUN === "true";
 };
+
+export const getConfigs = () => {
+
+  let projectType = getProjectType();
+    let projectName = getProjectName();
+    let tokens = getTokens();
+    let mode = getMode();
+    let socketOwner = getSocketOwner();
+    return { projectType, projectName, tokens, mode, socketOwner };
+}
+
+export const printConfigs = () => {
+
+  let { projectType, projectName, tokens, mode, socketOwner } = getConfigs();
+  console.log("========================================================");
+  console.log("MODE", mode);
+  console.log("PROJECT", projectName);
+  console.log("PROJECT_TYPE", projectType);
+  console.log("TOKENS", tokens);
+  console.log(
+    `Make sure ${mode}_${projectName}_addresses.json and ${mode}_${projectName}_verification.json is cleared for given networks if redeploying!!`
+  );
+  console.log(`Owner address configured to ${socketOwner}`);
+  console.log("========================================================");
+}

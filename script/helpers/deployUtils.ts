@@ -3,7 +3,6 @@ import { network, ethers, run } from "hardhat";
 import { ContractFactory, Contract } from "ethers";
 
 import fs from "fs";
-import path from "path";
 import { Address } from "hardhat-deploy/dist/types";
 import {
   ChainSlug,
@@ -12,37 +11,23 @@ import {
 } from "@socket.tech/dl-core";
 import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
+import { getMode, getProjectName, isSuperBridge } from "../constants/config";
 import {
-  getDryRun,
-  getMode,
-  getProjectName,
-  getProjectType,
-  getToken,
-  isSuperBridge,
-} from "../constants/config";
-import {
-  ProjectAddresses,
-  SuperTokenChainAddresses,
   SuperBridgeContracts,
-  TokenAddresses,
   Hooks,
-  SuperTokenProjectAddresses,
-  ProjectType,
+  Tokens,
+  STTokenAddresses,
+  SBTokenAddresses,
+  SBAddresses,
+  STAddresses,
+  DeployParams,
 } from "../../src";
-import { getIntegrationTypeConsts } from "./projectConstants";
-import { readJSONFile } from "./utils";
-
-export const deploymentsPath =
-  getProjectType() === ProjectType.SUPERBRIDGE
-    ? path.join(__dirname, `/../../deployments/superbridge/`)
-    : path.join(__dirname, `/../../deployments/supertoken/`);
-
-export interface DeployParams {
-  addresses: TokenAddresses | SuperTokenChainAddresses;
-  signer: Wallet;
-  currentChainSlug: number;
-  hook?: Hooks;
-}
+import {
+  deploymentPath,
+  getDeploymentPath,
+  getVerificationPath,
+  readJSONFile,
+} from "./utils";
 
 export const getOrDeploy = async (
   contractName: string,
@@ -97,7 +82,7 @@ export const getOrDeployConnector = async (
     throw new Error("No addresses found");
 
   let contract: Contract;
-  let storedContactAddress = (deployUtils.addresses as TokenAddresses)
+  let storedContactAddress = (deployUtils.addresses as SBTokenAddresses)
     .connectors?.[sibling]?.[integrationType];
 
   if (!storedContactAddress) {
@@ -196,145 +181,46 @@ export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
   return new Contract(getAddresses(chain, getMode()).Socket, socketABI, signer);
 };
 
-export const storeAddresses = async (
-  addresses: TokenAddresses,
+export const storeTokenAddresses = async (
+  addresses: SBTokenAddresses,
   chainSlug: ChainSlug,
-  fileName: string,
-  tokenName = getToken().toString(),
-  pathToDeployments = deploymentsPath
+  tokenName: Tokens
 ) => {
-  if (!fs.existsSync(pathToDeployments)) {
-    await fs.promises.mkdir(pathToDeployments, { recursive: true });
-  }
-
-  const addressesPath =
-    deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
-  const outputExists = fs.existsSync(addressesPath);
-  let deploymentAddresses: ProjectAddresses | SuperTokenProjectAddresses = {};
-  if (outputExists) {
-    const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
-    deploymentAddresses = JSON.parse(deploymentAddressesString);
-  }
+  let deploymentAddresses: SBAddresses | STAddresses = readJSONFile(getDeploymentPath());
 
   deploymentAddresses = createObj(
     deploymentAddresses,
     isSuperBridge()
-      ? [chainSlug.toString(), getToken()]
+      ? [chainSlug.toString(), tokenName]
       : [chainSlug.toString()],
     addresses
   );
-  // deploymentAddresses[chainSlug][token] = addresses;
-  fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
+  fs.writeFileSync(getDeploymentPath(), JSON.stringify(deploymentAddresses, null, 2));
 };
 
-export const storeSuperTokenAddresses = async (
-  addresses: SuperTokenChainAddresses,
-  chainSlug: ChainSlug,
-  fileName: string,
-  tokenName = getToken().toString(),
-  pathToDeployments = deploymentsPath
-) => {
-  if (!fs.existsSync(pathToDeployments)) {
-    await fs.promises.mkdir(pathToDeployments, { recursive: true });
-  }
-
-  const addressesPath =
-    deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
-  const outputExists = fs.existsSync(addressesPath);
-  let deploymentAddresses: SuperTokenProjectAddresses = {};
-  if (outputExists) {
-    const deploymentAddressesString = fs.readFileSync(addressesPath, "utf-8");
-    deploymentAddresses = JSON.parse(deploymentAddressesString);
-  }
-
-  deploymentAddresses = createObj(
-    deploymentAddresses,
-    [chainSlug.toString()],
-    addresses
-  );
-  // deploymentAddresses[chainSlug][token] = addresses;
-  fs.writeFileSync(addressesPath, JSON.stringify(deploymentAddresses, null, 2));
+export const storeAllAddresses = async (addresses: SBAddresses) => {
+  fs.writeFileSync(getDeploymentPath(), JSON.stringify(addresses, null, 2));
 };
 
-export const storeAllAddresses = async (addresses: ProjectAddresses) => {
-  if (!fs.existsSync(deploymentsPath)) {
-    await fs.promises.mkdir(deploymentsPath, { recursive: true });
-  }
-
-  const addressesPath =
-    deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
-  fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
-};
-
-let addresses: ProjectAddresses;
-let superTokenAddresses: SuperTokenProjectAddresses;
-export const getSuperBridgeAddresses = async (): Promise<ProjectAddresses> => {
-  let path =
-    deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
-  console.log({ path });
-  let data;
-  try {
-    data = fs.readFileSync(path, "utf8");
-  } catch (error) {
-    console.log(error);
-  }
-  console.log({ data });
-  try {
-    return JSON.parse(data);
-  } catch (error) {
-    console.log(error);
-  }
-
-  console.log({ addresses });
+let addresses: SBAddresses | STAddresses;
+export const getAllAddresses = (): SBAddresses | STAddresses => {
+  if (addresses) return addresses;
+  addresses = readJSONFile(getDeploymentPath());
   return addresses;
 };
 
-export const getSuperTokenAddresses =
-  async (): Promise<SuperTokenProjectAddresses> => {
-    console.log("here get supertoken ", { superTokenAddresses });
-    if (!superTokenAddresses) {
-      try {
-        let path =
-          deploymentsPath + `${getMode()}_${getProjectName()}_addresses.json`;
-        console.log(path);
-        let data;
-        try {
-          data = fs.readFileSync(path, "utf8");
-        } catch (error) {
-          console.log(error);
-        }
-        console.log("data", data);
-        superTokenAddresses = JSON.parse(data);
-        console.log("got data");
-        console.log({ superTokenAddresses });
-        console.log("superTokenAddresses", superTokenAddresses);
-      } catch (e) {
-        console.log("addresses not found", e);
-        throw new Error("addresses not found");
-      }
-    }
-
-    return superTokenAddresses;
-  };
+export const getSuperBridgeAddresses = (): SBAddresses => {
+  return getAllAddresses() as SBAddresses;
+};
+export const getSuperTokenAddresses = (): STAddresses => {
+  return getAllAddresses() as STAddresses;
+};
 
 export const storeVerificationParams = async (
   verificationDetail: any[],
   chainSlug: ChainSlug
 ) => {
-  if (!fs.existsSync(deploymentsPath)) {
-    await fs.promises.mkdir(deploymentsPath);
-  }
-  const verificationPath =
-    deploymentsPath + `${getMode()}_${getProjectName()}_verification.json`;
-  const outputExists = fs.existsSync(verificationPath);
-  let verificationDetails: object = {};
-  if (outputExists) {
-    const verificationDetailsString = fs.readFileSync(
-      verificationPath,
-      "utf-8"
-    );
-    verificationDetails = JSON.parse(verificationDetailsString);
-  }
+  let verificationDetails: object = readJSONFile(getVerificationPath());
 
   if (!verificationDetails[chainSlug]) verificationDetails[chainSlug] = [];
   verificationDetails[chainSlug] = [
@@ -343,7 +229,7 @@ export const storeVerificationParams = async (
   ];
 
   fs.writeFileSync(
-    verificationPath,
+    getVerificationPath(),
     JSON.stringify(verificationDetails, null, 2)
   );
 };

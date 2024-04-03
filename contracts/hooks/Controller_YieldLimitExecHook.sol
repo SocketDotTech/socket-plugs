@@ -47,6 +47,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     ) LimitExecutionHook(msg.sender, controller_, executionHelper_, true) {
         yieldToken__ = IYieldToken(underlyingAsset_);
         hookType = LIMIT_EXECUTION_YIELD_TOKEN_HOOK;
+        _grantRole(LIMIT_UPDATER_ROLE, msg.sender);
     }
 
     // assumed transfer info inputs are validated at controller

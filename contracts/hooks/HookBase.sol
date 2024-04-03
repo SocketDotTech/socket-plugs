@@ -24,6 +24,7 @@ abstract contract HookBase is ReentrancyGuard, IHook, RescueBase {
         address vaultOrController_
     ) AccessControl(owner_) {
         vaultOrController = vaultOrController_;
+        _grantRole(RESCUE_ROLE, owner_);
     }
 
     modifier isVaultOrController() {

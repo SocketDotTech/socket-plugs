@@ -1,5 +1,5 @@
 import { DeploymentMode } from "@socket.tech/dl-core";
-import { Project, ProjectAddresses } from "./types";
+import { Project } from "./enum";
 
 import dev_aevo_testnet_addresses from "../deployments/superbridge/dev_aevo-testnet_addresses.json";
 import dev_lyra_testnet_address from "../deployments/superbridge/dev_lyra-testnet_addresses.json";

@@ -1,16 +1,12 @@
 import hre from "hardhat";
 import fs from "fs";
 
-import { deploymentsPath, verify } from "./deployUtils";
-import {
-  getMode,
-  getProjectName,
-  getSuperBridgeProject,
-} from "../constants/config";
+import { verify } from "../helpers/deployUtils";
 import {
   ChainSlug,
   ChainSlugToKey as ChainSlugToHardhatKey,
 } from "@socket.tech/dl-core";
+import { getVerificationPath } from "../helpers/utils";
 
 export type VerifyParams = {
   [chain in ChainSlug]?: VerifyArgs[];
@@ -22,8 +18,7 @@ type VerifyArgs = [string, string, string, any[]];
  */
 export const main = async () => {
   try {
-    const path =
-      deploymentsPath + `${getMode()}_${getProjectName()}_verification.json`;
+    const path = getVerificationPath();
     if (!fs.existsSync(path)) {
       throw new Error("addresses.json not found");
     }
@@ -60,7 +55,7 @@ export const main = async () => {
       }
     }
   } catch (error) {
-    console.log("Error in deploying setup contracts", error);
+    console.log("Error in contract verification", error);
   }
 };
 

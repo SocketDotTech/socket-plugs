@@ -18,6 +18,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     ) HookBase(owner_, controller_) {
         useControllerPools = useControllerPools_;
         hookType = LIMIT_HOOK;
+        _grantRole(LIMIT_UPDATER_ROLE, owner_);
     }
 
     function srcPreHookCall(

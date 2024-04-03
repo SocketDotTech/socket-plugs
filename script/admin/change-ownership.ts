@@ -1,7 +1,7 @@
 import { getSuperBridgeAddresses, ZERO_ADDRESS } from "../helpers";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { isAppChain } from "../helpers/projectConstants";
+import { isSBAppChain } from "../helpers/projectConstants";
 import { getSocketOwner } from "../constants/config";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { ChainSlug } from "@socket.tech/dl-core";
@@ -24,7 +24,7 @@ async function getOwnerAndNominee(contract: ethers.Contract) {
 
 export const main = async () => {
   try {
-    const addresses = await getSuperBridgeAddresses();
+    const addresses = getSuperBridgeAddresses();
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       if (!chainToExpectedOwner?.[+chain]) {
@@ -37,7 +37,7 @@ export const main = async () => {
         }`
       );
       for (const token of Object.keys(addresses[chain])) {
-        if (isAppChain(+chain)) {
+        if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller
           const exchangeRateAddress = addresses[chain][token].ExchangeRate;
           const exchangeRateContract = new ethers.Contract(

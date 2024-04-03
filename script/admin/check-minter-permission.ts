@@ -1,7 +1,7 @@
 import { getSuperBridgeAddresses } from "../helpers";
 import { Contract } from "ethers";
 import { getProviderFromChainSlug } from "../helpers/networks";
-import { isAppChain } from "../helpers/projectConstants";
+import { isSBAppChain } from "../helpers/projectConstants";
 import { MINTABLE_ABI } from "../constants/abis/mintable";
 
 export const main = async () => {
@@ -10,7 +10,7 @@ export const main = async () => {
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
-        if (!isAppChain(+chain)) continue;
+        if (!isSBAppChain(+chain, token)) continue;
 
         const tokenAddress = addresses[chain][token].MintableToken;
         const controller = addresses[chain][token].Controller;

@@ -1,51 +1,36 @@
-import { BigNumber, Contract, Wallet, utils } from "ethers";
-
-import { getInstance } from "../helpers";
+import { BigNumber } from "ethers";
 import {
-  TokenAddresses,
-  HookContracts,
-  SuperTokenChainAddresses,
+  ChainSlug,
+  SBTokenAddresses,
+  STTokenAddresses,
+  Tokens,
 } from "../../src";
+import { getHookContract } from "../helpers/common";
 
 export const checkSendingLimit = async (
-  addr: TokenAddresses | SuperTokenChainAddresses,
+  chain: ChainSlug,
+  token: Tokens,
+  addr: SBTokenAddresses | STTokenAddresses,
   connectorAddr: string,
-  amountBN: BigNumber,
-  socketSigner: Wallet
+  amountBN: BigNumber
 ) => {
-  let hook = await getHookContract(addr, socketSigner);
-  if (!hook) return;
-
-  const limit: BigNumber = await hook.getCurrentSendingLimit(connectorAddr);
+  let { hookContract } = await getHookContract(chain, token, addr);
+  const limit: BigNumber = await hookContract.getCurrentSendingLimit(
+    connectorAddr
+  );
   if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
 };
 
 export const checkReceivingLimit = async (
-  addr: TokenAddresses | SuperTokenChainAddresses,
+  chain: ChainSlug,
+  token: Tokens,
+  addr: SBTokenAddresses | STTokenAddresses,
   connectorAddr: string,
-  amountBN: BigNumber,
-  socketSigner: Wallet
+  amountBN: BigNumber
 ) => {
-  let hook = await getHookContract(addr, socketSigner);
-  if (!hook) return;
-
-  const limit: BigNumber = await hook.getCurrentReceivingLimit(connectorAddr);
+  let { hookContract } = await getHookContract(chain, token, addr);
+  const limit: BigNumber = await hookContract.getCurrentReceivingLimit(
+    connectorAddr
+  );
   if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
-};
-
-export const getHookContract = async (
-  addr: TokenAddresses | SuperTokenChainAddresses,
-  socketSigner: Wallet
-) => {
-  let instance: Contract;
-  if (addr.LimitHook) {
-    instance = await getInstance(HookContracts.LimitHook, addr.LimitHook);
-  } else if (addr.LimitExecutionHook) {
-    instance = await getInstance(
-      HookContracts.LimitExecutionHook,
-      addr.LimitExecutionHook
-    );
-  }
-  if (!instance) return undefined;
-  return instance.connect(socketSigner);
 };

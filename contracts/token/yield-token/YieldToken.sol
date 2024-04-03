@@ -17,7 +17,9 @@ contract YieldToken is YieldTokenBase {
         string memory name_,
         string memory symbol_,
         uint8 decimals_
-    ) YieldTokenBase(name_, symbol_, decimals_) AccessControl(msg.sender) {}
+    ) YieldTokenBase(name_, symbol_, decimals_) AccessControl(msg.sender) {
+        _grantRole(RESCUE_ROLE, msg.sender);
+    }
 
     // move to hook
     // fix to round up and check other cases

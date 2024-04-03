@@ -1,7 +1,7 @@
 import { getSuperBridgeAddresses } from "../helpers";
 import { ethers } from "ethers";
 import { getProviderFromChainSlug } from "../helpers/networks";
-import { isAppChain } from "../helpers/projectConstants";
+import { isSBAppChain } from "../helpers/projectConstants";
 import { ERC20__factory } from "../../typechain-types";
 import { tokenDecimals } from "../../src";
 
@@ -11,7 +11,7 @@ export const main = async () => {
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
-        if (isAppChain(+chain)) continue;
+        if (isSBAppChain(+chain, token)) continue;
 
         const tokenAddress = addresses[chain][token].NonMintableToken;
         const tokenContract = ERC20__factory.connect(

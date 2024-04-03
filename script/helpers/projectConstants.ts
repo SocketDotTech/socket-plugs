@@ -1,55 +1,36 @@
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { BigNumber, utils } from "ethers";
-import { ProjectType, tokenDecimals } from "../../src";
-import { ProjectTokenConstants, SuperTokenConstants } from "../constants/types";
-import {
-  getMode,
-  getProjectType,
-  getSuperBridgeProject,
-  getToken,
-  getTokenProject,
-} from "../constants/config";
+import { TokenConstants, tokenDecimals } from "../../src";
+import { getMode, getProjectName } from "../constants/config";
+import fs from "fs";
+import { getConstantPath } from "./utils";
+import { token } from "../../typechain-types/contracts";
 
-export const isAppChain = (chain: ChainSlug) =>
-  getBridgeProjectTokenConstants().appChain === chain;
+export const isSBAppChain = (chain: ChainSlug, token: string) =>
+  getTokenConstants(token).controllerChains.includes(chain);
 
-export const isSuperTokenVaultChain = (chain: ChainSlug) =>
-  getSuperTokenConstants().vaultChains.includes(chain);
+export const isSTVaultChain = (chain: ChainSlug, token: string) =>
+  getTokenConstants(token).vaultChains.includes(chain);
 
-let pc: ProjectTokenConstants;
-export const getBridgeProjectTokenConstants = (): ProjectTokenConstants => {
-  if (pc) return pc;
-  const _pc = require(`../constants/bridge-constants/${getSuperBridgeProject()}`);
-  pc = _pc?.[getMode()]?.[getToken()];
-  if (!pc)
-    throw new Error(
-      `config not found for ${getSuperBridgeProject()}, ${getMode()}, ${getToken()}`
-    );
-  return pc;
-};
+let tc: TokenConstants;
 
-let tc: SuperTokenConstants;
-export const getSuperTokenConstants = (): SuperTokenConstants => {
+export const getTokenConstants = (tokenName: string): TokenConstants => {
   if (tc) return tc;
-  const _tc = require(`../constants/token-constants/${getTokenProject()}`);
-  tc = _tc?.[getMode()];
+  const _tc = require(getConstantPath());
+  tc = _tc?.[getMode()]?.[tokenName];
   if (!tc)
-    throw new Error(`config not found for ${getTokenProject()}, ${getMode()}}`);
+    throw new Error(
+      `config not found for ${getProjectName()}, ${getMode()}, ${tokenName}`
+    );
   return tc;
-};
-
-export const getConstants = () => {
-  const projectType = getProjectType();
-  if (projectType === ProjectType.SUPERBRIDGE)
-    return getBridgeProjectTokenConstants();
-  if (projectType === ProjectType.SUPERTOKEN) return getSuperTokenConstants();
 };
 
 export const getIntegrationTypeConsts = (
   it: IntegrationTypes,
-  chain: ChainSlug
+  chain: ChainSlug,
+  tokenName: string
 ) => {
-  const pci = getConstants().limits[chain]?.[it];
+  const pci = getTokenConstants(tokenName).hook?.limitsAndPoolId?.[chain]?.[it];
   if (!pci) throw new Error("invalid integration for mode and project");
   return pci;
 };
@@ -57,17 +38,18 @@ export const getIntegrationTypeConsts = (
 export const getLimitBN = (
   it: IntegrationTypes,
   chain: ChainSlug,
+  token: string,
   isSending: boolean
 ): BigNumber => {
   if (isSending) {
     return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain).sendingLimit,
-      tokenDecimals[getToken()]
+      getIntegrationTypeConsts(it, chain, token).sendingLimit,
+      tokenDecimals[token]
     );
   } else {
     return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain).receivingLimit,
-      tokenDecimals[getToken()]
+      getIntegrationTypeConsts(it, chain, token).receivingLimit,
+      tokenDecimals[token]
     );
   }
 };
@@ -75,17 +57,9 @@ export const getLimitBN = (
 export const getRateBN = (
   it: IntegrationTypes,
   chain: ChainSlug,
+  token: string,
   isSending: boolean
 ): BigNumber => {
-  if (isSending) {
-    return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain).sendingRate,
-      tokenDecimals[getToken()]
-    );
-  } else {
-    return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain).receivingRate,
-      tokenDecimals[getToken()]
-    );
-  }
+  let limitBN = getLimitBN(it, chain, token, isSending);
+  return limitBN.div(86400);
 };

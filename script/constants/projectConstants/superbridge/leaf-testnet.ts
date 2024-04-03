@@ -3,7 +3,7 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Hooks, ProjectType, Tokens } from "../../../src";
+import { Hooks, ProjectType, Tokens } from "../../../../src";
 import { ProjectConstants } from "../types";
 
 const pc: ProjectConstants = {

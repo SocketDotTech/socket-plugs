@@ -5,7 +5,7 @@ import {
 } from "../helpers";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
-import { isAppChain } from "../helpers/projectConstants";
+import { isSBAppChain } from "../helpers/projectConstants";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 
 export const main = async () => {
@@ -14,7 +14,7 @@ export const main = async () => {
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
-        if (isAppChain(+chain)) {
+        if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller
           const exchangeRateAddress = addresses[chain][token].ExchangeRate;
           const exchangeRateContract = new ethers.Contract(

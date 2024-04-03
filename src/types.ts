@@ -1,98 +1,68 @@
-import { ChainSlug, IntegrationTypes } from "./core";
+import { BigNumber, Wallet } from "ethers";
+import { ChainSlug, DeploymentMode, IntegrationTypes } from "./core";
+import {
+  CommonContracts,
+  HookContracts,
+  Hooks,
+  Project,
+  ProjectType,
+  SuperBridgeContracts,
+  SuperTokenContracts,
+  Tokens,
+} from "./enum";
 
-export enum Tokens {
-  Moon = "MOON",
-  USDCE = "USDC.e",
-  USDC = "USDC",
-  WETH = "WETH",
-  WBTC = "WBTC",
-  USDT = "USDT",
-  SNX = "SNX",
-  WSTETH = "wstETH",
-}
-
-export enum Project {
-  AEVO = "aevo",
-  AEVO_TESTNET = "aevo-testnet",
-  LYRA_TESTNET = "lyra-testnet",
-  LYRA = "lyra",
-  SX_NETWORK_TESTNET = "sx-network-testnet",
-  SOCKET_DEV = "socket-dev",
-  MODE_TESTNET = "mode-testnet",
-  VICTION_TESTNET = "viction-testnet",
-  MODE = "mode",
-  ANCIENT8_TESTNET2 = "ancient8-testnet2",
-  LEAF_TESTNET = "leaf-testnet",
-  SAND_TESTNET = "sand-testnet",
-}
-
-export enum Hooks {
-  NO_HOOK = "NO_HOOK",
-  LIMIT_HOOK = "LIMIT_HOOK",
-  LIMIT_EXECUTION_HOOK = "LIMIT_EXECUTION_HOOK",
-  YIELD_LIMIT_EXECUTION_HOOK = "YIELD_LIMIT_EXECUTION_HOOK",
-  // CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK = "CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK",
-  // VAULT_YIELD_LIMIT_EXECUTION_HOOK = "VAULT_YIELD_LIMIT_EXECUTION_HOOK",
-}
-
-export enum ProjectType {
-  SUPERBRIDGE = "superbridge",
-  SUPERTOKEN = "supertoken",
-}
-
-export enum CommonContracts {
-  Vault = "Vault",
-  Controller = "Controller",
-  NonMintableToken = "NonMintableToken",
-}
-
-export enum TokenContracts {
-  NonMintableToken = "NonMintableToken",
-  MintableToken = "MintableToken",
-  SuperToken = "SuperToken",
-}
-
-////// **** SUPER BRIDGE TYPES **** //////
-
-export enum SuperBridgeContracts {
-  MintableToken = "MintableToken",
-  NonMintableToken = "NonMintableToken",
-  Vault = "Vault",
-  Controller = "Controller",
-  FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
-  ExchangeRate = "ExchangeRate",
-  ConnectorPlug = "ConnectorPlug",
-}
-
-export type ProjectAddresses = {
-  [chainSlug in ChainSlug]?: ChainAddresses;
+export type ProjectConstantsMap = {
+  [key in Project]: ProjectConstants;
 };
 
-export type ChainAddresses = {
-  [token in Tokens]?: TokenAddresses;
+export type ProjectConstants = {
+  [key in DeploymentMode]?: {
+    [key in Tokens]?: TokenConstants;
+  };
 };
 
-export type TokenAddresses = AppChainAddresses | NonAppChainAddresses;
-
-export interface CommonAddresses {
-  connectors?: Connectors;
-  [HookContracts.LimitHook]?: string;
-  [HookContracts.LimitExecutionHook]?: string;
-  [HookContracts.ExecutionHelper]?: string;
-}
-export interface AppChainAddresses extends CommonAddresses {
-  isAppChain: true;
-  [SuperBridgeContracts.MintableToken]?: string;
-  [SuperBridgeContracts.Controller]?: string;
-  [HookContracts.ControllerYieldLimitExecutionHook]?: string;
-}
-
-export interface NonAppChainAddresses extends CommonAddresses {
-  isAppChain: false;
-  [SuperBridgeContracts.NonMintableToken]?: string;
-  [SuperBridgeContracts.Vault]?: string;
-  [HookContracts.VaultYieldLimitExecutionHook]?: string;
-}
+export type TokenConstants = {
+  controllerChains: ChainSlug[];
+  vaultChains: ChainSlug[];
+  // for superbridge project, controller chains
+  isFiatTokenV2_1?: boolean;
+  // for supertoken project, controller chain
+  superTokenInfo?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+    initialSupplyOwner: string;
+    owner: string;
+    initialSupply: number;
+  };
+  // for superbridge yield project, controller chain
+  yieldTokenInfo?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  hook: {
+    hookType: Hooks;
+    // for limitHook, limitExecutionHook
+    limitsAndPoolId?: {
+      [key in ChainSlug]?: {
+        [key in IntegrationTypes]?: {
+          sendingLimit: string;
+          receivingLimit: string;
+          // for superbridge project, vault chains
+          poolCount?: number;
+        };
+      };
+    };
+    // for superbridge project, yield hook, vault chain
+    yieldVaultInfo?: {
+      debtRatio: number;
+      rebalanceDelay: number;
+      strategy: string;
+      underlyingAsset: string;
+    };
+  };
+};
 
 export type Connectors = {
   [chainSlug in ChainSlug]?: ConnectorAddresses;
@@ -102,52 +72,71 @@ export type ConnectorAddresses = {
   [integration in IntegrationTypes]?: string;
 };
 
-export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
-  [ChainSlug.AEVO]: Project.AEVO,
-  [ChainSlug.AEVO_TESTNET]: Project.AEVO_TESTNET,
-  [ChainSlug.LYRA_TESTNET]: Project.LYRA_TESTNET,
-  [ChainSlug.LYRA]: Project.LYRA,
-  [ChainSlug.SX_NETWORK_TESTNET]: Project.SX_NETWORK_TESTNET,
-  // [ChainSlug.OPTIMISM_SEPOLIA]: Project.SOCKET_DEV,
-  [ChainSlug.MODE_TESTNET]: Project.MODE_TESTNET,
-  [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
-  [ChainSlug.MODE]: Project.MODE,
-  [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
+export interface CommonAddresses {
+  connectors: Connectors;
+  [HookContracts.LimitHook]?: string;
+  [HookContracts.LimitExecutionHook]?: string;
+  [HookContracts.ExecutionHelper]?: string;
+}
+
+export interface AppChainAddresses extends CommonAddresses {
+  isAppChain: true;
+  [SuperBridgeContracts.MintableToken]: string;
+  [SuperBridgeContracts.Controller]: string;
+  [HookContracts.ControllerYieldLimitExecutionHook]?: string;
+}
+
+export interface NonAppChainAddresses extends CommonAddresses {
+  isAppChain: false;
+  [SuperBridgeContracts.NonMintableToken]: string;
+  [SuperBridgeContracts.Vault]: string;
+  [HookContracts.VaultYieldLimitExecutionHook]?: string;
+}
+
+export type SBTokenAddresses = AppChainAddresses | NonAppChainAddresses;
+
+export type SBAddresses = {
+  [chainSlug in ChainSlug]?: {
+    [token in Tokens]?: SBTokenAddresses;
+  };
 };
 
-////// **** SUPER TOKEN TYPES **** //////
-
-export enum SuperTokenType {
-  WITH_LIMIT_AND_PAYLOAD_EXECUTION = "WITH_LIMIT_AND_PAYLOAD_EXECUTION",
-  WITH_LIMIT = "WITH_LIMIT",
+export interface STControllerChainAddresses extends CommonAddresses {
+  [SuperTokenContracts.SuperToken]: string;
+  [CommonContracts.Controller]: string;
 }
 
-export enum HookContracts {
-  LimitHook = "LimitHook",
-  LimitExecutionHook = "LimitExecutionHook",
-  ControllerYieldLimitExecutionHook = "Controller_YieldLimitExecHook",
-  VaultYieldLimitExecutionHook = "Vault_YieldLimitExecHook",
-  ExecutionHelper = "ExecutionHelper",
-}
-export enum SuperTokenContracts {
-  NonSuperToken = "NonSuperToken",
-  SuperToken = "SuperToken",
+export interface STVaultChainAddresses extends CommonAddresses {
+  [SuperTokenContracts.NonSuperToken]: string;
+  [CommonContracts.Vault]: string;
 }
 
-export type SuperTokenProjectAddresses = {
-  [chainSlug in ChainSlug]?: SuperTokenChainAddresses;
+export type STTokenAddresses =
+  | STControllerChainAddresses
+  | STVaultChainAddresses;
+
+export type STAddresses = {
+  [chainSlug in ChainSlug]?: {
+    [token in Tokens]?: STTokenAddresses;
+  };
 };
 
-export type SuperTokenChainAddresses =
-  | SuperTokenControllerChainAddresses
-  | SuperTokenVaultChainAddresses;
-
-export interface SuperTokenControllerChainAddresses extends CommonAddresses {
-  [SuperTokenContracts.SuperToken]?: string;
-  [CommonContracts.Controller]?: string;
+export interface DeployParams {
+  addresses: SBTokenAddresses | STTokenAddresses;
+  signer: Wallet;
+  currentChainSlug: number;
+  currentToken: Tokens;
+  hookType?: Hooks;
 }
 
-export interface SuperTokenVaultChainAddresses extends CommonAddresses {
-  [SuperTokenContracts.NonSuperToken]?: string;
-  [CommonContracts.Vault]?: string;
+export type UpdateLimitParams = [
+  boolean,
+  string,
+  string | number | BigNumber,
+  string | number | BigNumber
+];
+
+export interface ReturnObj {
+  allDeployed: boolean;
+  deployedAddresses: SBTokenAddresses;
 }
