@@ -10,6 +10,7 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.USDT]: "Tether USD",
   [Tokens.SNX]: "Synthetix Network Token",
   [Tokens.WSTETH]: "Wrapped liquid staked Ether 2.0",
+  [Tokens.DAI]: "Dai Stablecoin",
 };
 
 export const tokenSymbol: { [key in Tokens]: string } = {
@@ -21,6 +22,7 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.USDT]: "USDT",
   [Tokens.SNX]: "SNX",
   [Tokens.WSTETH]: "wstETH",
+  [Tokens.DAI]: "DAI",
 };
 
 export const tokenDecimals: { [key in Tokens]: number } = {
@@ -32,6 +34,7 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.USDT]: 6,
   [Tokens.SNX]: 18,
   [Tokens.WSTETH]: 18,
+  [Tokens.DAI]: 18,
 };
 
 export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {

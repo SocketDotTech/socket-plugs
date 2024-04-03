@@ -81,7 +81,7 @@ export const deploy = async () => {
           chain
         ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
 
-        let siblings: ChainSlug[], isAppchain: boolean;
+        let siblings: ChainSlug[] = [], isAppchain: boolean = false;
         if (projectType == ProjectType.SUPERBRIDGE) {
           isAppchain = isSBAppChain(chain, token);
           siblings = isAppchain
@@ -93,7 +93,7 @@ export const deploy = async () => {
         // console.log({ siblings, hook });
         while (!allDeployed) {
           const results: ReturnObj = await deployChainContracts(
-            isAppchain ?? false,
+            isAppchain,
             pc[token].vaultChains.includes(chain),
             signer,
             chain,
@@ -106,7 +106,7 @@ export const deploy = async () => {
           allDeployed = results.allDeployed;
           chainAddresses = results.deployedAddresses;
           if (!allAddresses[chain]) allAddresses[chain] = {};
-          allAddresses[chain][token] = chainAddresses;
+          allAddresses[chain]![token] = chainAddresses;
         }
       })
     );
@@ -252,10 +252,10 @@ const deployControllerChainContracts = async (
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
-    let mintableToken: string,
+    let mintableToken: string = "",
       controller: Contract,
-      contractName: string,
-      contractPath: string;
+      contractName: string = "",
+      contractPath: string = "";
 
     if (isSuperToken()) {
       deployParams = await deploySuperToken(deployParams);
@@ -361,9 +361,9 @@ const deployVaultChainContracts = async (
 const deploySuperToken = async (deployParams: DeployParams) => {
   let contractName = SuperTokenContracts.SuperToken;
   let path = `contracts/token/${contractName}.sol`;
-
-  let { name, symbol, decimals, initialSupply, initialSupplyOwner, owner } =
-    pc[deployParams.currentToken].superTokenInfo;
+  let superTokenInfo = pc[deployParams.currentToken].superTokenInfo;
+  if (!superTokenInfo) throw new Error("SuperToken info not found!");
+  let { name, symbol, decimals, initialSupply, initialSupplyOwner, owner } = superTokenInfo;
 
   const superTokenContract: Contract = await getOrDeploy(
     contractName,
