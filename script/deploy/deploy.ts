@@ -81,7 +81,8 @@ export const deploy = async () => {
           chain
         ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
 
-        let siblings: ChainSlug[] = [], isAppchain: boolean = false;
+        let siblings: ChainSlug[] = [],
+          isAppchain: boolean = false;
         if (projectType == ProjectType.SUPERBRIDGE) {
           isAppchain = isSBAppChain(chain, token);
           siblings = isAppchain
@@ -363,7 +364,8 @@ const deploySuperToken = async (deployParams: DeployParams) => {
   let path = `contracts/token/${contractName}.sol`;
   let superTokenInfo = pc[deployParams.currentToken].superTokenInfo;
   if (!superTokenInfo) throw new Error("SuperToken info not found!");
-  let { name, symbol, decimals, initialSupply, initialSupplyOwner, owner } = superTokenInfo;
+  let { name, symbol, decimals, initialSupply, initialSupplyOwner, owner } =
+    superTokenInfo;
 
   const superTokenContract: Contract = await getOrDeploy(
     contractName,

@@ -5,7 +5,7 @@ import {
 } from "@socket.tech/dl-core";
 import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       vaultChains: [ChainSlug.OPTIMISM_SEPOLIA],
@@ -53,5 +53,3 @@ const pc: ProjectConstants = {
     },
   },
 };
-
-export = pc;

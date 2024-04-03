@@ -54,7 +54,7 @@ export const main = async () => {
       ];
 
       if (filterChains) {
-        allChains = allChains.filter((c) => filterChains.includes(c));
+        allChains = allChains.filter((c) => filterChains!.includes(c));
       }
       await Promise.all(
         allChains.map(async (chain) => {
@@ -69,7 +69,7 @@ export const main = async () => {
           ) as ChainSlug[];
           if (siblingFilterChains) {
             siblingSlugs = siblingSlugs.filter((c) =>
-              siblingFilterChains.includes(c)
+              siblingFilterChains!.includes(c)
             );
           }
           let bridgeContract: Contract = await getBridgeContract(

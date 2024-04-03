@@ -7,6 +7,7 @@ export enum Tokens {
   USDT = "USDT",
   SNX = "SNX",
   WSTETH = "wstETH",
+  DAI = "DAI",
 }
 
 export enum Project {

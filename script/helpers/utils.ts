@@ -1,4 +1,4 @@
-import { ContractFactory, Contract } from "ethers";
+import { Contract } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { overrides } from "./networks";
@@ -56,10 +56,9 @@ export const getPoolIdHex = (
   token: string,
   it: IntegrationTypes
 ): string => {
-  return encodePoolId(
-    chainSlug,
-    getIntegrationTypeConsts(it, chainSlug, token).poolCount
-  );
+  let poolCount = getIntegrationTypeConsts(it, chainSlug, token).poolCount;
+  if (!poolCount) throw new Error("poolCount not found");
+  return encodePoolId(chainSlug, poolCount);
 };
 
 export async function getOwnerAndNominee(contract: Contract) {
@@ -74,7 +73,7 @@ export async function getOwnerAndNominee(contract: Contract) {
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-export const execSummary = [];
+export const execSummary: string[] = [];
 
 export async function execute(
   contract: Contract,

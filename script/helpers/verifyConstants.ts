@@ -32,7 +32,7 @@ export const verifyConstants = async () => {
       let { superTokenInfo } = currentPc;
       checkMissingFields({ superTokenInfo });
       let { name, symbol, decimals, initialSupplyOwner, owner, initialSupply } =
-        superTokenInfo;
+        superTokenInfo!;
       checkMissingFields({
         name,
         symbol,
@@ -51,7 +51,7 @@ export const verifyConstants = async () => {
         hookType == Hooks.LIMIT_EXECUTION_HOOK
       ) {
         checkMissingFields({ limitsAndPoolId });
-        let chainsWithLimits = Object.keys(limitsAndPoolId);
+        let chainsWithLimits = Object.keys(limitsAndPoolId!);
         for (let chain of allChains) {
           if (!chainsWithLimits.includes(chain.toString())) {
             throw new Error(
@@ -77,7 +77,7 @@ export const verifyConstants = async () => {
       if (hookType == Hooks.YIELD_LIMIT_EXECUTION_HOOK) {
         let { yieldTokenInfo } = currentPc;
         checkMissingFields({ yieldTokenInfo });
-        let { name, symbol, decimals } = yieldTokenInfo;
+        let { name, symbol, decimals } = yieldTokenInfo!;
         checkMissingFields({
           name,
           symbol,
@@ -86,7 +86,7 @@ export const verifyConstants = async () => {
 
         checkMissingFields({ yieldVaultInfo });
         let { debtRatio, rebalanceDelay, strategy, underlyingAsset } =
-          yieldVaultInfo;
+          yieldVaultInfo!;
         checkMissingFields({
           debtRatio,
           rebalanceDelay,

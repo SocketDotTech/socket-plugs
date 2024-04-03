@@ -16,7 +16,7 @@ export const deployHookContracts = async (
   const hookType = deployParams.hookType;
   if (!hookType) return deployParams;
 
-  let contractName: string;
+  let contractName: string = "";
   let path: string;
   let args: any[] = [];
 

@@ -37,9 +37,9 @@ export const main = async () => {
     }
 
     const srcAddresses: SBTokenAddresses | STTokenAddresses | undefined =
-      addresses[srcChain][token];
+      addresses[srcChain]?.[token];
     const dstAddresses: SBTokenAddresses | STTokenAddresses | undefined =
-      addresses[dstChain][token];
+      addresses[dstChain]?.[token];
     if (!srcAddresses || !dstAddresses)
       throw new Error("chain addresses not found");
 

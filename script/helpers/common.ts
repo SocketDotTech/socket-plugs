@@ -83,8 +83,8 @@ export const getBridgeContract = async (
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
   let bridgeContract: Contract,
-    bridgeAddress: string,
-    bridgeContractName: string;
+    bridgeAddress: string = "",
+    bridgeContractName: string = "";
   if (isSuperBridge()) {
     if (isSBAppChain(chain, token)) {
       const a = addr as AppChainAddresses;
@@ -125,7 +125,7 @@ export const getTokenContract = async (
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
   let tokenContract: Contract,
-    tokenAddress: string,
+    tokenAddress: string = "",
     tokenContractName: string = "ERC20";
   if (isSuperBridge()) {
     if (isSBAppChain(chain, token)) {
@@ -163,7 +163,9 @@ export const getHookContract = async (
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
 
-  let contract: Contract, address: string, contractName: string;
+  let contract: Contract,
+    address: string = "",
+    contractName: string = "";
 
   if (addr[HookContracts.LimitHook]) {
     address = addr[HookContracts.LimitHook];
@@ -204,8 +206,8 @@ export const getSiblings = (
 export const checkAndGrantRole = async (
   chain: ChainSlug,
   contract: Contract,
-  roleName: string,
-  roleHash: string,
+  roleName: string = "",
+  roleHash: string = "",
   userAddress: string
 ) => {
   let hasRole = await contract.hasRole(roleHash, userAddress);

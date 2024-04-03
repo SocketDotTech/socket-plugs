@@ -83,9 +83,13 @@ export const setHookInExecutionHelper = async (
   hookContract: Contract,
   addr: SBTokenAddresses | STTokenAddresses
 ) => {
+  let address = addr[HookContracts.ExecutionHelper];
+  if (!address) {
+    throw new Error("Execution Helper address not found");
+  }
   let executionHelperContract = await getInstance(
     HookContracts.ExecutionHelper,
-    addr[HookContracts.ExecutionHelper]
+    address
   );
   executionHelperContract = executionHelperContract.connect(socketSigner);
 

@@ -195,9 +195,9 @@ const connect = async (
           throw Error("Cant find plug addresses");
         }
 
-        const switchboard = getAddresses(chain, getMode()).integrations[
+        const switchboard = getAddresses(chain, getMode())?.integrations?.[
           sibling
-        ][integration]?.switchboard;
+        ]?.[integration]?.switchboard;
 
         if (!switchboard) {
           console.log(
