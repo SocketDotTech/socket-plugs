@@ -175,12 +175,13 @@ const connect = async (
     for (let sibling of siblingSlugs) {
       const localConnectorAddresses: ConnectorAddresses | undefined =
         addr.connectors?.[sibling];
-      const siblingConnectorAddresses: ConnectorAddresses | undefined = addresses?.[sibling]?.[token]?.connectors?.[chain];
+      const siblingConnectorAddresses: ConnectorAddresses | undefined =
+        addresses?.[sibling]?.[token]?.connectors?.[chain];
       if (!localConnectorAddresses || !siblingConnectorAddresses) {
         throw new Error(
           `connector addresses not found for ${chain}, ${sibling}`
         );
-      };
+      }
 
       const integrationTypes: IntegrationTypes[] = Object.keys(
         localConnectorAddresses
@@ -192,7 +193,7 @@ const connect = async (
         const localConnectorPlug = localConnectorAddresses[integration];
         if (!localConnectorPlug || !siblingConnectorPlug) {
           throw Error("Cant find plug addresses");
-        };
+        }
 
         const switchboard = getAddresses(chain, getMode()).integrations[
           sibling

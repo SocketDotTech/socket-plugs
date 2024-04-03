@@ -56,7 +56,7 @@ export const deploy = async () => {
   await verifyConstants();
   ({ projectName, projectType, tokens } = getConfigs());
   printConfigs();
-  let allAddresses:SBAddresses | STAddresses = {};
+  let allAddresses: SBAddresses | STAddresses = {};
 
   for (let token of tokens) {
     console.log(`Deploying contracts for ${token}...`);
