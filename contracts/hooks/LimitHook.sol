@@ -178,7 +178,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
 
     function _getIdentifierPendingAmount(
         bytes memory identifierCache_
-    ) internal view returns (uint256) {
+    ) internal pure returns (uint256) {
         if (identifierCache_.length > 0) {
             (, uint256 pendingAmount, ) = abi.decode(
                 identifierCache_,

@@ -21,15 +21,15 @@ contract YieldToken is YieldTokenBase {
         _grantRole(RESCUE_ROLE, msg.sender);
     }
 
-    // move to hook
-    // fix to round up and check other cases
     function calculateMintAmount(
         uint256 underlyingAssets_
     ) external view returns (uint256) {
+        // Saves an extra SLOAD if _totalSupply is non-zero.
+        uint256 supply = _totalSupply;
+
         // total supply -> total shares
         // total yield -> total underlying from all chains
         // yield sent from src chain includes new amount hence subtracted here
-        uint256 supply = _totalSupply; // Saves an extra SLOAD if _totalSupply is non-zero.
         return
             supply == 0
                 ? underlyingAssets_
