@@ -77,8 +77,8 @@ export const overrides: {
   },
   [ChainSlug.MAINNET]: {
     // type: 1,
-    // gasLimit: 400_000,
-    gasPrice,
+    gasLimit: 4_000_000,
+    gasPrice: 50_000_000_000,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
     // type: 1,
@@ -93,7 +93,7 @@ export const overrides: {
   [ChainSlug.POLYGON_MAINNET]: {
     type: 1,
     gasLimit: 5_000_000,
-    gasPrice,
+    gasPrice: 500_000_000_000,
   },
   [ChainSlug.MODE_TESTNET]: {
     type: 1,
@@ -121,6 +121,11 @@ export const overrides: {
     gasPrice: 10_000_000,
   },
   [ChainSlug.REYA_CRONOS]: {
+    type: 1,
+    // gasLimit,
+    gasPrice: 100_000_000,
+  },
+  [ChainSlug.REYA]: {
     type: 1,
     // gasLimit,
     gasPrice: 0,
@@ -242,6 +247,10 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
       if (!process.env.REYA_CRONOS_RPC)
         throw new Error("REYA_CRONOS_RPC not configured");
       return process.env.REYA_CRONOS_RPC;
+
+    case ChainSlug.REYA:
+      if (!process.env.REYA_RPC) throw new Error("REYA_RPC not configured");
+      return process.env.REYA_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";

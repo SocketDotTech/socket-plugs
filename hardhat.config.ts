@@ -71,6 +71,7 @@ const liveNetworks = [
   HardhatChainName.MODE,
   HardhatChainName.ANCIENT8_TESTNET2,
   HardhatChainName.REYA_CRONOS,
+  HardhatChainName.REYA,
 ];
 
 let hardhatNetworkDetails = {};
@@ -105,6 +106,7 @@ const config: HardhatUserConfig = {
       lyra: "none",
       "lyra-testnet": "none",
       reya_cronos: "none",
+      reya: "none",
     },
     customChains: [
       {
@@ -171,6 +173,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://reya-cronos.blockscout.com/api",
           browserURL: "https://reya-cronos.blockscout.com/",
+        },
+      },
+      {
+        network: "reya",
+        chainId: hardhatChainNameToSlug[HardhatChainName.REYA],
+        urls: {
+          apiURL: "https://reya-network.blockscout.com/api",
+          browserURL: "https://reya-network.blockscout.com/",
         },
       },
     ],

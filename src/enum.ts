@@ -26,6 +26,8 @@ export enum Project {
   SOUND_TESTNET = "sound-testnet",
   RAIN_TESTNET = "rain-testnet",
   MIST_TESTNET = "mist-testnet",
+  REYA_CRONOS = "reya-cronos",
+  REYA = "reya",
 }
 
 export enum Hooks {

@@ -57,7 +57,8 @@ export const getPoolIdHex = (
   it: IntegrationTypes
 ): string => {
   let poolCount = getIntegrationTypeConsts(it, chainSlug, token).poolCount;
-  if (!poolCount) throw new Error("poolCount not found");
+  if (poolCount === undefined || poolCount === null)
+    throw new Error("poolCount not found");
   return encodePoolId(chainSlug, poolCount);
 };
 
@@ -129,7 +130,7 @@ export const readJSONFile = (filePath: string) => {
 export const checkMissingFields = (fields: { [key: string]: any }) => {
   for (const field in fields) {
     let value = fields[field];
-    if (!value) {
+    if (value === undefined || value === null) {
       throw Error(`missing field : ${field}`);
     }
   }
