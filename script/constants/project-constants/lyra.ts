@@ -46,15 +46,15 @@ const pc: ProjectConstants = {
             poolCount: 0,
           },
         },
-        // [ChainSlug.BASE]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000000",
-        //     depositRate: "115.74",
-        //     withdrawLimit: "1000000",
-        //     withdrawRate: "11.574",
-        //     poolCount: 1,
-        //   },
-        // },
+        [ChainSlug.BASE]: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "10000000",
+            depositRate: "115.74",
+            withdrawLimit: "1000000",
+            withdrawRate: "11.574",
+            poolCount: 1,
+          },
+        },
       },
     },
     [Tokens.USDCE]: {
@@ -128,7 +128,7 @@ const pc: ProjectConstants = {
             depositLimit: "5000",
             depositRate: "0.05787037",
             withdrawLimit: "500",
-            withdrawRate: "0.00578703",
+            withdrawRate: "0.005787037",
             poolCount: 0,
           },
         },
@@ -137,7 +137,7 @@ const pc: ProjectConstants = {
             depositLimit: "5000",
             depositRate: "0.05787037",
             withdrawLimit: "500",
-            withdrawRate: "0.00578703",
+            withdrawRate: "0.005787037",
             poolCount: 0,
           },
         },
@@ -146,7 +146,7 @@ const pc: ProjectConstants = {
             depositLimit: "5000",
             depositRate: "0.05787037",
             withdrawLimit: "500",
-            withdrawRate: "0.00578703",
+            withdrawRate: "0.005787037",
             poolCount: 0,
           },
         },
@@ -258,15 +258,15 @@ const pc: ProjectConstants = {
             poolCount: 0,
           },
         },
-        // [ChainSlug.BASE]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "250",
-        //     depositRate: "0.00289351",
-        //     withdrawLimit: "25",
-        //     withdrawRate: "0.00028935",
-        //     poolCount: 0,
-        //   },
-        // },
+        [ChainSlug.BASE]: {
+          [IntegrationTypes.fast]: {
+            depositLimit: "250",
+            depositRate: "0.00289351",
+            withdrawLimit: "25",
+            withdrawRate: "0.00028935",
+            poolCount: 0,
+          },
+        },
         [ChainSlug.MAINNET]: {
           [IntegrationTypes.fast]: {
             depositLimit: "500",
