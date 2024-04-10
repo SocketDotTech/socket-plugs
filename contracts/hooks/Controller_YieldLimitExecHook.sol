@@ -116,8 +116,6 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         totalUnderlyingAssets += increasedUnderlying;
         yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 
-        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
-
         if (params_.transferInfo.amount == 0)
             return (abi.encode(0, 0, 0, address(0)), transferInfo);
 
@@ -179,7 +177,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
             pendingShares = params_.transferInfo.amount - consumedShares;
 
             cacheData.identifierCache = abi.encode(
-                params_.transferInfo.receiver,
+                receiver,
                 pendingShares,
                 params_.connector,
                 execPayload
@@ -211,7 +209,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
                     cacheData.identifierCache = new bytes(0);
                 } else
                     cacheData.identifierCache = abi.encode(
-                        params_.transferInfo.receiver,
+                        receiver,
                         0,
                         params_.connector,
                         execPayload
@@ -258,17 +256,24 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
 
         if (connector != params_.connector) revert InvalidConnector();
 
-        (uint256 consumedShares, uint256 pendingShares) = _limitDstHook(
-            params_.connector,
+        uint256 totalPendingUnderlying = yieldToken__.convertToAssets(
             totalPendingShares
         );
-
-        postRetryHookData = abi.encode(receiver, consumedShares, pendingShares);
-        uint256 consumedUnderlying = yieldToken__.convertToAssets(
-            consumedShares
+        (uint256 consumedUnderlying, uint256 pendingUnderlying) = _limitDstHook(
+            params_.connector,
+            totalPendingUnderlying
         );
-        yieldToken__.transfer(receiver, consumedUnderlying);
 
+        uint256 consumedShares = (totalPendingShares * consumedUnderlying) /
+            pendingUnderlying;
+
+        postRetryHookData = abi.encode(
+            receiver,
+            consumedShares,
+            totalPendingShares - consumedShares
+        );
+
+        yieldToken__.transfer(receiver, consumedUnderlying);
         transferInfo = TransferInfo(transferInfo.receiver, 0, bytes(""));
     }
 
