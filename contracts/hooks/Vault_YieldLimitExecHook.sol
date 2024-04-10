@@ -130,6 +130,8 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         if (transferInfo.amount > totalUnderlyingAssets())
             revert NotEnoughAssets();
 
+        lastTotalUnderlyingAssetsSynced -= transferInfo.amount;
+
         (bytes memory options_, bytes memory payload_) = abi.decode(
             params_.transferInfo.data,
             (bytes, bytes)
