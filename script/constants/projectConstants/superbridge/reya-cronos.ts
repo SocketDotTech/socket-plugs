@@ -12,7 +12,7 @@ export const pc: ProjectConstants = {
       controllerChains: [ChainSlug.REYA_CRONOS],
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        ChainSlug.POLYGON_MUMBAI,
+        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
@@ -21,36 +21,36 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.REYA_CRONOS]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.OPTIMISM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
@@ -62,7 +62,7 @@ export const pc: ProjectConstants = {
 
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        ChainSlug.POLYGON_MUMBAI,
+        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
@@ -71,36 +71,36 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.REYA_CRONOS]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.OPTIMISM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
@@ -112,7 +112,7 @@ export const pc: ProjectConstants = {
 
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        ChainSlug.POLYGON_MUMBAI,
+        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
@@ -121,36 +121,36 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.REYA_CRONOS]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.OPTIMISM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "100000",
-              receivingLimit: "100000",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
@@ -166,36 +166,36 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.REYA_CRONOS]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.OPTIMISM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
@@ -203,7 +203,7 @@ export const pc: ProjectConstants = {
       },
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        ChainSlug.POLYGON_MUMBAI,
+        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
@@ -216,36 +216,36 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.REYA_CRONOS]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
           [ChainSlug.OPTIMISM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
               poolCount: 0,
             },
           },
@@ -253,7 +253,7 @@ export const pc: ProjectConstants = {
       },
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        ChainSlug.POLYGON_MUMBAI,
+        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
