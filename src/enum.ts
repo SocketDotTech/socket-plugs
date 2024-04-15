@@ -8,6 +8,7 @@ export enum Tokens {
   SNX = "SNX",
   WSTETH = "wstETH",
   DAI = "DAI",
+  GUARD = "GUARD",
 }
 
 export enum Project {
@@ -28,6 +29,7 @@ export enum Project {
   MIST_TESTNET = "mist-testnet",
   REYA_CRONOS = "reya-cronos",
   REYA = "reya",
+  SPECTRAL_SIGNAL = "spectral-signal",
 }
 
 export enum Hooks {

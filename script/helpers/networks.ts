@@ -95,6 +95,11 @@ export const overrides: {
     gasLimit: 5_000_000,
     gasPrice: 500_000_000_000,
   },
+  [ChainSlug.BSC]: {
+    type: 1,
+    gasLimit: 5_000_000,
+    gasPrice: 5_000_000_000,
+  },
   [ChainSlug.MODE_TESTNET]: {
     type: 1,
     gasLimit: 3_000_000,

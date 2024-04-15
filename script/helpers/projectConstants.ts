@@ -15,7 +15,7 @@ let tc: TokenConstants;
 export const getTokenConstants = (tokenName: string): TokenConstants => {
   if (tc) return tc;
   console.log(getConstantPath());
-  const _tc = require(getConstantPath()).pc;
+  const _tc = require(getConstantPath());
   console.log(_tc);
   tc = _tc?.[getMode()]?.[tokenName];
   if (!tc)
