@@ -15,7 +15,6 @@ import {
   STTokenAddresses,
   STVaultChainAddresses,
   SuperBridgeContracts,
-  Tokens,
   UpdateLimitParams,
 } from "../../src";
 import { execute, getPoolIdHex } from "./utils";
@@ -31,6 +30,7 @@ import {
   isSBAppChain,
   isSTVaultChain,
 } from "./projectConstants";
+import { Tokens } from "../../src/enums";
 
 export const updateConnectorStatus = async (
   chain: ChainSlug,

@@ -4,7 +4,7 @@ import {
   IntegrationTypes,
 } from "@socket.tech/dl-core";
 import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
-import { getSocketOwner } from "../../config";
+import { getOwner } from "../../config";
 
 const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
@@ -19,8 +19,8 @@ const pc: ProjectConstants = {
         name: "Mist",
         symbol: "MIST",
         decimals: 6,
-        initialSupplyOwner: getSocketOwner(),
-        owner: getSocketOwner(),
+        initialSupplyOwner: getOwner(),
+        owner: getOwner(),
         initialSupply: 1000000000,
       },
       hook: {

@@ -5,11 +5,11 @@ import { getInstance, execute } from "../helpers";
 import {
   Connectors,
   HookContracts,
-  Tokens,
   SBTokenAddresses,
   STTokenAddresses,
 } from "../../src";
 import { getHookContract, updateLimitsAndPoolId } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 export const configureHooks = async (
   chain: ChainSlug,
@@ -55,7 +55,7 @@ export const configureHooks = async (
 //     hookContract,
 //     "limit updater",
 //     LIMIT_UPDATER_ROLE,
-//     getSocketOwner()
+//     getOwner()
 //   );
 // };
 

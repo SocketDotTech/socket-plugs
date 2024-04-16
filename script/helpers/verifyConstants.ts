@@ -4,8 +4,9 @@ dotenvConfig();
 import { ChainSlug } from "@socket.tech/dl-core";
 import { isSuperBridge, isSuperToken, getConfigs } from "../constants/config";
 import { checkMissingFields } from "../helpers";
-import { Hooks, ProjectType, Tokens, TokenConstants } from "../../src";
+import { Hooks, ProjectType, TokenConstants } from "../../src";
 import { getTokenConstants } from "../helpers/projectConstants";
+import { Tokens } from "../../src/enums";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};

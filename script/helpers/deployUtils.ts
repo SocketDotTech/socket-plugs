@@ -14,9 +14,6 @@ import { overrides } from "./networks";
 import { getMode, getProjectName, isSuperBridge } from "../constants/config";
 import {
   SuperBridgeContracts,
-  Hooks,
-  Tokens,
-  STTokenAddresses,
   SBTokenAddresses,
   SBAddresses,
   STAddresses,
@@ -28,6 +25,7 @@ import {
   getVerificationPath,
   readJSONFile,
 } from "./utils";
+import { Tokens } from "../../src/enums";
 
 export const getOrDeploy = async (
   contractName: string,

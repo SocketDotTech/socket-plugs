@@ -1,5 +1,5 @@
-import { ChainSlug } from "@socket.tech/dl-core/dist/src/enums/chainSlug";
-import { Tokens } from "../../src";
+import { ChainSlug } from "@socket.tech/dl-core";
+import { Tokens } from "./tokens";
 
 export const ExistingTokenAddresses: {
   [key in ChainSlug]?: { [key in Tokens]?: string };

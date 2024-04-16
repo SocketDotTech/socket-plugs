@@ -22,7 +22,6 @@ import {
   ProjectType,
   TokenContracts,
   TokenConstants,
-  Tokens,
   SBAddresses,
   STAddresses,
   SBTokenAddresses,
@@ -42,6 +41,7 @@ import {
   updateConnectorStatus,
 } from "../helpers/common";
 import { configureHooks } from "./configureHook";
+import { Tokens } from "../../src/enums";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};

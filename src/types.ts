@@ -4,12 +4,11 @@ import {
   CommonContracts,
   HookContracts,
   Hooks,
-  Project,
   ProjectType,
   SuperBridgeContracts,
   SuperTokenContracts,
-  Tokens,
 } from "./enum";
+import { Project, Tokens } from "./enums";
 
 export type ProjectConstantsMap = {
   [key in Project]: ProjectConstants;

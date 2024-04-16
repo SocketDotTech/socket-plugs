@@ -26,9 +26,9 @@ const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
 
 // Ensure that we have all the environment variables we need.
-if (!process.env.SOCKET_SIGNER_KEY) throw new Error("No private key found");
+if (!process.env.OWNER_SIGNER_KEY) throw new Error("No private key found");
 const privateKey: HardhatNetworkAccountUserConfig = process.env
-  .SOCKET_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
+  .OWNER_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
 
 function getChainConfig(chain: HardhatChainName): NetworkUserConfig {
   return {

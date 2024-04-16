@@ -29,7 +29,6 @@ import {
   TokenContracts,
   CommonContracts,
   SuperTokenContracts,
-  Tokens,
   TokenConstants,
   STTokenAddresses,
   SBTokenAddresses,
@@ -39,10 +38,11 @@ import {
   ReturnObj,
 } from "../../src";
 import { isSBAppChain, getTokenConstants } from "../helpers/projectConstants";
-import { ExistingTokenAddresses } from "../constants/existing-token-addresses";
+import { ExistingTokenAddresses } from "../../src/enums/existing-token-addresses";
 import { deployHookContracts } from "./deployHook";
 import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};

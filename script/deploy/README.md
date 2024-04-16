@@ -1,11 +1,42 @@
 ### Deployment steps
 
-- add project to Project enum in `src/enum.ts`
-- add already deployed token addresses to `script/constants/existing-token-addresses.ts`
-- add PROJECT_TYPE, PROJECT, TOKENS variables in `.env`
-  - PROJECT_TYPE - `superbridge` or `supertoken`
-  - PROJECT - project name. this should match the project name added in `src/enums.ts`
-  - TOKENS - comma separated list of tokens. Useful for superbridge with multiple tokens.
-  - DRY_RUN - for running configure and admin scripts, can use this variable to check the effect first before actually sending transaction.
-- add project config in `script/constants/projectConstants/supertoken/` or `script/constants/projectConstants/superbridge/`.
+- update the @socket.tech/dl-core package to latest version - `yarn add @socket.tech/dl-core` 
+- run setup config script and provide project information - `npx ts-node script/deploy/helpers/setupConfig.ts`.
+- add necessary variables in .env (rpcs, private key)
 - run command `npx ts-node script/deploy/deployAndConfigure.ts`.
+
+If want to update configuration, can check the configuration file under 
+`script/constants/projectConstants/${projectType}/` folder with your project name. Can add/remove chains, update rate limits, add tokens, etc. Read the guide below before making any changes. 
+
+### Project Constants Help Guide
+
+- **Vault Chains** - The chains where token contract is already deployed, and token will be locked/unlocked for bridging.
+
+  - For superbridge, we will have >=1 vault chains where we will bridge from.
+  - For supertoken , if the token is already deployed on a chain, then that chain will be vault chain. If it is a fresh supertoken deployment (token does not exist on any chain), there will be no vault chains. Therefore for supertoken, no of vault chains <=1.
+
+- **Controller Chains** - The chains where token is minted/burned.
+
+  - For superbridge, this will be the new chain where users are bridging. There will be only 1 controller chain (app chain) for superbridge.
+  - For supertoken, all the chains (except the one where token is deployed) are controller chains, as token is minted/burned. No of controller chains >=1.
+
+- **Hooks** - Hooks are plugins that can be added for extra functionality. We have 2 options for hook right now -
+
+  - **LIMIT_HOOK** - This hook enforces daily send and receive limits for a token. It makes sure that in case of a hack, the flow of funds is rate limited. It also checks before withdrawal whether the destination chain have enough funds for successful bridging, and reverts on source chain to avoid bad UX of stuck funds. This is the recommended hook. With this hook, we need to specify sending and receving limit for each token and each supported chain.
+
+  - **LIMIT_EXECUTION_HOOK** - This hook extends the capability of LIMIT_HOOK and allows for arbitrary payload execution on destination after bridge is successful.
+
+- **Rate Limits** - You can specify per token daily sending and receiving limits. 
+  - The limits are specified in formatted (ETH) values, ie. use 1000 for 1000 USDC limit. - Limit specified is the max daily limit. 
+  - When a user bridges, the current limit is reduced, and is regenerated per second (rate - max_limit / 86400  per sec) till it reaches max limit again. If a user bridges an amount which is greater than current limit, then current limit amount of tokens are sent to user, and the rest are stored as pending, which are released as limit regenerates.
+  - There are view functions on the LIMIT_HOOK contract to fetch the max limit, current limit, rate of increase, etc. 
+  - Rate limits help to reduce the attack surface in case of a hack by limited the throughput of the bridge. 
+
+- **Integration Types** - we have 3 options for integration types (Recommended : FAST)
+  - FAST: This is the default integrationType. It uses socket's 1/n security model to verify messages. Bridging time ~2 mins.
+  - OPTIMISTIC - This integration Type uses optimistic security model, where messages are executed after 2 hours.
+  - NATIVE_BRIDGE - This uses the native messaging bridge of underlying chains. This provides security of NATIVE bridges.
+- **Pool Count** - this only applies for superbridge. normally we dont need to specify this and have a default value of 0.
+  - When we are bridging out from an App chain(controller chain), we check if the destination chain have enough liquidity to allow user to bridge successfully. This accounting is done in poolPlugin.
+  - We support different paths for bridging, ie FAST, OPTIMISTIC and NATIVE_BRIDGE. If a user bridges to chain using the NATIVE_BRIDGE path, and wants to withdraw using FAST path, we can allow the user to do that by keeping the poolCount for both paths as same. If we don't want to allow this, we can restrict this behavior by keeping poolId different.
+

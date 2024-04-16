@@ -3,8 +3,9 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
-import { getSocketOwner } from "../../config";
+import { Hooks, ProjectConstants, ProjectType } from "../../../../src";
+import { getOwner } from "../../config";
+import { Tokens } from "../../../../src/enums";
 
 const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
@@ -15,8 +16,8 @@ const pc: ProjectConstants = {
         name: "Leaf",
         symbol: "LEAF",
         decimals: 6,
-        initialSupplyOwner: getSocketOwner(),
-        owner: getSocketOwner(),
+        initialSupplyOwner: getOwner(),
+        owner: getOwner(),
         initialSupply: 1000000000,
       },
       hook: {

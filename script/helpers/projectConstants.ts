@@ -1,8 +1,9 @@
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { BigNumber, utils } from "ethers";
-import { TokenConstants, tokenDecimals } from "../../src";
+import { TokenConstants } from "../../src";
 import { getMode, getProjectName } from "../constants/config";
 import { getConstantPath } from "./utils";
+import { tokenDecimals } from "../../src/enums/tokenDecimals";
 
 export const isSBAppChain = (chain: ChainSlug, token: string) =>
   getTokenConstants(token).controllerChains.includes(chain);
