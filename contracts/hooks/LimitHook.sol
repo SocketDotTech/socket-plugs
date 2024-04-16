@@ -49,7 +49,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         if (useControllerPools)
-            _poolDstHook(params_.connector, params_.transferInfo.amount);
+            _poolDstHook(params_.connector, params_.transferInfo.amount, true);
 
         (uint256 consumedAmount, uint256 pendingAmount) = _limitDstHook(
             params_.connector,
