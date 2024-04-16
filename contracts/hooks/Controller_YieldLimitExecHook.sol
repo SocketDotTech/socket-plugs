@@ -33,6 +33,8 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
 
     // total yield
     uint256 public totalUnderlyingAssets;
+    // encoded slug and vault addr => bridge nonce
+    mapping(bytes32 => uint256) public lastBridgeNonceSynced;
 
     // if true, no funds can be invested in the strategy
     bool public emergencyShutdown;
@@ -107,14 +109,37 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (uint256 increasedUnderlying, bytes memory payload) = abi.decode(
-            params_.transferInfo.data,
-            (uint256, bytes)
+        (
+            uint256 srcTotalUnderlying,
+            uint256 bridgeNonce,
+            address remoteVault,
+            bytes memory payload
+        ) = abi.decode(
+                params_.transferInfo.data,
+                (uint256, uint256, address, bytes)
+            );
+
+        uint256 oldLockedAmount = _poolDstHook(
+            params_.connector,
+            srcTotalUnderlying,
+            false
         );
 
-        _poolDstHook(params_.connector, increasedUnderlying);
-        totalUnderlyingAssets += increasedUnderlying;
-        yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
+        bytes32 msgPath = keccak256(
+            abi.encode(
+                IConnector(params_.connector).siblingChainSlug(),
+                remoteVault
+            )
+        );
+
+        if (lastBridgeNonceSynced[msgPath] > bridgeNonce) {
+            totalUnderlyingAssets =
+                totalUnderlyingAssets +
+                srcTotalUnderlying -
+                oldLockedAmount;
+
+            lastBridgeNonceSynced[msgPath] = bridgeNonce;
+        }
 
         yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 

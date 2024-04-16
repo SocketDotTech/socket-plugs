@@ -21,6 +21,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     ERC20 public immutable underlyingAsset__;
 
     uint256 public totalLockedInStrategy; // total funds deposited in strategy
+    uint256 public bridgeNonce;
 
     uint256 public totalIdle; // Amount of tokens that are in the vault
     uint256 public totalDebt; // Amount of tokens that strategy have borrowed
@@ -29,8 +30,6 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
     uint128 public rebalanceDelay; // Delay between rebalance
     uint256 public debtRatio; // Debt ratio for the Vault (in BPS, <= 10k)
     bool public emergencyShutdown; // if true, no funds can be invested in the strategy
-
-    uint256 public lastTotalUnderlyingAssetsSynced;
 
     event WithdrawFromStrategy(uint256 withdrawn);
     event Rebalanced(
@@ -97,16 +96,20 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
 
         uint256 totalUnderlyingAsset = strategy.estimatedTotalAssets() +
             totalIdle;
-        uint256 totalYieldSync = totalUnderlyingAsset -
-            lastTotalUnderlyingAssetsSynced;
-        lastTotalUnderlyingAssetsSynced = totalUnderlyingAsset;
 
         transferInfo = srcPostHookCallParams_.transferInfo;
         if (srcPostHookCallParams_.transferInfo.amount == 0) {
-            transferInfo.data = abi.encode(totalYieldSync, bytes(""));
+            transferInfo.data = abi.encode(
+                totalUnderlyingAsset,
+                bridgeNonce++,
+                msg.sender,
+                bytes("")
+            );
         } else {
             transferInfo.data = abi.encode(
-                totalYieldSync,
+                totalUnderlyingAsset,
+                bridgeNonce++,
+                msg.sender,
                 srcPostHookCallParams_.transferInfo.data
             );
         }
@@ -129,8 +132,6 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         // ensure vault have enough idle underlyingAssets
         if (transferInfo.amount > totalUnderlyingAssets())
             revert NotEnoughAssets();
-
-        lastTotalUnderlyingAssetsSynced -= transferInfo.amount;
 
         (bytes memory options_, bytes memory payload_) = abi.decode(
             params_.transferInfo.data,
