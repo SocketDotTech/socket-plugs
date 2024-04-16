@@ -1,18 +1,10 @@
 import path from "path";
 import fs from "fs";
 import { writeFile } from "fs/promises";
-import { ChainId, ChainSlug } from "@socket.tech/dl-core";
-import { Project, Tokens } from "../../../src/enums";
-import {
-  chainSlugMap,
-  deploymentModeMap,
-  getEnumMaps,
-  hookMap,
-  integrationTypesMap,
-  tokensMap,
-} from "./enumMaps";
+import { ChainSlug } from "@socket.tech/dl-core";
+import { Tokens } from "../../../src/enums";
+import { chainSlugMap, getEnumMaps } from "./enumMaps";
 import { ProjectType } from "../../../src";
-import { rpcKeys } from "../../../src/enums/rpcKeys";
 
 export const enumFolderPath = path.join(__dirname, `/../../../src/enums/`);
 
@@ -28,12 +20,19 @@ export const buildEnvFile = async (
   )}"\nOWNER_ADDRESS=${ownerAddress}\nOWNER_SIGNER_KEY=""\nDRY_RUN=""\n`;
 
   for (let chain of chains) {
-    let chainRpcKey = rpcKeys[chain];
+    let chainRpcKey = chainSlugMap.get(String(chain));
     configsString = configsString + `${chainRpcKey}=""\n`;
   }
+  configsString += `
+ARBISCAN_API_KEY=''
+BSCSCAN_API_KEY=''
+ETHERSCAN_API_KEY=''
+OPTIMISM_API_KEY=''
+POLYGONSCAN_API_KEY=''
+BASESCAN_API_KEY=''`;
 
   await writeFile(".env", configsString);
-  console.log("Created env");
+  console.log(`✔  Generated .env file`);
 };
 
 export const updateEnums = async (
@@ -85,7 +84,6 @@ export const updateEnums = async (
   if (newChains.length) {
     for (let newChain of newChains) {
       let chainName = chainSlugMap.get(String(newChain));
-      console.log({ newChain, chainName });
       await updateFile(
         "rpcKeys.ts",
         `,\n  [ChainSlug.${chainName.toUpperCase()}] : "${chainName.toUpperCase()}_RPC",\n};\n`,
@@ -100,14 +98,14 @@ const updateFile = async (fileName, newChainDetails, replaceWith) => {
   const outputExists = fs.existsSync(filePath);
   if (!outputExists) throw new Error(`${fileName} enum not found! ${filePath}`);
 
-  const verificationDetailsString = fs.readFileSync(filePath, "utf-8");
+  const fileDataString = fs.readFileSync(filePath, "utf-8");
 
   // replace last bracket with new line
-  const verificationDetails = verificationDetailsString
+  const newDataString = fileDataString
     .trimEnd()
     .replace(replaceWith, newChainDetails);
 
-  fs.writeFileSync(filePath, verificationDetails);
+  fs.writeFileSync(filePath, newDataString);
 };
 
 const checkValueIfEnum = (value: any, tokensEnum: object = Tokens) => {

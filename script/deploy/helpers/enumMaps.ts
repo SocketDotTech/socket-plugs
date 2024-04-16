@@ -3,7 +3,7 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Project, Tokens } from "../../../src/enums";
+import { Tokens } from "../../../src/enums";
 import { Hooks } from "../../../src";
 
 export const chainSlugMap = createReverseEnumMap(ChainSlug);
@@ -22,6 +22,7 @@ function createReverseEnumMap(enumObj: any) {
 }
 
 export const getEnumMaps = (tokensEnum: object = Tokens) => {
+  // tokens is calculating separately because it is updated during setupScript with new token
   const tokensMap = createReverseEnumMap(tokensEnum);
   return {
     chainSlugMap,

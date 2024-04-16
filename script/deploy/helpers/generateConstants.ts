@@ -37,6 +37,6 @@ const pc: ProjectConstants = {
 
 export = pc;
 `;
-  console.log(content);
   fs.writeFileSync(filePath, content);
+  console.log(`✔  Project Constants file generated : ${filePath}`);
 };

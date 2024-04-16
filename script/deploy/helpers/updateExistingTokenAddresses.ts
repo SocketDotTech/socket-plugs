@@ -13,13 +13,11 @@ export const generateTokenAddressesFile = (
   if (!ExistingTokenAddresses[chainSlug])
     ExistingTokenAddresses[chainSlug] = {};
   ExistingTokenAddresses[chainSlug][token] = tokenAddress;
-  console.log(ExistingTokenAddresses[chainSlug][token]);
   const serializedContent = serializeConstants(
     ExistingTokenAddresses,
     0,
     tokensEnum
   );
-  console.log({ serializedContent });
   const content = `
   import { ChainSlug } from "@socket.tech/dl-core";
   import { Tokens } from "./tokens";
@@ -30,6 +28,10 @@ export const generateTokenAddressesFile = (
     ${serializedContent}
 };
 `;
-  console.log(content);
-  fs.writeFileSync(enumFolderPath + "existing-token-addresses1.ts", content);
+  fs.writeFileSync(enumFolderPath + "existing-token-addresses.ts", content);
+  console.log(
+    `✔  existing token addresses file updated : ${
+      enumFolderPath + "existing-token-addresses.ts"
+    }`
+  );
 };

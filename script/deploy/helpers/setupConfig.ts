@@ -157,6 +157,9 @@ export async function setupConfigs() {
   const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
   let newChains = allChains.filter((chain) => !rpcKeys[chain]);
   await updateEnums(projectConfig.projectName, newTokenInfo, newChains);
+  console.log(
+    `✔  Updated Enums : Tokens, RPC Keys, Symbols, Decimals, Token Names`
+  );
 
   let tokenChoices = Object.keys(Tokens).map((token) => ({
     title: token,
@@ -238,18 +241,19 @@ export async function setupConfigs() {
     projectConstants,
     newTokensEnum
   );
-  generateTokenAddressesFile(
-    newTokenInfo.chainSlug,
-    newTokenInfo.symbol as Tokens,
-    newTokenInfo.address,
-    newTokensEnum
-  );
+  if (newTokenInfo.symbol) {
+    generateTokenAddressesFile(
+      newTokenInfo.chainSlug,
+      newTokenInfo.symbol as Tokens,
+      newTokenInfo.address,
+      newTokensEnum
+    );
+  }
 }
 
 setupConfigs();
 
 export const validateEthereumAddress = (address: string) => {
-  // console.log("Validating address", address)
   return utils.isAddress(address);
 };
 
