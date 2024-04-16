@@ -10,5 +10,4 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.SNX]: "Synthetix Network Token",
   [Tokens.WSTETH]: "Wrapped liquid staked Ether 2.0",
   [Tokens.DAI]: "Dai Stablecoin",
-
 };

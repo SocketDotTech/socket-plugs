@@ -1,12 +1,12 @@
 ### Deployment steps
 
-- update the @socket.tech/dl-core package to latest version - `yarn add @socket.tech/dl-core` 
+- update the @socket.tech/dl-core package to latest version - `yarn add @socket.tech/dl-core`
 - run setup config script and provide project information - `npx ts-node script/deploy/helpers/setupConfig.ts`.
 - add necessary variables in .env (rpcs, private key)
 - run command `npx ts-node script/deploy/deployAndConfigure.ts`.
 
-If want to update configuration, can check the configuration file under 
-`script/constants/projectConstants/${projectType}/` folder with your project name. Can add/remove chains, update rate limits, add tokens, etc. Read the guide below before making any changes. 
+If want to update configuration, can check the configuration file under
+`script/constants/projectConstants/${projectType}/` folder with your project name. Can add/remove chains, update rate limits, add tokens, etc. Read the guide below before making any changes.
 
 ### Project Constants Help Guide
 
@@ -26,11 +26,12 @@ If want to update configuration, can check the configuration file under
 
   - **LIMIT_EXECUTION_HOOK** - This hook extends the capability of LIMIT_HOOK and allows for arbitrary payload execution on destination after bridge is successful.
 
-- **Rate Limits** - You can specify per token daily sending and receiving limits. 
-  - The limits are specified in formatted (ETH) values, ie. use 1000 for 1000 USDC limit. - Limit specified is the max daily limit. 
-  - When a user bridges, the current limit is reduced, and is regenerated per second (rate - max_limit / 86400  per sec) till it reaches max limit again. If a user bridges an amount which is greater than current limit, then current limit amount of tokens are sent to user, and the rest are stored as pending, which are released as limit regenerates.
-  - There are view functions on the LIMIT_HOOK contract to fetch the max limit, current limit, rate of increase, etc. 
-  - Rate limits help to reduce the attack surface in case of a hack by limited the throughput of the bridge. 
+- **Rate Limits** - You can specify per token daily sending and receiving limits.
+
+  - The limits are specified in formatted (ETH) values, ie. use 1000 for 1000 USDC limit. - Limit specified is the max daily limit.
+  - When a user bridges, the current limit is reduced, and is regenerated per second (rate - max_limit / 86400 per sec) till it reaches max limit again. If a user bridges an amount which is greater than current limit, then current limit amount of tokens are sent to user, and the rest are stored as pending, which are released as limit regenerates.
+  - There are view functions on the LIMIT_HOOK contract to fetch the max limit, current limit, rate of increase, etc.
+  - Rate limits help to reduce the attack surface in case of a hack by limited the throughput of the bridge.
 
 - **Integration Types** - we have 3 options for integration types (Recommended : FAST)
   - FAST: This is the default integrationType. It uses socket's 1/n security model to verify messages. Bridging time ~2 mins.
@@ -39,4 +40,3 @@ If want to update configuration, can check the configuration file under
 - **Pool Count** - this only applies for superbridge. normally we dont need to specify this and have a default value of 0.
   - When we are bridging out from an App chain(controller chain), we check if the destination chain have enough liquidity to allow user to bridge successfully. This accounting is done in poolPlugin.
   - We support different paths for bridging, ie FAST, OPTIMISTIC and NATIVE_BRIDGE. If a user bridges to chain using the NATIVE_BRIDGE path, and wants to withdraw using FAST path, we can allow the user to do that by keeping the poolCount for both paths as same. If we don't want to allow this, we can restrict this behavior by keeping poolId different.
-

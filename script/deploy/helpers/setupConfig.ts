@@ -228,8 +228,16 @@ export async function setupConfigs() {
       },
     };
   }
-  const newTokensEnum = { ...Tokens, [newTokenInfo.symbol]: newTokenInfo.symbol };
-  generateConstantsFile(projectType, projectName, projectConstants, newTokensEnum);
+  const newTokensEnum = {
+    ...Tokens,
+    [newTokenInfo.symbol]: newTokenInfo.symbol,
+  };
+  generateConstantsFile(
+    projectType,
+    projectName,
+    projectConstants,
+    newTokensEnum
+  );
   generateTokenAddressesFile(
     newTokenInfo.chainSlug,
     newTokenInfo.symbol as Tokens,

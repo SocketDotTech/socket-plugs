@@ -57,7 +57,8 @@ export const getPoolIdHex = (
   it: IntegrationTypes
 ): string => {
   // use 0 as default for poolCount, merging all volume from a single chain
-  let poolCount = getIntegrationTypeConsts(it, chainSlug, token)?.poolCount ?? 0;
+  let poolCount =
+    getIntegrationTypeConsts(it, chainSlug, token)?.poolCount ?? 0;
   if (poolCount === undefined || poolCount === null)
     throw new Error("poolCount not found");
   return encodePoolId(chainSlug, poolCount);

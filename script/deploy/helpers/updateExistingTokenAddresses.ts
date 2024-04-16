@@ -14,7 +14,11 @@ export const generateTokenAddressesFile = (
     ExistingTokenAddresses[chainSlug] = {};
   ExistingTokenAddresses[chainSlug][token] = tokenAddress;
   console.log(ExistingTokenAddresses[chainSlug][token]);
-  const serializedContent = serializeConstants(ExistingTokenAddresses, 0, tokensEnum);
+  const serializedContent = serializeConstants(
+    ExistingTokenAddresses,
+    0,
+    tokensEnum
+  );
   console.log({ serializedContent });
   const content = `
   import { ChainSlug } from "@socket.tech/dl-core";
