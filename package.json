@@ -51,6 +51,5 @@
   "dependencies": {
     "@socket.tech/dl-core": "^2.4.39",
     "prompts": "^2.4.2"
-
   }
 }

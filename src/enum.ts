@@ -1,4 +1,3 @@
-
 export enum Hooks {
   NO_HOOK = "NO_HOOK",
   LIMIT_HOOK = "LIMIT_HOOK",

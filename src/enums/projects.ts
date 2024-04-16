@@ -16,10 +16,5 @@ export enum Project {
   MIST_TESTNET = "mist-testnet",
   REYA_CRONOS = "reya-cronos",
   REYA = "reya",
-  TEST11 = "test11",
-  TEST12 = "test12",
-  SHISUI_TESTNET = "shisui_testnet",
-  ITACHI_TESTNET = "itachi_testnet",
-  POLYNOMIAL_TESTNET = "polynomial_testnet",
-  BOBO = "bobo",
+  SPECTRAL_SIGNAL = "spectral-signal",
 }

@@ -8,4 +8,5 @@ export enum Tokens {
   SNX = "SNX",
   WSTETH = "wstETH",
   DAI = "DAI",
+  GUARD = "GUARD",
 }

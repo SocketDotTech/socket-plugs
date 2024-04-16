@@ -10,4 +10,5 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.SNX]: "SNX",
   [Tokens.WSTETH]: "wstETH",
   [Tokens.DAI]: "DAI",
+  [Tokens.GUARD]: "GUARD",
 };
