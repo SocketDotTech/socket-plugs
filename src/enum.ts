@@ -1,3 +1,4 @@
+
 export enum Hooks {
   NO_HOOK = "NO_HOOK",
   LIMIT_HOOK = "LIMIT_HOOK",
@@ -32,7 +33,6 @@ export enum SuperBridgeContracts {
   FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
   ExchangeRate = "ExchangeRate",
   ConnectorPlug = "ConnectorPlug",
-  HelperContract = "HelperContract",
 }
 
 export enum HookContracts {

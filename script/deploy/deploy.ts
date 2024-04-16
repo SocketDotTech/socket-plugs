@@ -343,15 +343,6 @@ const deployVaultChainContracts = async (
     );
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
 
-    const helperContract: Contract = await getOrDeploy(
-      SuperBridgeContracts.HelperContract,
-      "contracts/utils/HelperContract.sol",
-      [nonMintableToken],
-      deployParams
-    );
-    deployParams.addresses[SuperBridgeContracts.HelperContract] =
-      helperContract.address;
-
     deployParams = await deployHookContracts(isVaultChain, false, deployParams);
     console.log(
       deployParams.currentChainSlug,

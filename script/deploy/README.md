@@ -5,6 +5,7 @@
 - add necessary variables in .env (rpcs, private key)
 - run command `npx ts-node script/deploy/deployAndConfigure.ts`.
 
+
 If want to update configuration, can check the configuration file under
 `script/constants/projectConstants/${projectType}/` folder with your project name. Can add/remove chains, update rate limits, add tokens, etc. Read the guide below before making any changes.
 
@@ -40,3 +41,9 @@ If want to update configuration, can check the configuration file under
 - **Pool Count** - this only applies for superbridge. normally we dont need to specify this and have a default value of 0.
   - When we are bridging out from an App chain(controller chain), we check if the destination chain have enough liquidity to allow user to bridge successfully. This accounting is done in poolPlugin.
   - We support different paths for bridging, ie FAST, OPTIMISTIC and NATIVE_BRIDGE. If a user bridges to chain using the NATIVE_BRIDGE path, and wants to withdraw using FAST path, we can allow the user to do that by keeping the poolCount for both paths as same. If we don't want to allow this, we can restrict this behavior by keeping poolId different.
+
+### Test tokens faucets
+
+- [arbitrum sepolia](https://sepolia.arbiscan.io/address/0x406c77947d91f965f09b458c07a66a033c3efea4)
+- [optimism sepolia](https://sepolia-optimism.etherscan.io/address/0xbebfcb5a41836490c6449ce755c8dc361c175aa3)
+
