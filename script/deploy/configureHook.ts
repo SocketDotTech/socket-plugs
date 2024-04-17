@@ -25,6 +25,10 @@ export const configureHooks = async (
     token,
     addr
   );
+  if (!hookContract || !hookContractName) {
+    return; // No hook to configure
+  }
+
   if (hookContractName === HookContracts.LimitExecutionHook) {
     await setHookInExecutionHelper(chain, socketSigner, hookContract, addr);
   }

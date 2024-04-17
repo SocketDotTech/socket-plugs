@@ -49,8 +49,8 @@ export async function setupConfigs() {
       name: "owner",
       type: "text",
       message:
-        "Enter owner Address (Owner will be the deployer initially to configure roles)",
-      validate: (value) => validateEthereumAddress(value),
+        "Enter owner Address * (Owner will be the deployer initially to configure roles)",
+      validate: (value) => validateEthereumAddress(value.trim()),
     },
     {
       name: "hookType",
@@ -75,16 +75,23 @@ export async function setupConfigs() {
       name: "isMainnet",
       type: "toggle",
       message: "Is the deployment for mainnet?",
+      active: 'yes',
+  inactive: 'no'
+  ,
     },
     {
       name: "newToken",
       type: "toggle",
       message:
         "Want to add a new token? (select yes if you have an already deployed token)",
+        active: 'yes',
+  inactive: 'no'
     },
   ]);
-  const { projectName, projectType, owner, hookType, isMainnet, newToken } =
+  let { projectName, projectType, owner, hookType, isMainnet, newToken } =
     projectConfig;
+    owner = owner.trim();
+    let isLimitsRequired = hookType === Hooks.LIMIT_HOOK || hookType === Hooks.LIMIT_EXECUTION_HOOK;
   let possibleChains = projectConfig.isMainnet ? MainnetIds : TestnetIds;
   let chainOptions = possibleChains.map((chain) => ({
     title: ChainSlugToKey[chain.toString()],
@@ -132,9 +139,11 @@ export async function setupConfigs() {
         name: "address",
         type: "text",
         message: "Enter token address",
-        validate: (value) => validateEthereumAddress(value),
+        validate: (value) => validateEthereumAddress(value.trim()),
       },
     ]);
+    newTokenInfo.symbol = newTokenInfo.symbol.toUpperCase();
+    newTokenInfo.address = newTokenInfo.address.trim();
   }
 
   let chainsInfo = await prompts([
@@ -167,8 +176,8 @@ export async function setupConfigs() {
   }));
   if (projectConfig.newToken) {
     tokenChoices.push({
-      title: newTokenInfo.symbol,
-      value: newTokenInfo.symbol,
+      title: newTokenInfo.symbol.toUpperCase(),
+      value: newTokenInfo.symbol.toUpperCase(),
     });
   }
 
@@ -194,23 +203,24 @@ export async function setupConfigs() {
   const limitInfos: {
     [token: string]: { sendingLimit: number; receivingLimit: number };
   } = {};
-  for (let token of tokenInfo.tokens) {
-    let limitInfo = await prompts([
-      {
-        name: "sendingLimit",
-        type: "text",
-        message: `Enter sending limit for ${token}`,
-      },
-      {
-        name: "receivingLimit",
-        type: "text",
-        message: `Enter receiving limit for ${token}`,
-      },
-    ]);
+  if (isLimitsRequired) {
+    for (let token of tokenInfo.tokens) {
+      let limitInfo = await prompts([
+        {
+          name: "sendingLimit",
+          type: "text",
+          message: `Enter sending limit for ${token}`,
+        },
+        {
+          name: "receivingLimit",
+          type: "text",
+          message: `Enter receiving limit for ${token}`,
+        },
+      ]);
 
-    limitInfos[token] = limitInfo;
+      limitInfos[token] = limitInfo;
+    }
   }
-
   let projectConstants: ProjectConstants = {
     [DeploymentMode.PROD]: {},
   };
@@ -226,14 +236,16 @@ export async function setupConfigs() {
       vaultChains: chainsInfo.vaultChains,
       controllerChains: chainsInfo.controllerChains,
       hook: {
-        hookType: hookType,
-        limitsAndPoolId,
+        hookType
       },
     };
+    if (isLimitsRequired) {
+      projectConstants[DeploymentMode.PROD][token].hook.limitsAndPoolId = limitsAndPoolId;
+    }
   }
   const newTokensEnum = {
     ...Tokens,
-    [newTokenInfo.symbol]: newTokenInfo.symbol,
+    [newTokenInfo.symbol.toUpperCase()]: newTokenInfo.symbol.toUpperCase(),
   };
   generateConstantsFile(
     projectType,
@@ -244,7 +256,7 @@ export async function setupConfigs() {
   if (newTokenInfo.symbol) {
     generateTokenAddressesFile(
       newTokenInfo.chainSlug,
-      newTokenInfo.symbol as Tokens,
+      newTokenInfo.symbol.toUpperCase() as Tokens,
       newTokenInfo.address,
       newTokensEnum
     );

@@ -15,23 +15,32 @@ export const buildEnvFile = async (
   tokens: Tokens[],
   chains: ChainSlug[]
 ) => {
-  let configsString = `\nPROJECT="${projectName}"\nPROJECT_TYPE="${projectType}"\nTOKENS="${tokens.join(
-    ","
-  )}"\nOWNER_ADDRESS=${ownerAddress}\nOWNER_SIGNER_KEY=""\nDRY_RUN=""\n`;
+  let envData = {
+    PROJECT: projectName,
+    PROJECT_TYPE: projectType,
+    TOKENS: tokens.join(","),
+    OWNER_ADDRESS: ownerAddress,
+    OWNER_SIGNER_KEY: "",
+    DRY_RUN: "false",
+    ARBISCAN_API_KEY: "",
+    BSCSCAN_API_KEY: "",
+    ETHERSCAN_API_KEY: "",
+    OPTIMISM_API_KEY: "",
+    POLYGONSCAN_API_KEY: "",
+    BASESCAN_API_KEY: "",
+  };
+
+  let envFileExists = fs.existsSync(".env");
+  if (envFileExists) {
+    const envFileData = parseEnvFile(".env");
+    envData = { ...envFileData, ...envData };
+  }
 
   for (let chain of chains) {
-    let chainRpcKey = chainSlugMap.get(String(chain));
-    configsString = configsString + `${chainRpcKey}=""\n`;
+    let chainName = chainSlugMap.get(String(chain));
+    envData[`${chainName}_RPC`] = "";
   }
-  configsString += `
-ARBISCAN_API_KEY=''
-BSCSCAN_API_KEY=''
-ETHERSCAN_API_KEY=''
-OPTIMISM_API_KEY=''
-POLYGONSCAN_API_KEY=''
-BASESCAN_API_KEY=''`;
-
-  await writeFile(".env", configsString);
+  await writeFile(".env", objectToEnv(envData));
   console.log(`✔  Generated .env file`);
 };
 
@@ -70,7 +79,7 @@ export const updateEnums = async (
     );
     await updateFile(
       "tokenSymbol.ts",
-      `,\n  [Tokens.${symbol.toUpperCase()}]: "${symbol}",\n};\n`,
+      `,\n  [Tokens.${symbol.toUpperCase()}]: "${symbol.toUpperCase()}",\n};\n`,
       ",\n};"
     );
 
@@ -170,3 +179,45 @@ export const serializeConstants = (
 
   return serializedEntries.join(",\n");
 };
+
+export const objectToEnv = (env: { [key: string]: string }) => {
+  return Object.entries(env)
+    .map(([key, value]) => {
+      return `${key} = "${value}"`;
+    })
+    .join("\n");
+};
+
+export const parseEnvFile = (filePath) => {
+  try {
+    // Read the file content
+    const content = fs.readFileSync(filePath, { encoding: "utf-8" });
+    const envObject = {};
+
+    // Split content into lines
+    content.split(/\r?\n/).forEach((line) => {
+      // Remove leading and trailing whitespaces
+      line = line.trim();
+
+      // Ignore empty lines and lines starting with `#` (comments)
+      if (line !== "" && !line.startsWith("#")) {
+        // Split the line into key and value by the first `=`
+        let [key, ...value] = line.split("=");
+        key = key.trim();
+        let finalValue = value.join("=").trim(); // Join back the value in case it contains `=`
+        if ((finalValue.startsWith('"') && finalValue.endsWith('"')) || (finalValue.startsWith("'") && finalValue.endsWith("'"))){
+          finalValue = finalValue.substring(1, finalValue.length - 1);
+        }
+        // Only add to the object if the key is not empty
+        if (key) {
+          envObject[key] = finalValue;
+        }
+      }
+    });
+
+    return envObject;
+  } catch (error) {
+    console.error("Failed to read the .env file:", error);
+    return {};
+  }
+}

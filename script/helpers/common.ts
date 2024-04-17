@@ -176,8 +176,8 @@ export const getHookContract = async (
     contractName = HookContracts.LimitExecutionHook;
   }
 
-  if (!address) {
-    throw new Error("Hook address not found");
+  if (!address || !contractName) {
+    return { hookContract: contract, hookContractName: contractName }
   }
 
   contract = await getInstance(contractName, address);
