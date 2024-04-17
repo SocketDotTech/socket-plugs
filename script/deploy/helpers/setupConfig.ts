@@ -75,23 +75,23 @@ export async function setupConfigs() {
       name: "isMainnet",
       type: "toggle",
       message: "Is the deployment for mainnet?",
-      active: 'yes',
-  inactive: 'no'
-  ,
+      active: "yes",
+      inactive: "no",
     },
     {
       name: "newToken",
       type: "toggle",
       message:
         "Want to add a new token? (select yes if you have an already deployed token)",
-        active: 'yes',
-  inactive: 'no'
+      active: "yes",
+      inactive: "no",
     },
   ]);
   let { projectName, projectType, owner, hookType, isMainnet, newToken } =
     projectConfig;
-    owner = owner.trim();
-    let isLimitsRequired = hookType === Hooks.LIMIT_HOOK || hookType === Hooks.LIMIT_EXECUTION_HOOK;
+  owner = owner.trim();
+  let isLimitsRequired =
+    hookType === Hooks.LIMIT_HOOK || hookType === Hooks.LIMIT_EXECUTION_HOOK;
   let possibleChains = projectConfig.isMainnet ? MainnetIds : TestnetIds;
   let chainOptions = possibleChains.map((chain) => ({
     title: ChainSlugToKey[chain.toString()],
@@ -236,11 +236,12 @@ export async function setupConfigs() {
       vaultChains: chainsInfo.vaultChains,
       controllerChains: chainsInfo.controllerChains,
       hook: {
-        hookType
+        hookType,
       },
     };
     if (isLimitsRequired) {
-      projectConstants[DeploymentMode.PROD][token].hook.limitsAndPoolId = limitsAndPoolId;
+      projectConstants[DeploymentMode.PROD][token].hook.limitsAndPoolId =
+        limitsAndPoolId;
     }
   }
   const newTokensEnum = {

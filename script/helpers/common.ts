@@ -177,7 +177,7 @@ export const getHookContract = async (
   }
 
   if (!address || !contractName) {
-    return { hookContract: contract, hookContractName: contractName }
+    return { hookContract: contract, hookContractName: contractName };
   }
 
   contract = await getInstance(contractName, address);

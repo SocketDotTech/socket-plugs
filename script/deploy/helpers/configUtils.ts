@@ -205,7 +205,10 @@ export const parseEnvFile = (filePath) => {
         let [key, ...value] = line.split("=");
         key = key.trim();
         let finalValue = value.join("=").trim(); // Join back the value in case it contains `=`
-        if ((finalValue.startsWith('"') && finalValue.endsWith('"')) || (finalValue.startsWith("'") && finalValue.endsWith("'"))){
+        if (
+          (finalValue.startsWith('"') && finalValue.endsWith('"')) ||
+          (finalValue.startsWith("'") && finalValue.endsWith("'"))
+        ) {
           finalValue = finalValue.substring(1, finalValue.length - 1);
         }
         // Only add to the object if the key is not empty
@@ -220,4 +223,4 @@ export const parseEnvFile = (filePath) => {
     console.error("Failed to read the .env file:", error);
     return {};
   }
-}
+};
