@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
 /// @notice Modern and gas efficient ERC20 + EIP-2612 implementation.
@@ -632,7 +633,7 @@ abstract contract RescueBase is AccessControl {
 contract Faucet is RescueBase {
     using SafeTransferLib for ERC20;
 
-    constructor(address token_) AccessControl(msg.sender) {
+    constructor() AccessControl(msg.sender) {
         _grantRole(RESCUE_ROLE, msg.sender);
     }
 
