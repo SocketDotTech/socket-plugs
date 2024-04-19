@@ -6,11 +6,12 @@ import {
 import { Tokens } from "../../../src/enums";
 import { Hooks } from "../../../src";
 
-export const chainSlugMap = createReverseEnumMap(ChainSlug);
-export const tokensMap = createReverseEnumMap(Tokens);
-export const integrationTypesMap = createReverseEnumMap(IntegrationTypes);
-export const deploymentModeMap = createReverseEnumMap(DeploymentMode);
-export const hookMap = createReverseEnumMap(Hooks);
+export const chainSlugReverseMap = createReverseEnumMap(ChainSlug);
+export const tokensReverseMap = createReverseEnumMap(Tokens);
+export const integrationTypesreverseMap =
+  createReverseEnumMap(IntegrationTypes);
+export const deploymentModeReverseMap = createReverseEnumMap(DeploymentMode);
+export const hookReverseMap = createReverseEnumMap(Hooks);
 
 // Function to create a reverse map from an enum
 function createReverseEnumMap(enumObj: any) {
@@ -25,10 +26,10 @@ export const getEnumMaps = (tokensEnum: object = Tokens) => {
   // tokens is calculating separately because it is updated during setupScript with new token
   const tokensMap = createReverseEnumMap(tokensEnum);
   return {
-    chainSlugMap,
+    chainSlugMap: chainSlugReverseMap,
     tokensMap,
-    integrationTypesMap,
-    deploymentModeMap,
-    hookMap,
+    integrationTypesMap: integrationTypesreverseMap,
+    deploymentModeMap: deploymentModeReverseMap,
+    hookMap: hookReverseMap,
   };
 };

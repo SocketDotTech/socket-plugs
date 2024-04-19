@@ -3,7 +3,7 @@ import { BigNumberish, Wallet, ethers } from "ethers";
 import { resolve } from "path";
 import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
 import { getOwnerSignerKey } from "../constants/config";
-import { rpcKeys } from "../../src/enums/rpcKeys";
+import { chainSlugReverseMap } from "../deploy/helpers/enumMaps";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -103,15 +103,20 @@ export const overrides: {
   },
 };
 
+export const rpcKeys = (chainSlug: ChainSlug) => {
+  const chainName = chainSlugReverseMap.get(String(chainSlug));
+  return `${chainName.toUpperCase()}_RPC`;
+};
+
 export function getJsonRpcUrl(chain: ChainSlug): string {
-  let chainRpcKey = rpcKeys[chain as ChainSlug];
+  let chainRpcKey = rpcKeys(chain);
   if (!chainRpcKey) throw Error(`Chain ${chain} not found in rpcKey`);
   let rpc = process.env[chainRpcKey];
   if (!rpc) {
     throw new Error(
-      `RPC not configured for chain ${chain}. Missing env variable : ${
-        rpcKeys[chain as ChainSlug]
-      }`
+      `RPC not configured for chain ${chain}. Missing env variable : ${rpcKeys(
+        chain
+      )}`
     );
   }
   return rpc;

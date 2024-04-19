@@ -3,7 +3,7 @@ import fs from "fs";
 import { writeFile } from "fs/promises";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { Tokens } from "../../../src/enums";
-import { chainSlugMap, getEnumMaps } from "./enumMaps";
+import { chainSlugReverseMap, getEnumMaps } from "./enumMaps";
 import { ProjectType } from "../../../src";
 
 export const enumFolderPath = path.join(__dirname, `/../../../src/enums/`);
@@ -37,7 +37,7 @@ export const buildEnvFile = async (
   }
 
   for (let chain of chains) {
-    let chainName = chainSlugMap.get(String(chain));
+    let chainName = chainSlugReverseMap.get(String(chain));
     envData[`${chainName}_RPC`] = "";
   }
   await writeFile(".env", objectToEnv(envData));
@@ -52,8 +52,7 @@ export const updateEnums = async (
     decimals: number;
     chainSlug: ChainSlug;
     address: string;
-  },
-  newChains: ChainSlug[]
+  }
 ) => {
   if (!fs.existsSync(enumFolderPath)) {
     throw new Error(`Folder not found! ${enumFolderPath}`);
@@ -88,17 +87,6 @@ export const updateEnums = async (
       `,\n  [Tokens.${symbol.toUpperCase()}]: ${decimals},\n};\n`,
       ",\n};"
     );
-  }
-
-  if (newChains.length) {
-    for (let newChain of newChains) {
-      let chainName = chainSlugMap.get(String(newChain));
-      await updateFile(
-        "rpcKeys.ts",
-        `,\n  [ChainSlug.${chainName.toUpperCase()}] : "${chainName.toUpperCase()}_RPC",\n};\n`,
-        ",\n};"
-      );
-    }
   }
 };
 

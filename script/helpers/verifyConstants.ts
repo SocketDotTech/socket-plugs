@@ -63,8 +63,7 @@ export const verifyConstants = async () => {
         for (let chain in limitsAndPoolId) {
           let chainLimits = limitsAndPoolId[chain];
           for (let integration in chainLimits) {
-            let { sendingLimit, receivingLimit } =
-              chainLimits[integration];
+            let { sendingLimit, receivingLimit } = chainLimits[integration];
             checkMissingFields({ sendingLimit, receivingLimit });
           }
         }

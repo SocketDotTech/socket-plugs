@@ -1,15 +1,8 @@
 import fs from "fs";
-import { Hooks, ProjectConstants, ProjectType } from "../../../src";
-import {
-  chainSlugMap,
-  deploymentModeMap,
-  hookMap,
-  integrationTypesMap,
-  tokensMap,
-} from "./enumMaps";
+import { ProjectConstants, ProjectType } from "../../../src";
 import path from "path";
 import { serializeConstants } from "./configUtils";
-import { Project, Tokens } from "../../../src/enums";
+import { Tokens } from "../../../src/enums";
 
 export const generateConstantsFile = (
   projectType: ProjectType,

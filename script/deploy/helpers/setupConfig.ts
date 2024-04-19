@@ -11,7 +11,6 @@ import {
   TestnetIds,
 } from "@socket.tech/dl-core";
 import { Tokens } from "../../../src/enums";
-import { rpcKeys } from "../../../src/enums/rpcKeys";
 import { generateConstantsFile } from "./generateConstants";
 import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
 
@@ -164,8 +163,7 @@ export async function setupConfigs() {
   ]);
 
   const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
-  let newChains = allChains.filter((chain) => !rpcKeys[chain]);
-  await updateEnums(projectConfig.projectName, newTokenInfo, newChains);
+  await updateEnums(projectConfig.projectName, newTokenInfo);
   console.log(
     `✔  Updated Enums : Tokens, RPC Keys, Symbols, Decimals, Token Names`
   );
