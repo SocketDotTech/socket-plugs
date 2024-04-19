@@ -262,8 +262,6 @@ export async function setupConfigs() {
   }
 }
 
-setupConfigs();
-
 export const validateEthereumAddress = (address: string) => {
   return utils.isAddress(address);
 };
