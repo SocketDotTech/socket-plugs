@@ -34,16 +34,6 @@ export const main = async () => {
 
     for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {
       const chain = chains[chainIndex];
-      if (
-        chain == ChainSlug.AEVO ||
-        chain == ChainSlug.AEVO_TESTNET ||
-        chain == ChainSlug.SX_NETWORK_TESTNET ||
-        chain == ChainSlug.MODE_TESTNET ||
-        chain == ChainSlug.VICTION_TESTNET ||
-        chain == ChainSlug.MODE ||
-        chain == ChainSlug.ANCIENT8_TESTNET2
-      )
-        continue;
       // hre.changeNetwork(ChainSlugToHardhatKey[chain]);
       if (hre.network.name !== ChainSlugToHardhatKey[chain]) continue;
       const chainParams: VerifyArgs[] | undefined = verificationParams[chain];
