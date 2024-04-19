@@ -4,7 +4,8 @@ import {
   IntegrationTypes,
 } from "@socket.tech/dl-core";
 
-import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
+import { Hooks, ProjectConstants, ProjectType } from "../../../../src";
+import { Tokens } from "../../../../src/enums";
 
 export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {

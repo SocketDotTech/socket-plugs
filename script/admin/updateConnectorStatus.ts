@@ -4,7 +4,6 @@ import { printExecSummary, getAllAddresses } from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
   Connectors,
-  Tokens,
   ProjectType,
   TokenConstants,
   SBAddresses,
@@ -16,6 +15,7 @@ import { getProjectName, getProjectType, getTokens } from "../constants/config";
 import { connectorStatus, filterChains, siblingFilterChains } from "./utils";
 import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract, updateConnectorStatus } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 export enum ConnectorStatus {
   ACTIVE = "active",

@@ -3,8 +3,9 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
+import { Hooks, ProjectConstants } from "../../../../src";
 import { getOwner } from "../../config";
+import { Tokens } from "../../../../src/enums";
 
 const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {

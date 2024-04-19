@@ -4,7 +4,6 @@ import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getSuperBridgeAddresses, getSuperTokenAddresses } from "../helpers";
 import { ChainSlug } from "@socket.tech/dl-core";
 import {
-  tokenDecimals,
   SBAddresses,
   STAddresses,
   STTokenAddresses,
@@ -13,6 +12,7 @@ import {
 import { getTokens, isSuperBridge, isSuperToken } from "../constants/config";
 import { checkSendingLimit } from "./utils";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
+import { tokenDecimals } from "../../src/enums";
 
 const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
 const dstChain = ChainSlug.ARBITRUM_SEPOLIA;

@@ -1,16 +1,9 @@
 import { Contract } from "ethers";
 import { ChainSlug } from "@socket.tech/dl-core";
-import {
-  printExecSummary,
-  getAllAddresses,
-  getInstance,
-  getSignerFromChainSlug,
-} from "../helpers";
+import { printExecSummary, getAllAddresses } from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
   Connectors,
-  Tokens,
-  ProjectType,
   TokenConstants,
   SBAddresses,
   STAddresses,
@@ -26,6 +19,7 @@ import {
   getHookContract,
   updateLimitsAndPoolId,
 } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 let pc: { [token: string]: TokenConstants } = {};
 let tokens: Tokens[];
