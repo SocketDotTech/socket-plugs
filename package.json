@@ -1,7 +1,7 @@
 {
   "name": "@socket.tech/socket-plugs",
   "license": "MIT",
-  "version": "1.0.20",
+  "version": "1.0.24-test.2",
   "description": "Plugs built using socket's data layer",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -39,7 +39,8 @@
   },
   "scripts": {
     "lint": "prettier \"./**\" --write",
-    "build": "hardhat export-abi && hardhat typechain && tsc --project lib.tsconfig.json",
+    "build": "hardhat export-abi && hardhat typechain && yarn buildJson && tsc --project lib.tsconfig.json",
+    "buildJson":"npx ts-node ./script/helpers/updateJsons.ts",
     "abi": "hardhat export-abi",
     "compile": "forge build",
     "test": "forge test"

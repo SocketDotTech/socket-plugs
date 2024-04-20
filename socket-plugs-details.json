@@ -89,5 +89,17 @@
     "reya-cronos",
     "reya",
     "spectral-signal"
+  ],
+  "tokens": [
+    "MOON",
+    "USDC.e",
+    "USDC",
+    "WETH",
+    "WBTC",
+    "USDT",
+    "SNX",
+    "wstETH",
+    "DAI",
+    "GUARD"
   ]
 }

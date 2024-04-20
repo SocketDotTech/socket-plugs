@@ -140,4 +140,14 @@ export interface ReturnObj {
   deployedAddresses: SBTokenAddresses;
 }
 
-export type AllAddresses = Record<Project, STAddresses | SBAddresses>;
+export type AllAddresses = Record<string, STAddresses | SBAddresses>;
+
+export interface SocketPlugsConfig {
+  tokenDecimals: { [key in Tokens]: number },
+  tokenSymbols: { [key in Tokens]: string },
+  tokenAddresses: {
+    [key in ChainSlug]?: { [key in Tokens]?: string };
+  },
+  projects: string[],
+  tokens: string[],
+}

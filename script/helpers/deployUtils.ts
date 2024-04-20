@@ -24,6 +24,7 @@ import {
   STAddresses,
   DeployParams,
   AllAddresses,
+  SocketPlugsConfig,
 } from "../../src";
 import {
   deploymentPath,
@@ -277,7 +278,6 @@ export const createObj = function (obj: any, keys: string[], value: any): any {
 
 export const updateAllAddressesFile = async () => {
   let projects = Object.values(Project);
-  console.log(projects);
 
   for (let project of projects) {
     const projectDeploymentPath = path.join(
@@ -285,18 +285,18 @@ export const updateAllAddressesFile = async () => {
       `/../../deployments/${getProjectType()}/${getMode()}_${project}_addresses.json`
     );
     let projectAddresses = readJSONFile(projectDeploymentPath);
-    console.log(project, Object.keys(projectAddresses));
     if (Object.keys(projectAddresses).length === 0) continue;
     storeAllAddresses(project, projectAddresses);
   }
 };
 
 export const updateDetailsFile = async () => {
-  let details = {
+  let details: SocketPlugsConfig = {
     tokenDecimals: tokenDecimals,
     tokenAddresses: ExistingTokenAddresses,
     tokenSymbols: tokenSymbol,
     projects: Object.values(Project),
+    tokens: Object.values(Tokens),
   };
 
   const detailsFilePath = path.join(
