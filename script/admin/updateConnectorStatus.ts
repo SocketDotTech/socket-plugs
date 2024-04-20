@@ -1,6 +1,6 @@
 import { Contract } from "ethers";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { printExecSummary, getAllAddresses } from "../helpers";
+import { printExecSummary, getProjectAddresses } from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
   Connectors,
@@ -44,7 +44,7 @@ export const main = async () => {
       pc[token] = getTokenConstants(token);
       let addresses: SBAddresses | STAddresses;
       try {
-        addresses = getAllAddresses();
+        addresses = getProjectAddresses();
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
       }

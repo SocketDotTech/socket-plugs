@@ -19,7 +19,8 @@ import {
   createObj,
   getOrDeploy,
   getOrDeployConnector,
-  getAllAddresses,
+  getProjectAddresses,
+  storeAllAddresses,
   storeTokenAddresses,
 } from "../helpers";
 import {
@@ -42,7 +43,7 @@ import { ExistingTokenAddresses } from "../../src/enums/existing-token-addresses
 import { deployHookContracts } from "./deployHook";
 import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract } from "../helpers/common";
-import { Tokens } from "../../src/enums";
+import { Project, Tokens } from "../../src/enums";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
@@ -63,7 +64,7 @@ export const deploy = async () => {
     pc[token] = getTokenConstants(token);
     let addresses: SBAddresses | STAddresses;
     try {
-      addresses = getAllAddresses();
+      addresses = getProjectAddresses();
     } catch (error) {
       addresses = {} as SBAddresses | STAddresses;
     }
@@ -112,7 +113,7 @@ export const deploy = async () => {
       })
     );
   }
-
+  await storeAllAddresses(projectName as Project, allAddresses);
   return allAddresses;
 };
 /**

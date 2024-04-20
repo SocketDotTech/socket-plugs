@@ -139,3 +139,5 @@ export interface ReturnObj {
   allDeployed: boolean;
   deployedAddresses: SBTokenAddresses;
 }
+
+export type AllAddresses = Record<Project, STAddresses | SBAddresses>;

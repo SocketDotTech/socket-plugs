@@ -13,6 +13,16 @@ import path from "path";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
 
+export let allDeploymentPath: string;
+export const getAllDeploymentPath = () => {
+  if (allDeploymentPath) return allDeploymentPath;
+  allDeploymentPath = path.join(
+    __dirname,
+    `/../../deployments/${getProjectType()}/${getMode()}_addresses.json`
+  );
+  return allDeploymentPath;
+};
+
 export let deploymentPath: string;
 export const getDeploymentPath = () => {
   if (deploymentPath) return deploymentPath;
@@ -117,7 +127,7 @@ export const readJSONFile = (filePath: string) => {
   try {
     let fileExists = fs.existsSync(filePath);
     if (!fileExists) {
-      fs.writeFileSync(filePath, "{}");
+      return {};
     }
     const data = fs.readFileSync(filePath, "utf8");
     return JSON.parse(data);

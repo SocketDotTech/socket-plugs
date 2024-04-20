@@ -11,21 +11,35 @@ import {
 } from "@socket.tech/dl-core";
 import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
-import { getMode, getProjectName, isSuperBridge } from "../constants/config";
+import {
+  getMode,
+  getProjectName,
+  getProjectType,
+  isSuperBridge,
+} from "../constants/config";
 import {
   SuperBridgeContracts,
   SBTokenAddresses,
   SBAddresses,
   STAddresses,
   DeployParams,
+  AllAddresses,
 } from "../../src";
 import {
   deploymentPath,
+  getAllDeploymentPath,
   getDeploymentPath,
   getVerificationPath,
   readJSONFile,
 } from "./utils";
-import { Tokens } from "../../src/enums";
+import {
+  ExistingTokenAddresses,
+  Project,
+  Tokens,
+  tokenDecimals,
+  tokenSymbol,
+} from "../../src/enums";
+import path from "path";
 
 export const getOrDeploy = async (
   contractName: string,
@@ -199,22 +213,33 @@ export const storeTokenAddresses = async (
   );
 };
 
-export const storeAllAddresses = async (addresses: SBAddresses) => {
+export const storeAllAddresses = async (
+  projectName: Project,
+  projectAddresses: SBAddresses | STAddresses
+) => {
+  let filePath = getAllDeploymentPath();
+  let allAddresses: AllAddresses = readJSONFile(filePath);
+
+  allAddresses = createObj(allAddresses, [projectName], projectAddresses);
+  fs.writeFileSync(filePath, JSON.stringify(allAddresses, null, 2));
+};
+
+export const storeProjectAddresses = async (addresses: SBAddresses) => {
   fs.writeFileSync(getDeploymentPath(), JSON.stringify(addresses, null, 2));
 };
 
 let addresses: SBAddresses | STAddresses;
-export const getAllAddresses = (): SBAddresses | STAddresses => {
+export const getProjectAddresses = (): SBAddresses | STAddresses => {
   if (addresses) return addresses;
   addresses = readJSONFile(getDeploymentPath());
   return addresses;
 };
 
 export const getSuperBridgeAddresses = (): SBAddresses => {
-  return getAllAddresses() as SBAddresses;
+  return getProjectAddresses() as SBAddresses;
 };
 export const getSuperTokenAddresses = (): STAddresses => {
-  return getAllAddresses() as STAddresses;
+  return getProjectAddresses() as STAddresses;
 };
 
 export const storeVerificationParams = async (
@@ -248,4 +273,35 @@ export const createObj = function (obj: any, keys: string[], value: any): any {
     );
   }
   return obj;
+};
+
+export const updateAllAddressesFile = async () => {
+  let projects = Object.values(Project);
+  console.log(projects);
+
+  for (let project of projects) {
+    const projectDeploymentPath = path.join(
+      __dirname,
+      `/../../deployments/${getProjectType()}/${getMode()}_${project}_addresses.json`
+    );
+    let projectAddresses = readJSONFile(projectDeploymentPath);
+    console.log(project, Object.keys(projectAddresses));
+    if (Object.keys(projectAddresses).length === 0) continue;
+    storeAllAddresses(project, projectAddresses);
+  }
+};
+
+export const updateDetailsFile = async () => {
+  let details = {
+    tokenDecimals: tokenDecimals,
+    tokenAddresses: ExistingTokenAddresses,
+    tokenSymbols: tokenSymbol,
+    projects: Object.values(Project),
+  };
+
+  const detailsFilePath = path.join(
+    __dirname,
+    `/../../socket-plugs-details.json`
+  );
+  fs.writeFileSync(detailsFilePath, JSON.stringify(details, null, 2));
 };

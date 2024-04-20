@@ -9,7 +9,7 @@ import {
 import { getSignerFromChainSlug } from "../helpers/networks";
 import {
   getInstance,
-  getAllAddresses,
+  getProjectAddresses,
   getSocket,
   execute,
   printExecSummary,
@@ -61,7 +61,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
       // console.log(pc[token]);
       let addresses: SBAddresses | STAddresses;
       try {
-        addresses = allAddresses ?? getAllAddresses();
+        addresses = allAddresses ?? getProjectAddresses();
         // console.log(addresses);
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
