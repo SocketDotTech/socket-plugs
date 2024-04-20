@@ -143,11 +143,11 @@ export interface ReturnObj {
 export type AllAddresses = Record<string, STAddresses | SBAddresses>;
 
 export interface SocketPlugsConfig {
-  tokenDecimals: { [key in Tokens]: number },
-  tokenSymbols: { [key in Tokens]: string },
+  tokenDecimals: { [key in Tokens]: number };
+  tokenSymbols: { [key in Tokens]: string };
   tokenAddresses: {
     [key in ChainSlug]?: { [key in Tokens]?: string };
-  },
-  projects: string[],
-  tokens: string[],
+  };
+  projects: string[];
+  tokens: string[];
 }

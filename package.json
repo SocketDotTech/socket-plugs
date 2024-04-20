@@ -40,7 +40,7 @@
   "scripts": {
     "lint": "prettier \"./**\" --write",
     "build": "hardhat export-abi && hardhat typechain && yarn buildJson && tsc --project lib.tsconfig.json",
-    "buildJson":"npx ts-node ./script/helpers/updateJsons.ts",
+    "buildJson": "npx ts-node ./script/helpers/updateJsons.ts",
     "abi": "hardhat export-abi",
     "compile": "forge build",
     "test": "forge test"
