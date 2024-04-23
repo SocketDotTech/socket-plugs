@@ -28,6 +28,7 @@ forge test
 
 - update the @socket.tech/dl-core package to latest version - `yarn add @socket.tech/dl-core`
 - run setup config script and provide project information - `npx ts-node script/setup.ts`.
+- run `npx hardhat compile` to compile contracts
 - add necessary variables in .env (rpcs, private key)
 - run command `npx ts-node script/deploy.ts`.
 
