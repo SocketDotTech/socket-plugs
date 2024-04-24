@@ -3,7 +3,7 @@ import { BigNumberish, Wallet, ethers } from "ethers";
 import { resolve } from "path";
 import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
 import { getOwnerSignerKey } from "../constants/config";
-import { chainSlugReverseMap } from "../deploy/helpers/enumMaps";
+import { chainSlugReverseMap } from "../setup/enumMaps";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });

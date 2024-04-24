@@ -3,8 +3,8 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Tokens } from "../../../src/enums";
-import { Hooks } from "../../../src";
+import { Tokens } from "../../src/enums";
+import { Hooks } from "../../src";
 
 export const chainSlugReverseMap = createReverseEnumMap(ChainSlug);
 export const tokensReverseMap = createReverseEnumMap(Tokens);

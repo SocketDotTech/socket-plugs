@@ -1,8 +1,8 @@
 import fs from "fs";
-import { ChainSlug, Hooks, ProjectConstants, ProjectType } from "../../../src";
+import { ChainSlug, Hooks, ProjectConstants, ProjectType } from "../../src";
 import { enumFolderPath, serializeConstants } from "./configUtils";
-import { Tokens } from "../../../src/enums";
-import { ExistingTokenAddresses } from "../../../src/enums";
+import { Tokens } from "../../src/enums";
+import { ExistingTokenAddresses } from "../../src/enums";
 
 export const generateTokenAddressesFile = (
   chainSlug: ChainSlug,

@@ -45,6 +45,7 @@ If want to update configuration, can check the configuration file under
 
   - For superbridge, this will be the new chain where users are bridging. There will be only 1 controller chain (app chain) for superbridge.
   - For supertoken, all the chains (except the one where token is deployed) are controller chains, as token is minted/burned. No of controller chains >=1.
+  - Note : If you are not able to find your chain in the list of chains during setup, check if the chain already have socket core contracts deployed, and if you have updated the @socket.tech/dl-core package.
 
 - **Hooks** - Hooks are plugins that can be added for extra functionality. We have 2 options for hook right now -
 

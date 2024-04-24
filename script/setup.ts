@@ -1,4 +1,4 @@
-import { setupConfigs } from "./deploy/helpers/setupConfig";
+import { setupConfigs } from "./setup/setupConfig";
 
 setupConfigs()
   .then(() => process.exit(0))

@@ -21,14 +21,16 @@ import {
   hardhatChainNameToSlug,
 } from "@socket.tech/dl-core";
 import { getJsonRpcUrl } from "./script/helpers/networks";
+import { constants } from "ethers";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
 
 // Ensure that we have all the environment variables we need.
 // if (!process.env.OWNER_SIGNER_KEY) throw new Error("No private key found");
-const privateKey: HardhatNetworkAccountUserConfig = process.env
-  .OWNER_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
+const privateKey: HardhatNetworkAccountUserConfig = (process.env
+  .OWNER_SIGNER_KEY ||
+  constants.HashZero.slice(2)) as unknown as HardhatNetworkAccountUserConfig;
 
 function getChainConfig(chain: HardhatChainName): NetworkUserConfig {
   return {

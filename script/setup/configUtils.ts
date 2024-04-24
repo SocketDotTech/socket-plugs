@@ -2,11 +2,11 @@ import path from "path";
 import fs from "fs";
 import { writeFile } from "fs/promises";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { Tokens } from "../../../src/enums";
+import { Tokens } from "../../src/enums";
 import { chainSlugReverseMap, getEnumMaps } from "./enumMaps";
-import { ProjectType } from "../../../src";
+import { ProjectType } from "../../src";
 
-export const enumFolderPath = path.join(__dirname, `/../../../src/enums/`);
+export const enumFolderPath = path.join(__dirname, `/../../src/enums/`);
 
 export const buildEnvFile = async (
   projectName: string,
@@ -15,81 +15,117 @@ export const buildEnvFile = async (
   tokens: Tokens[],
   chains: ChainSlug[]
 ) => {
-  let envData = {
-    PROJECT: projectName,
-    PROJECT_TYPE: projectType,
-    TOKENS: tokens.join(","),
-    OWNER_ADDRESS: ownerAddress,
-    OWNER_SIGNER_KEY: "",
-    DRY_RUN: "false",
-    ARBISCAN_API_KEY: "",
-    BSCSCAN_API_KEY: "",
-    ETHERSCAN_API_KEY: "",
-    OPTIMISM_API_KEY: "",
-    POLYGONSCAN_API_KEY: "",
-    BASESCAN_API_KEY: "",
-  };
+  let { publicEnvData, privateEnvData } = getProjectEnvData(
+    projectName,
+    projectType,
+    ownerAddress,
+    tokens,
+    chains
+  );
+  let finalEnvData: Record<string, string>;
 
   let envFileExists = fs.existsSync(".env");
   if (envFileExists) {
     const envFileData = parseEnvFile(".env");
-    envData = { ...envFileData, ...envData };
+
+    // replace the existing values with the new values for public data
+    const updatedPublicEnvData = { ...envFileData, ...publicEnvData };
+    // merge the private data. if a key is already present in the env file, it will not be overwritten
+    finalEnvData = { ...privateEnvData, ...updatedPublicEnvData };
+  } else {
+    finalEnvData = { ...privateEnvData, ...publicEnvData };
+  }
+  await writeFile(".env", objectToEnv(finalEnvData));
+  console.log(`✔  Generated .env file`);
+};
+
+export const getProjectEnvData = (
+  projectName: string,
+  projectType: ProjectType,
+  ownerAddress: string,
+  tokens: Tokens[],
+  chains: ChainSlug[]
+) => {
+  let publicEnvData: Record<string, string> = {
+    PROJECT: projectName,
+    PROJECT_TYPE: projectType,
+    TOKENS: tokens.join(","),
+    OWNER_ADDRESS: ownerAddress,
+    DRY_RUN: "false",
+  };
+  let privateEnvData: Record<string, string> = {
+    OWNER_SIGNER_KEY: "",
+  };
+  if (chains.includes(ChainSlug.ARBITRUM)) {
+    privateEnvData.ARBISCAN_API_KEY = "";
+  }
+  if (chains.includes(ChainSlug.BSC)) {
+    privateEnvData.BSCSCAN_API_KEY = "";
+  }
+  if (chains.includes(ChainSlug.MAINNET)) {
+    privateEnvData.ETHERSCAN_API_KEY = "";
+  }
+  if (chains.includes(ChainSlug.OPTIMISM)) {
+    privateEnvData.OPTIMISM_API_KEY = "";
+  }
+  if (chains.includes(ChainSlug.POLYGON_MAINNET)) {
+    privateEnvData.POLYGONSCAN_API_KEY = "";
+  }
+  if (chains.includes(ChainSlug.BASE)) {
+    privateEnvData.BASESCAN_API_KEY = "";
   }
 
   for (let chain of chains) {
     let chainName = chainSlugReverseMap.get(String(chain));
-    envData[`${chainName}_RPC`] = "";
+    privateEnvData[`${chainName}_RPC`] = "";
   }
-  await writeFile(".env", objectToEnv(envData));
-  console.log(`✔  Generated .env file`);
+
+  return { publicEnvData, privateEnvData };
 };
 
-export const updateEnums = async (
-  projectName: string,
-  newTokenInfo: {
-    name: string;
-    symbol: string;
-    decimals: number;
-    chainSlug: ChainSlug;
-    address: string;
-  }
-) => {
-  if (!fs.existsSync(enumFolderPath)) {
-    throw new Error(`Folder not found! ${enumFolderPath}`);
-  }
-
+export const updateProjectEnum = async (projectName: string) => {
   await updateFile(
     "projects.ts",
     `,\n  ${projectName.toUpperCase()} = "${projectName.toLowerCase()}",\n}\n`,
     ",\n}"
   );
-  if (newTokenInfo.name) {
-    let { name, symbol, decimals, chainSlug, address } = newTokenInfo;
-    await updateFile(
-      "tokens.ts",
-      `,\n  ${symbol.toUpperCase()} = "${symbol.toUpperCase()}",\n}\n`,
-      ",\n}"
-    );
-
-    await updateFile(
-      "tokenName.ts",
-      `,\n  [Tokens.${symbol.toUpperCase()}]: "${name}",\n};\n`,
-      ",\n};"
-    );
-    await updateFile(
-      "tokenSymbol.ts",
-      `,\n  [Tokens.${symbol.toUpperCase()}]: "${symbol.toUpperCase()}",\n};\n`,
-      ",\n};"
-    );
-
-    await updateFile(
-      "tokenDecimals.ts",
-      `,\n  [Tokens.${symbol.toUpperCase()}]: ${decimals},\n};\n`,
-      ",\n};"
-    );
-  }
 };
 
+export const updateTokenEnums = async (newTokenInfo: {
+  name: string;
+  symbol: string;
+  decimals: number;
+  chainSlug: ChainSlug;
+  address: string;
+}) => {
+  if (!newTokenInfo.name) return;
+
+  let { name, symbol, decimals } = newTokenInfo;
+  await updateFile(
+    "tokens.ts",
+    `,\n  ${symbol.toUpperCase()} = "${symbol.toUpperCase()}",\n}\n`,
+    ",\n}"
+  );
+
+  await updateFile(
+    "tokenName.ts",
+    `,\n  [Tokens.${symbol.toUpperCase()}]: "${name}",\n};\n`,
+    ",\n};"
+  );
+  await updateFile(
+    "tokenSymbol.ts",
+    `,\n  [Tokens.${symbol.toUpperCase()}]: "${symbol.toUpperCase()}",\n};\n`,
+    ",\n};"
+  );
+
+  await updateFile(
+    "tokenDecimals.ts",
+    `,\n  [Tokens.${symbol.toUpperCase()}]: ${decimals},\n};\n`,
+    ",\n};"
+  );
+
+  console.log(`✔  Updated Enums : Tokens, Symbols, Decimals, Token Names`);
+};
 const updateFile = async (fileName, newChainDetails, replaceWith) => {
   const filePath = enumFolderPath + fileName;
   const outputExists = fs.existsSync(filePath);

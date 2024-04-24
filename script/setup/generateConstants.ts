@@ -1,8 +1,8 @@
 import fs from "fs";
-import { ProjectConstants, ProjectType } from "../../../src";
+import { ProjectConstants, ProjectType } from "../../src";
 import path from "path";
 import { serializeConstants } from "./configUtils";
-import { Tokens } from "../../../src/enums";
+import { Tokens } from "../../src/enums";
 
 export const generateConstantsFile = (
   projectType: ProjectType,
@@ -12,7 +12,7 @@ export const generateConstantsFile = (
 ) => {
   let filePath = path.join(
     __dirname,
-    `/../../constants/projectConstants/${projectType}/${projectName}.ts`
+    `/../constants/projectConstants/${projectType}/${projectName}.ts`
   );
 
   const content = `
