@@ -330,7 +330,7 @@ const deployVaultChainContracts = async (
       ExistingTokenAddresses[deployParams.currentChainSlug]?.[
         deployParams.currentToken
       ];
-    if (!nonMintableToken) throw new Error("Token not found on app chain");
+    if (!nonMintableToken) throw new Error("Token not found on vault chain");
 
     if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])
       deployParams.addresses[SuperBridgeContracts.NonMintableToken] =

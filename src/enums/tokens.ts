@@ -9,4 +9,5 @@ export enum Tokens {
   WSTETH = "wstETH",
   DAI = "DAI",
   GUARD = "GUARD",
+  ETH = "ETH",
 }
