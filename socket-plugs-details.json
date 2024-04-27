@@ -9,7 +9,8 @@
     "SNX": 18,
     "wstETH": 18,
     "DAI": 18,
-    "GUARD": 18
+    "GUARD": 18,
+    "ETH": 18
   },
   "tokenAddresses": {
     "1": {
@@ -18,7 +19,9 @@
       "WETH": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       "WBTC": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
       "SNX": "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
-      "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+      "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+      "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     },
     "10": {
       "USDC": "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
@@ -27,7 +30,9 @@
       "WETH": "0x4200000000000000000000000000000000000006",
       "WBTC": "0x68f180fcce6836688e9084f035309e29bf0a2095",
       "SNX": "0x8700daec35af8ff88c16bdf0418774cb3d7599b4",
-      "wstETH": "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb"
+      "wstETH": "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb",
+      "DAI": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     },
     "137": {
       "USDC": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
@@ -45,7 +50,9 @@
       "USDT": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
       "WETH": "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
       "WBTC": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
-      "wstETH": "0x5979D7b546E38E414F7E9822514be443A4800529"
+      "wstETH": "0x5979D7b546E38E414F7E9822514be443A4800529",
+      "DAI": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     },
     "421614": {
       "USDC": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
@@ -73,7 +80,8 @@
     "SNX": "SNX",
     "wstETH": "wstETH",
     "DAI": "DAI",
-    "GUARD": "GUARD"
+    "GUARD": "GUARD",
+    "ETH": "ETH"
   },
   "projects": [
     "aevo",
@@ -82,8 +90,6 @@
     "lyra",
     "sx-network-testnet",
     "leaf-testnet",
-    "sand-testnet",
-    "sound-testnet",
     "rain-testnet",
     "mist-testnet",
     "reya-cronos",
@@ -100,6 +106,7 @@
     "SNX",
     "wstETH",
     "DAI",
-    "GUARD"
+    "GUARD",
+    "ETH"
   ]
 }

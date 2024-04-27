@@ -11,4 +11,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.WSTETH]: "Wrapped liquid staked Ether 2.0",
   [Tokens.DAI]: "Dai Stablecoin",
   [Tokens.GUARD]: "Guardian",
+  [Tokens.ETH]: "Ether",
 };

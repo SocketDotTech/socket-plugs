@@ -41,6 +41,7 @@ import {
   tokenSymbol,
 } from "../../src/enums";
 import path from "path";
+import { ProjectTypeMap } from "../../src/enums/projectType";
 
 export const getOrDeploy = async (
   contractName: string,
@@ -282,7 +283,9 @@ export const updateAllAddressesFile = async () => {
   for (let project of projects) {
     const projectDeploymentPath = path.join(
       __dirname,
-      `/../../deployments/${getProjectType()}/${getMode()}_${project}_addresses.json`
+      `/../../deployments/${
+        ProjectTypeMap[project]
+      }/${getMode()}_${project}_addresses.json`
     );
     let projectAddresses = readJSONFile(projectDeploymentPath);
     if (Object.keys(projectAddresses).length === 0) continue;
