@@ -24,11 +24,9 @@ import {
 import { Hooks, ProjectConstants } from "../../../../src";
 import { Tokens } from "../../../../src/enums";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
     ${serializeConstants(projectConstants, 0, tokensEnum)}
 };
-
-export = pc;
 `;
   fs.writeFileSync(filePath, content);
   console.log(`✔  Project Constants file generated : ${filePath}`);

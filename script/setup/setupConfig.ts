@@ -2,6 +2,7 @@ import prompts from "prompts";
 import { addProject } from "./addNewProject";
 import { addNewToken } from "./addNewToken";
 import { config } from "dotenv";
+import { editProject } from "./editProject";
 config();
 export async function setupConfigs() {
   let actionInfo = await prompts([
@@ -34,5 +35,3 @@ export async function setupConfigs() {
     await addNewToken();
   }
 }
-
-export const editProject = async () => {};

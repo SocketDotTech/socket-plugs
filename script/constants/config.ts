@@ -4,6 +4,7 @@ dotenvConfig();
 import { DeploymentMode } from "@socket.tech/dl-core";
 import { Project, Tokens } from "../../src/enums";
 import { ProjectType } from "../../src";
+import { ProjectTypeMap } from "../../src/enums/projectType";
 // import { Project, ProjectType, Tokens } from "../../src";
 
 export const getOwner = () => {
@@ -30,14 +31,12 @@ export const getProjectName = () => {
 };
 
 export const getProjectType = () => {
-  if (!process.env.PROJECT_TYPE) throw new Error("PROJECT_TYPE not mentioned");
-  if (
-    !Object.values(ProjectType).includes(
-      process.env.PROJECT_TYPE as ProjectType
-    )
-  )
-    throw new Error("project is invalid");
-  return process.env.PROJECT_TYPE as ProjectType;
+  const projectType = ProjectTypeMap[getProjectName()];
+  if (!projectType)
+    throw new Error(
+      "Project type not found, please check src/enums/projectType.ts"
+    );
+  return projectType;
 };
 
 export const isSuperBridge = () => getProjectType() === ProjectType.SUPERBRIDGE;

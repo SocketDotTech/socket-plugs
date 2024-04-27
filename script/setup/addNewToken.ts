@@ -103,7 +103,6 @@ export const getNewTokenInfo = async (
     newTokenInfo.address,
     rpc
   );
-  console.log({ name, symbol, decimals });
   if (
     ExistingTokenAddresses[chainSlug]?.[symbol.toUpperCase()]?.toLowerCase() ===
     newTokenInfo.address.toLowerCase()

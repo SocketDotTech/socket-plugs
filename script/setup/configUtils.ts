@@ -3,7 +3,11 @@ import fs from "fs";
 import { writeFile } from "fs/promises";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { Tokens } from "../../src/enums";
-import { chainSlugReverseMap, getEnumMaps } from "./enumMaps";
+import {
+  chainSlugReverseMap,
+  getEnumMaps,
+  projectReverseMap,
+} from "./enumMaps";
 import { ProjectType } from "../../src";
 
 export const enumFolderPath = path.join(__dirname, `/../../src/enums/`);
@@ -48,7 +52,6 @@ export const getProjectEnvData = (
 ) => {
   let publicEnvData: Record<string, string> = {
     PROJECT: projectName,
-    PROJECT_TYPE: projectType,
     TOKENS: tokens.join(","),
     OWNER_ADDRESS: ownerAddress,
     DRY_RUN: "false",
@@ -83,11 +86,24 @@ export const getProjectEnvData = (
   return { publicEnvData, privateEnvData };
 };
 
-export const updateProjectEnum = async (projectName: string) => {
+export const updateProjectEnums = async (
+  projectName: string,
+  projectType: ProjectType
+) => {
   await updateFile(
     "projects.ts",
     `,\n  ${projectName.toUpperCase()} = "${projectName.toLowerCase()}",\n}\n`,
     ",\n}"
+  );
+
+  await updateFile(
+    "projectType.ts",
+    `,\n  [Project.${projectName.toUpperCase()}]: ${
+      projectType == ProjectType.SUPERBRIDGE
+        ? "ProjectType.SUPERBRIDGE"
+        : "ProjectType.SUPERTOKEN"
+    },\n};\n`,
+    ",\n};"
   );
 };
 

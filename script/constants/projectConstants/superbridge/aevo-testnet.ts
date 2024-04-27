@@ -6,7 +6,7 @@ import {
 import { Tokens } from "../../../../src/enums";
 import { Hooks, ProjectConstants } from "../../../../src";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       controllerChains: [ChainSlug.AEVO_TESTNET],
@@ -64,5 +64,3 @@ const pc: ProjectConstants = {
     },
   },
 };
-
-export = pc;

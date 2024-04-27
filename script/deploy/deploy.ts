@@ -146,28 +146,15 @@ const deployChainContracts = async (
       deployUtils.addresses = addr;
 
       if (isAppChain) {
-        deployUtils = await deployControllerChainContracts(
-          isVaultChain,
-          deployUtils
-        );
+        deployUtils = await deployControllerChainContracts(deployUtils);
       } else {
-        deployUtils = await deployVaultChainContracts(
-          isVaultChain,
-          deployUtils
-        );
+        deployUtils = await deployVaultChainContracts(deployUtils);
       }
     }
     if (isSuperToken()) {
       if (isVaultChain)
-        deployUtils = await deployVaultChainContracts(
-          isVaultChain,
-          deployUtils
-        );
-      else
-        deployUtils = await deployControllerChainContracts(
-          isVaultChain,
-          deployUtils
-        );
+        deployUtils = await deployVaultChainContracts(deployUtils);
+      else deployUtils = await deployControllerChainContracts(deployUtils);
     }
 
     for (let sibling of siblings) {
@@ -250,7 +237,6 @@ const deployConnectors = async (
 };
 
 const deployControllerChainContracts = async (
-  isVaultChain: boolean,
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   try {
@@ -301,7 +287,7 @@ const deployControllerChainContracts = async (
     deployParams.addresses[SuperBridgeContracts.Controller] =
       controller.address;
 
-    deployParams = await deployHookContracts(isVaultChain, true, deployParams);
+    deployParams = await deployHookContracts(true, deployParams);
     console.log(
       deployParams.currentChainSlug,
       " Controller Chain Contracts deployed! ✔"
@@ -318,7 +304,6 @@ const deployControllerChainContracts = async (
 };
 
 const deployVaultChainContracts = async (
-  isVaultChain: boolean,
   deployParams: DeployParams
 ): Promise<DeployParams> => {
   console.log(
@@ -344,7 +329,7 @@ const deployVaultChainContracts = async (
     );
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
 
-    deployParams = await deployHookContracts(isVaultChain, false, deployParams);
+    deployParams = await deployHookContracts(false, deployParams);
     console.log(
       deployParams.currentChainSlug,
       " Vault Chain Contracts deployed! ✔"

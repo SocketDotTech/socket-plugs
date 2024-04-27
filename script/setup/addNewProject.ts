@@ -1,6 +1,6 @@
 import { Contract, utils } from "ethers";
 import prompts from "prompts";
-import { buildEnvFile, updateProjectEnum } from "./configUtils";
+import { buildEnvFile, updateProjectEnums } from "./configUtils";
 import { Hooks, ProjectConstants, ProjectType } from "../../src";
 import {
   ChainSlug,
@@ -13,26 +13,13 @@ import {
 import { Tokens } from "../../src/enums";
 import { generateConstantsFile } from "./generateConstants";
 import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
-import { getTokenMetadata, validateEthereumAddress } from "./common";
+import {
+  ProjectConfig,
+  getTokenMetadata,
+  validateEthereumAddress,
+} from "./common";
 import { chainSlugReverseMap } from "./enumMaps";
 import { getProviderFromChainSlug } from "../helpers";
-
-type ProjectConfig = {
-  projectType: ProjectType;
-  projectName: string;
-  hookType: Hooks;
-  owner: string;
-  isMainnet: boolean;
-  newToken: boolean;
-};
-
-type NewTokenInfo = {
-  name: string;
-  symbol: string;
-  decimals: number;
-  chainSlug: ChainSlug;
-  address: string;
-};
 
 type TokenRateLimits = Record<
   string,
@@ -47,7 +34,7 @@ export const addProject = async () => {
   let chainsInfo = await getChainsInfo(projectType, chainOptions);
 
   const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
-  await updateProjectEnum(projectConfig.projectName);
+  await updateProjectEnums(projectConfig.projectName, projectType);
   console.log(`✔  Updated Enums :Project`);
 
   let tokenInfo: {
@@ -160,7 +147,7 @@ export const getChainsInfo = async (
   chainOptions: { title: string; value: number }[]
 ) => {
   if (projectType == ProjectType.SUPERBRIDGE) {
-    const chainsInfo = await prompts([
+    const vaultChainsInfo = await prompts([
       {
         name: "vaultChains",
         type: "multiselect",
@@ -170,18 +157,24 @@ export const getChainsInfo = async (
         min: 1,
         max: 20,
       },
-      {
-        name: "controllerChains",
-        type: "select",
-        message:
-          "Select controller chain (app chain, where token will be minted/burned. check README for more info)",
-        choices: chainOptions,
-      },
     ]);
-    chainsInfo.controllerChains = [chainsInfo.controllerChains];
-    return chainsInfo;
+
+    const controllerChainOptions = chainOptions.filter(chainOption => !vaultChainsInfo.vaultChains.includes(chainOption.value))
+    const controllerChainsInfo = await prompts([
+        {
+          name: "controllerChains",
+          type: "select",
+          message:
+            "Select controller chain (app chain, where token will be minted/burned. check README for more info)",
+          choices: controllerChainOptions,
+        },
+      ]);
+    return {
+        vaultChains: vaultChainsInfo.vaultChains,
+        controllerChains: [controllerChainsInfo.controllerChains],
+    };
   } else {
-    return await prompts([
+    const vaultChainsInfo = await prompts([
       {
         name: "vaultChains",
         type: "multiselect",
@@ -190,17 +183,26 @@ export const getChainsInfo = async (
         choices: chainOptions,
         min: 0,
         max: 1,
-      },
-      {
-        name: "controllerChains",
-        type: "multiselect",
-        min: 1,
-        max: 20,
-        message:
-          "Select controller chains, where token will be minted/burned (check README for more info)",
-        choices: chainOptions,
-      },
+      }
     ]);
+    const controllerChainOptions = chainOptions.filter(chainOption => !vaultChainsInfo.vaultChains.includes(chainOption.value))
+    const controllerChainsInfo = await prompts([
+        {
+          name: "controllerChains",
+          type: "multiselect",
+          min: 1,
+          max: 20,
+          message:
+            "Select controller chains, where token will be minted/burned (check README for more info)",
+          choices: controllerChainOptions,
+        },
+      ]);
+    
+      return {
+        vaultChains: vaultChainsInfo.vaultChains,
+        controllerChains: controllerChainsInfo.controllerChains,
+    };
+
   }
 };
 

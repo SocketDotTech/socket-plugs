@@ -5,7 +5,6 @@ import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
 
 export const deployHookContracts = async (
-  isVaultChain: boolean,
   useConnnectorPools: boolean,
   deployParams: DeployParams
 ) => {

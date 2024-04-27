@@ -16,9 +16,8 @@ let tc: TokenConstants;
 export const getTokenConstants = (tokenName: string): TokenConstants => {
   if (tc) return tc;
   console.log(getConstantPath());
-  const _tc = require(getConstantPath());
-  console.log(_tc);
-  tc = _tc?.[getMode()]?.[tokenName];
+  const pc = require(getConstantPath()).pc;
+  tc = pc?.[getMode()]?.[tokenName];
   if (!tc)
     throw new Error(
       `config not found for ${getProjectName()}, ${getMode()}, ${tokenName}`

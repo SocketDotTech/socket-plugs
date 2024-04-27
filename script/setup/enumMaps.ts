@@ -3,7 +3,7 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Tokens } from "../../src/enums";
+import { Project, Tokens } from "../../src/enums";
 import { Hooks } from "../../src";
 
 export const chainSlugReverseMap = createReverseEnumMap(ChainSlug);
@@ -12,6 +12,7 @@ export const integrationTypesreverseMap =
   createReverseEnumMap(IntegrationTypes);
 export const deploymentModeReverseMap = createReverseEnumMap(DeploymentMode);
 export const hookReverseMap = createReverseEnumMap(Hooks);
+export const projectReverseMap = createReverseEnumMap(Project);
 
 // Function to create a reverse map from an enum
 function createReverseEnumMap(enumObj: any) {

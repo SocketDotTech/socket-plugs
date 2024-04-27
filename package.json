@@ -51,6 +51,7 @@
   ],
   "dependencies": {
     "@socket.tech/dl-core": "^2.4.39",
+    "lodash": "^4.17.21",
     "prompts": "^2.4.2"
   }
 }

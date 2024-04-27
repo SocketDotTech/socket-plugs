@@ -12,6 +12,7 @@ import * as fs from "fs";
 import path from "path";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
+import { ProjectType } from "../../src";
 
 export let allDeploymentPath: string;
 export const getAllDeploymentPath = () => {
@@ -51,6 +52,16 @@ export const getConstantPath = () => {
     `/../constants/projectConstants/${getProjectType()}/${getProjectName()}`
   );
   return constantPath;
+};
+
+export const getConstantPathForProject = (
+  projectName: string,
+  projectType: ProjectType
+) => {
+  return path.join(
+    __dirname,
+    `/../constants/projectConstants/${projectType}/${projectName}`
+  );
 };
 
 export function encodePoolId(chainSlug: number, poolCount: number) {

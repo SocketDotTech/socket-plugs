@@ -7,7 +7,7 @@ import { Hooks, ProjectConstants } from "../../../../src";
 import { getOwner } from "../../config";
 import { Tokens } from "../../../../src/enums";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       vaultChains: [ChainSlug.OPTIMISM_SEPOLIA],
@@ -57,5 +57,3 @@ const pc: ProjectConstants = {
     },
   },
 };
-
-export = pc;
