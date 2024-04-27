@@ -15,9 +15,7 @@ import {
 import { Project, Tokens } from "../../src/enums";
 import { generateConstantsFile } from "./generateConstants";
 
-import {
-  getConstantPathForProject,
-} from "../helpers";
+import { getConstantPathForProject } from "../helpers";
 import { ProjectTypeMap } from "../../src/enums/projectType";
 import { existsSync } from "fs";
 import { chainSlugReverseMap } from "./enumMaps";
@@ -147,8 +145,8 @@ export const addChain = async (
         newTc.controllerChains.push(newChainSlug);
       }
       if (newTc?.hook?.limitsAndPoolId?.[newTc.vaultChains[0]])
-      newTc.hook.limitsAndPoolId[newChainSlug] =
-        newTc.hook.limitsAndPoolId[newTc.vaultChains[0]];
+        newTc.hook.limitsAndPoolId[newChainSlug] =
+          newTc.hook.limitsAndPoolId[newTc.vaultChains[0]];
       newPc[DeploymentMode.PROD][token] = newTc;
     }
     generateConstantsFile(projectType, projectName, newPc);
@@ -239,10 +237,15 @@ export const updateRateLimit = async (
 
     for (const token of projectTokens) {
       const tokenConstants = pc[DeploymentMode.PROD][token] as TokenConstants;
-      if (tokenConstants.hook.hookType!=Hooks.LIMIT_HOOK && tokenConstants.hook.hookType!=Hooks.LIMIT_EXECUTION_HOOK) {
-        console.log(`Rate limits can only be updated for project with hook type LIMIT_HOOK or LIMIT_EXECUTION_HOOK. Returning ...`);
+      if (
+        tokenConstants.hook.hookType != Hooks.LIMIT_HOOK &&
+        tokenConstants.hook.hookType != Hooks.LIMIT_EXECUTION_HOOK
+      ) {
+        console.log(
+          `Rate limits can only be updated for project with hook type LIMIT_HOOK or LIMIT_EXECUTION_HOOK. Returning ...`
+        );
         return;
-      };
+      }
       const allChains = [
         ...tokenConstants.vaultChains,
         ...tokenConstants.controllerChains,
@@ -286,22 +289,30 @@ export const updateRateLimit = async (
     for (const token of tokenInfo.tokens) {
       const currentTc = pc[DeploymentMode.PROD][token] as TokenConstants;
       const newTc: TokenConstants = _.cloneDeep(currentTc);
-      const currentTokenChains = Object.keys(newTc.hook.limitsAndPoolId).map(c => parseInt(c) as ChainSlug);
+      const currentTokenChains = Object.keys(newTc.hook.limitsAndPoolId).map(
+        (c) => parseInt(c) as ChainSlug
+      );
       console.log(`Updating rate limits for ${token}`);
       for (const chain of chainInfo.chains) {
-        console.log(currentTokenChains, chain)
+        console.log(currentTokenChains, chain);
         if (!currentTokenChains.includes(chain)) continue;
 
         const limitInfo = await prompts([
           {
             name: "sendingLimit",
             type: "text",
-            message: `Enter max daily sending limit for ${token} on chain: ${chain} (Enter formatted values, 100.0 for 100 USDC. Check README for more info. prev value: ${newTc.hook.limitsAndPoolId[chain]?.[IntegrationTypes.fast]?.sendingLimit} ${token}):`,
+            message: `Enter max daily sending limit for ${token} on chain: ${chain} (Enter formatted values, 100.0 for 100 USDC. Check README for more info. prev value: ${
+              newTc.hook.limitsAndPoolId[chain]?.[IntegrationTypes.fast]
+                ?.sendingLimit
+            } ${token}):`,
           },
           {
             name: "receivingLimit",
             type: "text",
-            message: `Enter max daily receiving limit for ${token} on chain: ${chain} (Enter formatted values, 100.0 for 100 USDC Check README for more info. prev value: ${newTc.hook.limitsAndPoolId[chain]?.[IntegrationTypes.fast]?.receivingLimit} ${token}):`,
+            message: `Enter max daily receiving limit for ${token} on chain: ${chain} (Enter formatted values, 100.0 for 100 USDC Check README for more info. prev value: ${
+              newTc.hook.limitsAndPoolId[chain]?.[IntegrationTypes.fast]
+                ?.receivingLimit
+            } ${token}):`,
           },
         ]);
         newTc.hook.limitsAndPoolId[chain][IntegrationTypes.fast] = {

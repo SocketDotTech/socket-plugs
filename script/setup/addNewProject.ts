@@ -159,19 +159,21 @@ export const getChainsInfo = async (
       },
     ]);
 
-    const controllerChainOptions = chainOptions.filter(chainOption => !vaultChainsInfo.vaultChains.includes(chainOption.value))
+    const controllerChainOptions = chainOptions.filter(
+      (chainOption) => !vaultChainsInfo.vaultChains.includes(chainOption.value)
+    );
     const controllerChainsInfo = await prompts([
-        {
-          name: "controllerChains",
-          type: "select",
-          message:
-            "Select controller chain (app chain, where token will be minted/burned. check README for more info)",
-          choices: controllerChainOptions,
-        },
-      ]);
+      {
+        name: "controllerChains",
+        type: "select",
+        message:
+          "Select controller chain (app chain, where token will be minted/burned. check README for more info)",
+        choices: controllerChainOptions,
+      },
+    ]);
     return {
-        vaultChains: vaultChainsInfo.vaultChains,
-        controllerChains: [controllerChainsInfo.controllerChains],
+      vaultChains: vaultChainsInfo.vaultChains,
+      controllerChains: [controllerChainsInfo.controllerChains],
     };
   } else {
     const vaultChainsInfo = await prompts([
@@ -183,26 +185,27 @@ export const getChainsInfo = async (
         choices: chainOptions,
         min: 0,
         max: 1,
-      }
+      },
     ]);
-    const controllerChainOptions = chainOptions.filter(chainOption => !vaultChainsInfo.vaultChains.includes(chainOption.value))
+    const controllerChainOptions = chainOptions.filter(
+      (chainOption) => !vaultChainsInfo.vaultChains.includes(chainOption.value)
+    );
     const controllerChainsInfo = await prompts([
-        {
-          name: "controllerChains",
-          type: "multiselect",
-          min: 1,
-          max: 20,
-          message:
-            "Select controller chains, where token will be minted/burned (check README for more info)",
-          choices: controllerChainOptions,
-        },
-      ]);
-    
-      return {
-        vaultChains: vaultChainsInfo.vaultChains,
-        controllerChains: controllerChainsInfo.controllerChains,
-    };
+      {
+        name: "controllerChains",
+        type: "multiselect",
+        min: 1,
+        max: 20,
+        message:
+          "Select controller chains, where token will be minted/burned (check README for more info)",
+        choices: controllerChainOptions,
+      },
+    ]);
 
+    return {
+      vaultChains: vaultChainsInfo.vaultChains,
+      controllerChains: controllerChainsInfo.controllerChains,
+    };
   }
 };
 
