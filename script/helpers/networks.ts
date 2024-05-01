@@ -135,6 +135,11 @@ export const overrides: {
     // gasLimit,
     gasPrice: 0,
   },
+  [ChainSlug.SYNDR_SEPOLIA_L3]: {
+    type: 1,
+    gasLimit: 500_000_000,
+    gasPrice: 1_000_000,
+  },
 };
 
 export function getJsonRpcUrl(chain: ChainSlug): string {
@@ -256,6 +261,10 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
     case ChainSlug.REYA:
       if (!process.env.REYA_RPC) throw new Error("REYA_RPC not configured");
       return process.env.REYA_RPC;
+    case ChainSlug.SYNDR_SEPOLIA_L3:
+      if (!process.env.SYNDR_SEPOLIA_L3_RPC)
+        throw new Error("SYNDR_SEPOLIA_L3_RPC not configured");
+      return process.env.SYNDR_SEPOLIA_L3_RPC;
 
     case ChainSlug.HARDHAT:
       return "http://127.0.0.1:8545/";

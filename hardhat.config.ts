@@ -72,6 +72,7 @@ const liveNetworks = [
   HardhatChainName.ANCIENT8_TESTNET2,
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
+  HardhatChainName.SYNDR_SEPOLIA_L3,
 ];
 
 let hardhatNetworkDetails = {};

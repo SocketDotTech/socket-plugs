@@ -12,6 +12,7 @@ import prod_viction_testnet_addresses from "../deployments/superbridge/prod_vict
 import prod_aevo_addresses from "../deployments/superbridge/prod_aevo_addresses.json";
 import prod_lyra_address from "../deployments/superbridge/prod_lyra_addresses.json";
 import prod_ancient8_testnet2_addresses from "../deployments/superbridge/prod_ancient8-testnet2_addresses.json";
+import prod_syndr_testnet_addresses from "../deployments/superbridge/prod_syndr-sepolia-l3_addresses.json";
 
 // export const getSuperbridgeAddresses = async (
 //   mode: DeploymentMode,
