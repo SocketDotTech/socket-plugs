@@ -43,7 +43,7 @@ export const overrides: {
   [ChainSlug.SEPOLIA]: {
     type: 0,
     gasLimit,
-    gasPrice: 20_000_000_000,
+    gasPrice: 25_000_000_000,
   },
   [ChainSlug.AEVO_TESTNET]: {
     type,
@@ -77,8 +77,8 @@ export const overrides: {
   },
   [ChainSlug.MAINNET]: {
     // type: 1,
-    // gasLimit: 400_000,
-    gasPrice,
+    gasLimit: 4_000_000,
+    gasPrice: 50_000_000_000,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
     // type: 1,
@@ -88,12 +88,17 @@ export const overrides: {
   [ChainSlug.POLYGON_MUMBAI]: {
     // type: 1,
     gasLimit: 5_000_000,
-    gasPrice: 100_000_000_000,
+    gasPrice: 10_000_000_000,
   },
   [ChainSlug.POLYGON_MAINNET]: {
     type: 1,
     gasLimit: 5_000_000,
-    gasPrice,
+    gasPrice: 500_000_000_000,
+  },
+  [ChainSlug.BSC]: {
+    type: 1,
+    gasLimit: 5_000_000,
+    gasPrice: 5_000_000_000,
   },
   [ChainSlug.MODE_TESTNET]: {
     type: 1,
@@ -119,6 +124,16 @@ export const overrides: {
     type: 1,
     gasLimit,
     gasPrice: 10_000_000,
+  },
+  [ChainSlug.REYA_CRONOS]: {
+    type: 1,
+    // gasLimit,
+    gasPrice: 100_000_000,
+  },
+  [ChainSlug.REYA]: {
+    type: 1,
+    // gasLimit,
+    gasPrice: 0,
   },
   [ChainSlug.SYNDR_SEPOLIA_L3]: {
     type: 1,
@@ -238,6 +253,14 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
         throw new Error("ANCIENT8_TESTNET2_RPC not configured");
       return process.env.ANCIENT8_TESTNET2_RPC;
 
+    case ChainSlug.REYA_CRONOS:
+      if (!process.env.REYA_CRONOS_RPC)
+        throw new Error("REYA_CRONOS_RPC not configured");
+      return process.env.REYA_CRONOS_RPC;
+
+    case ChainSlug.REYA:
+      if (!process.env.REYA_RPC) throw new Error("REYA_RPC not configured");
+      return process.env.REYA_RPC;
     case ChainSlug.SYNDR_SEPOLIA_L3:
       if (!process.env.SYNDR_SEPOLIA_L3_RPC)
         throw new Error("SYNDR_SEPOLIA_L3_RPC not configured");
@@ -255,6 +278,7 @@ export const getProviderFromChainSlug = (
   chainSlug: ChainSlug
 ): ethers.providers.StaticJsonRpcProvider => {
   const jsonRpcUrl = getJsonRpcUrl(chainSlug);
+  // console.log({chainSlug, jsonRpcUrl})
   return new ethers.providers.StaticJsonRpcProvider(jsonRpcUrl);
 };
 

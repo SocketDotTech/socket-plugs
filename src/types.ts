@@ -1,67 +1,68 @@
-import { ChainSlug, IntegrationTypes } from "./core";
+import { BigNumber, Wallet } from "ethers";
+import { ChainSlug, DeploymentMode, IntegrationTypes } from "./core";
+import {
+  CommonContracts,
+  HookContracts,
+  Hooks,
+  Project,
+  ProjectType,
+  SuperBridgeContracts,
+  SuperTokenContracts,
+  Tokens,
+} from "./enum";
 
-export enum Tokens {
-  Moon = "MOON",
-  USDCE = "USDC.e",
-  USDC = "USDC",
-  WETH = "WETH",
-  WBTC = "WBTC",
-  USDT = "USDT",
-  SNX = "SNX",
-  WSTETH = "wstETH",
-  DAI = "DAI",
-}
-
-export enum Project {
-  AEVO = "aevo",
-  AEVO_TESTNET = "aevo-testnet",
-  LYRA_TESTNET = "lyra-testnet",
-  LYRA = "lyra",
-  SX_NETWORK_TESTNET = "sx-network-testnet",
-  SOCKET_DEV = "socket-dev",
-  MODE_TESTNET = "mode-testnet",
-  VICTION_TESTNET = "viction-testnet",
-  MODE = "mode",
-  ANCIENT8_TESTNET2 = "ancient8-testnet2",
-  SYNDR_SEPOLIA_L3 = "syndr-sepolia-l3",
-}
-
-////// **** SUPER BRIDGE TYPES **** //////
-
-export enum SuperBridgeContracts {
-  MintableToken = "MintableToken",
-  NonMintableToken = "NonMintableToken",
-  Vault = "Vault",
-  Controller = "Controller",
-  FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
-  ExchangeRate = "ExchangeRate",
-  ConnectorPlug = "ConnectorPlug",
-}
-
-export type ProjectAddresses = {
-  [chainSlug in ChainSlug]?: ChainAddresses;
+export type ProjectConstantsMap = {
+  [key in Project]: ProjectConstants;
 };
 
-export type ChainAddresses = {
-  [token in Tokens]?: TokenAddresses;
+export type ProjectConstants = {
+  [key in DeploymentMode]?: {
+    [key in Tokens]?: TokenConstants;
+  };
 };
 
-export type TokenAddresses = AppChainAddresses | NonAppChainAddresses;
-
-export interface AppChainAddresses {
-  isAppChain: true;
-  [SuperBridgeContracts.MintableToken]?: string;
-  [SuperBridgeContracts.Controller]?: string;
-  [SuperBridgeContracts.ExchangeRate]?: string;
-  connectors?: Connectors;
-}
-
-export interface NonAppChainAddresses {
-  isAppChain: false;
-  [SuperBridgeContracts.NonMintableToken]?: string;
-  [SuperBridgeContracts.Vault]?: string;
-  connectors?: Connectors;
-}
+export type TokenConstants = {
+  controllerChains: ChainSlug[];
+  vaultChains: ChainSlug[];
+  // for superbridge project, controller chains
+  isFiatTokenV2_1?: boolean;
+  // for supertoken project, controller chain
+  superTokenInfo?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+    initialSupplyOwner: string;
+    owner: string;
+    initialSupply: number;
+  };
+  // for superbridge yield project, controller chain
+  yieldTokenInfo?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  hook: {
+    hookType: Hooks;
+    // for limitHook, limitExecutionHook
+    limitsAndPoolId?: {
+      [key in ChainSlug]?: {
+        [key in IntegrationTypes]?: {
+          sendingLimit: string;
+          receivingLimit: string;
+          // for superbridge project, vault chains
+          poolCount?: number;
+        };
+      };
+    };
+    // for superbridge project, yield hook, vault chain
+    yieldVaultInfo?: {
+      debtRatio: number;
+      rebalanceDelay: number;
+      strategy: string;
+      underlyingAsset: string;
+    };
+  };
+};
 
 export type Connectors = {
   [chainSlug in ChainSlug]?: ConnectorAddresses;
@@ -71,47 +72,71 @@ export type ConnectorAddresses = {
   [integration in IntegrationTypes]?: string;
 };
 
-export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
-  [ChainSlug.AEVO]: Project.AEVO,
-  [ChainSlug.AEVO_TESTNET]: Project.AEVO_TESTNET,
-  [ChainSlug.LYRA_TESTNET]: Project.LYRA_TESTNET,
-  [ChainSlug.LYRA]: Project.LYRA,
-  [ChainSlug.SX_NETWORK_TESTNET]: Project.SX_NETWORK_TESTNET,
-  // [ChainSlug.OPTIMISM_SEPOLIA]: Project.SOCKET_DEV,
-  [ChainSlug.MODE_TESTNET]: Project.MODE_TESTNET,
-  [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
-  [ChainSlug.MODE]: Project.MODE,
-  [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
-  [ChainSlug.SYNDR_SEPOLIA_L3]: Project.SYNDR_SEPOLIA_L3,
-};
-
-////// **** SUPER TOKEN TYPES **** //////
-
-export enum SuperTokenType {
-  WITH_LIMIT_AND_PAYLOAD_EXECUTION = "WITH_LIMIT_AND_PAYLOAD_EXECUTION",
-  WITH_LIMIT = "WITH_LIMIT",
+export interface CommonAddresses {
+  connectors: Connectors;
+  [HookContracts.LimitHook]?: string;
+  [HookContracts.LimitExecutionHook]?: string;
+  [HookContracts.ExecutionHelper]?: string;
 }
 
-export enum SuperTokenContracts {
-  NonSuperToken = "NonSuperToken",
-  SuperToken = "SuperToken",
-  SuperTokenVault = "SuperTokenVault",
-  SocketPlug = "SocketPlug",
-  ExecutionHelper = "ExecutionHelper",
-  SuperTokenWithExecutionPayload = "SuperTokenWithExecutionPayload",
-  SuperTokenVaultWithExecutionPayload = "SuperTokenVaultWithExecutionPayload",
+export interface AppChainAddresses extends CommonAddresses {
+  isAppChain: true;
+  [SuperBridgeContracts.MintableToken]: string;
+  [SuperBridgeContracts.Controller]: string;
+  [HookContracts.ControllerYieldLimitExecutionHook]?: string;
 }
 
-export type SuperTokenAddresses = {
-  [chainSlug in ChainSlug]?: SuperTokenChainAddresses;
+export interface NonAppChainAddresses extends CommonAddresses {
+  isAppChain: false;
+  [SuperBridgeContracts.NonMintableToken]: string;
+  [SuperBridgeContracts.Vault]: string;
+  [HookContracts.VaultYieldLimitExecutionHook]?: string;
+}
+
+export type SBTokenAddresses = AppChainAddresses | NonAppChainAddresses;
+
+export type SBAddresses = {
+  [chainSlug in ChainSlug]?: {
+    [token in Tokens]?: SBTokenAddresses;
+  };
 };
 
-export type SuperTokenChainAddresses = {
-  [SuperTokenContracts.NonSuperToken]?: string;
-  [SuperTokenContracts.SuperToken]?: string;
-  [SuperTokenContracts.SuperTokenVault]?: string;
-  [SuperTokenContracts.SuperTokenWithExecutionPayload]?: string;
-  [SuperTokenContracts.SuperTokenVaultWithExecutionPayload]?: string;
-  [SuperTokenContracts.SocketPlug]: string;
-  [SuperTokenContracts.ExecutionHelper]?: string;
+export interface STControllerChainAddresses extends CommonAddresses {
+  [SuperTokenContracts.SuperToken]: string;
+  [CommonContracts.Controller]: string;
+}
+
+export interface STVaultChainAddresses extends CommonAddresses {
+  [CommonContracts.NonMintableToken]: string;
+  [CommonContracts.Vault]: string;
+}
+
+export type STTokenAddresses =
+  | STControllerChainAddresses
+  | STVaultChainAddresses;
+
+export type STAddresses = {
+  [chainSlug in ChainSlug]?: {
+    [token in Tokens]?: STTokenAddresses;
+  };
 };
+
+export interface DeployParams {
+  addresses: SBTokenAddresses | STTokenAddresses;
+  signer: Wallet;
+  currentChainSlug: number;
+  currentToken: Tokens;
+  hookType?: Hooks;
+}
+
+export type UpdateLimitParams = [
+  boolean,
+  string,
+  string | number | BigNumber,
+  string | number | BigNumber
+];
+
+export interface ReturnObj {
+  allDeployed: boolean;
+  deployedAddresses: SBTokenAddresses;
+}

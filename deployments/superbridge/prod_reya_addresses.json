@@ -1,0 +1,154 @@
+{
+  "1": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "Vault": "0xdff78a949e47c1e90f3dd6dd7fe2fa72b42a75f7",
+      "ExecutionHelper": "0x96FEf44d041FC6B2666cBbC86cABCEF4E5ae3b0B",
+      "LimitExecutionHook": "0x4fB274909ffeEf635270915a729dC40500c7260B",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0x2Dba37E679358125BaB2132dDF5133d7d66F7D06"
+        }
+      }
+    },
+    "USDT": {
+      "isAppChain": false
+    },
+    "DAI": {
+      "isAppChain": false
+    },
+    "WETH": {
+      "isAppChain": false
+    },
+    "WBTC": {
+      "isAppChain": false
+    }
+  },
+  "10": {
+    "USDC.e": {
+      "isAppChain": false,
+      "NonMintableToken": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+      "Vault": "0x9239609eED7c40C6DDcEC25D247Ef205103590B6",
+      "ExecutionHelper": "0x4229dddF42B1D05eA0FD4625df5094968b67e528",
+      "LimitExecutionHook": "0xf4EeA99899423abcAAf3C36BB0deD334C58cD014",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0x6190855f54DeB642c410A2d642A993D454083736"
+        }
+      }
+    },
+    "USDT": {
+      "isAppChain": false
+    },
+    "DAI": {
+      "isAppChain": false
+    },
+    "WETH": {
+      "isAppChain": false
+    },
+    "WBTC": {
+      "isAppChain": false
+    }
+  },
+  "137": {
+    "USDC.e": {
+      "isAppChain": false,
+      "NonMintableToken": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      "Vault": "0xC0acBb471465FCf848746D1837d8358aB891546c",
+      "ExecutionHelper": "0xdD4c717a69763176d8B7A687728e228597eAB86d",
+      "LimitExecutionHook": "0x27f4B23944e2bb59b1E276aff22FD2Be45658F64",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0xE5967877065f111a556850d8f05b8DaD88edCEc9"
+        }
+      }
+    },
+    "USDT": {
+      "isAppChain": false
+    },
+    "DAI": {
+      "isAppChain": false
+    },
+    "WETH": {
+      "isAppChain": false
+    },
+    "WBTC": {
+      "isAppChain": false
+    }
+  },
+  "42161": {
+    "USDC.e": {
+      "isAppChain": false,
+      "NonMintableToken": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+      "Vault": "0xa0E9B6DA89BD0303A8163B81B8702388bE0Fde77",
+      "ExecutionHelper": "0xA9D0c013Ef86Bf49dD7240a6a01FC9064d7025e8",
+      "LimitExecutionHook": "0x65f258263aCc0857C3eeE77c2E997D6ff99B8132",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0xE0A298922F14aD230218218E75860E9FE4c0B55c"
+        }
+      }
+    },
+    "USDT": {
+      "isAppChain": false
+    },
+    "DAI": {
+      "isAppChain": false
+    },
+    "WETH": {
+      "isAppChain": false
+    },
+    "WBTC": {
+      "isAppChain": false
+    }
+  },
+  "1324967486": {
+    "USDC.e": {
+      "isAppChain": true,
+      "MintableToken": "0x3B860c0b53f2e8bd5264AA7c3451d41263C933F2",
+      "Controller": "0x1d43076909Ca139BFaC4EbB7194518bE3638fc76",
+      "ExecutionHelper": "0x9ca48cAF8AD2B081a0b633d6FCD803076F719fEa",
+      "LimitExecutionHook": "0x0f933F6a58D885586d356d6677DC87995bdC1B51",
+      "connectors": {
+        "10": {
+          "FAST": "0xe48AE3B68f0560d4aaA312E12fD687630C948561"
+        },
+        "137": {
+          "FAST": "0x54CAA0946dA179425e1abB169C020004284d64D3"
+        },
+        "42161": {
+          "FAST": "0x663dc7E91157c58079f55C1BF5ee1BdB6401Ca7a"
+        }
+      }
+    },
+    "USDC": {
+      "isAppChain": true,
+      "MintableToken": "0x3B860c0b53f2e8bd5264AA7c3451d41263C933F2",
+      "Controller": "0x1d43076909Ca139BFaC4EbB7194518bE3638fc76",
+      "ExecutionHelper": "0x9ca48cAF8AD2B081a0b633d6FCD803076F719fEa",
+      "LimitExecutionHook": "0x0f933F6a58D885586d356d6677DC87995bdC1B51",
+      "connectors": {
+        "1": {
+          "FAST": "0x807B2e8724cDf346c87EEFF4E309bbFCb8681eC1"
+        }
+      }
+    },
+    "USDT": {
+      "isAppChain": true,
+      "MintableToken": ""
+    },
+    "DAI": {
+      "isAppChain": true,
+      "MintableToken": ""
+    },
+    "WETH": {
+      "isAppChain": true,
+      "MintableToken": ""
+    },
+    "WBTC": {
+      "isAppChain": true,
+      "MintableToken": ""
+    }
+  }
+}
