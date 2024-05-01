@@ -126,7 +126,6 @@ export const getProviderFromChainSlug = (
   chainSlug: ChainSlug
 ): ethers.providers.StaticJsonRpcProvider => {
   const jsonRpcUrl = getJsonRpcUrl(chainSlug);
-  // console.log({chainSlug, jsonRpcUrl})
   return new ethers.providers.StaticJsonRpcProvider(jsonRpcUrl);
 };
 

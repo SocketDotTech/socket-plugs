@@ -15,7 +15,7 @@ export const getOwner = () => {
 
 export const getOwnerSignerKey = () => {
   if (!process.env.OWNER_SIGNER_KEY)
-    throw Error("Socket signer key not present");
+    throw Error("Owner signer key not present");
   return process.env.OWNER_SIGNER_KEY;
 };
 

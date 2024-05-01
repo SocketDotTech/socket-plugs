@@ -179,7 +179,7 @@ const connect = async (
         addresses?.[sibling]?.[token]?.connectors?.[chain];
       if (!localConnectorAddresses || !siblingConnectorAddresses) {
         throw new Error(
-          `connector addresses not found for ${chain}, ${sibling}`
+          `connector addresses not found for chain: ${chain},sibling: ${sibling}`
         );
       }
 

@@ -5,7 +5,7 @@ import { config } from "dotenv";
 import { editProject } from "./editProject";
 config();
 export async function setupConfigs() {
-  while (1) {
+  // while (1) {
     const actionInfo = await prompts([
       {
         name: "action",
@@ -41,5 +41,5 @@ export async function setupConfigs() {
     } else if (actionInfo.action === "exit") {
       process.exit(0);
     }
-  }
+  // }
 }
