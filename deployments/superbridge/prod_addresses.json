@@ -1373,6 +1373,18 @@
             "FAST": "0x4BFDf43662cdf2Cc0A96C8697AC179819B6E5E91"
           }
         }
+      },
+      "USDC": {
+        "isAppChain": false,
+        "NonMintableToken": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "Vault": "0xD71629697B71E2Df26B4194f43F6eaed3B367ac0",
+        "ExecutionHelper": "0xA6BFB87A0db4693a4145df4F627c8FEe30aC7eDF",
+        "LimitExecutionHook": "0x5bbC5E48b3aA7E3015dbcE45Da270f2D6d4b3960",
+        "connectors": {
+          "1324967486": {
+            "FAST": "0x4F3e01e8f7d0224b5988Cb0FBf7f6D156B9255cD"
+          }
+        }
       }
     },
     "42161": {
@@ -1465,6 +1477,9 @@
         "connectors": {
           "1": {
             "FAST": "0x807B2e8724cDf346c87EEFF4E309bbFCb8681eC1"
+          },
+          "8453": {
+            "FAST": "0x3694Ab37011764fA64A648C2d5d6aC0E9cD5F98e"
           }
         }
       },
