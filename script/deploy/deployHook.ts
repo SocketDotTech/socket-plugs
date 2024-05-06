@@ -3,6 +3,7 @@ import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
+import { isKinto } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
 
 export const deployHookContracts = async (
   useConnnectorPools: boolean,
@@ -30,7 +31,9 @@ export const deployHookContracts = async (
   if (hookType == Hooks.LIMIT_HOOK) {
     contractName = HookContracts.LimitHook;
     args = [
-      getOwner(),
+      isKinto(deployParams.currentChainSlug)
+        ? process.env.KINTO_OWNER_ADDRESS
+        : getOwner(),
       bridgeAddress,
       useConnnectorPools, // useControllerPools
     ];
@@ -38,7 +41,9 @@ export const deployHookContracts = async (
     contractName = HookContracts.LimitExecutionHook;
     deployParams = await deployExecutionHelper(deployParams);
     args = [
-      getOwner(),
+      isKinto(deployParams.currentChainSlug)
+        ? process.env.KINTO_OWNER_ADDRESS
+        : getOwner(),
       bridgeAddress,
       deployParams.addresses[HookContracts.ExecutionHelper],
       useConnnectorPools, // useControllerPools

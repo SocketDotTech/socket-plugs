@@ -203,6 +203,10 @@ const connect = async (
           console.log(
             `switchboard not found for ${chain}, ${sibling}, ${integration}`
           );
+        } else {
+          console.log(
+            `✔   Switchboard found for ${chain}, ${sibling}, ${integration}`
+          );
         }
         // console.log(
         //   { localConnectorPlug, sibling, switchboard },

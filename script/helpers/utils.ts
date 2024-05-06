@@ -13,6 +13,10 @@ import path from "path";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
 import { ProjectType } from "../../src";
+import {
+  handleOps,
+  isKinto,
+} from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
 
 export let allDeploymentPath: string;
 export const getAllDeploymentPath = () => {
@@ -115,13 +119,19 @@ export async function execute(
     );
     execSummary.push("");
   } else {
-    let tx = await contract.functions[method](...args, {
+    let tx;
+    let txRequest = await contract.populateTransaction[method](...args, {
       ...overrides[chain],
     });
+
+    if (isKinto(chain)) {
+      tx = await handleOps([txRequest], contract.signer);
+    } else {
+      tx = await (await contract.signer.sendTransaction(txRequest)).wait();
+    }
     console.log(
-      `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.hash}`
+      `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.transactionHash}`
     );
-    await tx.wait();
   }
 }
 

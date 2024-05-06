@@ -1,6 +1,10 @@
 import { Wallet } from "ethers";
 import { network, ethers, run } from "hardhat";
 import { ContractFactory, Contract } from "ethers";
+import {
+  deployOnKinto,
+  isKinto,
+} from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
 
 import fs from "fs";
 import { Address } from "hardhat-deploy/dist/types";
@@ -58,6 +62,7 @@ export const getOrDeploy = async (
     storedContactAddress =
       deployUtils.addresses[SuperBridgeContracts.Controller];
   }
+
   if (!storedContactAddress) {
     contract = await deployContractWithArgs(
       contractName,
@@ -145,11 +150,16 @@ export async function deployContractWithArgs(
     const Contract: ContractFactory = await ethers.getContractFactory(
       contractName
     );
-    // gasLimit is set to undefined to not use the value set in overrides
-    const contract: Contract = await Contract.connect(signer).deploy(...args, {
-      ...overrides[await signer.getChainId()],
-      // gasLimit: undefined,
-    });
+    let contract: Contract;
+    if (await isKinto(await signer.getChainId())) {
+      contract = await deployOnKinto(contractName, args, signer);
+    } else {
+      // gasLimit is set to undefined to not use the value set in overrides
+      contract = await Contract.connect(signer).deploy(...args, {
+        ...overrides[await signer.getChainId()],
+        // gasLimit: undefined,
+      });
+    }
     await contract.deployed();
     return contract;
   } catch (error) {

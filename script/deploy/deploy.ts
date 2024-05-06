@@ -75,6 +75,7 @@ export const deploy = async () => {
     const hookType = pc[token].hook.hookType;
     await Promise.all(
       allChains.map(async (chain: ChainSlug) => {
+        console.log(`\nDeploying contracts for ${token} on chain ${chain}...`);
         let allDeployed = false;
         const signer = getSignerFromChainSlug(chain);
 
