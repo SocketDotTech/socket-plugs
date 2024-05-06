@@ -25,7 +25,8 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     function srcPreHookCall(
         SrcPreHookCallParams memory params_
     )
-        external
+        public
+        virtual
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
@@ -39,14 +40,15 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
 
     function srcPostHookCall(
         SrcPostHookCallParams memory params_
-    ) external view isVaultOrController returns (TransferInfo memory) {
+    ) public view virtual isVaultOrController returns (TransferInfo memory) {
         return params_.transferInfo;
     }
 
     function dstPreHookCall(
         DstPreHookCallParams memory params_
     )
-        external
+        public
+        virtual
         isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
@@ -64,7 +66,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
 
     function dstPostHookCall(
         DstPostHookCallParams memory params_
-    ) external isVaultOrController returns (CacheData memory cacheData) {
+    ) public virtual isVaultOrController returns (CacheData memory cacheData) {
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
             (uint256, uint256)
@@ -100,7 +102,8 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     function preRetryHook(
         PreRetryHookCallParams memory params_
     )
-        external
+        public
+        virtual
         nonReentrant
         isVaultOrController
         returns (
@@ -132,7 +135,8 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     function postRetryHook(
         PostRetryHookCallParams calldata params_
     )
-        external
+        public
+        virtual
         isVaultOrController
         nonReentrant
         returns (CacheData memory cacheData)

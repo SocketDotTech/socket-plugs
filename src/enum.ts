@@ -3,6 +3,7 @@ export enum Hooks {
   LIMIT_HOOK = "LIMIT_HOOK",
   LIMIT_EXECUTION_HOOK = "LIMIT_EXECUTION_HOOK",
   YIELD_LIMIT_EXECUTION_HOOK = "YIELD_LIMIT_EXECUTION_HOOK",
+  KINTO_HOOK = "KINTO_HOOK",
   // CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK = "CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK",
   // VAULT_YIELD_LIMIT_EXECUTION_HOOK = "VAULT_YIELD_LIMIT_EXECUTION_HOOK",
 }
@@ -40,6 +41,8 @@ export enum HookContracts {
   ControllerYieldLimitExecutionHook = "Controller_YieldLimitExecHook",
   VaultYieldLimitExecutionHook = "Vault_YieldLimitExecHook",
   ExecutionHelper = "ExecutionHelper",
+  KintoHook = "KintoHook",
+  SenderHook = "SenderHook",
 }
 export enum SuperTokenContracts {
   NonSuperToken = "NonSuperToken",
