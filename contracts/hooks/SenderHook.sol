@@ -9,8 +9,13 @@ import "./LimitHook.sol";
  */
 contract SenderHook is LimitHook {
     /**
-     * @notice Constructor for creating a Sender Hook
+     * @title Sender Hook
+     * @notice meant to be deployed only on vault chains (all except Kinto).
+     * Overrides `srcPreHookCall` to pass the `msg.sender` so that it can be used 
+     * in the `dstPreHookCall` on Kinto chain.
      * @param owner_ Owner of this contract.
+     * @param controller_ Controller of this contract.
+     * @param useControllerPools_ Whether to use controller pools.
      */
     constructor(
         address owner_,

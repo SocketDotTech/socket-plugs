@@ -17,7 +17,9 @@ interface IKintoWallet {
 
 /**
  * @title Kinto Hook
- * @notice TODO
+ * @notice meant to be deployed only Kinto. Inherits from LimitHook. Overrides the following functions:
+ *  - on srcPreHookCall, which is called when a user on Kinto wants to "withdraw" (bridge out), it checks if the user is KYC'd. If not, it reverts.
+ *  - on dstPreHookCall, which is called when a user wants to bridge in assets into Kinto, it checks if the original sender (the one that initiated the transaction on the vault chain) is an address included in funderWhitelist of the user's KintoWallet. If not, it reverts. The original sender is passed as an encoded param through the SenderHook.
  */
 contract KintoHook is LimitHook {
     IKintoID public immutable kintoID;
@@ -29,6 +31,10 @@ contract KintoHook is LimitHook {
     /**
      * @notice Constructor for creating a Kinto Hook
      * @param owner_ Owner of this contract.
+     * @param controller_ Controller of this contract.
+     * @param useControllerPools_ Whether to use controller pools.
+     * @param kintoID_ KintoID contract address.
+     * @param kintoFactory_ KintoFactory contract address.
      */
     constructor(
         address owner_,
