@@ -13,6 +13,7 @@ interface IKintoFactory {
 
 interface IKintoWallet {
     function isFunderWhitelisted(address) external view returns (bool);
+    function owners(uint256) external view returns (address);
 }
 
 /**
@@ -25,8 +26,9 @@ contract KintoHook is LimitHook {
     IKintoID public immutable kintoID;
     IKintoFactory public immutable kintoFactory;
 
+    error InvalidSender(address sender);
     error KYCRequired();
-    error SenderNotAllowed();
+    error ReceiverNotAllowed( address receiver);
 
     /**
      * @notice Constructor for creating a Kinto Hook
@@ -55,9 +57,15 @@ contract KintoHook is LimitHook {
         override
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
-    {
-        if (!kintoID.isKYC(params_.msgSender)) revert KYCRequired();
-        super.srcPreHookCall(params_);
+    {   
+        address sender = params_.msgSender;
+        if (kintoFactory.walletTs(sender) == 0) revert InvalidSender(sender);
+        if (!kintoID.isKYC(IKintoWallet(sender).owners(0))) revert KYCRequired();
+
+        address receiver = params_.transferInfo.receiver;
+        if (!IKintoWallet(sender).isFunderWhitelisted(receiver)) revert ReceiverNotAllowed(receiver);
+
+        return super.srcPreHookCall(params_);
     }
 
     function srcPostHookCall(
@@ -81,11 +89,10 @@ contract KintoHook is LimitHook {
         // save the sender in the cache for the post-retry hook
         postHookData = params_.transferInfo.data;
 
-        bool isKintoWallet = kintoFactory.walletTs(receiver) > 0;
         if (
-            !isKintoWallet ||
+            kintoFactory.walletTs(receiver) == 0 ||
             !IKintoWallet(receiver).isFunderWhitelisted(msgSender)
-        ) revert SenderNotAllowed();
+        ) revert InvalidSender(msgSender);
 
         return super.dstPreHookCall(params_);
     }

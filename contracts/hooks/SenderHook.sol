@@ -9,7 +9,6 @@ import "./LimitHook.sol";
  */
 contract SenderHook is LimitHook {
     /**
-     * @title Sender Hook
      * @notice meant to be deployed only on vault chains (all except Kinto).
      * Overrides `srcPreHookCall` to pass the `msg.sender` so that it can be used 
      * in the `dstPreHookCall` on Kinto chain.
@@ -35,7 +34,7 @@ contract SenderHook is LimitHook {
     {
         // add `msgSender` inside data field
         params_.transferInfo.data = abi.encode(params_.msgSender);
-        super.srcPreHookCall(params_);
+        return super.srcPreHookCall(params_);
     }
 
     function srcPostHookCall(
