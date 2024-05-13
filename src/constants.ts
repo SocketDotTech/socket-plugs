@@ -1,4 +1,5 @@
-import { Tokens } from "./types";
+import { ChainSlug } from "@socket.tech/dl-core";
+import { Project, Tokens } from "./enum";
 
 export const tokenName: { [key in Tokens]: string } = {
   [Tokens.Moon]: "Moon",
@@ -10,6 +11,7 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.SNX]: "Synthetix Network Token",
   [Tokens.WSTETH]: "Wrapped liquid staked Ether 2.0",
   [Tokens.DAI]: "Dai Stablecoin",
+  [Tokens.GUARD]: "Guardian",
 };
 
 export const tokenSymbol: { [key in Tokens]: string } = {
@@ -22,6 +24,7 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.SNX]: "SNX",
   [Tokens.WSTETH]: "wstETH",
   [Tokens.DAI]: "DAI",
+  [Tokens.GUARD]: "GUARD",
 };
 
 export const tokenDecimals: { [key in Tokens]: number } = {
@@ -34,4 +37,18 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.SNX]: 18,
   [Tokens.WSTETH]: 18,
   [Tokens.DAI]: 18,
+  [Tokens.GUARD]: 18,
+};
+
+export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {
+  [ChainSlug.AEVO]: Project.AEVO,
+  [ChainSlug.AEVO_TESTNET]: Project.AEVO_TESTNET,
+  [ChainSlug.LYRA_TESTNET]: Project.LYRA_TESTNET,
+  [ChainSlug.LYRA]: Project.LYRA,
+  [ChainSlug.SX_NETWORK_TESTNET]: Project.SX_NETWORK_TESTNET,
+  // [ChainSlug.OPTIMISM_SEPOLIA]: Project.SOCKET_DEV,
+  [ChainSlug.MODE_TESTNET]: Project.MODE_TESTNET,
+  [ChainSlug.VICTION_TESTNET]: Project.VICTION_TESTNET,
+  [ChainSlug.MODE]: Project.MODE,
+  [ChainSlug.ANCIENT8_TESTNET2]: Project.ANCIENT8_TESTNET2,
 };

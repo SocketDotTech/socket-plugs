@@ -1,8 +1,36 @@
-import { Contract, Wallet } from "ethers";
-import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
-import { ChainSlug, getAddresses } from "@socket.tech/dl-core";
-import { getMode } from "../constants/config";
+import { BigNumber } from "ethers";
+import {
+  ChainSlug,
+  SBTokenAddresses,
+  STTokenAddresses,
+  Tokens,
+} from "../../src";
+import { getHookContract } from "../helpers/common";
 
-export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
-  return new Contract(getAddresses(chain, getMode()).Socket, socketABI, signer);
+export const checkSendingLimit = async (
+  chain: ChainSlug,
+  token: Tokens,
+  addr: SBTokenAddresses | STTokenAddresses,
+  connectorAddr: string,
+  amountBN: BigNumber
+) => {
+  let { hookContract } = await getHookContract(chain, token, addr);
+  const limit: BigNumber = await hookContract.getCurrentSendingLimit(
+    connectorAddr
+  );
+  if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
+};
+
+export const checkReceivingLimit = async (
+  chain: ChainSlug,
+  token: Tokens,
+  addr: SBTokenAddresses | STTokenAddresses,
+  connectorAddr: string,
+  amountBN: BigNumber
+) => {
+  let { hookContract } = await getHookContract(chain, token, addr);
+  const limit: BigNumber = await hookContract.getCurrentReceivingLimit(
+    connectorAddr
+  );
+  if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
 };

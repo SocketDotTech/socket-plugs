@@ -70,6 +70,9 @@ const liveNetworks = [
   HardhatChainName.BASE,
   HardhatChainName.MODE,
   HardhatChainName.ANCIENT8_TESTNET2,
+  HardhatChainName.REYA_CRONOS,
+  HardhatChainName.REYA,
+  HardhatChainName.SYNDR_SEPOLIA_L3,
 ];
 
 let hardhatNetworkDetails = {};
@@ -103,11 +106,16 @@ const config: HardhatUserConfig = {
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
       lyra: "none",
       "lyra-testnet": "none",
+      reya_cronos: "none",
+      reya: "none",
     },
     customChains: [
       {
         network: "optimisticTestnet",
-        chainId: hardhatChainNameToSlug[HardhatChainName.OPTIMISM_GOERLI],
+        chainId:
+          ChainSlugToId[
+            hardhatChainNameToSlug[HardhatChainName.OPTIMISM_GOERLI]
+          ],
         urls: {
           apiURL: "https://api-goerli-optimistic.etherscan.io/api",
           browserURL: "https://goerli-optimism.etherscan.io/",
@@ -115,7 +123,10 @@ const config: HardhatUserConfig = {
       },
       {
         network: "optimisticSepolia",
-        chainId: hardhatChainNameToSlug[HardhatChainName.OPTIMISM_SEPOLIA],
+        chainId:
+          ChainSlugToId[
+            hardhatChainNameToSlug[HardhatChainName.OPTIMISM_SEPOLIA]
+          ],
         urls: {
           apiURL: "https://api-sepolia-optimistic.etherscan.io/api",
           browserURL: "https://sepolia-optimism.etherscan.io/",
@@ -123,7 +134,10 @@ const config: HardhatUserConfig = {
       },
       {
         network: "arbitrumTestnet",
-        chainId: hardhatChainNameToSlug[HardhatChainName.ARBITRUM_GOERLI],
+        chainId:
+          ChainSlugToId[
+            hardhatChainNameToSlug[HardhatChainName.ARBITRUM_GOERLI]
+          ],
         urls: {
           apiURL: "https://api-goerli.arbiscan.io/api",
           browserURL: "https://goerli.arbiscan.io/",
@@ -131,7 +145,10 @@ const config: HardhatUserConfig = {
       },
       {
         network: "arbitrumSepolia",
-        chainId: hardhatChainNameToSlug[HardhatChainName.ARBITRUM_SEPOLIA],
+        chainId:
+          ChainSlugToId[
+            hardhatChainNameToSlug[HardhatChainName.ARBITRUM_SEPOLIA]
+          ],
         urls: {
           apiURL: "https://api-sepolia.arbiscan.io/api",
           browserURL: "https://sepolia.arbiscan.io/",
@@ -139,7 +156,7 @@ const config: HardhatUserConfig = {
       },
       {
         network: "base",
-        chainId: hardhatChainNameToSlug[HardhatChainName.BASE],
+        chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.BASE]],
         urls: {
           apiURL: "https://api.basescan.org/api",
           browserURL: "https://basescan.org/",
@@ -147,7 +164,7 @@ const config: HardhatUserConfig = {
       },
       {
         network: "lyra",
-        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA],
+        chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.LYRA]],
         urls: {
           apiURL: "https://explorer.lyra.finance/api",
           browserURL: "https://explorer.lyra.finance",
@@ -155,7 +172,8 @@ const config: HardhatUserConfig = {
       },
       {
         network: "lyra-testnet",
-        chainId: hardhatChainNameToSlug[HardhatChainName.LYRA_TESTNET],
+        chainId:
+          ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.LYRA_TESTNET]],
         urls: {
           apiURL:
             "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz/api",
@@ -163,11 +181,28 @@ const config: HardhatUserConfig = {
             "https://explorerl2new-prod-testnet-0eakp60405.t.conduit.xyz/",
         },
       },
+      {
+        network: "reya_cronos",
+        chainId:
+          ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.REYA_CRONOS]],
+        urls: {
+          apiURL: "https://reya-cronos.blockscout.com/api",
+          browserURL: "https://reya-cronos.blockscout.com/",
+        },
+      },
+      {
+        network: "reya",
+        chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.REYA]],
+        urls: {
+          apiURL: "https://explorer.reya.network/api",
+          browserURL: "https://explorer.reya.network/",
+        },
+      },
     ],
   },
   networks: {
     hardhat: {
-      chainId: hardhatChainNameToSlug.hardhat,
+      chainId: ChainSlugToId[hardhatChainNameToSlug.hardhat],
     },
     ...hardhatNetworkDetails,
   },
