@@ -27,8 +27,10 @@ contract KintoHook is LimitHook {
     IKintoFactory public immutable kintoFactory;
 
     error InvalidSender(address sender);
+    error InvalidReceiver(address sender);
     error KYCRequired();
     error ReceiverNotAllowed( address receiver);
+    error SenderNotAllowed( address sender);
 
     /**
      * @notice Constructor for creating a Kinto Hook
@@ -83,16 +85,14 @@ contract KintoHook is LimitHook {
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         address receiver = params_.transferInfo.receiver;
-        // get sender from encoded params_.data
         address msgSender = abi.decode(params_.transferInfo.data, (address));
 
         // save the sender in the cache for the post-retry hook
         postHookData = params_.transferInfo.data;
 
-        if (
-            kintoFactory.walletTs(receiver) == 0 ||
-            !IKintoWallet(receiver).isFunderWhitelisted(msgSender)
-        ) revert InvalidSender(msgSender);
+        if (kintoFactory.walletTs(receiver) == 0) revert InvalidReceiver(receiver);
+        if (!kintoID.isKYC(IKintoWallet(receiver).owners(0))) revert KYCRequired();
+        if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender)) revert SenderNotAllowed(msgSender);
 
         return super.dstPreHookCall(params_);
     }
@@ -108,7 +108,7 @@ contract KintoHook is LimitHook {
     )
         public
         override
-        nonReentrant
+        // nonReentrant (modifier already included in LimitHook.sol)
         isVaultOrController
         returns (
             bytes memory postRetryHookData,
@@ -124,7 +124,7 @@ contract KintoHook is LimitHook {
         public
         override
         isVaultOrController
-        nonReentrant
+        // nonReentrant (modifier already included in LimitHook.sol)
         returns (CacheData memory cacheData)
     {
         return super.postRetryHook(params_);

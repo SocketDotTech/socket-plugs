@@ -8,3 +8,7 @@ optimizer_runs = 99999
 no-match-contract='LyraBurnUSDC'
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
+
+[rpc_endpoints]
+kinto = "${KINTO_RPC_URL}"
+kinto_devnet = "${KINTO_DEVNET_RPC}"
