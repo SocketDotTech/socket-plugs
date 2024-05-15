@@ -230,32 +230,19 @@ abstract contract LyraTSAHookBase is LimitHook {
                 revert("INVALID_PENDING_AMOUNT");
             }
 
-            addrs.withdrawVault = tryGetWithdrawVault(
-                addrs.withdrawConnector
-            );
+            addrs.withdrawVault = tryGetWithdrawVault(addrs.withdrawConnector);
             if (address(addrs.withdrawVault) == address(0)) {
-                mintedToken.transfer(
-                    addrs.fallbackReceiver,
-                    consumedAmount
-                );
+                mintedToken.transfer(addrs.fallbackReceiver, consumedAmount);
                 return (consumedAmount, pendingAmount, addrs, false);
             }
 
             addrs.withdrawToken = tryGetToken(addrs.withdrawVault);
             if (address(addrs.withdrawToken) == address(0)) {
-                mintedToken.transfer(
-                    addrs.fallbackReceiver,
-                    consumedAmount
-                );
+                mintedToken.transfer(addrs.fallbackReceiver, consumedAmount);
                 return (consumedAmount, pendingAmount, addrs, false);
             }
 
-            return (
-                consumedAmount,
-                pendingAmount,
-                addrs,
-                true
-            );
+            return (consumedAmount, pendingAmount, addrs, true);
         } else {
             revert("parse: INVALID_DATA_LENGTH");
         }
@@ -267,8 +254,10 @@ abstract contract LyraTSAHookBase is LimitHook {
         uint256 amount = addrs.withdrawToken.balanceOf(address(this));
         addrs.withdrawToken.approve(address(addrs.withdrawVault), amount);
 
-        uint256 fees = IConnectorPlugExt(addrs.withdrawConnector)
-            .getMinFees(withdrawalMinGasLimit, 0);
+        uint256 fees = IConnectorPlugExt(addrs.withdrawConnector).getMinFees(
+            withdrawalMinGasLimit,
+            0
+        );
 
         if (fees > address(this).balance) {
             revert("INSUFFICIENT_ETH_BALANCE");
@@ -318,9 +307,12 @@ abstract contract LyraTSAHookBase is LimitHook {
         return IERC20(abi.decode(data, (address)));
     }
 
-    function _convertToken(IERC20 depositToken, IERC20 withdrawToken, uint256 amount) internal virtual returns (bool success);
+    function _convertToken(
+        IERC20 depositToken,
+        IERC20 withdrawToken,
+        uint256 amount
+    ) internal virtual returns (bool success);
 }
-
 
 contract LyraTSADepositHook is LyraTSAHookBase {
     constructor(
@@ -328,7 +320,6 @@ contract LyraTSADepositHook is LyraTSAHookBase {
         address controller_,
         bool useControllerPools_
     ) LyraTSAHookBase(owner_, controller_, useControllerPools_) {}
-
 
     function _convertToken(
         IERC20 depositToken,
@@ -344,7 +335,6 @@ contract LyraTSADepositHook is LyraTSAHookBase {
         }
     }
 }
-
 
 contract LyraTSAWithdrawHook is LyraTSAHookBase {
     constructor(

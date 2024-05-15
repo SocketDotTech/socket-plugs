@@ -17,7 +17,8 @@ contract LyraTSAZapHookForkTest is Test {
     address fallbackRecipient = 0x1111111111111111111111111111111111111111;
     IERC20 token = IERC20(0x7ef0873bBf91B8Ecac22c0e9466b17c6Cc14B1bd);
     IERC20 TSA = IERC20(0x79AC9B13810D31066Be547EdA46C40264b39397D);
-    LyraTSADepositHook hook = LyraTSADepositHook(payable(0x55328b5036EB15DdCA2a91468F1C70Dcae29b7Ab));
+    LyraTSADepositHook hook =
+        LyraTSADepositHook(payable(0x55328b5036EB15DdCA2a91468F1C70Dcae29b7Ab));
     Controller public controller =
         Controller(0xbEc0B31bbfA62364EBF6e27454978E33c5d9F4eE);
     address connectorPlug = 0x8FF3f8bc7884fe59425F090d5ec6A570472DfF88;
