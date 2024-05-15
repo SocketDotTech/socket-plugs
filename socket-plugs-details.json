@@ -10,7 +10,8 @@
     "wstETH": 18,
     "DAI": 18,
     "GUARD": 18,
-    "ETH": 18
+    "ETH": 18,
+    "MTK": 18
   },
   "tokenAddresses": {
     "1": {
@@ -52,7 +53,8 @@
       "WBTC": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
       "wstETH": "0x5979D7b546E38E414F7E9822514be443A4800529",
       "DAI": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
-      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "MTK": "0x094553F42B44Ea1492b0dcA5f4134F23f45db742"
     },
     "421614": {
       "USDC": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
@@ -81,7 +83,8 @@
     "wstETH": "wstETH",
     "DAI": "DAI",
     "GUARD": "GUARD",
-    "ETH": "ETH"
+    "ETH": "ETH",
+    "MTK": "MTK"
   },
   "projects": [
     "aevo",
@@ -94,7 +97,8 @@
     "mist-testnet",
     "reya-cronos",
     "reya",
-    "spectral-signal"
+    "spectral-signal",
+    "testing_mainnet"
   ],
   "tokens": [
     "MOON",
@@ -107,6 +111,7 @@
     "wstETH",
     "DAI",
     "GUARD",
-    "ETH"
+    "ETH",
+    "MTK"
   ]
 }

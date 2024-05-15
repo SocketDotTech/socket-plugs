@@ -29,7 +29,13 @@ forge test
 - update the @socket.tech/dl-core package to latest version - `yarn add @socket.tech/dl-core`
 - run setup config script and provide project information - `npx ts-node script/setup.ts`.
 - add necessary variables in .env (rpcs, private key)
-- run command `npx ts-node script/deploy.ts`.
+- run command `npx hardhat run script/deploy.ts`.
+
+To verify the contracts on a block explorer, you can use the following command:
+
+```bash
+npx hardhat run script/deploy/verifyContracts.ts --network <network>
+```
 
 If want to update configuration, can check the configuration file under
 `script/constants/projectConstants/${projectType}/` folder with your project name. Can add/remove chains, update rate limits, add tokens, etc. Read the guide below before making any changes.

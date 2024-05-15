@@ -12,4 +12,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.DAI]: "Dai Stablecoin",
   [Tokens.GUARD]: "Guardian",
   [Tokens.ETH]: "Ether",
+  [Tokens.MTK]: "MockToken",
 };
