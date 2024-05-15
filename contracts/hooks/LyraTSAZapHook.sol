@@ -8,9 +8,11 @@ import {IERC20} from "openzeppelin-contracts/contracts/token/erc20/IERC20.sol";
 import "../interfaces/IBridge.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 
-
 interface LyraTSA is IERC20 {
-    function depositFor(address account, uint256 amount) external returns (bool);
+    function depositFor(
+        address account,
+        uint256 amount
+    ) external returns (bool);
 }
 
 interface IBridgeExt is IBridge {
@@ -20,7 +22,6 @@ interface IBridgeExt is IBridge {
 interface IConnectorPlugExt is IConnector {
     function bridge__() external returns (IBridge);
 }
-
 
 contract LyraTSAZapHook is LimitHook {
     struct ZapAddresses {
@@ -80,12 +81,18 @@ contract LyraTSAZapHook is LimitHook {
                 (address, address)
             );
 
-            if (returnRecipient == address(0) || withdrawConnector == address(0)) {
+            if (
+                returnRecipient == address(0) || withdrawConnector == address(0)
+            ) {
                 // In the case of an invalid/zero withdrawConnector still deposit to TSA and send to original receiver
                 postHookData = abi.encode(consumedAmount, pendingAmount);
             } else {
                 postHookData = abi.encode(
-                    consumedAmount, pendingAmount, params_.transferInfo.receiver, returnRecipient, withdrawConnector
+                    consumedAmount,
+                    pendingAmount,
+                    params_.transferInfo.receiver,
+                    returnRecipient,
+                    withdrawConnector
                 );
                 transferInfo.receiver = address(this);
             }
@@ -97,7 +104,12 @@ contract LyraTSAZapHook is LimitHook {
 
     function dstPostHookCall(
         DstPostHookCallParams memory params_
-    ) external override isVaultOrController returns (CacheData memory cacheData) {
+    )
+        external
+        override
+        isVaultOrController
+        returns (CacheData memory cacheData)
+    {
         (
             uint256 consumedAmount,
             uint256 pendingAmount,
@@ -113,14 +125,19 @@ contract LyraTSAZapHook is LimitHook {
                 revert("MINTED_BALANCE_MISMATCH");
             }
 
-            bool deposited = _depositToTSA(zapAddresses.tsa, mintedToken, balance);
+            bool deposited = _depositToTSA(
+                zapAddresses.tsa,
+                mintedToken,
+                balance
+            );
             if (deposited) {
-                bool withdrew = _withdrawToRecipient(
-                    zapAddresses
-                );
+                bool withdrew = _withdrawToRecipient(zapAddresses);
                 if (!withdrew) {
                     // Withdraw failed, send tsa shares to fallback
-                    zapAddresses.tsa.transfer(zapAddresses.fallbackReceiver, zapAddresses.tsa.balanceOf(address(this)));
+                    zapAddresses.tsa.transfer(
+                        zapAddresses.fallbackReceiver,
+                        zapAddresses.tsa.balanceOf(address(this))
+                    );
                 }
             } else {
                 // Deposit failed, send minted tokens to fallback
@@ -156,12 +173,17 @@ contract LyraTSAZapHook is LimitHook {
         }
     }
 
-    function _parseParameters(DstPostHookCallParams memory params_) internal returns (
-        uint256 consumedAmount,
-        uint256 pendingAmount,
-        ZapAddresses memory zapAddresses,
-        bool attemptToWithdraw
-    ) {
+    function _parseParameters(
+        DstPostHookCallParams memory params_
+    )
+        internal
+        returns (
+            uint256 consumedAmount,
+            uint256 pendingAmount,
+            ZapAddresses memory zapAddresses,
+            bool attemptToWithdraw
+        )
+    {
         attemptToWithdraw = false;
 
         if (params_.postHookData.length == 64) {
@@ -175,7 +197,13 @@ contract LyraTSAZapHook is LimitHook {
 
             // If the data is 320 bytes, it means we want to attempt to deposit to the TSA and withdraw immediately
 
-            (consumedAmount, pendingAmount, zapAddresses.fallbackReceiver, zapAddresses.returnRecipient, zapAddresses.withdrawConnector) = abi.decode(
+            (
+                consumedAmount,
+                pendingAmount,
+                zapAddresses.fallbackReceiver,
+                zapAddresses.returnRecipient,
+                zapAddresses.withdrawConnector
+            ) = abi.decode(
                 params_.postHookData,
                 (uint256, uint256, address, address, address)
             );
@@ -184,22 +212,34 @@ contract LyraTSAZapHook is LimitHook {
                 revert("INVALID_PENDING_AMOUNT");
             }
 
-            zapAddresses.withdrawVault = tryGetWithdrawVault(zapAddresses.withdrawConnector);
+            zapAddresses.withdrawVault = tryGetWithdrawVault(
+                zapAddresses.withdrawConnector
+            );
             if (address(zapAddresses.withdrawVault) == address(0)) {
-                mintedToken.transfer(zapAddresses.fallbackReceiver, consumedAmount);
+                mintedToken.transfer(
+                    zapAddresses.fallbackReceiver,
+                    consumedAmount
+                );
                 return (consumedAmount, pendingAmount, zapAddresses, false);
             }
 
             zapAddresses.tsa = tryGetTSA(zapAddresses.withdrawVault);
             if (address(zapAddresses.tsa) == address(0)) {
-                mintedToken.transfer(zapAddresses.fallbackReceiver, consumedAmount);
+                mintedToken.transfer(
+                    zapAddresses.fallbackReceiver,
+                    consumedAmount
+                );
                 return (consumedAmount, pendingAmount, zapAddresses, false);
             }
 
             attemptToWithdraw = address(zapAddresses.tsa) != address(0);
 
-            return (consumedAmount, pendingAmount, zapAddresses, attemptToWithdraw);
-
+            return (
+                consumedAmount,
+                pendingAmount,
+                zapAddresses,
+                attemptToWithdraw
+            );
         } else {
             revert("parse: INVALID_DATA_LENGTH");
         }
@@ -224,20 +264,23 @@ contract LyraTSAZapHook is LimitHook {
         uint256 amount = zapAddresses.tsa.balanceOf(address(this));
         zapAddresses.tsa.approve(address(zapAddresses.withdrawVault), amount);
 
-        uint256 fees = IConnectorPlugExt(zapAddresses.withdrawConnector).getMinFees(withdrawalMinGasLimit, 0);
+        uint256 fees = IConnectorPlugExt(zapAddresses.withdrawConnector)
+            .getMinFees(withdrawalMinGasLimit, 0);
 
         if (fees > address(this).balance) {
             revert("INSUFFICIENT_ETH_BALANCE");
         }
 
-        try zapAddresses.withdrawVault.bridge{value: fees}(
-            zapAddresses.returnRecipient,
-            amount,
-            withdrawalMinGasLimit,
-            zapAddresses.withdrawConnector,
-            new bytes(0),
-            new bytes(0)
-        ) {
+        try
+            zapAddresses.withdrawVault.bridge{value: fees}(
+                zapAddresses.returnRecipient,
+                amount,
+                withdrawalMinGasLimit,
+                zapAddresses.withdrawConnector,
+                new bytes(0),
+                new bytes(0)
+            )
+        {
             return true;
         } catch {
             return false;
@@ -245,8 +288,12 @@ contract LyraTSAZapHook is LimitHook {
     }
 
     /// @dev Returns zero address if bridge is not found or connector is invalid
-    function tryGetWithdrawVault(address connector) internal returns (IBridgeExt withdrawVault) {
-        (bool success, bytes memory data) = connector.call(abi.encodeWithSignature("bridge__()"));
+    function tryGetWithdrawVault(
+        address connector
+    ) internal returns (IBridgeExt withdrawVault) {
+        (bool success, bytes memory data) = connector.call(
+            abi.encodeWithSignature("bridge__()")
+        );
 
         if (!success || data.length == 0) {
             return IBridgeExt(address(0));
@@ -256,8 +303,12 @@ contract LyraTSAZapHook is LimitHook {
     }
 
     /// @dev Returns zero address if TSA is not found
-    function tryGetTSA(IBridgeExt withdrawVault) internal returns (LyraTSA tsa) {
-        (bool success, bytes memory data) = address(withdrawVault).call(abi.encodeWithSignature("token()"));
+    function tryGetTSA(
+        IBridgeExt withdrawVault
+    ) internal returns (LyraTSA tsa) {
+        (bool success, bytes memory data) = address(withdrawVault).call(
+            abi.encodeWithSignature("token()")
+        );
         if (!success || data.length == 0) {
             return LyraTSA(address(0));
         }

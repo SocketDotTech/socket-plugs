@@ -63,7 +63,12 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
 
     function dstPostHookCall(
         DstPostHookCallParams memory params_
-    ) external virtual isVaultOrController returns (CacheData memory cacheData) {
+    )
+        external
+        virtual
+        isVaultOrController
+        returns (CacheData memory cacheData)
+    {
         (uint256 consumedAmount, uint256 pendingAmount) = abi.decode(
             params_.postHookData,
             (uint256, uint256)

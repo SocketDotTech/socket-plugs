@@ -228,7 +228,7 @@ const pc: ProjectConstants = {
         },
       },
     },
-  }
+  },
 };
 
 export = pc;

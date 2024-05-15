@@ -30,7 +30,9 @@ export const main = async () => {
             )}`
           );
         } catch (e) {
-          console.error(`Error while checking vault balance for ${token} on chain ${chain}`)
+          console.error(
+            `Error while checking vault balance for ${token} on chain ${chain}`
+          );
         }
       }
     }
