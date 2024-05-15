@@ -162,47 +162,50 @@ const pc: ProjectConstants = {
     //   },
     // },
 
-    [Tokens.RSWETH]: {
-      controllerChains: [ChainSlug.LYRA_TESTNET],
-      vaultChains: [
-        // ChainSlug.SEPOLIA,
-        ChainSlug.ARBITRUM_SEPOLIA,
-      ],
-      hook: {
-        hookType: Hooks.LIMIT_EXECUTION_HOOK,
-        limitsAndPoolId: {
-          [ChainSlug.LYRA_TESTNET]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "100000000",
-              receivingLimit: "100000000",
-              poolCount: 0,
-            },
-          },
-          // [ChainSlug.SEPOLIA]: {
-          //   [IntegrationTypes.fast]: {
-          //     sendingLimit: "100000000",
-          //     receivingLimit: "100000000",
-          //     poolCount: 0,
-          //   },
-          // },
-          [ChainSlug.ARBITRUM_SEPOLIA]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "100000000",
-              receivingLimit: "100000000",
-              poolCount: 0,
-            },
-          },
-        },
-      },
-    },
+    // [Tokens.RSWETH]: {
+    //   controllerChains: [ChainSlug.LYRA_TESTNET],
+    //   vaultChains: [
+    //     // ChainSlug.SEPOLIA,
+    //     ChainSlug.ARBITRUM_SEPOLIA,
+    //   ],
+    //   hook: {
+    //     // hookType: Hooks.LYRA_TSA_DEPOSIT_HOOK,
+    //     hookType: Hooks.LIMIT_HOOK,
+    //     limitsAndPoolId: {
+    //       [ChainSlug.LYRA_TESTNET]: {
+    //         [IntegrationTypes.fast]: {
+    //           sendingLimit: "100000000",
+    //           receivingLimit: "100000000",
+    //           poolCount: 0,
+    //         },
+    //       },
+    //       // [ChainSlug.SEPOLIA]: {
+    //       //   [IntegrationTypes.fast]: {
+    //       //     sendingLimit: "100000000",
+    //       //     receivingLimit: "100000000",
+    //       //     poolCount: 0,
+    //       //   },
+    //       // },
+    //       [ChainSlug.ARBITRUM_SEPOLIA]: {
+    //         [IntegrationTypes.fast]: {
+    //           sendingLimit: "100000000",
+    //           receivingLimit: "100000000",
+    //           poolCount: 0,
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
     [Tokens.WEETH]: {
       controllerChains: [ChainSlug.LYRA_TESTNET],
       vaultChains: [
         // ChainSlug.SEPOLIA,
-        ChainSlug.ARBITRUM_SEPOLIA,
+        // ChainSlug.ARBITRUM_SEPOLIA,
+        ChainSlug.OPTIMISM_SEPOLIA,
       ],
       hook: {
-        hookType: Hooks.LIMIT_EXECUTION_HOOK,
+        // hookType: Hooks.LYRA_TSA_DEPOSIT_HOOK,
+        hookType: Hooks.LIMIT_HOOK,
         limitsAndPoolId: {
           [ChainSlug.LYRA_TESTNET]: {
             [IntegrationTypes.fast]: {
@@ -218,7 +221,14 @@ const pc: ProjectConstants = {
           //     poolCount: 0,
           //   },
           // },
-          [ChainSlug.ARBITRUM_SEPOLIA]: {
+          // [ChainSlug.ARBITRUM_SEPOLIA]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "100000000",
+          //     receivingLimit: "100000000",
+          //     poolCount: 0,
+          //   },
+          // },
+          [ChainSlug.OPTIMISM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",

@@ -89,7 +89,7 @@
       "isAppChain": true,
       "MintableToken": "0x7ef0873bBf91B8Ecac22c0e9466b17c6Cc14B1bd",
       "Controller": "0xbEc0B31bbfA62364EBF6e27454978E33c5d9F4eE",
-      "LyraTSAZapHook": "0x179c4Fc3812379a5FBfefc3fe42ECA6D6C1455B7",
+      "LimitHook": "0x35af65cfc1d3f583fb936c2a6f94875a82a18e74",
       "connectors": {
         "11155420": {
           "FAST": "0x8FF3f8bc7884fe59425F090d5ec6A570472DfF88"
@@ -228,14 +228,14 @@
         "901": {
           "FAST": "0x452204A2a6c103D106c86bEb869Ca6EF705eD67C"
         }
-      }
+      },
+      "LimitHook": "0xeCAAd20Fe81818E4Ce1EB35E463f681084ab2DD5"
     },
     "rswETH": {
       "isAppChain": false,
       "NonMintableToken": "0x0b3639A094854796E3b236DB08646ffd21C0B1B2",
       "Vault": "0x6F054A18383b2EC7F709d7f24e69D9DbCC921aD3",
-      "ExecutionHelper": "0xb1Fd6a8933C171cB149eda09EB91e22788EF61bB",
-      "LimitExecutionHook": "0xC3370DBEd53692db0A7A793e0D0cB4868EE2A1F9",
+      "LimitHook": "0xC3370DBEd53692db0A7A793e0D0cB4868EE2A1F9",
       "connectors": {
         "901": {
           "FAST": "0xCa80293391423d8B81850Ff051BAd3FcE936EbB7"

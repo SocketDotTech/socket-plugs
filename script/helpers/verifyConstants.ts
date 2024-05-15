@@ -48,7 +48,9 @@ export const verifyConstants = async () => {
       checkMissingFields({ hookType });
       if (
         hookType == Hooks.LIMIT_HOOK ||
-        hookType == Hooks.LIMIT_EXECUTION_HOOK
+        hookType == Hooks.LIMIT_EXECUTION_HOOK ||
+        hookType == Hooks.LYRA_TSA_DEPOSIT_HOOK ||
+        hookType == Hooks.LYRA_TSA_WITHDRAW_HOOK
       ) {
         checkMissingFields({ limitsAndPoolId });
         let chainsWithLimits = Object.keys(limitsAndPoolId!);
