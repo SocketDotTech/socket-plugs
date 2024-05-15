@@ -9,6 +9,13 @@ import "../interfaces/IBridge.sol";
 import {IConnector} from "../interfaces/IConnector.sol";
 
 interface LyraTSA is IERC20 {
+    function underlying() external view returns (IERC20);
+
+    function withdrawTo(
+        address account,
+        uint256 amount
+    ) external returns (bool);
+
     function depositFor(
         address account,
         uint256 amount
@@ -23,13 +30,13 @@ interface IConnectorPlugExt is IConnector {
     function bridge__() external returns (IBridge);
 }
 
-contract LyraTSAZapHook is LimitHook {
-    struct ZapAddresses {
+abstract contract LyraTSAHookBase is LimitHook {
+    struct PackedAddresses {
         address returnRecipient;
         address fallbackReceiver;
         address withdrawConnector;
         IBridgeExt withdrawVault;
-        LyraTSA tsa;
+        IERC20 withdrawToken;
     }
 
     uint withdrawalMinGasLimit = 500000;
@@ -48,6 +55,9 @@ contract LyraTSAZapHook is LimitHook {
 
     receive() external payable {}
 
+    ///////////
+    // Admin //
+    ///////////
     function setWithdrawalMinGasLimit(uint limit) external onlyOwner {
         withdrawalMinGasLimit = limit;
     }
@@ -55,6 +65,14 @@ contract LyraTSAZapHook is LimitHook {
     function recoverEth(address payable recipient) external onlyOwner {
         recipient.transfer(address(this).balance);
     }
+
+    function recoverERC20(IERC20 token, address recipient) external onlyOwner {
+        token.transfer(recipient, token.balanceOf(address(this)));
+    }
+
+    ////////////////
+    // Hook calls //
+    ////////////////
 
     function dstPreHookCall(
         DstPreHookCallParams memory params_
@@ -113,7 +131,7 @@ contract LyraTSAZapHook is LimitHook {
         (
             uint256 consumedAmount,
             uint256 pendingAmount,
-            ZapAddresses memory zapAddresses,
+            PackedAddresses memory addrs,
             bool attemptToWithdraw
         ) = _parseParameters(params_);
 
@@ -125,23 +143,24 @@ contract LyraTSAZapHook is LimitHook {
                 revert("MINTED_BALANCE_MISMATCH");
             }
 
-            bool deposited = _depositToTSA(
-                zapAddresses.tsa,
+            bool conversionSucceeded = _convertToken(
                 mintedToken,
+                addrs.withdrawToken,
                 balance
             );
-            if (deposited) {
-                bool withdrew = _withdrawToRecipient(zapAddresses);
+
+            if (conversionSucceeded) {
+                bool withdrew = _withdrawToRecipient(addrs);
                 if (!withdrew) {
-                    // Withdraw failed, send tsa shares to fallback
-                    zapAddresses.tsa.transfer(
-                        zapAddresses.fallbackReceiver,
-                        zapAddresses.tsa.balanceOf(address(this))
+                    // Withdraw failed, send withdrawToken to fallback
+                    addrs.withdrawToken.transfer(
+                        addrs.fallbackReceiver,
+                        addrs.withdrawToken.balanceOf(address(this))
                     );
                 }
             } else {
                 // Deposit failed, send minted tokens to fallback
-                mintedToken.transfer(zapAddresses.fallbackReceiver, balance);
+                mintedToken.transfer(addrs.fallbackReceiver, balance);
             }
         }
 
@@ -180,7 +199,7 @@ contract LyraTSAZapHook is LimitHook {
         returns (
             uint256 consumedAmount,
             uint256 pendingAmount,
-            ZapAddresses memory zapAddresses,
+            PackedAddresses memory addrs,
             bool attemptToWithdraw
         )
     {
@@ -191,18 +210,17 @@ contract LyraTSAZapHook is LimitHook {
                 params_.postHookData,
                 (uint256, uint256)
             );
-            return (consumedAmount, pendingAmount, zapAddresses, false);
+            return (consumedAmount, pendingAmount, addrs, false);
         } else if (params_.postHookData.length == 160) {
+            // If the data is 160 bytes, it means we want to attempt to deposit to the TSA
+            // and withdraw the shares immediately
             IERC20 mintedToken = IERC20(IBridgeExt(vaultOrController).token());
-
-            // If the data is 320 bytes, it means we want to attempt to deposit to the TSA and withdraw immediately
-
             (
                 consumedAmount,
                 pendingAmount,
-                zapAddresses.fallbackReceiver,
-                zapAddresses.returnRecipient,
-                zapAddresses.withdrawConnector
+                addrs.fallbackReceiver,
+                addrs.returnRecipient,
+                addrs.withdrawConnector
             ) = abi.decode(
                 params_.postHookData,
                 (uint256, uint256, address, address, address)
@@ -212,59 +230,44 @@ contract LyraTSAZapHook is LimitHook {
                 revert("INVALID_PENDING_AMOUNT");
             }
 
-            zapAddresses.withdrawVault = tryGetWithdrawVault(
-                zapAddresses.withdrawConnector
+            addrs.withdrawVault = tryGetWithdrawVault(
+                addrs.withdrawConnector
             );
-            if (address(zapAddresses.withdrawVault) == address(0)) {
+            if (address(addrs.withdrawVault) == address(0)) {
                 mintedToken.transfer(
-                    zapAddresses.fallbackReceiver,
+                    addrs.fallbackReceiver,
                     consumedAmount
                 );
-                return (consumedAmount, pendingAmount, zapAddresses, false);
+                return (consumedAmount, pendingAmount, addrs, false);
             }
 
-            zapAddresses.tsa = tryGetTSA(zapAddresses.withdrawVault);
-            if (address(zapAddresses.tsa) == address(0)) {
+            addrs.withdrawToken = tryGetToken(addrs.withdrawVault);
+            if (address(addrs.withdrawToken) == address(0)) {
                 mintedToken.transfer(
-                    zapAddresses.fallbackReceiver,
+                    addrs.fallbackReceiver,
                     consumedAmount
                 );
-                return (consumedAmount, pendingAmount, zapAddresses, false);
+                return (consumedAmount, pendingAmount, addrs, false);
             }
-
-            attemptToWithdraw = address(zapAddresses.tsa) != address(0);
 
             return (
                 consumedAmount,
                 pendingAmount,
-                zapAddresses,
-                attemptToWithdraw
+                addrs,
+                true
             );
         } else {
             revert("parse: INVALID_DATA_LENGTH");
         }
     }
 
-    function _depositToTSA(
-        LyraTSA tsa,
-        IERC20 token,
-        uint256 amount
-    ) internal returns (bool success) {
-        token.approve(address(tsa), amount);
-        try tsa.depositFor(address(this), amount) returns (bool) {
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
     function _withdrawToRecipient(
-        ZapAddresses memory zapAddresses
+        PackedAddresses memory addrs
     ) internal returns (bool success) {
-        uint256 amount = zapAddresses.tsa.balanceOf(address(this));
-        zapAddresses.tsa.approve(address(zapAddresses.withdrawVault), amount);
+        uint256 amount = addrs.withdrawToken.balanceOf(address(this));
+        addrs.withdrawToken.approve(address(addrs.withdrawVault), amount);
 
-        uint256 fees = IConnectorPlugExt(zapAddresses.withdrawConnector)
+        uint256 fees = IConnectorPlugExt(addrs.withdrawConnector)
             .getMinFees(withdrawalMinGasLimit, 0);
 
         if (fees > address(this).balance) {
@@ -272,11 +275,11 @@ contract LyraTSAZapHook is LimitHook {
         }
 
         try
-            zapAddresses.withdrawVault.bridge{value: fees}(
-                zapAddresses.returnRecipient,
+            addrs.withdrawVault.bridge{value: fees}(
+                addrs.returnRecipient,
                 amount,
                 withdrawalMinGasLimit,
-                zapAddresses.withdrawConnector,
+                addrs.withdrawConnector,
                 new bytes(0),
                 new bytes(0)
             )
@@ -299,19 +302,72 @@ contract LyraTSAZapHook is LimitHook {
             return IBridgeExt(address(0));
         }
 
-        return IBridgeExt(address(IConnectorPlugExt(connector).bridge__()));
+        return IBridgeExt(abi.decode(data, (address)));
     }
 
-    /// @dev Returns zero address if TSA is not found
-    function tryGetTSA(
+    /// @dev Returns zero address if not found
+    function tryGetToken(
         IBridgeExt withdrawVault
-    ) internal returns (LyraTSA tsa) {
+    ) internal returns (IERC20 withdrawToken) {
         (bool success, bytes memory data) = address(withdrawVault).call(
             abi.encodeWithSignature("token()")
         );
         if (!success || data.length == 0) {
-            return LyraTSA(address(0));
+            return IERC20(address(0));
         }
-        return LyraTSA(withdrawVault.token());
+        return IERC20(abi.decode(data, (address)));
+    }
+
+    function _convertToken(IERC20 depositToken, IERC20 withdrawToken, uint256 amount) internal virtual returns (bool success);
+}
+
+
+contract LyraTSADepositHook is LyraTSAHookBase {
+    constructor(
+        address owner_,
+        address controller_,
+        bool useControllerPools_
+    ) LyraTSAHookBase(owner_, controller_, useControllerPools_) {}
+
+
+    function _convertToken(
+        IERC20 depositToken,
+        IERC20 withdrawToken,
+        uint256 amount
+    ) internal override returns (bool success) {
+        LyraTSA tsa = LyraTSA(address(withdrawToken));
+        depositToken.approve(address(tsa), amount);
+        try tsa.depositFor(address(this), amount) returns (bool) {
+            return true;
+        } catch {
+            return false;
+        }
+    }
+}
+
+
+contract LyraTSAWithdrawHook is LyraTSAHookBase {
+    constructor(
+        address owner_,
+        address controller_,
+        bool useControllerPools_
+    ) LyraTSAHookBase(owner_, controller_, useControllerPools_) {}
+
+    function _convertToken(
+        IERC20 depositToken,
+        IERC20 withdrawToken,
+        uint256 amount
+    ) internal override returns (bool success) {
+        LyraTSA tsa = LyraTSA(address(depositToken));
+
+        if (tsa.underlying() != withdrawToken) {
+            return false;
+        }
+
+        try tsa.withdrawTo(address(this), amount) returns (bool) {
+            return true;
+        } catch {
+            return false;
+        }
     }
 }

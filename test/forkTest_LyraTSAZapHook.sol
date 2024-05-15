@@ -5,7 +5,7 @@ import "forge-std/console.sol";
 import "../contracts/bridge/Controller.sol";
 import {UpdateLimitParams} from "../contracts/common/Structs.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import {LyraTSAZapHook, LimitHook} from "../contracts/hooks/LyraTSAZapHook.sol";
+import {LyraTSADepositHook, LimitHook} from "../contracts/hooks/LyraTSAHooks.sol";
 import "../contracts/bridge/Base.sol";
 
 contract LyraTSAZapHookForkTest is Test {
@@ -17,8 +17,7 @@ contract LyraTSAZapHookForkTest is Test {
     address fallbackRecipient = 0x1111111111111111111111111111111111111111;
     IERC20 token = IERC20(0x7ef0873bBf91B8Ecac22c0e9466b17c6Cc14B1bd);
     IERC20 TSA = IERC20(0x79AC9B13810D31066Be547EdA46C40264b39397D);
-    LyraTSAZapHook hook =
-        LyraTSAZapHook(payable(0x55328b5036EB15DdCA2a91468F1C70Dcae29b7Ab));
+    LyraTSADepositHook hook = LyraTSADepositHook(payable(0x55328b5036EB15DdCA2a91468F1C70Dcae29b7Ab));
     Controller public controller =
         Controller(0xbEc0B31bbfA62364EBF6e27454978E33c5d9F4eE);
     address connectorPlug = 0x8FF3f8bc7884fe59425F090d5ec6A570472DfF88;
@@ -34,6 +33,8 @@ contract LyraTSAZapHookForkTest is Test {
     function setUp() external {}
 
     function testHookDepositsWhenNoPayloadProvided() external {
+        _updateHookContract();
+
         vm.deal(address(hook), 1 ether);
 
         assertEq(token.balanceOf(tokenRecipient), 3.2e18);
@@ -49,6 +50,8 @@ contract LyraTSAZapHookForkTest is Test {
     }
 
     function testHookWithdrawsTSAsAtomically() external {
+        _updateHookContract();
+
         vm.deal(address(hook), 1 ether);
 
         assertEq(token.balanceOf(tokenRecipient), 3.2e18);
@@ -76,6 +79,8 @@ contract LyraTSAZapHookForkTest is Test {
     }
 
     function testHookFailsIfNoETHInHook() external {
+        _updateHookContract();
+
         bytes
             memory calldataToSend = hex"c41f1f6c0000000000000000000000000000000000000000000000000000000000aa37dc000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000011111111111111111111111111111111111111110000000000000000000000000000000000000000000000000de0b6b3a764000000aa37dc8ff3f8bc7884fe59425f090d5ec6a570472dff88000000000000009a000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000400000000000000000000000006666fe8F577F202Ec729BF653ec25Af5403cbd760000000000000000000000005f675ab715BB9D712e4628E74c8e11B46867aCe3";
         vm.expectRevert("INSUFFICIENT_ETH_BALANCE");
@@ -103,7 +108,7 @@ contract LyraTSAZapHookForkTest is Test {
     }
 
     function testSendsSharesToFallbackIfWithdrawalFails() external {
-        //        _updateHookContract();
+        _updateHookContract();
 
         // reset TSA withdrawal limit to 0
         _updateLimits(
@@ -140,7 +145,7 @@ contract LyraTSAZapHookForkTest is Test {
 
     function _updateHookContract() internal {
         // Update hook
-        LyraTSAZapHook hook = new LyraTSAZapHook(
+        hook = new LyraTSADepositHook(
             0x000000A94C901AA5d4da1157B2Dd1c4c6b69815e,
             0xbEc0B31bbfA62364EBF6e27454978E33c5d9F4eE,
             true
