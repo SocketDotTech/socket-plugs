@@ -33,29 +33,20 @@ contract LyraTSAZapHookForkTest is Test {
 
     function setUp() external {}
 
-    //
-    //    function testHookDepositsWhenNoPayloadProvided() external {
-    //        vm.deal(address(hook), 1 ether);
-    //
-    //        assertEq(token.balanceOf(tokenRecipient), 3.2e18);
-    //
-    //        vm.recordLogs();
-    //        bytes memory calldataToSend = hex"c41f1f6c0000000000000000000000000000000000000000000000000000000000aa37dc000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000006666fe8f577f202ec729bf653ec25af5403cbd760000000000000000000000000000000000000000000000000de0b6b3a764000000aa37dc8ff3f8bc7884fe59425f090d5ec6a570472dff88000000000000009a000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000400000000000000000000000006666fe8F577F202Ec729BF653ec25Af5403cbd760000000000000000000000005f675ab715BB9D712e4628E74c8e11B46867aCe3";
-    //        vm.prank(caller);
-    //        connectorPlug.call(calldataToSend);
-    //
-    //        Vm.Log[] memory logs = vm.getRecordedLogs();
-    //
-    //        for (uint i = 0; i < logs.length; i++) {
-    //            if (logs[i].emitter == 0xD0DEe9Fd4Cc1d2eCB4572c01cDC65603557cc506) {
-    //                console.logBytes(logs[i].data);
-    //                BridgingEvent memory b = abi.decode(logs[i].data, (BridgingEvent));
-    //            }
-    //        }
-    //
-    //        assertEq(token.balanceOf(tokenRecipient), 3.2e18);
-    //
-    //    }
+
+    function testHookDepositsWhenNoPayloadProvided() external {
+        vm.deal(address(hook), 1 ether);
+
+        assertEq(token.balanceOf(tokenRecipient), 3.2e18);
+        assertEq(token.balanceOf(fallbackRecipient), 0);
+
+        bytes memory calldataToSend = hex"c41f1f6c0000000000000000000000000000000000000000000000000000000000aa37dc000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000011111111111111111111111111111111111111110000000000000000000000000000000000000000000000000de0b6b3a764000000aa37dc8ff3f8bc7884fe59425f090d5ec6a570472dff88000000000000008600000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000";
+        vm.prank(caller);
+        connectorPlug.call(calldataToSend);
+
+        assertEq(token.balanceOf(tokenRecipient), 3.2e18);
+        assertEq(token.balanceOf(fallbackRecipient), 1e18);
+    }
 
     function testHookWithdrawsTSAsAtomically() external {
         vm.deal(address(hook), 1 ether);
