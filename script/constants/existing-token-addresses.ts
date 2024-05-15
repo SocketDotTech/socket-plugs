@@ -11,6 +11,8 @@ export const ExistingTokenAddresses: {
     [Tokens.WBTC]: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
     [Tokens.SNX]: "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
     [Tokens.WSTETH]: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    [Tokens.WEETH]: "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+    [Tokens.RSWETH]: "0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0",
   },
   [ChainSlug.OPTIMISM]: {
     [Tokens.USDC]: "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
@@ -28,6 +30,7 @@ export const ExistingTokenAddresses: {
     [Tokens.WETH]: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
     [Tokens.WBTC]: "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f",
     [Tokens.WSTETH]: "0x5979D7b546E38E414F7E9822514be443A4800529",
+    [Tokens.WEETH]: "0x35751007a407ca6feffe80b3cb397736d2cf4dbe",
   },
   [ChainSlug.BASE]: {
     [Tokens.USDC]: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
@@ -53,6 +56,12 @@ export const ExistingTokenAddresses: {
     // [Tokens.WETH]: "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa", // actual weth
     [Tokens.WETH]: "0x771d1Ae208377453D478dF08BbC38034F72aC833", // dummy token
     [Tokens.WBTC]: "0x94BEff5da6201cB2C8F489196FD970B3DF5aA32A",
+    // Dummy tokens
+    [Tokens.WEETH]: "0x07243151E40CDD44e8C2DFC513f74218F92dE337",
+    [Tokens.RSWETH]: "0x04DFA269467fDDDae51F65B9b21C835bDb1A1f55",
+    // Lyra tokenized subaccount shares
+    [Tokens.WEETHC]: "0x87c9744413d2c0F93231Def99025119099a7c287",
+    [Tokens.RSWETHC]: "0x59d46ac60A9B0dB2211df832a46f58c9C1263BBf",
   },
   [ChainSlug.OPTIMISM_SEPOLIA]: {
     [Tokens.USDC]: "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
@@ -60,8 +69,26 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0xDC0258dc3dB980090E97EbF4f1FD9Cc3C5AD5894",
     [Tokens.WETH]: "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
     [Tokens.WBTC]: "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7",
+    // Dummy tokens
+    [Tokens.WEETH]: "0x8467d28492bB13cC964C49Fcc2fCA8A8B478836E",
+    [Tokens.RSWETH]: "0x0b3639A094854796E3b236DB08646ffd21C0B1B2",
+    // Lyra tokenized subaccount shares
+    [Tokens.WEETHC]: "0xfe051Cc322F5124e53cA89611dD0c9a32F350a1C",
+    [Tokens.RSWETHC]: "0x51741cbDcd28e770729f1c98d02Ab41E565A5960",
   },
   [ChainSlug.AEVO_TESTNET]: {
     [Tokens.USDC]: "0x4D435C00E09034ec2113F63088CCD0be0a0fd06e",
   },
+  [ChainSlug.LYRA_TESTNET]: {
+    [Tokens.USDC]: "0xe80F2a02398BBf1ab2C9cc52caD1978159c215BD",
+    [Tokens.WBTC]: "0xF1493F3602Ab0fC576375a20D7E4B4714DB4422d",
+    [Tokens.WETH]:  "0x3a34565D81156cF0B1b9bC5f14FD00333bcf6B93",
+    [Tokens.USDT]:  "0x0fd4d2dEc9c5830516176e5A1ee552f9431A1b09",
+    [Tokens.SNX]: "0x751FD1d1B327D6d842cD57CAAEABf581836cFF5F",
+    [Tokens.WSTETH]:  "0x37Db2a7cFb832442861F0053db422bDEA20DE847",
+    [Tokens.WEETH]:  "0x7ef0873bBf91B8Ecac22c0e9466b17c6Cc14B1bd",
+    [Tokens.RSWETH]:  "0xa7456213A5c081F53fEb3A4F64b88A4637Bf3028",
+    [Tokens.WEETHC]: "0x79AC9B13810D31066Be547EdA46C40264b39397D",
+    [Tokens.RSWETHC]: "0x797Db58F4c6611253e92B9a3260E3Cc9C69430a5",
+  }
 };

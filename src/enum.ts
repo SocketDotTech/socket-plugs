@@ -9,6 +9,10 @@ export enum Tokens {
   WSTETH = "wstETH",
   DAI = "DAI",
   GUARD = "GUARD",
+  WEETH = "weETH",
+  RSWETH = "rswETH",
+  WEETHC = "weETHC", // Lyra tokenized subaccount shares
+  RSWETHC = "rswETHC", // Lyra tokenized subaccount shares
 }
 
 export enum Project {

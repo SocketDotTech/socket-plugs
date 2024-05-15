@@ -12,6 +12,10 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.WSTETH]: "Wrapped liquid staked Ether 2.0",
   [Tokens.DAI]: "Dai Stablecoin",
   [Tokens.GUARD]: "Guardian",
+  [Tokens.WEETH]: "Wrapped eETH",
+  [Tokens.RSWETH]: "Restaked Swell ETH",
+  [Tokens.WEETHC]: "Lyra Wrapped eETH Covered Call Shares",
+  [Tokens.RSWETHC]: "Lyra Restaked Swell ETH Covered Call Shares",
 };
 
 export const tokenSymbol: { [key in Tokens]: string } = {
@@ -25,6 +29,10 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.WSTETH]: "wstETH",
   [Tokens.DAI]: "DAI",
   [Tokens.GUARD]: "GUARD",
+  [Tokens.WEETH]: "weETH",
+  [Tokens.RSWETH]: "rswETH",
+  [Tokens.WEETHC]: "weETHC",
+  [Tokens.RSWETHC]: "rswETHC",
 };
 
 export const tokenDecimals: { [key in Tokens]: number } = {
@@ -38,6 +46,10 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.WSTETH]: 18,
   [Tokens.DAI]: 18,
   [Tokens.GUARD]: 18,
+  [Tokens.WEETH]: 18,
+  [Tokens.RSWETH]: 18,
+  [Tokens.WEETHC]: 18,
+  [Tokens.RSWETHC]: 18,
 };
 
 export const ChainSlugToProject: { [chainSlug in ChainSlug]?: Project } = {

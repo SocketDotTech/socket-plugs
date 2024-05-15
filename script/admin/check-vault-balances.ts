@@ -13,21 +13,25 @@ export const main = async () => {
       for (const token of Object.keys(addresses[chain])) {
         if (isSBAppChain(+chain, token)) continue;
 
-        const tokenAddress = addresses[chain][token].NonMintableToken;
-        const tokenContract = ERC20__factory.connect(
-          tokenAddress,
-          getProviderFromChainSlug(+chain)
-        );
-        const vaultBalance = await tokenContract.balanceOf(
-          addresses[chain][token].Vault
-        );
+        try {
+          const tokenAddress = addresses[chain][token].NonMintableToken;
+          const tokenContract = ERC20__factory.connect(
+            tokenAddress,
+            getProviderFromChainSlug(+chain)
+          );
+          const vaultBalance = await tokenContract.balanceOf(
+            addresses[chain][token].Vault
+          );
 
-        console.log(
-          `Vault for ${token} on chain ${chain} has balance: ${ethers.utils.formatUnits(
-            vaultBalance,
-            tokenDecimals[token]
-          )}`
-        );
+          console.log(
+            `Vault for ${token} on chain ${chain} has balance: ${ethers.utils.formatUnits(
+              vaultBalance,
+              tokenDecimals[token]
+            )}`
+          );
+        } catch (e) {
+          console.error(`Error while checking vault balance for ${token} on chain ${chain}`)
+        }
       }
     }
   } catch (error) {

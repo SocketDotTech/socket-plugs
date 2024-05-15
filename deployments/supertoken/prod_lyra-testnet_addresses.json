@@ -1,0 +1,26 @@
+{
+  "901": {
+    "weETHC": {
+      "NonMintableToken": "0x79AC9B13810D31066Be547EdA46C40264b39397D",
+      "Vault": "0xD0DEe9Fd4Cc1d2eCB4572c01cDC65603557cc506",
+      "LimitHook": "0xfeF7a0bF88bBAA9409485C6Fe343A4135D5E799f",
+      "connectors": {
+        "421614": {
+          "FAST": "0x5f675ab715BB9D712e4628E74c8e11B46867aCe3"
+        }
+      }
+    }
+  },
+  "421614": {
+    "weETHC": {
+      "SuperToken": "0xDf72bB31D759c4AB17fbBbc5D1e0D1081C4626BE",
+      "Controller": "0xF151509ABefb08EdaF4CFd95fE6B3Eecb7d5C158",
+      "LimitHook": "0xD3D11C146D892af11Cebed9Ea04e29D27d49Bf03",
+      "connectors": {
+        "901": {
+          "FAST": "0xbf89A191a7F3678Baaa44064632835E08A0657cA"
+        }
+      }
+    }
+  }
+}
