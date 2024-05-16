@@ -3,7 +3,7 @@
     "weETHC": {
       "NonMintableToken": "0x79AC9B13810D31066Be547EdA46C40264b39397D",
       "Vault": "0xD0DEe9Fd4Cc1d2eCB4572c01cDC65603557cc506",
-      "LimitHook": "0xa91619adD4a5d7a9514D8197755748839A27d8Dd",
+      "LyraTSAWithdrawHook": "0xa91619adD4a5d7a9514D8197755748839A27d8Dd",
       "connectors": {
         "421614": {
           "FAST": "0x5f675ab715BB9D712e4628E74c8e11B46867aCe3"

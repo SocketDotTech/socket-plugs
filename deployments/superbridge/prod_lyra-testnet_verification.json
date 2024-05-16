@@ -69,6 +69,16 @@
   ],
   "11155420": [
     [
+      "0xBcB494059969DAaB460E0B5d4f5c2366aab79aa1",
+      "LyraTSADepositHook",
+      "contracts/hooks/LyraTSAHooks.sol",
+      [
+        "0x000000A94C901AA5d4da1157B2Dd1c4c6b69815e",
+        "0x76eef7cb3DAab7b23fB818E3D82997f38aa1A620",
+        false
+      ]
+    ],
+    [
       "0xeCAAd20Fe81818E4Ce1EB35E463f681084ab2DD5",
       "LimitHook",
       "contracts/hooks/LimitHook.sol",

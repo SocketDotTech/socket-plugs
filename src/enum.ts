@@ -80,6 +80,8 @@ export enum HookContracts {
   ControllerYieldLimitExecutionHook = "Controller_YieldLimitExecHook",
   VaultYieldLimitExecutionHook = "Vault_YieldLimitExecHook",
   ExecutionHelper = "ExecutionHelper",
+  LyraTSADepositHook = "LyraTSADepositHook",
+  LyraTSAWithdrawHook = "LyraTSAWithdrawHook",
 }
 export enum SuperTokenContracts {
   NonSuperToken = "NonSuperToken",

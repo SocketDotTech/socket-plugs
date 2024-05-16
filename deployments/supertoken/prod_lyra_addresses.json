@@ -1,0 +1,67 @@
+{
+  "1": {
+    "weETHC": {
+      "SuperToken": "0xcAe44C93f7B3b519Fc28f9d4F7Ae22dE770a907b",
+      "Controller": "0xe7cD9370CdE6C9b5eAbCe8f86d01822d3de205A0",
+      "LyraTSAWithdrawHook": "0x5240cF9E4aee511F4A2DE7fE10C146f3e97ecF88",
+      "connectors": {
+        "957": {
+          "FAST": "0x3f66F272d33B764960779a301c4183306ae50e10"
+        },
+        "42161": {
+          "FAST": "0xB49b8AAcD8396C49d9045f6bAb101aB32c59643D"
+        }
+      }
+    },
+    "rswETHC": {
+      "SuperToken": "0xE9A12fB15cC00b59867E4E2f0aCbdCebfd32b3d7",
+      "Controller": "0x96E47fC9c701E8EEF22Fa53e62dc3eBBDcCAEa73",
+      "LyraTSAWithdrawHook": "0xeb737867Af205Fa5Dd06E0852f6584067236bFDC",
+      "connectors": {
+        "957": {
+          "FAST": "0xb1178803A726e2077947754de9f2f0cbdA29A60F"
+        }
+      }
+    }
+  },
+  "957": {
+    "weETHC": {
+      "NonMintableToken": "0xec68928bd83B2E52fF5A8e8c215B6ea72879F521",
+      "Vault": "0x76ee38B66A2BEF69E32fE070CFEc24Bf7F754Db6",
+      "LyraTSAWithdrawHook": "0xb7bcAeE8Bfff928126c6fa9fAB772B45Bbadc9e6",
+      "connectors": {
+        "1": {
+          "FAST": "0x945958CbA0081add5F9aef0baBB925b03847F2bF"
+        },
+        "42161": {
+          "FAST": "0xFE71489dD286561Eef7d2121BCA09090492d6fC0"
+        }
+      }
+    },
+    "rswETHC": {
+      "NonMintableToken": "0x5bbef94dcee8f087D5146d2815bC4955C76B2794",
+      "Vault": "0xeF7b53D59b5C6c4B5Aae3b2Fb9b1446EA087c7ce",
+      "LyraTSAWithdrawHook": "0x5c514C2CdcdF30D122B1C016FeC0ebd92Db1e9d6",
+      "connectors": {
+        "1": {
+          "FAST": "0x5da948DFf8dc37b9Dd4544bf4c738bD5725EdccC"
+        }
+      }
+    }
+  },
+  "42161": {
+    "weETHC": {
+      "SuperToken": "0x1cbbC18CB128AA470733eD29938Ab4878B0BEF20",
+      "Controller": "0x8D2ec8D3033568ff42E4b39aF3F700250B255d96",
+      "LyraTSAWithdrawHook": "0x2B4FaCC4B6bDc42074B3EFF9aB5943c8855A7860",
+      "connectors": {
+        "1": {
+          "FAST": "0xF982c812099d03AFFa0c8062aa1abcb584c23329"
+        },
+        "957": {
+          "FAST": "0x44ed9cE901B367B1EF9DDBD4974C82A514c50DEc"
+        }
+      }
+    }
+  }
+}

@@ -77,6 +77,8 @@ export const main = async () => {
             [
               HookContracts.LimitHook,
               HookContracts.LimitExecutionHook,
+              HookContracts.LyraTSADepositHook,
+              HookContracts.LyraTSAWithdrawHook,
             ].includes(hookContractName as HookContracts)
           ) {
             await updateLimitsAndPoolId(

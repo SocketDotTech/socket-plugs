@@ -31,9 +31,12 @@ export const configureHooks = async (
   await setHookInBridge(chain, bridgeContract, hookContract);
 
   if (
-    [HookContracts.LimitHook, HookContracts.LimitExecutionHook].includes(
-      hookContractName as HookContracts
-    )
+    [
+      HookContracts.LimitHook,
+      HookContracts.LimitExecutionHook,
+      HookContracts.LyraTSADepositHook,
+      HookContracts.LyraTSAWithdrawHook,
+    ].includes(hookContractName as HookContracts)
   ) {
     await updateLimitsAndPoolId(
       chain,
