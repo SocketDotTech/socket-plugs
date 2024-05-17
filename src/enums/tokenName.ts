@@ -12,4 +12,12 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.DAI]: "Dai Stablecoin",
   [Tokens.GUARD]: "Guardian",
   [Tokens.ETH]: "Ether",
+  [Tokens.EIGEN]: "Eigen",
+  [Tokens.ENA]: "ENA",
+  [Tokens.USDe]: "USDe",
+  [Tokens.eETH]: "ether.fi ETH",
+  [Tokens.sDAI]: "Savings Dai",
+  [Tokens.sUSDe]: "Staked USDe",
+  [Tokens.wUSDM]: "Wrapped Mountain Protocol USD",
+  [Tokens.weETH]: "Wrapped eETH",
 };

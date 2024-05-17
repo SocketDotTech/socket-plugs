@@ -228,7 +228,7 @@ contract TestSenderHook is Test {
     }
 
     ////// START: SenderHook:srcPreHook tests //////
-    
+
     function testsrcPreHookCallStoresMsgSender() external {
         _setLimits();
         uint256 withdrawAmount = 10 ether;
@@ -270,7 +270,11 @@ contract TestSenderHook is Test {
         assertEq(_raju, transferInfo.receiver, "receiver incorrect");
         assertEq(withdrawAmount, transferInfo.amount, "amount incorrect");
         assertEq(transferInfo.data, payload, "extra data incorrect");
-        assertEq(abi.decode(transferInfo.data, (address)), sender, "msgSender not stored");
+        assertEq(
+            abi.decode(transferInfo.data, (address)),
+            sender,
+            "msgSender not stored"
+        );
     }
 
     ////// END: SenderHook:srcPreHook tests //////
