@@ -187,7 +187,7 @@ const connect = async (
         localConnectorAddresses
       ) as unknown as IntegrationTypes[];
 
-      const socketContract: Contract = getSocket(chain, socketSigner);
+      const socketContract: Contract = await getSocket(chain, socketSigner);
       for (let integration of integrationTypes) {
         const siblingConnectorPlug = siblingConnectorAddresses[integration];
         const localConnectorPlug = localConnectorAddresses[integration];

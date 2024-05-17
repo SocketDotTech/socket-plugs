@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { getSignerFromChainSlug } from "./networks";
@@ -79,9 +79,10 @@ export const updateConnectorStatus = async (
 export const getBridgeContract = async (
   chain: ChainSlug,
   token: Tokens,
-  addr: SBTokenAddresses | STTokenAddresses
+  addr: SBTokenAddresses | STTokenAddresses,
+  wallet: Wallet | undefined = undefined
 ) => {
-  const socketSigner = getSignerFromChainSlug(chain);
+  const signer = wallet ? wallet : getSignerFromChainSlug(chain);
   let bridgeContract: Contract,
     bridgeAddress: string = "",
     bridgeContractName: string = "";
@@ -114,19 +115,20 @@ export const getBridgeContract = async (
 
   bridgeContract = await getInstance(bridgeContractName, bridgeAddress);
 
-  bridgeContract = bridgeContract.connect(socketSigner);
+  bridgeContract = bridgeContract.connect(signer);
   return bridgeContract;
 };
 
 export const getTokenContract = async (
   chain: ChainSlug,
   token: Tokens,
-  addr: SBTokenAddresses | STTokenAddresses
+  addr: SBTokenAddresses | STTokenAddresses,
+  wallet: Wallet | undefined = undefined
 ) => {
-  const socketSigner = getSignerFromChainSlug(chain);
+  const signer = wallet ? wallet : getSignerFromChainSlug(chain);
   let tokenContract: Contract,
     tokenAddress: string = "",
-    tokenContractName: string = "ERC20";
+    tokenContractName: string = "lib/solmate/src/tokens/ERC20.sol:ERC20";
   if (isSuperBridge()) {
     if (isSBAppChain(chain, token)) {
       const a = addr as AppChainAddresses;
@@ -152,7 +154,7 @@ export const getTokenContract = async (
 
   tokenContract = await getInstance(tokenContractName, tokenAddress);
 
-  tokenContract = tokenContract.connect(socketSigner);
+  tokenContract = tokenContract.connect(signer);
   return tokenContract;
 };
 
@@ -174,6 +176,14 @@ export const getHookContract = async (
   if (addr[HookContracts.LimitExecutionHook]) {
     address = addr[HookContracts.LimitExecutionHook];
     contractName = HookContracts.LimitExecutionHook;
+  }
+  if (addr[HookContracts.KintoHook]) {
+    address = addr[HookContracts.KintoHook];
+    contractName = HookContracts.KintoHook;
+  }
+  if (addr[HookContracts.SenderHook]) {
+    address = addr[HookContracts.SenderHook];
+    contractName = HookContracts.SenderHook;
   }
 
   if (!address || !contractName) {
@@ -271,7 +281,7 @@ export const updateLimitsAndPoolId = async (
         !sendingRate.eq(sendingParams["ratePerSecond"])
       ) {
         updateLimitParams.push([
-          true,
+          false,
           itConnectorAddress,
           sendingLimit,
           sendingRate,
@@ -290,7 +300,7 @@ export const updateLimitsAndPoolId = async (
         !receivingRate.eq(receivingParams["ratePerSecond"])
       ) {
         updateLimitParams.push([
-          false,
+          true,
           itConnectorAddress,
           receivingLimit,
           receivingRate,

@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { network, ethers, run } from "hardhat";
+import { network, ethers, run, artifacts } from "hardhat";
 import { ContractFactory, Contract } from "ethers";
 import {
   deployOnKinto,
@@ -13,7 +13,6 @@ import {
   IntegrationTypes,
   getAddresses,
 } from "@socket.tech/dl-core";
-import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
 import {
   getMode,
@@ -151,7 +150,7 @@ export async function deployContractWithArgs(
       contractName
     );
     let contract: Contract;
-    if (await isKinto(await signer.getChainId())) {
+    if (isKinto(await signer.getChainId())) {
       contract = await deployOnKinto(contractName, args, signer);
     } else {
       // gasLimit is set to undefined to not use the value set in overrides
@@ -190,10 +189,15 @@ export const verify = async (
 export const sleep = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay * 1000));
 
-export const getInstance = async (
-  contractName: string,
-  address: Address
-): Promise<Contract> => ethers.getContractAt(contractName, address);
+// export const getInstance = async (
+//   contractName: string,
+//   address: Address
+// ): Promise<Contract> => ethers.getContractAt(contractName, address);
+
+export const getInstance = async (contractName: string, address: Address) => {
+  const artifact = await artifacts.readArtifact(contractName);
+  return new ethers.Contract(address, artifact.abi);
+};
 
 export const getChainSlug = async (): Promise<number> => {
   if (network.config.chainId === undefined)
@@ -201,8 +205,16 @@ export const getChainSlug = async (): Promise<number> => {
   return Number(network.config.chainId);
 };
 
-export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
-  return new Contract(getAddresses(chain, getMode()).Socket, socketABI, signer);
+export const getSocket = async (
+  chain: ChainSlug,
+  signer: Wallet
+): Promise<Contract> => {
+  const artifact = await artifacts.readArtifact("Socket");
+  return new Contract(
+    getAddresses(chain, getMode()).Socket,
+    artifact.abi,
+    signer
+  );
 };
 
 export const storeTokenAddresses = async (

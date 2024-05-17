@@ -3,8 +3,8 @@ import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
+import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
 import { isKinto } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
-import { KINTO_DATA } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants";
 
 export const deployHookContracts = async (
   useConnnectorPools: boolean,
@@ -57,20 +57,12 @@ export const deployHookContracts = async (
         process.env.KINTO_OWNER_ADDRESS,
         bridgeAddress,
         useConnnectorPools, // useControllerPools
-        deployParams.currentChainSlug == 7887
-          ? "0xf369f78E3A0492CC4e96a90dae0728A38498e9c7"
-          : "0xd7Fa9143481d9c48DF79Bb042A6A7a51C99112B6", // Kinto ID
-        deployParams.currentChainSlug == 7887
-          ? "0x8a4720488CA32f1223ccFE5A087e250fE3BC5D75"
-          : "0xB6816E20AfC8412b7D6eD491F0c41317315c29D3", // Kinto Factory
+        constants.KINTO_DATA.contracts.kintoID.address,
+        constants.KINTO_DATA.contracts.factory.address,
       ];
     } else {
       contractName = HookContracts.SenderHook;
-      args = [
-        process.env.KINTO_OWNER_ADDRESS,
-        bridgeAddress,
-        useConnnectorPools,
-      ];
+      args = [getOwner(), bridgeAddress, useConnnectorPools];
     }
   }
 

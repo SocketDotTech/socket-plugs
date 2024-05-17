@@ -28,6 +28,7 @@
     "hardhat": "^2.9.5",
     "hardhat-abi-exporter": "^2.10.1",
     "hardhat-change-network": "^0.0.7",
+    "hardhat-dependency-compiler": "^1.1.4",
     "hardhat-deploy": "^0.11.20",
     "hardhat-preprocessor": "^0.1.4",
     "pre-commit": "^1.2.2",
@@ -51,8 +52,8 @@
     "compile"
   ],
   "dependencies": {
-    "lodash": "^4.17.21",
     "@socket.tech/dl-core": "https://github.com/KintoXYZ/socket-DL.git#devnet",
+    "lodash": "^4.17.21",
     "prompts": "^2.4.2"
   }
 }

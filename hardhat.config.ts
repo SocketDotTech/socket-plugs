@@ -5,6 +5,7 @@ import "hardhat-preprocessor";
 import "hardhat-deploy";
 import "hardhat-abi-exporter";
 import "hardhat-change-network";
+import "hardhat-dependency-compiler";
 
 import { config as dotenvConfig } from "dotenv";
 import type { HardhatUserConfig } from "hardhat/config";
@@ -66,6 +67,7 @@ const liveNetworks = [
   HardhatChainName.BASE,
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
+  HardhatChainName.KINTO,
 ];
 
 let hardhatNetworkDetails = {};
@@ -101,6 +103,7 @@ const config: HardhatUserConfig = {
       "lyra-testnet": "none",
       reya_cronos: "none",
       reya: "none",
+      kinto: "none",
     },
     customChains: [
       {
@@ -191,6 +194,14 @@ const config: HardhatUserConfig = {
           browserURL: "https://explorer.reya.network/",
         },
       },
+      {
+        network: "kinto",
+        chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.KINTO]],
+        urls: {
+          apiURL: "https://explorer.kinto.xyz/api",
+          browserURL: "https://explorer.kinto.xyz",
+        },
+      },
     ],
   },
   networks: {
@@ -221,13 +232,23 @@ const config: HardhatUserConfig = {
     }),
   },
   solidity: {
-    version: "0.8.13",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 999999,
+    compilers: [
+      {
+        version: "0.8.13",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 999999,
+          },
+        },
       },
-    },
+      {
+        version: "0.8.19", // for Socket.sol
+      },
+    ],
+  },
+  dependencyCompiler: {
+    paths: ["@socket.tech/dl-core/contracts/socket/Socket.sol"],
   },
 };
 

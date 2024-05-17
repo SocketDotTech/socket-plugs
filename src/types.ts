@@ -47,7 +47,9 @@ export type TokenConstants = {
       [key in ChainSlug]?: {
         [key in IntegrationTypes]?: {
           sendingLimit: string;
+          sendingRatePerSecond?: string;
           receivingLimit: string;
+          receivingRatePerSecond?: string;
           // for superbridge project, vault chains
           poolCount?: number;
         };

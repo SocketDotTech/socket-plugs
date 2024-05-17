@@ -71,6 +71,8 @@ export const main = async () => {
             [
               HookContracts.LimitHook,
               HookContracts.LimitExecutionHook,
+              HookContracts.KintoHook,
+              HookContracts.SenderHook,
             ].includes(hookContractName as HookContracts)
           ) {
             await updateLimitsAndPoolId(

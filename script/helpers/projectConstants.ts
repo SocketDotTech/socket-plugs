@@ -64,6 +64,13 @@ export const getRateBN = (
   token: string,
   isSending: boolean
 ): BigNumber => {
-  let limitBN = getLimitBN(it, chain, token, isSending);
-  return limitBN.div(86400);
+  const limitBN = getLimitBN(it, chain, token, isSending);
+  const rate: string | number = getIntegrationTypeConsts(it, chain, token)[
+    isSending ? "sendingRatePerSecond" : "receivingRatePerSecond"
+  ];
+  if (!rate || rate == "") {
+    return limitBN.div(86400);
+  } else {
+    return utils.parseUnits(rate, tokenDecimals[token]);
+  }
 };
