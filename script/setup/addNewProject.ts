@@ -20,6 +20,9 @@ import {
 } from "./common";
 import { chainSlugReverseMap } from "./enumMaps";
 import { getProviderFromChainSlug } from "../helpers";
+import { ERC20__factory } from "../../typechain-types";
+
+import { ExistingTokenAddresses } from "../../src/enums/existing-token-addresses";
 
 type TokenRateLimits = Record<
   string,
@@ -51,7 +54,8 @@ export const addProject = async () => {
 
   const { tokenLimitInfo } = await getHookRelatedInfo(
     isLimitsRequired,
-    tokenInfo.tokens
+    tokenInfo.tokens,
+    chainsInfo.vaultChains[0]
   );
 
   let projectConstants = await buildProjectConstants(
@@ -243,22 +247,39 @@ export const getProjectTokenListInfo = async (projectType: ProjectType) => {
 
 export const getHookRelatedInfo = async (
   isLimitsRequired: boolean,
-  tokens: Tokens[]
+  tokens: Tokens[],
+  chainSlug: ChainSlug
 ) => {
   let tokenLimitInfo: TokenRateLimits = {};
 
   if (isLimitsRequired) {
     for (let token of tokens) {
+      // Get default values for sending and receiving limits
+      const provider = getProviderFromChainSlug(chainSlug);
+      const tokenAddress = ExistingTokenAddresses[chainSlug][token];
+      const tokenContract = new Contract(
+        tokenAddress,
+        ERC20__factory.abi,
+        provider
+      );
+      const tokenDecimals = await tokenContract.decimals();
+      const totalSupply = await tokenContract.totalSupply();
+      const defaultLimit = utils.formatUnits(
+        totalSupply.div(100),
+        tokenDecimals
+      );
       let limitInfo = await prompts([
         {
           name: "sendingLimit",
           type: "text",
           message: `Enter max daily sending limit for ${token} (Enter formatted values, 100.0 for 100 USDC. Check README for more info):`,
+          initial: defaultLimit,
         },
         {
           name: "receivingLimit",
           type: "text",
           message: `Enter max daily receiving limit for ${token} (Enter formatted values, 100.0 for 100 USDC Check README for more info):`,
+          initial: defaultLimit,
         },
       ]);
 

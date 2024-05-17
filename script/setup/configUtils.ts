@@ -9,6 +9,7 @@ import {
   projectReverseMap,
 } from "./enumMaps";
 import { ProjectType } from "../../src";
+import { NewTokenInfo } from "./common";
 
 export const enumFolderPath = path.join(__dirname, `/../../src/enums/`);
 
@@ -107,13 +108,7 @@ export const updateProjectEnums = async (
   );
 };
 
-export const updateTokenEnums = async (newTokenInfo: {
-  name: string;
-  symbol: string;
-  decimals: number;
-  chainSlug: ChainSlug;
-  address: string;
-}) => {
+export const updateTokenEnums = async (newTokenInfo: NewTokenInfo) => {
   if (!newTokenInfo.name) return;
 
   let { name, symbol, decimals } = newTokenInfo;

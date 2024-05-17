@@ -11,4 +11,9 @@ export enum Tokens {
   GUARD = "GUARD",
   ETH = "ETH",
   MTK = "MTK",
+  FUD = "FUD",
+  FOMO = "FOMO",
+  ALPHA = "ALPHA",
+  KEK = "KEK",
+  GLTR = "GLTR",
 }

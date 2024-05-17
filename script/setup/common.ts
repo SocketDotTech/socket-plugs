@@ -10,15 +10,15 @@ export type ProjectConfig = {
   hookType: Hooks;
   owner: string;
   isMainnet: boolean;
-  newToken: boolean;
+  newToken?: boolean;
 };
 
 export type NewTokenInfo = {
-  name: string;
-  symbol: string;
-  decimals: number;
-  chainSlug: ChainSlug;
   address: string;
+  name?: string;
+  symbol?: string;
+  decimals?: number;
+  chainSlug?: ChainSlug;
 };
 
 type TokenRateLimits = Record<
