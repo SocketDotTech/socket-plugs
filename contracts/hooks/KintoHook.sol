@@ -23,14 +23,16 @@ interface IKintoWallet {
  *  - on dstPreHookCall, which is called when a user wants to bridge in assets into Kinto, it checks if the original sender (the one that initiated the transaction on the vault chain) is an address included in funderWhitelist of the user's KintoWallet. If not, it reverts. The original sender is passed as an encoded param through the SenderHook.
  */
 contract KintoHook is LimitHook {
+    address public constant BRIDGER_L2 =
+        0x26181Dfc530d96523350e895180b09BAf3d816a0;
     IKintoID public immutable kintoID;
     IKintoFactory public immutable kintoFactory;
 
     error InvalidSender(address sender);
     error InvalidReceiver(address sender);
     error KYCRequired();
-    error ReceiverNotAllowed( address receiver);
-    error SenderNotAllowed( address sender);
+    error ReceiverNotAllowed(address receiver);
+    error SenderNotAllowed(address sender);
 
     /**
      * @notice Constructor for creating a Kinto Hook
@@ -59,13 +61,15 @@ contract KintoHook is LimitHook {
         override
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
-    {   
+    {
         address sender = params_.msgSender;
         if (kintoFactory.walletTs(sender) == 0) revert InvalidSender(sender);
-        if (!kintoID.isKYC(IKintoWallet(sender).owners(0))) revert KYCRequired();
+        if (!kintoID.isKYC(IKintoWallet(sender).owners(0)))
+            revert KYCRequired();
 
         address receiver = params_.transferInfo.receiver;
-        if (!IKintoWallet(sender).isFunderWhitelisted(receiver)) revert ReceiverNotAllowed(receiver);
+        if (!IKintoWallet(sender).isFunderWhitelisted(receiver))
+            revert ReceiverNotAllowed(receiver);
 
         return super.srcPreHookCall(params_);
     }
@@ -87,12 +91,14 @@ contract KintoHook is LimitHook {
         address receiver = params_.transferInfo.receiver;
         address msgSender = abi.decode(params_.transferInfo.data, (address));
 
-        // save the sender in the cache for the post-retry hook
-        postHookData = params_.transferInfo.data;
-
-        if (kintoFactory.walletTs(receiver) == 0) revert InvalidReceiver(receiver);
-        if (!kintoID.isKYC(IKintoWallet(receiver).owners(0))) revert KYCRequired();
-        if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender)) revert SenderNotAllowed(msgSender);
+        if (msgSender != BRIDGER_L2) {
+            if (kintoFactory.walletTs(receiver) == 0)
+                revert InvalidReceiver(receiver);
+            if (!kintoID.isKYC(IKintoWallet(receiver).owners(0)))
+                revert KYCRequired();
+            if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender))
+                revert SenderNotAllowed(msgSender);
+        }
 
         return super.dstPreHookCall(params_);
     }
@@ -101,32 +107,5 @@ contract KintoHook is LimitHook {
         DstPostHookCallParams memory params_
     ) public override isVaultOrController returns (CacheData memory cacheData) {
         return super.dstPostHookCall(params_);
-    }
-
-    function preRetryHook(
-        PreRetryHookCallParams memory params_
-    )
-        public
-        override
-        // nonReentrant (modifier already included in LimitHook.sol)
-        isVaultOrController
-        returns (
-            bytes memory postRetryHookData,
-            TransferInfo memory transferInfo
-        )
-    {
-        return super.preRetryHook(params_);
-    }
-
-    function postRetryHook(
-        PostRetryHookCallParams calldata params_
-    )
-        public
-        override
-        isVaultOrController
-        // nonReentrant (modifier already included in LimitHook.sol)
-        returns (CacheData memory cacheData)
-    {
-        return super.postRetryHook(params_);
     }
 }

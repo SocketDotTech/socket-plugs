@@ -56,21 +56,26 @@ contract TestKintoHook is Test {
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     function setUp() external {
-        
         uint256 kintoFork = vm.createSelectFork("kinto_devnet");
 
         vm.startPrank(_admin);
 
         _socket = address(uint160(_c++));
         controller__ = address(uint160(_c++));
-        kintoId__ = 0x4cA8415fda5Bd4EC9350Ede22eb8071f9970C7f2;
-        kintoFactory__ = 0xc16fBF31C98B15117208956D045B45153f1C9949;
-        kintoWallet__ = 0x96c83CA216Dbb29e1dB4C9122691D4610AF53f18;
+        kintoId__ = 0xCa41d9C3f13a8096356E6fddf0a29C51A938c410;
+        kintoFactory__ = 0xB8818F4c0CE119AC274f217e9C11506DCf1bBb70;
+        kintoWallet__ = 0xb0609586C6bD45A1e941b1b784F18d77221d8835;
         kintoWalletSigner__ = 0x1dBDF0936dF26Ba3D7e4bAA6297da9FE2d2428c2;
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
-        kintoHook__ = new KintoHook(_admin, controller__, false, kintoId__, kintoFactory__);
+        kintoHook__ = new KintoHook(
+            _admin,
+            controller__,
+            false,
+            kintoId__,
+            kintoFactory__
+        );
         _token = new MintableToken("Moon", "MOON", 18);
         _token.mint(_admin, _initialSupply);
         _token.mint(_raju, _rajuInitialBal);
@@ -518,6 +523,25 @@ contract TestKintoHook is Test {
 
         vm.prank(kintoWallet__);
         KintoWallet(kintoWallet__).setFunderWhitelist(whitelist, flags);
+
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
+    }
+
+    function testdstPreHookCallCallSenderIsBridgerL2() external {
+        _setLimits();
+        uint256 depositAmount = 2 ether;
+        address sender = kintoHook__.BRIDGER_L2(); // original sender from vault chain
+        address receiver = kintoWallet__;
 
         vm.startPrank(controller__);
         (
