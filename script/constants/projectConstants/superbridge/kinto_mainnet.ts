@@ -9,7 +9,7 @@ import { Tokens } from "../../../../src/enums";
 export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.DAI]: {
-      vaultChains: [ChainSlug.BASE],
+      vaultChains: [ChainSlug.ARBITRUM, ChainSlug.BASE],
       controllerChains: [ChainSlug.KINTO],
       hook: {
         hookType: Hooks.KINTO_HOOK,
