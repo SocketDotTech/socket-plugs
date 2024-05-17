@@ -11,4 +11,8 @@ export enum Project {
   REYA = "reya",
   SPECTRAL_SIGNAL = "spectral-signal",
   TESTING_MAINNET = "testing_mainnet",
+  AA_MAINNET = "aa_mainnet",
+  SV_MAINNET = "sv_mainnet",
+  ADG_MAINNET = "adg_mainnet",
+  AAVEGOTCHI_MAINNET = "aavegotchi_mainnet",
 }
