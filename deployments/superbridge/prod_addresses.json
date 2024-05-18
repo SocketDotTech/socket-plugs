@@ -1732,6 +1732,19 @@
     }
   },
   "kinto_mainnet": {
+    "1": {
+      "DAI": {
+        "isAppChain": false,
+        "NonMintableToken": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "Vault": "0x12Cf431BdF7F143338cC09A0629EDcCEDCBCEcB5",
+        "SenderHook": "0x1991Fb3e5EC42A5eee9acC70fB30b0DBEF34B667",
+        "connectors": {
+          "7887": {
+            "FAST": "0xAc00056920EfF02831CAf0baF116ADf6B42D9ad1"
+          }
+        }
+      }
+    },
     "7887": {
       "DAI": {
         "isAppChain": true,
@@ -1739,6 +1752,9 @@
         "Controller": "0xaBc64E84c653e0f077c0178E4b1fAC01Bfcc20b0",
         "KintoHook": "0x2bAEae9Ad6e35A0322DB4a2B25dc01b5c8fd12F7",
         "connectors": {
+          "1": {
+            "FAST": "0xe1BE0bB38818b2cAa1B1a188496952daDe261A40"
+          },
           "8453": {
             "FAST": "0xed54b104799010A0Bb540b5b29Fe06DF7db2bE77"
           },

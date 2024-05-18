@@ -1,5 +1,45 @@
 {
+  "1": [
+    [
+      "0xAc00056920EfF02831CAf0baF116ADf6B42D9ad1",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x12Cf431BdF7F143338cC09A0629EDcCEDCBCEcB5",
+        "0x943AC2775928318653e91d350574436A1b9b16f9",
+        7887
+      ]
+    ],
+    [
+      "0x1991Fb3e5EC42A5eee9acC70fB30b0DBEF34B667",
+      "SenderHook",
+      "contracts/hooks/SenderHook.sol",
+      [
+        "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c",
+        "0x12Cf431BdF7F143338cC09A0629EDcCEDCBCEcB5",
+        false
+      ]
+    ],
+    [
+      "0x12Cf431BdF7F143338cC09A0629EDcCEDCBCEcB5",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      ]
+    ]
+  ],
   "7887": [
+    [
+      "0xe1BE0bB38818b2cAa1B1a188496952daDe261A40",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xaBc64E84c653e0f077c0178E4b1fAC01Bfcc20b0",
+        "0x3e9727470C66B1e77034590926CDe0242B5A3dCc",
+        1
+      ]
+    ],
     [
       "0x39369Ba9c8eE6E4Eec9E5CEE35176b730010eD67",
       "ConnectorPlug",
