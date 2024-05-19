@@ -1733,59 +1733,43 @@
   },
   "kinto_mainnet": {
     "1": {
-      "wstETH": {
+      "USDe": {
         "isAppChain": false,
-        "NonMintableToken": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
-        "Vault": "0xc5d01939Af7Ce9Ffc505F0bb36eFeDde7920f2dc",
-        "SenderHook": "0x05369D989D9dD9cD6537E667865Ee8157d5EE91B",
+        "NonMintableToken": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
+        "Vault": "0xdf34E61B6e7B9e348713d528fEB019d504d38c1e",
+        "SenderHook": "0x9d46297E4d0fb4D911bDE9746dBb7077d897a908",
         "connectors": {
           "7887": {
-            "FAST": "0x83C6d6597891Ad48cF5e0BA901De55120C37C6bE"
+            "FAST": "0x73E0d4953c356a5Ca3A3D172739128776B2920b5"
           }
         }
       }
     },
     "7887": {
-      "wstETH": {
+      "USDe": {
         "isAppChain": true,
-        "MintableToken": "0x057e70cCa0dC435786a50FcF440bf8FcC1eEAf17",
-        "Controller": "0xDB09c7C2C4071e3Ca1bAD0C357906Efa17c25102",
-        "KintoHook": "0x9C1484cF935B96885D24b0Bd31b530E0320F7E62",
+        "MintableToken": "0x05dE0003C333A503bea5224fCc64f0D4b5446C38",
+        "Controller": "0x4c9c64B2FAe0e13dF9A635ad699c5eFC386D1Cee",
+        "KintoHook": "0xE3D5C39988cC91F713b6ee096f21354e688c4319",
         "connectors": {
           "1": {
-            "FAST": "0xD1f50b52927763F636dc46E39A121C719d703A9b"
-          },
-          "8453": {
-            "FAST": "0x6D15fA00590315a5A89E0a999C8E1082666775bD"
+            "FAST": "0x80537413242dfA440a759E780c690EcaD734A361"
           },
           "42161": {
-            "FAST": "0x1E22A61BbE261C892304D9009ED643d2050a675b"
-          }
-        }
-      }
-    },
-    "8453": {
-      "wstETH": {
-        "isAppChain": false,
-        "NonMintableToken": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
-        "Vault": "0xE194f2B41A5dc6Be311aD7811eF391a0ac84687d",
-        "SenderHook": "0xBE32c7765E5432fEbd86043876D5a9c73b1b2Ac2",
-        "connectors": {
-          "7887": {
-            "FAST": "0xca27c3F42092dbC211296651470EF3771B8d4509"
+            "FAST": "0x308FfeB31Ef41005A9AD2b6d30bD1aA98E64F045"
           }
         }
       }
     },
     "42161": {
-      "wstETH": {
+      "USDe": {
         "isAppChain": false,
-        "NonMintableToken": "0x5979D7b546E38E414F7E9822514be443A4800529",
-        "Vault": "0x6F855dE562CC9d019757f5F68a15Cd392FF52962",
-        "SenderHook": "0xc5d01939Af7Ce9Ffc505F0bb36eFeDde7920f2dc",
+        "NonMintableToken": "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34",
+        "Vault": "0x7C852c2a3e367453Ce3a68A4D12c313BaD0565e3",
+        "SenderHook": "0x351d8894fB8bfa1b0eFF77bFD9Aab18eA2da8fDd",
         "connectors": {
           "7887": {
-            "FAST": "0x05369D989D9dD9cD6537E667865Ee8157d5EE91B"
+            "FAST": "0x70ae312d3f1c9116BF89db833DaDc060D4AD820F"
           }
         }
       }

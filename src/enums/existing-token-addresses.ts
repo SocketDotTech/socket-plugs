@@ -43,14 +43,13 @@ export const ExistingTokenAddresses: {
   [ChainSlug.BASE]: {
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-    // [Tokens.weETH]: "0xf090fb524113c17539feba39b5fd76b4b783df8b", // no liquidity
     [Tokens.USDC]: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     [Tokens.DAI]: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
     // [Tokens.sDAI]: "",
     // [Tokens.USDe]: "",
     // [Tokens.sUSDe]: "",
     [Tokens.WSTETH]: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
-    // [Tokens.weETH]: "0x04c0599ae5a44757c0af6f9ec3b93da8976c150a", // low liquidity?
+    [Tokens.weETH]: "0x04c0599ae5a44757c0af6f9ec3b93da8976c150a",
     // [Tokens.wUSDM]: "",
     // [Tokens.ENA]: "",
     // [Tokens.eETH]: "",
@@ -76,6 +75,7 @@ export const ExistingTokenAddresses: {
     // [Tokens.EIGEN]: "",
   },
   [ChainSlug.KINTO]: {
+    [Tokens.WETH]: "0x0E7000967bcB5fC76A5A89082db04ed0Bf9548d8",
     [Tokens.USDC]: "0x05DC0010C9902EcF6CBc921c6A4bd971c69E5A2E",
     [Tokens.DAI]: "0xdA100067134959575D87D11d54F2722Ba3C934aB",
     [Tokens.EIGEN]: "0xe16E00eeFCd866e8aE5a4e43bBdd6831da6391E1",
