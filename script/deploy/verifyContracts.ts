@@ -30,12 +30,26 @@ export const main = async () => {
       Number(c)
     );
 
-    if (!chains) return;
+    console.log("Chains array:", chains);
+    if (!chains) {
+      console.log("No chains found, exiting.");
+      return;
+    }
 
     for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {
+      console.log(`Verifying contracts for chain ${chains[chainIndex]}...`);
+
       const chain = chains[chainIndex];
       // hre.changeNetwork(ChainSlugToHardhatKey[chain]);
-      if (hre.network.name !== ChainSlugToHardhatKey[chain]) continue;
+      console.log(
+        `Current network: ${hre.network.name}, Expected network: ${ChainSlugToHardhatKey[chain]}`
+      );
+      if (hre.network.name !== ChainSlugToHardhatKey[chain]) {
+        console.log(
+          `Skipping verification for chain ${chain} as the network does not match.`
+        );
+        continue;
+      }
       const chainParams: VerifyArgs[] | undefined = verificationParams[chain];
       if (!chainParams) continue;
       if (chainParams.length) {
