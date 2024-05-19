@@ -1,6 +1,34 @@
 {
   "1": [
     [
+      "0x83C6d6597891Ad48cF5e0BA901De55120C37C6bE",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xc5d01939Af7Ce9Ffc505F0bb36eFeDde7920f2dc",
+        "0x943AC2775928318653e91d350574436A1b9b16f9",
+        7887
+      ]
+    ],
+    [
+      "0x05369D989D9dD9cD6537E667865Ee8157d5EE91B",
+      "SenderHook",
+      "contracts/hooks/SenderHook.sol",
+      [
+        "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c",
+        "0xc5d01939Af7Ce9Ffc505F0bb36eFeDde7920f2dc",
+        false
+      ]
+    ],
+    [
+      "0xc5d01939Af7Ce9Ffc505F0bb36eFeDde7920f2dc",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+      ]
+    ],
+    [
       "0xAc00056920EfF02831CAf0baF116ADf6B42D9ad1",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -30,6 +58,56 @@
     ]
   ],
   "7887": [
+    [
+      "0x6D15fA00590315a5A89E0a999C8E1082666775bD",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xDB09c7C2C4071e3Ca1bAD0C357906Efa17c25102",
+        "0x3e9727470C66B1e77034590926CDe0242B5A3dCc",
+        8453
+      ]
+    ],
+    [
+      "0x1E22A61BbE261C892304D9009ED643d2050a675b",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xDB09c7C2C4071e3Ca1bAD0C357906Efa17c25102",
+        "0x3e9727470C66B1e77034590926CDe0242B5A3dCc",
+        42161
+      ]
+    ],
+    [
+      "0xD1f50b52927763F636dc46E39A121C719d703A9b",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xDB09c7C2C4071e3Ca1bAD0C357906Efa17c25102",
+        "0x3e9727470C66B1e77034590926CDe0242B5A3dCc",
+        1
+      ]
+    ],
+    [
+      "0x9C1484cF935B96885D24b0Bd31b530E0320F7E62",
+      "KintoHook",
+      "contracts/hooks/KintoHook.sol",
+      [
+        "0x2e2B1c42E38f5af81771e65D87729E57ABD1337a",
+        "0xDB09c7C2C4071e3Ca1bAD0C357906Efa17c25102",
+        true,
+        "0xf369f78E3A0492CC4e96a90dae0728A38498e9c7",
+        "0x8a4720488CA32f1223ccFE5A087e250fE3BC5D75"
+      ]
+    ],
+    [
+      "0xDB09c7C2C4071e3Ca1bAD0C357906Efa17c25102",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      [
+        "0x057e70cCa0dC435786a50FcF440bf8FcC1eEAf17"
+      ]
+    ],
     [
       "0xe1BE0bB38818b2cAa1B1a188496952daDe261A40",
       "ConnectorPlug",
@@ -83,6 +161,34 @@
   ],
   "8453": [
     [
+      "0xca27c3F42092dbC211296651470EF3771B8d4509",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xE194f2B41A5dc6Be311aD7811eF391a0ac84687d",
+        "0x12E6e58864cE4402cF2B4B8a8E9c75eAD7280156",
+        7887
+      ]
+    ],
+    [
+      "0xBE32c7765E5432fEbd86043876D5a9c73b1b2Ac2",
+      "SenderHook",
+      "contracts/hooks/SenderHook.sol",
+      [
+        "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c",
+        "0xE194f2B41A5dc6Be311aD7811eF391a0ac84687d",
+        false
+      ]
+    ],
+    [
+      "0xE194f2B41A5dc6Be311aD7811eF391a0ac84687d",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452"
+      ]
+    ],
+    [
       "0xe35A32f61C6AA3110Fc72251499B89D51F221C09",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -130,6 +236,52 @@
     ]
   ],
   "42161": [
+    [
+      "0x05369D989D9dD9cD6537E667865Ee8157d5EE91B",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x6F855dE562CC9d019757f5F68a15Cd392FF52962",
+        "0x37cc674582049b579571E2fFd890a4d99355f6Ba",
+        7887
+      ]
+    ],
+    [
+      "0xc5d01939Af7Ce9Ffc505F0bb36eFeDde7920f2dc",
+      "SenderHook",
+      "contracts/hooks/SenderHook.sol",
+      [
+        "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c",
+        "0x6F855dE562CC9d019757f5F68a15Cd392FF52962",
+        false
+      ]
+    ],
+    [
+      "0x6F855dE562CC9d019757f5F68a15Cd392FF52962",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0x5979D7b546E38E414F7E9822514be443A4800529"
+      ]
+    ],
+    [
+      "0xb996d075dA55D96734D76A8D55B0b6830DE93492",
+      "SenderHook",
+      "contracts/hooks/SenderHook.sol",
+      [
+        "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c",
+        "0x93D4B54fC4250A1fB3883FbD26E7280571D28bFD",
+        false
+      ]
+    ],
+    [
+      "0x93D4B54fC4250A1fB3883FbD26E7280571D28bFD",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0x5979D7b546E38E414F7E9822514be443A4800529"
+      ]
+    ],
     [
       "0x4b7945796aFe4d2fCe6D271bF7773b5163E1bcC1",
       "ConnectorPlug",
