@@ -210,21 +210,28 @@ export const checkAndGrantRole = async (
   roleHash: string = "",
   userAddress: string
 ) => {
-  let hasRole = await contract.hasRole(roleHash, userAddress);
-  if (!hasRole) {
+  try {
+    let hasRole = await contract.hasRole(roleHash, userAddress);
+    if (!hasRole) {
+      console.log(
+        `Adding ${roleName} role to signer`,
+        userAddress,
+        " for contract: ",
+        contract.address,
+        " on chain : ",
+        chain
+      );
+      await execute(contract, "grantRole", [roleHash, userAddress], chain);
+    } else {
+      console.log(
+        `✔ ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
+        chain
+      );
+    }
+  } catch (error) {
     console.log(
-      `Adding ${roleName} role to signer`,
-      userAddress,
-      " for contract: ",
-      contract.address,
-      " on chain : ",
-      chain
-    );
-    await execute(contract, "grantRole", [roleHash, userAddress], chain);
-  } else {
-    console.log(
-      `✔ ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
-      chain
+      "Error, while granting role. You might be using an already Deployed contract, please ask the owner to grant the role.",
+      error
     );
   }
 };
