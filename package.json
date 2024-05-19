@@ -48,15 +48,15 @@
     "test": "forge test",
     "setup:dependencies": "yarn && yarn add @socket.tech/dl-core",
     "script:setup": "yarn setup:dependencies && npx ts-node script/setup.ts",
-    "script:deploy": "yarn setup:dependencies && npx hardhat run script/deploy.ts",
-    "script:verify": "yarn setup:dependencies && npx hardhat run script/deploy/verifyContracts.ts"
+    "script:deploy": "npx hardhat run script/deploy.ts",
+    "script:verify": "npx hardhat run script/deploy/verifyContracts.ts"
   },
   "pre-commit": [
     "lint",
     "compile"
   ],
   "dependencies": {
-    "@socket.tech/dl-core": "^2.6.0",
+    "@socket.tech/dl-core": "^2.7.0",
     "lodash": "^4.17.21",
     "prompts": "^2.4.2"
   }
