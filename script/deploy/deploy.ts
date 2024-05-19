@@ -78,45 +78,44 @@ export const deploy = async () => {
     ];
     const hookType = pc[token].hook.hookType;
     console.log(`Touching the following chains: ${allChains}`);
-    await Promise.all(
-      allChains.map(async (chain: ChainSlug) => {
-        let allDeployed = false;
-        const signer = getSignerFromChainSlug(chain);
+    for (let chain of allChains) {
+      console.log(`\nDeploying contracts for ${chain}...`);
+      let allDeployed = false;
+      const signer = getSignerFromChainSlug(chain);
 
-        let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
-          chain
-        ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
+      let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
+        chain
+      ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
 
-        let siblings: ChainSlug[] = [],
-          isAppchain: boolean = false;
-        if (projectType == ProjectType.SUPERBRIDGE) {
-          isAppchain = isSBAppChain(chain, token);
-          siblings = isAppchain
-            ? pc[token].vaultChains
-            : [pc[token].controllerChains[0]];
-        } else if (projectType == ProjectType.SUPERTOKEN)
-          siblings = allChains.filter((c) => c !== chain);
+      let siblings: ChainSlug[] = [],
+        isAppchain: boolean = false;
+      if (projectType == ProjectType.SUPERBRIDGE) {
+        isAppchain = isSBAppChain(chain, token);
+        siblings = isAppchain
+          ? pc[token].vaultChains
+          : [pc[token].controllerChains[0]];
+      } else if (projectType == ProjectType.SUPERTOKEN)
+        siblings = allChains.filter((c) => c !== chain);
 
-        // console.log({ siblings, hook });
-        while (!allDeployed) {
-          const results: ReturnObj = await deployChainContracts(
-            isAppchain,
-            pc[token].vaultChains.includes(chain),
-            signer,
-            chain,
-            token,
-            siblings,
-            hookType,
-            chainAddresses
-          );
+      // console.log({ siblings, hook });
+      while (!allDeployed) {
+        const results: ReturnObj = await deployChainContracts(
+          isAppchain,
+          pc[token].vaultChains.includes(chain),
+          signer,
+          chain,
+          token,
+          siblings,
+          hookType,
+          chainAddresses
+        );
 
-          allDeployed = results.allDeployed;
-          chainAddresses = results.deployedAddresses;
-          if (!allAddresses[chain]) allAddresses[chain] = {};
-          allAddresses[chain]![token] = chainAddresses;
-        }
-      })
-    );
+        allDeployed = results.allDeployed;
+        chainAddresses = results.deployedAddresses;
+        if (!allAddresses[chain]) allAddresses[chain] = {};
+        allAddresses[chain]![token] = chainAddresses;
+      }
+    }
   }
   await storeAllAddresses(projectName as Project, allAddresses);
   return allAddresses;
@@ -333,6 +332,7 @@ const deployVaultChainContracts = async (
       [nonMintableToken],
       deployParams
     );
+
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
 
     deployParams = await deployHookContracts(false, deployParams);
