@@ -50,6 +50,7 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     [Tokens.MTK]: "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
+    [Tokens.STIME]: "0x17AfF554423D2C40A1BBF51b443E9d43dd8AE1eb",
   },
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     [Tokens.USDC]: "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",

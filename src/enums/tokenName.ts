@@ -18,4 +18,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.ALPHA]: "Aavegotchi ALPHA",
   [Tokens.KEK]: "Aavegotchi KEK",
   [Tokens.GLTR]: "GAX Liquidity Token Reward",
+  [Tokens.STIME]: "SuperTimeToken",
 };

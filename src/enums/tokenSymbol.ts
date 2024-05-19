@@ -18,4 +18,5 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.ALPHA]: "ALPHA",
   [Tokens.KEK]: "KEK",
   [Tokens.GLTR]: "GLTR",
+  [Tokens.STIME]: "STIME",
 };

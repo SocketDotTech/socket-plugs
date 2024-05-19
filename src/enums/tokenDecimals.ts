@@ -18,4 +18,5 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.ALPHA]: 18,
   [Tokens.KEK]: 18,
   [Tokens.GLTR]: 18,
+  [Tokens.STIME]: 18,
 };

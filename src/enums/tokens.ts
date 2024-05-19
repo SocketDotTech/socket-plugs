@@ -16,4 +16,5 @@ export enum Tokens {
   ALPHA = "ALPHA",
   KEK = "KEK",
   GLTR = "GLTR",
+  STIME = "STIME",
 }
