@@ -28,6 +28,9 @@ export const pc: ProjectConstants = {
           },
         },
       },
+      superTokenInfo: {
+        address: "0x403E967b044d4Be25170310157cB1A4Bf10bdD0f",
+      },
     },
     [Tokens.FOMO]: {
       vaultChains: [ChainSlug.POLYGON_MAINNET],
