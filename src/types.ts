@@ -26,14 +26,25 @@ export type TokenConstants = {
   // for superbridge project, controller chains
   isFiatTokenV2_1?: boolean;
   // for supertoken project, controller chain
-  superTokenInfo?: {
-    name: string;
-    symbol: string;
-    decimals: number;
-    initialSupplyOwner: string;
-    owner: string;
-    initialSupply: number;
-  };
+  superTokenInfo?:
+    | {
+        address: string;
+        name?: never;
+        symbol?: never;
+        decimals?: never;
+        initialSupplyOwner?: never;
+        owner?: never;
+        initialSupply?: never;
+      }
+    | {
+        address?: never;
+        name: string;
+        symbol: string;
+        decimals: number;
+        initialSupplyOwner: string;
+        owner: string;
+        initialSupply: number;
+      };
   // for superbridge yield project, controller chain
   yieldTokenInfo?: {
     name: string;
