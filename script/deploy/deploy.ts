@@ -1,6 +1,9 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
+import { EventEmitter } from "events";
+EventEmitter.defaultMaxListeners = 20;
+
 import { Contract, Wallet } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import {
@@ -61,6 +64,7 @@ export const deploy = async () => {
 
   for (let token of tokens) {
     console.log(`Deploying contracts for ${token}...`);
+
     pc[token] = getTokenConstants(token);
     let addresses: SBAddresses | STAddresses;
     try {
@@ -73,6 +77,7 @@ export const deploy = async () => {
       ...pc[token].vaultChains,
     ];
     const hookType = pc[token].hook.hookType;
+    console.log(`Touching the following chains: ${allChains}`);
     await Promise.all(
       allChains.map(async (chain: ChainSlug) => {
         let allDeployed = false;
@@ -247,6 +252,7 @@ const deployControllerChainContracts = async (
 
     if (isSuperToken()) {
       deployParams = await deploySuperToken(deployParams);
+
       let token = deployParams.addresses[TokenContracts.SuperToken];
       if (token) mintableToken = token;
       else throw new Error("SuperToken not found on chain");
@@ -350,15 +356,22 @@ const deploySuperToken = async (deployParams: DeployParams) => {
   let path = `contracts/token/${contractName}.sol`;
   let superTokenInfo = pc[deployParams.currentToken].superTokenInfo;
   if (!superTokenInfo) throw new Error("SuperToken info not found!");
-  let { name, symbol, decimals, initialSupply, initialSupplyOwner, owner } =
-    superTokenInfo;
 
-  const superTokenContract: Contract = await getOrDeploy(
-    contractName,
-    path,
-    [name, symbol, decimals, initialSupplyOwner, owner, initialSupply],
-    deployParams
-  );
-  deployParams.addresses[contractName] = superTokenContract.address;
+  if ("address" in superTokenInfo) {
+    console.log(
+      `Using already deployed token at address: ${superTokenInfo.address}`
+    );
+    deployParams.addresses[contractName] = superTokenInfo.address;
+  } else {
+    let { name, symbol, decimals, initialSupply, initialSupplyOwner, owner } =
+      superTokenInfo;
+    const superTokenContract: Contract = await getOrDeploy(
+      contractName,
+      path,
+      [name, symbol, decimals, initialSupplyOwner, owner, initialSupply],
+      deployParams
+    );
+    deployParams.addresses[contractName] = superTokenContract.address;
+  }
   return deployParams;
 };
