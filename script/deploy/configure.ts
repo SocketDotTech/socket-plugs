@@ -112,7 +112,11 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             `-   Checking limits and pool ids for chain ${chain}, siblings ${siblingSlugs}`
           );
 
-          if (isSuperToken() && addr[TokenContracts.SuperToken]) {
+          if (
+            isSuperToken() &&
+            addr[TokenContracts.SuperToken] &&
+            !pc[token].superTokenInfo.address
+          ) {
             let superTokenContract = await getInstance(
               TokenContracts.SuperToken,
               addr[TokenContracts.SuperToken]
