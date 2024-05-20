@@ -131,6 +131,17 @@
           "FAST": "0xE2c2291B80BFC8Bd0e4fc8Af196Ae5fc9136aeE0"
         }
       }
+    },
+    "ETHFI": {
+      "isAppChain": false,
+      "NonMintableToken": "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
+      "Vault": "0x95d60E34aB2E626407d98dF8C240e6174e5D37E5",
+      "SenderHook": "0xd00Bdb70BfC067Ab3dB5395932B45CD9a589a7fc",
+      "connectors": {
+        "7887": {
+          "FAST": "0xdE9D8c2d465669c661672d7945D4d4f5407d22E2"
+        }
+      }
     }
   },
   "7887": {
@@ -296,6 +307,17 @@
         },
         "42161": {
           "FAST": "0xd8cB5d619eC0E2AC1DD3850974AaA75A9A480e8f"
+        }
+      }
+    },
+    "ETHFI": {
+      "isAppChain": true,
+      "MintableToken": "0xe70F10CD4bD932a28b80d48D771026a4c88E6285",
+      "Controller": "0x24f287b474a05E48627846148cCdA3D05de03953",
+      "KintoHook": "0x9A23980c5216678b9b5D881F43a6a7930FdEee16",
+      "connectors": {
+        "1": {
+          "FAST": "0xDD82eaC8654b14fFdc63Fc9852b5eBAbe132e0F3"
         }
       }
     }
