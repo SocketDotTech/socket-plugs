@@ -1,6 +1,10 @@
 import { Contract } from "ethers";
 
-import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
+import {
+  ChainSlug,
+  DeploymentMode,
+  IntegrationTypes,
+} from "@socket.tech/dl-core";
 import { overrides } from "./networks";
 import {
   getDryRun,
@@ -14,11 +18,13 @@ import path from "path";
 import { getIntegrationTypeConsts } from "./projectConstants";
 
 export let deploymentPath: string;
-export const getDeploymentPath = () => {
-  if (deploymentPath) return deploymentPath;
+export const getDeploymentPath = (type_override?: string) => {
+  if (!type_override && deploymentPath) return deploymentPath;
   deploymentPath = path.join(
     __dirname,
-    `/../../deployments/${getProjectType()}/${getMode()}_${getProjectName()}_addresses.json`
+    `/../../deployments/${
+      type_override ?? getProjectType()
+    }/${getMode()}_${getProjectName()}_addresses.json`
   );
   return deploymentPath;
 };

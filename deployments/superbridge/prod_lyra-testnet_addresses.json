@@ -80,10 +80,14 @@
       "ExecutionHelper": "0x09F4834dAb86146693963D9BC3283076FA876221",
       "LimitExecutionHook": "0x5C225F44A53A98dcF1BFdF545444abdEF6b08054",
       "connectors": {
+        "421614": {
+          "FAST": "0x486C887352E9AfE3d81D6643C65c1cf68A781B18"
+        },
         "11155420": {
           "FAST": "0xfe1cF1B6d7b1F96a90258FAd2dD3CD4a2770F604"
         }
-      }
+      },
+      "LyraTSADepositHook": "0xe0FbdedB6916Ac9CC95616A21eADE5BF62D86e00"
     },
     "weETH": {
       "isAppChain": true,
@@ -91,6 +95,9 @@
       "Controller": "0xbEc0B31bbfA62364EBF6e27454978E33c5d9F4eE",
       "LyraTSADepositHook": "0x35af65cfc1d3f583fb936c2a6f94875a82a18e74",
       "connectors": {
+        "421614": {
+          "FAST": "0xD90CDCdf2DA81223AA2C088A81716f9EE7DFAe88"
+        },
         "11155420": {
           "FAST": "0x8FF3f8bc7884fe59425F090d5ec6A570472DfF88"
         }
@@ -115,6 +122,28 @@
       "connectors": {
         "901": {
           "FAST": "0x602029526b76C5116957aa360472B1141314AB7f"
+        }
+      }
+    },
+    "weETH": {
+      "isAppChain": false,
+      "NonMintableToken": "0xE0AcE05Ded5f3653aB0caAAf19E458DAb2E824F2",
+      "Vault": "0x236D36C52bC56a37d9094B424A1420BE21f6392c",
+      "LyraTSADepositHook": "0x5eccd7500D3Dc844E0a3c4e50aA31A313460e5a0",
+      "connectors": {
+        "901": {
+          "FAST": "0x9485b9d142E805B86F5B9224D1aCA0acFe6bdd58"
+        }
+      }
+    },
+    "rswETH": {
+      "isAppChain": false,
+      "NonMintableToken": "0xadfe82e1fc0f59d87bc69be637b947758505a614",
+      "Vault": "0x47BB0e22F015BFc25138EfaF4261AB5CA4a887d6",
+      "LyraTSADepositHook": "0x61068673DF4E05f630948806C2F67B5625156661",
+      "connectors": {
+        "901": {
+          "FAST": "0x7b4c44F13bd5d8F234DA1A0Af71e75FdB77b2C6E"
         }
       }
     }
@@ -240,7 +269,8 @@
         "901": {
           "FAST": "0xCa80293391423d8B81850Ff051BAd3FcE936EbB7"
         }
-      }
+      },
+      "LyraTSADepositHook": "0xC12ac2A9c4c41b64177725Ad7F36ae7F19265075"
     }
   }
 }

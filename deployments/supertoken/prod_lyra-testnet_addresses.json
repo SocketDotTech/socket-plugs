@@ -7,6 +7,19 @@
       "connectors": {
         "421614": {
           "FAST": "0x5f675ab715BB9D712e4628E74c8e11B46867aCe3"
+        },
+        "11155420": {
+          "FAST": "0x7378E8C016d1A512B976CE8Ab885C281b59a521A"
+        }
+      }
+    },
+    "rswETHC": {
+      "NonMintableToken": "0x797Db58F4c6611253e92B9a3260E3Cc9C69430a5",
+      "Vault": "0x6481400fb34eea4692E411229d37ceB6a2af63B2",
+      "LyraTSAWithdrawHook": "0xf8293987850950Becb8e73163623693D5e484FD6",
+      "connectors": {
+        "421614": {
+          "FAST": "0x993eF5d9E4341AE0437a8F02dcA614687123acAB"
         }
       }
     }
@@ -19,6 +32,35 @@
       "connectors": {
         "901": {
           "FAST": "0xbf89A191a7F3678Baaa44064632835E08A0657cA"
+        },
+        "11155420": {
+          "FAST": "0xCa80293391423d8B81850Ff051BAd3FcE936EbB7"
+        }
+      },
+      "LyraTSAWithdrawHook": "0x61138F2620D7c5f3F0F41fdF28B5012D4FF8e95b"
+    },
+    "rswETHC": {
+      "SuperToken": "0x8faC67324Ad5f24419C37192D586FE1E5293D83a",
+      "Controller": "0x3E0906a5c68681C1EDc81e492f9F0Ff30C460F6b",
+      "LyraTSAWithdrawHook": "0x76eef7cb3DAab7b23fB818E3D82997f38aa1A620",
+      "connectors": {
+        "901": {
+          "FAST": "0x5De869E775B9c033F6AcD2bA287522347c6E9eeD"
+        }
+      }
+    }
+  },
+  "11155420": {
+    "weETHC": {
+      "SuperToken": "0xb09B085D0cb6E920670dABd81fBd060CD572bC40",
+      "Controller": "0x21DaBaa157f2b43606f528098C922d66898C5645",
+      "LyraTSAWithdrawHook": "0x8c2F91dc9cD2eecED1cfA47598CC309CEea2DC47",
+      "connectors": {
+        "901": {
+          "FAST": "0x36d8bD1886cA09F476E6f15a15D1917FEB032CEB"
+        },
+        "421614": {
+          "FAST": "0x236661F82f6EAE94d86152E23b07Dd3B08665abd"
         }
       }
     }

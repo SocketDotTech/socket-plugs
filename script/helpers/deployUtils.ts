@@ -8,6 +8,7 @@ import {
   ChainSlug,
   IntegrationTypes,
   getAddresses,
+  DeploymentMode,
 } from "@socket.tech/dl-core";
 import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
@@ -206,17 +207,19 @@ export const storeAllAddresses = async (addresses: SBAddresses) => {
 };
 
 let addresses: SBAddresses | STAddresses;
-export const getAllAddresses = (): SBAddresses | STAddresses => {
-  if (addresses) return addresses;
-  addresses = readJSONFile(getDeploymentPath());
+export const getAllAddresses = (
+  type_override?: string
+): SBAddresses | STAddresses => {
+  if (!type_override && addresses) return addresses;
+  addresses = readJSONFile(getDeploymentPath(type_override));
   return addresses;
 };
 
 export const getSuperBridgeAddresses = (): SBAddresses => {
-  return getAllAddresses() as SBAddresses;
+  return getAllAddresses("superbridge") as SBAddresses;
 };
 export const getSuperTokenAddresses = (): STAddresses => {
-  return getAllAddresses() as STAddresses;
+  return getAllAddresses("supertoken") as STAddresses;
 };
 
 export const storeVerificationParams = async (

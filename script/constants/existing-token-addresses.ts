@@ -48,6 +48,9 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0x9a573B27D7298c6E2f4d2D4a41c37A0C8AF6accA",
     [Tokens.WETH]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
     [Tokens.WBTC]: "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
+    // Dummy tokens
+    [Tokens.WEETH]: "0xE0AcE05Ded5f3653aB0caAAf19E458DAb2E824F2",
+    [Tokens.RSWETH]: "0xadfe82e1fc0f59d87bc69be637b947758505a614",
   },
   [ChainSlug.SEPOLIA]: {
     [Tokens.USDC]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
