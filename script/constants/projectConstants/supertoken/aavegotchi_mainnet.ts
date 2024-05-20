@@ -29,7 +29,7 @@ export const pc: ProjectConstants = {
         },
       },
       superTokenInfo: {
-        address: "0x403E967b044d4Be25170310157cB1A4Bf10bdD0f",
+        address: "0x4595Ea2d4d76e067D6701552b8A66743f048A38b",
       },
     },
     [Tokens.FOMO]: {
@@ -52,6 +52,9 @@ export const pc: ProjectConstants = {
           },
         },
       },
+      superTokenInfo: {
+        address: "0xB501045c286E2e499D761106Da367B7b9D72De9e",
+      },
     },
     [Tokens.ALPHA]: {
       vaultChains: [ChainSlug.POLYGON_MAINNET],
@@ -72,6 +75,9 @@ export const pc: ProjectConstants = {
             },
           },
         },
+      },
+      superTokenInfo: {
+        address: "0x73e49fa294e6198400cA693a856816E23D0968Ee",
       },
     },
     [Tokens.KEK]: {
@@ -94,6 +100,9 @@ export const pc: ProjectConstants = {
           },
         },
       },
+      superTokenInfo: {
+        address: "0x59c98408F27517937D2065d61862eBF129B07FD9",
+      },
     },
     [Tokens.GLTR]: {
       vaultChains: [ChainSlug.POLYGON_MAINNET],
@@ -114,6 +123,9 @@ export const pc: ProjectConstants = {
             },
           },
         },
+      },
+      superTokenInfo: {
+        address: "0x2D400eB3beee681471F59da5B1a0d61A18Dee743",
       },
     },
   },

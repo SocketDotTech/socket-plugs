@@ -1782,5 +1782,31 @@
         }
       }
     }
+  },
+  "aavegotchi_mainnet": {
+    "137": {
+      "GLTR": {
+        "NonMintableToken": "0x3801C3B3B5c98F88a9c9005966AA96aa440B9Afc",
+        "Vault": "0x8B2D15F61B99De5Fd53dfCFFf8AF995f17f9536d",
+        "LimitHook": "0x3e12C3593A0fAc10a56A4e7857fdfaB22b76A678",
+        "connectors": {
+          "8453": {
+            "FAST": "0x4B10af24DbcfFA13208Ccaa9E0FB17bb547a20bd"
+          }
+        }
+      }
+    },
+    "8453": {
+      "GLTR": {
+        "SuperToken": "0x2D400eB3beee681471F59da5B1a0d61A18Dee743",
+        "Controller": "0x8B2D15F61B99De5Fd53dfCFFf8AF995f17f9536d",
+        "LimitHook": "0x3e12C3593A0fAc10a56A4e7857fdfaB22b76A678",
+        "connectors": {
+          "137": {
+            "FAST": "0x4B10af24DbcfFA13208Ccaa9E0FB17bb547a20bd"
+          }
+        }
+      }
+    }
   }
 }
