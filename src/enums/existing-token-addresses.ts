@@ -21,6 +21,7 @@ export const ExistingTokenAddresses: {
     [Tokens.ENA]: "0x57e114B691Db790C35207b2e685D4A43181e6061",
     [Tokens.eETH]: "0x35fA164735182de50811E8e2E824cFb9B6118ac2",
     [Tokens.EIGEN]: "0xec53bF9167f50cDEB3Ae105f56099aaaB9061F83",
+    [Tokens.ETHFI]: "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
   },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDCE]: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
@@ -39,6 +40,7 @@ export const ExistingTokenAddresses: {
     // [Tokens.ENA]: "",
     // [Tokens.eETH]: "",
     // [Tokens.EIGEN]: "",
+    // [Tokens.ETHFI]: "0x07d65c18cecba423298c0aeb5d2beded4dfd5736", no liquidity
   },
   [ChainSlug.BASE]: {
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
@@ -87,6 +89,7 @@ export const ExistingTokenAddresses: {
     [Tokens.ENA]: "0xE040001C257237839a69E9683349C173297876F0",
     [Tokens.eETH]: "0xee70005Ec41738eA7ED2B97D7d56ac829F1E99e6",
     [Tokens.EIGEN]: "0xe16E00eeFCd866e8aE5a4e43bBdd6831da6391E1",
+    [Tokens.ETHFI]: "0xe70F10CD4bD932a28b80d48D771026a4c88E6285",
   },
   [ChainSlug.POLYGON_MAINNET]: {
     [Tokens.USDCE]: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",

@@ -223,17 +223,17 @@ export const checkAndGrantRole = async (
   let hasRole = await contract.hasRole(roleHash, userAddress);
   if (!hasRole) {
     console.log(
-      `Adding ${roleName} role to signer`,
+      `-   Adding ${roleName} role to signer`,
       userAddress,
       " for contract: ",
       contract.address,
-      " on chain : ",
+      " on chain: ",
       chain
     );
     await execute(contract, "grantRole", [roleHash, userAddress], chain);
   } else {
     console.log(
-      `✔ ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
+      `✔   ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
       chain
     );
   }
@@ -267,11 +267,12 @@ export const updateLimitsAndPoolId = async (
       let sendingParams = await hookContract.getSendingLimitParams(
         itConnectorAddress
       );
-
       // console.log({ sendingParams });
+
       let receivingParams = await hookContract.getReceivingLimitParams(
         itConnectorAddress
       );
+      // console.log({ receivingParams })
 
       // mint/lock/deposit limits
       const sendingLimit = getLimitBN(it, chain, token, true);

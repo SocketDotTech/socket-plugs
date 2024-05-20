@@ -10,6 +10,5 @@ export enum Project {
   REYA_CRONOS = "reya-cronos",
   REYA = "reya",
   SPECTRAL_SIGNAL = "spectral-signal",
-  KINTO = "kinto",
   KINTO_MAINNET = "kinto_mainnet",
 }

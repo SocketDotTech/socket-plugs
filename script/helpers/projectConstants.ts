@@ -69,7 +69,7 @@ export const getRateBN = (
     isSending ? "sendingRatePerSecond" : "receivingRatePerSecond"
   ];
   if (!rate || rate == "") {
-    return limitBN.div(86400);
+    return limitBN.div(1);
   } else {
     return utils.parseUnits(rate, tokenDecimals[token]);
   }

@@ -20,4 +20,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.sUSDe]: "Staked USDe",
   [Tokens.wUSDM]: "Wrapped Mountain Protocol USD",
   [Tokens.weETH]: "Wrapped eETH",
+  [Tokens.ETHFI]: "ether.fi governance token",
 };

@@ -20,4 +20,5 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.sUSDe]: 18,
   [Tokens.wUSDM]: 18,
   [Tokens.weETH]: 18,
+  [Tokens.ETHFI]: 18,
 };

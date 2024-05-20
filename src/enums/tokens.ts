@@ -18,4 +18,5 @@ export enum Tokens {
   sUSDe = "sUSDe",
   wUSDM = "wUSDM",
   weETH = "weETH",
+  ETHFI = "ETHFI",
 }
