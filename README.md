@@ -26,10 +26,15 @@ forge test
 
 ### Deployment
 
+Please go through the guide below to understand project terms before running the scripts.
+
 - update the @socket.tech/dl-core package to latest version - `yarn add @socket.tech/dl-core`
 - run setup config script and provide project information - `npx ts-node script/setup.ts`.
+  - **Note:** this scripts updates your .env to add relevant env variables. If you have anything sensitive/important in .env file, please take a backup first.
 - add necessary variables in .env (rpcs, private key)
 - run command `npx ts-node script/deploy.ts`.
+
+**Note :** based on the chain you may run into some rpc issues like `intrinsic gas too low`, etc. while running the deploy script. We store network overrides in `script/helpers/networks.ts`. You can add overrides for gasPrice, gasLimits to be used by all scripts. For example, if you are running the script for arbitrum sepolia, and it throw `intrinsic gas too low` error, try increasing gas limit for arbitrum sepolia to 5 million and retry.
 
 If want to update configuration, can check the configuration file under
 `script/constants/projectConstants/${projectType}/` folder with your project name. Can add/remove chains, update rate limits, add tokens, etc. Read the guide below before making any changes.
@@ -52,6 +57,8 @@ If want to update configuration, can check the configuration file under
   - **LIMIT_HOOK** - This hook enforces daily send and receive limits for a token. It makes sure that in case of a hack, the flow of funds is rate limited. It also checks before withdrawal whether the destination chain have enough funds for successful bridging, and reverts on source chain to avoid bad UX of stuck funds. This is the recommended hook. With this hook, we need to specify sending and receving limit for each token and each supported chain.
 
   - **LIMIT_EXECUTION_HOOK** - This hook extends the capability of LIMIT_HOOK and allows for arbitrary payload execution on destination after bridge is successful.
+
+  You can also write your own custom hooks and plug them into the bridge contracts.
 
 - **Rate Limits** - You can specify per token daily sending and receiving limits.
 

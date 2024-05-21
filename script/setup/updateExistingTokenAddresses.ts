@@ -4,15 +4,21 @@ import { enumFolderPath, serializeConstants } from "./configUtils";
 import { Tokens } from "../../src/enums";
 import { ExistingTokenAddresses } from "../../src/enums";
 
+export type TokenAddressObj = {
+  chainSlug: ChainSlug;
+  token: Tokens | string;
+  address: string;
+};
 export const generateTokenAddressesFile = (
-  chainSlug: ChainSlug,
-  token: Tokens,
-  tokenAddress: string,
+  tokenAddresses: TokenAddressObj[],
   tokensEnum: object = Tokens
 ) => {
-  if (!ExistingTokenAddresses[chainSlug])
-    ExistingTokenAddresses[chainSlug] = {};
-  ExistingTokenAddresses[chainSlug][token] = tokenAddress;
+  for (const tokenAddressObj of tokenAddresses) {
+    const { chainSlug, token, address } = tokenAddressObj;
+    if (!ExistingTokenAddresses[chainSlug])
+      ExistingTokenAddresses[chainSlug] = {};
+    ExistingTokenAddresses[chainSlug][token] = address;
+  }
   const serializedContent = serializeConstants(
     ExistingTokenAddresses,
     0,

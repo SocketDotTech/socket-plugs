@@ -44,6 +44,7 @@ import { deployHookContracts } from "./deployHook";
 import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract } from "../helpers/common";
 import { Project, Tokens } from "../../src/enums";
+import { parseUnits } from "ethers/lib/utils";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
@@ -158,7 +159,7 @@ const deployChainContracts = async (
     }
 
     for (let sibling of siblings) {
-      deployUtils = await deployConnectors(isVaultChain, sibling, deployUtils);
+      deployUtils = await deployConnectors(sibling, deployUtils);
     }
     allDeployed = true;
     console.log(chainSlug, " Contracts deployed! ✔");
@@ -182,7 +183,6 @@ const deployChainContracts = async (
 };
 
 const deployConnectors = async (
-  isVaultChain: boolean,
   sibling: ChainSlug,
   deployParams: DeployParams
 ): Promise<DeployParams> => {
@@ -347,18 +347,46 @@ const deployVaultChainContracts = async (
 
 const deploySuperToken = async (deployParams: DeployParams) => {
   let contractName = SuperTokenContracts.SuperToken;
-  let path = `contracts/token/${contractName}.sol`;
-  let superTokenInfo = pc[deployParams.currentToken].superTokenInfo;
-  if (!superTokenInfo) throw new Error("SuperToken info not found!");
-  let { name, symbol, decimals, initialSupply, initialSupplyOwner, owner } =
-    superTokenInfo;
 
-  const superTokenContract: Contract = await getOrDeploy(
-    contractName,
-    path,
-    [name, symbol, decimals, initialSupplyOwner, owner, initialSupply],
-    deployParams
-  );
-  deployParams.addresses[contractName] = superTokenContract.address;
+  if (
+    ExistingTokenAddresses[deployParams.currentChainSlug]?.[
+      deployParams.currentToken
+    ]
+  ) {
+    deployParams.addresses[contractName] =
+      ExistingTokenAddresses[deployParams.currentChainSlug]?.[
+        deployParams.currentToken
+      ];
+  } else {
+    let path = `contracts/token/${contractName}.sol`;
+    let superTokenInfo = pc[deployParams.currentToken].superTokenInfo;
+    if (!superTokenInfo) throw new Error("SuperToken info not found!");
+    let {
+      name,
+      symbol,
+      decimals,
+      initialSupply,
+      initialSupplyOwner,
+      owner,
+      initialChain,
+    } = superTokenInfo;
+    const supply =
+      initialChain === deployParams.currentChainSlug ? initialSupply : "0";
+    const superTokenContract: Contract = await getOrDeploy(
+      contractName,
+      path,
+      [
+        name,
+        symbol,
+        decimals,
+        initialSupplyOwner,
+        owner,
+        parseUnits(supply, decimals),
+      ],
+      deployParams
+    );
+    deployParams.addresses[contractName] = superTokenContract.address;
+  }
+
   return deployParams;
 };

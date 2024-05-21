@@ -40,16 +40,6 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
   },
-  [ChainSlug.POLYGON_MAINNET]: {
-    [Tokens.USDC]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-    [Tokens.USDCE]: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
-  },
-  [ChainSlug.BASE]: {
-    [Tokens.USDC]: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-    [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
-    [Tokens.WSTETH]: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
-  },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDC]: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
     [Tokens.USDCE]: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",

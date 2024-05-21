@@ -1,6 +1,10 @@
 import { Contract, utils } from "ethers";
 import prompts from "prompts";
-import { buildEnvFile, updateProjectEnums } from "./configUtils";
+import {
+  buildEnvFile,
+  updateProjectEnums,
+  updateTokenEnums,
+} from "./configUtils";
 import { Hooks, ProjectConstants, ProjectType } from "../../src";
 import {
   ChainSlug,
@@ -10,36 +14,61 @@ import {
   MainnetIds,
   TestnetIds,
 } from "@socket.tech/dl-core";
-import { Tokens } from "../../src/enums";
+import { ExistingTokenAddresses, Tokens } from "../../src/enums";
 import { generateConstantsFile } from "./generateConstants";
 import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
 import {
   ProjectConfig,
-  getTokenMetadata,
+  initialLimitsForSuperbridge,
+  validateEmptyValue,
   validateEthereumAddress,
 } from "./common";
 import { chainSlugReverseMap } from "./enumMaps";
-import { getProviderFromChainSlug } from "../helpers";
 
 type TokenRateLimits = Record<
   string,
   { sendingLimit: number; receivingLimit: number }
 >;
 
+type SuperTokenInfo = {
+  name: string;
+  symbol: string;
+  decimals: number;
+  owner: string;
+  initialSupplyOwner: string;
+  initialSupply: string;
+  initialChain?: ChainSlug;
+  currentAddresses?: { chainSlug: ChainSlug; address: string; token: string }[];
+};
+
+let tokenEnum = Tokens;
+
 export const addProject = async () => {
   const projectConfig = await getProjectInfo();
-  let { projectName, projectType, hookType, isLimitsRequired, chainOptions } =
-    projectConfig;
+  let {
+    projectName,
+    projectType,
+    hookType,
+    owner,
+    isLimitsRequired,
+    chainOptions,
+  } = projectConfig;
 
   let chainsInfo = await getChainsInfo(projectType, chainOptions);
-
+  let { vaultChains, controllerChains } = chainsInfo;
   const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
   await updateProjectEnums(projectConfig.projectName, projectType);
   console.log(`✔  Updated Enums :Project`);
 
   let tokenInfo: {
     tokens: Tokens[];
-  } = await getProjectTokenListInfo(projectType);
+    superTokenInfoMap?: Record<string, SuperTokenInfo>;
+  } = await getProjectTokenListInfo(
+    projectType,
+    owner,
+    vaultChains,
+    controllerChains
+  );
 
   await buildEnvFile(
     projectConfig.projectName,
@@ -50,8 +79,10 @@ export const addProject = async () => {
   );
 
   const { tokenLimitInfo } = await getHookRelatedInfo(
+    projectType,
     isLimitsRequired,
-    tokenInfo.tokens
+    tokenInfo.tokens,
+    tokenInfo.superTokenInfoMap
   );
 
   let projectConstants = await buildProjectConstants(
@@ -62,8 +93,11 @@ export const addProject = async () => {
     tokenLimitInfo,
     allChains
   );
-
   generateConstantsFile(projectType, projectName, projectConstants);
+
+  console.log(
+    `✔ Setup done! You can run this script again to add new projects, add new tokens, or edit project`
+  );
 };
 
 export const getProjectInfo = async () => {
@@ -141,7 +175,6 @@ export const getProjectInfo = async () => {
   }));
   return { ...projectInfo, isLimitsRequired, chainOptions };
 };
-
 export const getChainsInfo = async (
   projectType: ProjectType,
   chainOptions: { title: string; value: number }[]
@@ -209,10 +242,15 @@ export const getChainsInfo = async (
   }
 };
 
-export const getProjectTokenListInfo = async (projectType: ProjectType) => {
-  let tokenChoices = Object.keys(Tokens).map((token) => ({
+export const getProjectTokenListInfo = async (
+  projectType: ProjectType,
+  ownerAddress: string,
+  vaultChains: ChainSlug[],
+  controllerChains: ChainSlug[]
+) => {
+  let tokenChoices = Object.keys(tokenEnum).map((token) => ({
     title: token,
-    value: Tokens[token],
+    value: tokenEnum[token],
   }));
 
   if (projectType == ProjectType.SUPERBRIDGE) {
@@ -227,38 +265,69 @@ export const getProjectTokenListInfo = async (projectType: ProjectType) => {
         choices: tokenChoices,
       },
     ]);
-  } else if (projectType == ProjectType.SUPERTOKEN) {
-    let tokenInfo = await prompts([
-      {
-        name: "token",
-        type: "select",
-        message:
-          "Select supertoken to deploy (the token we want to move cross-chain)",
-        choices: tokenChoices,
-      },
-    ]);
-    return { tokens: [tokenInfo.token] };
+  } else if (projectType === ProjectType.SUPERTOKEN) {
+    let allTokens: Tokens[] = [];
+    let superTokenInfoMap: Record<string, SuperTokenInfo> = {};
+    console.log("provide Supertoken details : ");
+    while (true) {
+      let supertokenInfo = await getSuperTokenInfo(
+        ownerAddress,
+        vaultChains,
+        controllerChains
+      );
+      let token = supertokenInfo.symbol;
+      if (!(token in tokenEnum)) {
+        await updateTokenEnums(supertokenInfo);
+        tokenEnum[token] = token;
+      }
+      if (supertokenInfo.currentAddresses.length > 0)
+        generateTokenAddressesFile(supertokenInfo.currentAddresses, tokenEnum);
+
+      allTokens.push(token as Tokens);
+      superTokenInfoMap[token] = supertokenInfo;
+      let response = await prompts([
+        {
+          name: "addMoreTokens",
+          type: "confirm",
+          message: "Want to add more tokens?",
+        },
+      ]);
+      if (!response.addMoreTokens) break;
+    }
+    return { tokens: allTokens, superTokenInfoMap };
   }
 };
 
 export const getHookRelatedInfo = async (
+  projectType: ProjectType,
   isLimitsRequired: boolean,
-  tokens: Tokens[]
+  tokens: Tokens[],
+  superTokenInfoMap: Record<string, SuperTokenInfo> = {}
 ) => {
   let tokenLimitInfo: TokenRateLimits = {};
-
   if (isLimitsRequired) {
     for (let token of tokens) {
+      const initialValue = await getInitialLimitValue(
+        projectType,
+        token,
+        superTokenInfoMap
+      );
+      // console.log("initialValue", initialValue, tokens);
+      // console.log(initialValue.sendingLimit, initialValue.receivingLimit);
       let limitInfo = await prompts([
         {
           name: "sendingLimit",
           type: "text",
           message: `Enter max daily sending limit for ${token} (Enter formatted values, 100.0 for 100 USDC. Check README for more info):`,
+          validate: (value) => validateEmptyValue(String(value).trim()),
+          initial: String(initialValue.sendingLimit),
         },
         {
           name: "receivingLimit",
           type: "text",
           message: `Enter max daily receiving limit for ${token} (Enter formatted values, 100.0 for 100 USDC Check README for more info):`,
+          validate: (value) => validateEmptyValue(String(value).trim()),
+          initial: String(initialValue.receivingLimit),
         },
       ]);
 
@@ -268,8 +337,121 @@ export const getHookRelatedInfo = async (
   return { tokenLimitInfo };
 };
 
+export const getSuperTokenInfo = async (
+  ownerAddress: string,
+  vaultChains: ChainSlug[],
+  controllerChains: ChainSlug[]
+) => {
+  const isFreshDeployment = vaultChains.length === 0;
+  let superTokenInfo: SuperTokenInfo = {
+    name: "",
+    symbol: "",
+    decimals: 0,
+    owner: ownerAddress,
+    initialSupplyOwner: ownerAddress,
+    initialSupply: "0",
+    currentAddresses: [],
+  };
+
+  let info = await prompts([
+    {
+      name: "name",
+      type: "text",
+      message: `Enter token name: `,
+      validate: (value) => validateEmptyValue(String(value).trim()),
+    },
+    {
+      name: "symbol",
+      type: "text",
+      message: `Enter token symbol:`,
+      validate: (value) => validateEmptyValue(String(value).trim()),
+    },
+    {
+      name: "decimals",
+      type: "number",
+      message: `Enter token decimals:`,
+      validate: (value) => validateEmptyValue(String(value).trim()),
+    },
+
+    {
+      name: "initialSupplyOwner",
+      type: "text",
+      message: `Enter initial supply owner:`,
+      validate: (value) => validateEmptyValue(String(value).trim()),
+      initial: ownerAddress,
+    },
+  ]);
+  superTokenInfo = { ...superTokenInfo, ...info };
+  superTokenInfo.symbol = superTokenInfo.symbol.toUpperCase();
+  if (isFreshDeployment) {
+    let response = await prompts([
+      {
+        name: "initialSupply",
+        type: "text",
+        message: `Enter initial supply(enter formatted value, ex: 1000 for 1000 WETH) :`,
+        validate: (value) => validateEmptyValue(String(value).trim()),
+      },
+      {
+        name: "initialChain",
+        type: "select",
+        message:
+          "Select the chain where this initial supply is to be minted (to mint on multiple chains, contact team)",
+        choices: controllerChains.map((chain) => {
+          return {
+            title: chainSlugReverseMap.get(String(chain)),
+            value: chain,
+          };
+        }),
+      },
+    ]);
+    superTokenInfo.initialSupply = response.initialSupply;
+    superTokenInfo.initialChain = response.initialChain;
+  } else {
+    while (true) {
+      let response = await prompts([
+        {
+          name: "chain",
+          type: "select",
+          message: "Select the chain where the token is already deployed",
+          choices: [...vaultChains, ...controllerChains].map((chain) => {
+            return {
+              title: chainSlugReverseMap.get(String(chain)),
+              value: chain,
+            };
+          }),
+        },
+        {
+          name: "address",
+          type: "text",
+          message:
+            "Enter the address of the deployed token on the selected chain",
+          validate: (value) => validateEthereumAddress(value.trim()),
+        },
+        {
+          name: "addMoreTokens",
+          type: "confirm",
+          message:
+            "Want to add more token addresses? If a token is already deployed somewhere, script won't deploy again.",
+        },
+      ]);
+
+      superTokenInfo.currentAddresses = superTokenInfo.currentAddresses ?? [];
+      superTokenInfo.currentAddresses.push({
+        token: superTokenInfo.symbol.toUpperCase(),
+        chainSlug: response.chain,
+        address: response.address,
+      });
+      if (!response.addMoreTokens) break;
+    }
+  }
+  return superTokenInfo;
+};
+
 export const buildProjectConstants = async (
-  tokenInfo: { tokens: Tokens[] },
+  tokenInfo: {
+    tokens: Tokens[];
+    superTokenInfoMap?: Record<string, SuperTokenInfo>;
+  },
   chainsInfo: { vaultChains: ChainSlug[]; controllerChains: ChainSlug[] },
   hookType: Hooks,
   isLimitsRequired: boolean,
@@ -287,6 +469,7 @@ export const buildProjectConstants = async (
         [IntegrationTypes.fast]: tokenLimitInfo[token],
       };
     }
+
     projectConstants[DeploymentMode.PROD][token] = {
       vaultChains: chainsInfo.vaultChains,
       controllerChains: chainsInfo.controllerChains,
@@ -294,6 +477,14 @@ export const buildProjectConstants = async (
         hookType,
       },
     };
+
+    const superTokenInfo = tokenInfo.superTokenInfoMap?.[token];
+    if (superTokenInfo) {
+      delete superTokenInfo.currentAddresses;
+      projectConstants[DeploymentMode.PROD][token].superTokenInfo =
+        superTokenInfo;
+    }
+
     if (isLimitsRequired) {
       projectConstants[DeploymentMode.PROD][token].hook.limitsAndPoolId =
         limitsAndPoolId;
@@ -301,4 +492,30 @@ export const buildProjectConstants = async (
   }
 
   return projectConstants;
+};
+
+export const getInitialLimitValue = async (
+  projectType: ProjectType,
+  token: Tokens,
+  superTokenInfoMap: Record<string, SuperTokenInfo> = {}
+) => {
+  if (projectType == ProjectType.SUPERBRIDGE) {
+    return (
+      initialLimitsForSuperbridge[token] ?? {
+        sendingLimit: 0,
+        receivingLimit: 0,
+      }
+    );
+  } else if (projectType == ProjectType.SUPERTOKEN) {
+    let info = superTokenInfoMap[token.toUpperCase()];
+    return {
+      sendingLimit: info?.initialSupply
+        ? parseInt(info?.initialSupply) / 100
+        : 0,
+      receivingLimit: info?.initialSupply
+        ? parseInt(info?.initialSupply) / 100
+        : 0,
+    };
+    // think about using initial supply
+  }
 };

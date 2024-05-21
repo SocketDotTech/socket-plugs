@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
-import { overrides } from "./networks";
+import { getProviderFromChainSlug, overrides } from "./networks";
 import {
   getDryRun,
   getMode,
@@ -12,6 +12,8 @@ import * as fs from "fs";
 import path from "path";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
+import { StaticJsonRpcProvider } from "@ethersproject/providers";
+
 import { ProjectType } from "../../src";
 
 export let allDeploymentPath: string;
@@ -155,4 +157,16 @@ export const checkMissingFields = (fields: { [key: string]: any }) => {
       throw Error(`missing field : ${field}`);
     }
   }
+};
+
+export const isContractAtAddress = async (
+  provider: StaticJsonRpcProvider,
+  address: string
+) => {
+  const code = await provider.getCode(address);
+  console.log({ code });
+  if (code === "0x") {
+    return false;
+  }
+  return true;
 };
