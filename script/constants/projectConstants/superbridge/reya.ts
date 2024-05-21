@@ -235,9 +235,43 @@ export const pc: ProjectConstants = {
               poolCount: 1,
             },
           },
+          [ChainSlug.ARBITRUM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
+            },
+          },
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
+            },
+          },
+          [ChainSlug.OPTIMISM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
+            },
+          },
+          [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
+            },
+          },
         },
       },
-      vaultChains: [ChainSlug.POLYGON_MAINNET],
+      vaultChains: [
+        ChainSlug.POLYGON_MAINNET,
+        ChainSlug.ARBITRUM,
+        ChainSlug.MAINNET,
+        ChainSlug.OPTIMISM,
+        ChainSlug.BASE,
+      ],
     },
     [Tokens.WBTC]: {
       controllerChains: [ChainSlug.REYA],
