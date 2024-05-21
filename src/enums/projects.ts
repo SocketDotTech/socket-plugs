@@ -10,6 +10,7 @@ export enum Project {
   REYA_CRONOS = "reya-cronos",
   REYA = "reya",
   SPECTRAL_SIGNAL = "spectral-signal",
+  SYNDR_SEPOLIA_TESTNET = "syndr_sepolia_testnet",
   TESTING_MAINNET = "testing_mainnet",
   AA_MAINNET = "aa_mainnet",
   SV_MAINNET = "sv_mainnet",

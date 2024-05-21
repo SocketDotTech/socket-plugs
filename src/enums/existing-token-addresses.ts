@@ -56,6 +56,9 @@ export const ExistingTokenAddresses: {
     [Tokens.USDC]: "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
     [Tokens.WETH]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
   },
+  [ChainSlug.SYNDR_SEPOLIA_L3]: {
+    [Tokens.USDC]: "0x9500C41799EBeDFb0452fadE36DA931Eb155cbD1",
+  },
   [ChainSlug.SEPOLIA]: {
     [Tokens.USDC]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
     [Tokens.WETH]: "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa",
