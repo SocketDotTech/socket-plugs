@@ -91,7 +91,7 @@ contract KintoHook is LimitHook {
         address receiver = params_.transferInfo.receiver;
         address msgSender = abi.decode(params_.transferInfo.data, (address));
 
-        if (msgSender != BRIDGER_L2) {
+        if (receiver != BRIDGER_L2) {
             if (kintoFactory.walletTs(receiver) == 0)
                 revert InvalidReceiver(receiver);
             if (!kintoID.isKYC(IKintoWallet(receiver).owners(0)))
