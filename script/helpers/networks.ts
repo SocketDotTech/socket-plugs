@@ -103,8 +103,8 @@ export const overrides: {
   },
   [ChainSlug.REYA]: {
     type: 1,
-    // gasLimit,
-    gasPrice: 100_000_000,
+    gasLimit: 1_000_000_000,
+    gasPrice: 100_000,
   },
 };
 
