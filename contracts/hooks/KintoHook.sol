@@ -32,7 +32,6 @@ contract KintoHook is LimitHook {
     error InvalidSender(address sender);
     error InvalidReceiver(address sender);
     error KYCRequired();
-    error ReceiverNotAllowed(address receiver);
     error SenderNotAllowed(address sender);
 
     event SenderSet(address indexed sender, bool allowed);
@@ -81,10 +80,6 @@ contract KintoHook is LimitHook {
         if (kintoFactory.walletTs(sender) == 0) revert InvalidSender(sender);
         if (!kintoID.isKYC(IKintoWallet(sender).owners(0)))
             revert KYCRequired();
-
-        address receiver = params_.transferInfo.receiver;
-        if (!IKintoWallet(sender).isFunderWhitelisted(receiver))
-            revert ReceiverNotAllowed(receiver);
 
         return super.srcPreHookCall(params_);
     }

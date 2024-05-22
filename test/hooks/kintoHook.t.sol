@@ -204,35 +204,6 @@ contract TestKintoHook is Test {
         vm.stopPrank();
     }
 
-    function testsrcPreHookCallReceiverNotAllowed() external {
-        _setLimits();
-
-        uint256 withdrawAmount = 10 ether;
-        uint256 dealAmount = 10 ether;
-        address sender = kintoWallet__;
-        address receiver = address(0xfede);
-
-        deal(address(_token), sender, dealAmount);
-        deal(sender, _fees);
-
-        vm.startPrank(controller__);
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                KintoHook.ReceiverNotAllowed.selector,
-                receiver
-            )
-        );
-        kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(
-                _connector1,
-                address(sender),
-                TransferInfo(receiver, withdrawAmount, bytes(""))
-            )
-        );
-        vm.stopPrank();
-    }
-
     function testsrcPreHookCallReceiverIsKintoWalletSigner() external {
         _setLimits();
 
