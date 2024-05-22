@@ -32,7 +32,8 @@ export type TokenConstants = {
     decimals: number;
     initialSupplyOwner: string;
     owner: string;
-    initialSupply: number;
+    initialSupply: string;
+    initialChain?: ChainSlug;
   };
   // for superbridge yield project, controller chain
   yieldTokenInfo?: {

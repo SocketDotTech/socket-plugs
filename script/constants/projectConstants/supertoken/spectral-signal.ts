@@ -18,7 +18,7 @@ export const pc: ProjectConstants = {
         decimals: 18,
         initialSupplyOwner: getOwner(),
         owner: getOwner(),
-        initialSupply: 0,
+        initialSupply: "0",
       },
       hook: {
         hookType: Hooks.LIMIT_HOOK,

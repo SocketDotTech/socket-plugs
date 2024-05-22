@@ -19,6 +19,7 @@ import { getConstantPathForProject } from "../helpers";
 import { ProjectTypeMap } from "../../src/enums/projectType";
 import { existsSync } from "fs";
 import { chainSlugReverseMap } from "./enumMaps";
+import { validateEmptyValue } from "./common";
 var _ = require("lodash");
 
 export const editProject = async () => {
@@ -26,7 +27,6 @@ export const editProject = async () => {
     title: project,
     value: project,
   }));
-  // console.log({projectChoices})
   const projectInfo = await prompts([
     {
       name: "projectName",
@@ -48,7 +48,6 @@ export const editProject = async () => {
     return;
   }
   let pc = require(projectConstantsPath).pc;
-  console.log(pc);
 
   const action = await prompts([
     {
@@ -294,7 +293,6 @@ export const updateRateLimit = async (
       );
       console.log(`Updating rate limits for ${token}`);
       for (const chain of chainInfo.chains) {
-        console.log(currentTokenChains, chain);
         if (!currentTokenChains.includes(chain)) continue;
 
         const limitInfo = await prompts([
@@ -305,6 +303,7 @@ export const updateRateLimit = async (
               newTc.hook.limitsAndPoolId[chain]?.[IntegrationTypes.fast]
                 ?.sendingLimit
             } ${token}):`,
+            validate: (value) => validateEmptyValue(value.trim()),
           },
           {
             name: "receivingLimit",
@@ -313,6 +312,7 @@ export const updateRateLimit = async (
               newTc.hook.limitsAndPoolId[chain]?.[IntegrationTypes.fast]
                 ?.receivingLimit
             } ${token}):`,
+            validate: (value) => validateEmptyValue(value.trim()),
           },
         ]);
         newTc.hook.limitsAndPoolId[chain][IntegrationTypes.fast] = {
