@@ -3,6 +3,8 @@ import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
+import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
+import { isKinto } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
 
 export const deployHookContracts = async (
   useConnnectorPools: boolean,
@@ -30,7 +32,9 @@ export const deployHookContracts = async (
   if (hookType == Hooks.LIMIT_HOOK) {
     contractName = HookContracts.LimitHook;
     args = [
-      getOwner(),
+      isKinto(deployParams.currentChainSlug)
+        ? process.env.KINTO_OWNER_ADDRESS
+        : getOwner(),
       bridgeAddress,
       useConnnectorPools, // useControllerPools
     ];
@@ -38,11 +42,28 @@ export const deployHookContracts = async (
     contractName = HookContracts.LimitExecutionHook;
     deployParams = await deployExecutionHelper(deployParams);
     args = [
-      getOwner(),
+      isKinto(deployParams.currentChainSlug)
+        ? process.env.KINTO_OWNER_ADDRESS
+        : getOwner(),
       bridgeAddress,
       deployParams.addresses[HookContracts.ExecutionHelper],
       useConnnectorPools, // useControllerPools
     ];
+  } else if (hookType == Hooks.KINTO_HOOK) {
+    // if chain is Kinto (Controller), we deploy the KintoHook, otherwise, we deploy the SenderHook (for Vaults)
+    if (isKinto(deployParams.currentChainSlug)) {
+      contractName = HookContracts.KintoHook;
+      args = [
+        process.env.KINTO_OWNER_ADDRESS,
+        bridgeAddress,
+        useConnnectorPools, // useControllerPools
+        constants.KINTO_DATA.contracts.kintoID.address,
+        constants.KINTO_DATA.contracts.factory.address,
+      ];
+    } else {
+      contractName = HookContracts.SenderHook;
+      args = [getOwner(), bridgeAddress, useConnnectorPools];
+    }
   }
 
   if (!contractName) return deployParams;

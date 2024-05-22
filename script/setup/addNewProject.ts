@@ -111,6 +111,10 @@ export const getProjectInfo = async () => {
           value: Hooks.LIMIT_EXECUTION_HOOK,
         },
         {
+          title: "Kinto Hook",
+          value: Hooks.KINTO_HOOK,
+        },
+        {
           title: "No Hook",
           value: Hooks.NO_HOOK,
         },
@@ -133,7 +137,8 @@ export const getProjectInfo = async () => {
   projectInfo.owner = projectInfo.owner.trim();
   let isLimitsRequired =
     projectInfo.hookType === Hooks.LIMIT_HOOK ||
-    projectInfo.hookType === Hooks.LIMIT_EXECUTION_HOOK;
+    projectInfo.hookType === Hooks.LIMIT_EXECUTION_HOOK ||
+    projectInfo.hookType === Hooks.KINTO_HOOK;
   let possibleChains = projectInfo.isMainnet ? MainnetIds : TestnetIds;
   let chainOptions = possibleChains.map((chain) => ({
     title: chainSlugReverseMap.get(String(chain)),

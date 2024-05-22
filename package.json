@@ -28,6 +28,7 @@
     "hardhat": "^2.9.5",
     "hardhat-abi-exporter": "^2.10.1",
     "hardhat-change-network": "^0.0.7",
+    "hardhat-dependency-compiler": "^1.1.4",
     "hardhat-deploy": "^0.11.20",
     "hardhat-preprocessor": "^0.1.4",
     "pre-commit": "^1.2.2",
@@ -42,7 +43,8 @@
     "build": "hardhat export-abi && hardhat typechain && yarn buildJson && tsc --project lib.tsconfig.json",
     "buildJson": "npx ts-node ./script/helpers/updateJsons.ts",
     "abi": "hardhat export-abi",
-    "compile": "forge build",
+    "compile": "npx hardhat compile",
+    "forge-compile": "forge build",
     "test": "forge test"
   },
   "pre-commit": [
@@ -50,8 +52,8 @@
     "compile"
   ],
   "dependencies": {
+    "@socket.tech/dl-core": "https://github.com/KintoXYZ/socket-DL.git",
     "lodash": "^4.17.21",
-    "@socket.tech/dl-core": "^2.4.41",
     "prompts": "^2.4.2"
   }
 }

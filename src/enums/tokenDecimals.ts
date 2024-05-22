@@ -12,4 +12,13 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.DAI]: 18,
   [Tokens.GUARD]: 18,
   [Tokens.ETH]: 18,
+  [Tokens.EIGEN]: 18,
+  [Tokens.ENA]: 18,
+  [Tokens.USDe]: 18,
+  [Tokens.eETH]: 18,
+  [Tokens.sDAI]: 18,
+  [Tokens.sUSDe]: 18,
+  [Tokens.wUSDM]: 18,
+  [Tokens.weETH]: 18,
+  [Tokens.ETHFI]: 18,
 };

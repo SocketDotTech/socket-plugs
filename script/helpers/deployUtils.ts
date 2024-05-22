@@ -1,6 +1,10 @@
 import { Wallet } from "ethers";
-import { network, ethers, run } from "hardhat";
+import { network, ethers, run, artifacts } from "hardhat";
 import { ContractFactory, Contract } from "ethers";
+import {
+  deployOnKinto,
+  isKinto,
+} from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
 
 import fs from "fs";
 import { Address } from "hardhat-deploy/dist/types";
@@ -9,7 +13,6 @@ import {
   IntegrationTypes,
   getAddresses,
 } from "@socket.tech/dl-core";
-import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
 import {
   getMode,
@@ -58,6 +61,7 @@ export const getOrDeploy = async (
     storedContactAddress =
       deployUtils.addresses[SuperBridgeContracts.Controller];
   }
+
   if (!storedContactAddress) {
     contract = await deployContractWithArgs(
       contractName,
@@ -145,11 +149,16 @@ export async function deployContractWithArgs(
     const Contract: ContractFactory = await ethers.getContractFactory(
       contractName
     );
-    // gasLimit is set to undefined to not use the value set in overrides
-    const contract: Contract = await Contract.connect(signer).deploy(...args, {
-      ...overrides[await signer.getChainId()],
-      // gasLimit: undefined,
-    });
+    let contract: Contract;
+    if (isKinto(await signer.getChainId())) {
+      contract = await deployOnKinto(contractName, args, signer);
+    } else {
+      // gasLimit is set to undefined to not use the value set in overrides
+      contract = await Contract.connect(signer).deploy(...args, {
+        ...overrides[await signer.getChainId()],
+        // gasLimit: undefined,
+      });
+    }
     await contract.deployed();
     return contract;
   } catch (error) {
@@ -180,10 +189,15 @@ export const verify = async (
 export const sleep = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay * 1000));
 
-export const getInstance = async (
-  contractName: string,
-  address: Address
-): Promise<Contract> => ethers.getContractAt(contractName, address);
+// export const getInstance = async (
+//   contractName: string,
+//   address: Address
+// ): Promise<Contract> => ethers.getContractAt(contractName, address);
+
+export const getInstance = async (contractName: string, address: Address) => {
+  const artifact = await artifacts.readArtifact(contractName);
+  return new ethers.Contract(address, artifact.abi);
+};
 
 export const getChainSlug = async (): Promise<number> => {
   if (network.config.chainId === undefined)
@@ -191,8 +205,16 @@ export const getChainSlug = async (): Promise<number> => {
   return Number(network.config.chainId);
 };
 
-export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
-  return new Contract(getAddresses(chain, getMode()).Socket, socketABI, signer);
+export const getSocket = async (
+  chain: ChainSlug,
+  signer: Wallet
+): Promise<Contract> => {
+  const artifact = await artifacts.readArtifact("Socket");
+  return new Contract(
+    getAddresses(chain, getMode()).Socket,
+    artifact.abi,
+    signer
+  );
 };
 
 export const storeTokenAddresses = async (

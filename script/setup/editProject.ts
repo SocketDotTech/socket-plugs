@@ -239,10 +239,11 @@ export const updateRateLimit = async (
       const tokenConstants = pc[DeploymentMode.PROD][token] as TokenConstants;
       if (
         tokenConstants.hook.hookType != Hooks.LIMIT_HOOK &&
-        tokenConstants.hook.hookType != Hooks.LIMIT_EXECUTION_HOOK
+        tokenConstants.hook.hookType != Hooks.LIMIT_EXECUTION_HOOK &&
+        tokenConstants.hook.hookType != Hooks.KINTO_HOOK
       ) {
         console.log(
-          `Rate limits can only be updated for project with hook type LIMIT_HOOK or LIMIT_EXECUTION_HOOK. Returning ...`
+          `Rate limits can only be updated for project with hook type LIMIT_HOOK, LIMIT_EXECUTION_HOOK or KINTO_HOOK. Returning ...`
         );
         return;
       }
