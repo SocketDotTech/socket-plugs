@@ -47,6 +47,7 @@ contract TestKintoHook is Test {
     address kintoFactory__;
     address kintoWallet__;
     address kintoWalletSigner__; // 1st signer of the kinto wallet
+    address kycProvider__;
     uint32 _siblingSlug;
     uint32 _siblingSlug1;
     uint32 _siblingSlug2;
@@ -56,16 +57,17 @@ contract TestKintoHook is Test {
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
 
     function setUp() external {
-        uint256 kintoFork = vm.createSelectFork("kinto_devnet");
+        uint256 kintoFork = vm.createSelectFork("kinto");
 
         vm.startPrank(_admin);
 
         _socket = address(uint160(_c++));
         controller__ = address(uint160(_c++));
-        kintoId__ = 0xCa41d9C3f13a8096356E6fddf0a29C51A938c410;
-        kintoFactory__ = 0xB8818F4c0CE119AC274f217e9C11506DCf1bBb70;
-        kintoWallet__ = 0xb0609586C6bD45A1e941b1b784F18d77221d8835;
-        kintoWalletSigner__ = 0x1dBDF0936dF26Ba3D7e4bAA6297da9FE2d2428c2;
+        kintoId__ = 0xf369f78E3A0492CC4e96a90dae0728A38498e9c7;
+        kintoFactory__ = 0x8a4720488CA32f1223ccFE5A087e250fE3BC5D75;
+        kintoWallet__ = 0x2e2B1c42E38f5af81771e65D87729E57ABD1337a;
+        kintoWalletSigner__ = 0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c;
+        kycProvider__ = 0x6E31039abF8d248aBed57E307C9E1b7530c269E4;
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
@@ -183,7 +185,7 @@ contract TestKintoHook is Test {
         address receiver = address(0xfede);
 
         // revoke KYC to sender
-        vm.prank(kintoWalletSigner__);
+        vm.prank(kycProvider__);
         KintoID(kintoId__).addSanction(kintoWalletSigner__, 1);
 
         deal(address(_token), sender, dealAmount);
@@ -461,7 +463,7 @@ contract TestKintoHook is Test {
         address receiver = kintoWallet__;
 
         // revoke KYC to receiver
-        vm.prank(kintoWalletSigner__);
+        vm.prank(kycProvider__);
         KintoID(kintoId__).addSanction(kintoWalletSigner__, 1);
 
         vm.expectRevert(KintoHook.KYCRequired.selector);
@@ -487,6 +489,28 @@ contract TestKintoHook is Test {
         vm.expectRevert(
             abi.encodeWithSelector(KintoHook.SenderNotAllowed.selector, sender)
         );
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
+    }
+
+    function testdstPreHookCallCallSenderIsInAllowlist() external {
+        _setLimits();
+        uint256 depositAmount = 2 ether;
+        address sender = address(123); // original sender from vault chain
+        address receiver = kintoWallet__;
+
+        vm.prank(kintoHook__.owner());
+        kintoHook__.setSender(sender, true); // allow sender to bypass Kinto check (e.g BridgerL1)
+
         vm.startPrank(controller__);
         (
             bytes memory postHookData,
@@ -550,8 +574,8 @@ contract TestKintoHook is Test {
     function testdstPreHookCallCallSenderIsBridgerL2() external {
         _setLimits();
         uint256 depositAmount = 2 ether;
-        address sender = kintoHook__.BRIDGER_L2(); // original sender from vault chain
-        address receiver = kintoWallet__;
+        address sender = kintoWallet__; // original sender from vault chain
+        address receiver = kintoHook__.BRIDGER_L2();
 
         vm.startPrank(controller__);
         (

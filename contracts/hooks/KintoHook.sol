@@ -18,9 +18,7 @@ interface IKintoWallet {
 
 /**
  * @title Kinto Hook
- * @notice meant to be deployed only Kinto. Inherits from LimitHook. Overrides the following functions:
- *  - on srcPreHookCall, which is called when a user on Kinto wants to "withdraw" (bridge out), it checks if the user is KYC'd. If not, it reverts.
- *  - on dstPreHookCall, which is called when a user wants to bridge in assets into Kinto, it checks if the original sender (the one that initiated the transaction on the vault chain) is an address included in funderWhitelist of the user's KintoWallet. If not, it reverts. The original sender is passed as an encoded param through the SenderHook.
+ * @notice meant to be deployed only Kinto. Inherits from LimitHook.
  */
 contract KintoHook is LimitHook {
     address public constant BRIDGER_L2 =
@@ -28,11 +26,16 @@ contract KintoHook is LimitHook {
     IKintoID public immutable kintoID;
     IKintoFactory public immutable kintoFactory;
 
+    // addresses that can bypass funder whitelisted check on dstPreHookCall
+    mapping(address => bool) public senderAllowlist;
+
     error InvalidSender(address sender);
     error InvalidReceiver(address sender);
     error KYCRequired();
     error ReceiverNotAllowed(address receiver);
     error SenderNotAllowed(address sender);
+
+    event SenderSet(address indexed sender, bool allowed);
 
     /**
      * @notice Constructor for creating a Kinto Hook
@@ -54,6 +57,18 @@ contract KintoHook is LimitHook {
         kintoFactory = IKintoFactory(kintoFactory_);
     }
 
+    /*
+     * @notice Sets a sender to be allowed (or not) to send funds to a Kinto wallet bypassing Kinto checks
+     */
+    function setSender(address sender, bool allowed) external onlyOwner {
+        senderAllowlist[sender] = allowed;
+        emit SenderSet(sender, allowed);
+    }
+
+    /**
+     * @dev called when Kinto user wants to "withdraw" (bridge out). Checks if sender is a KintoWallet,
+     * if the wallet's signer is KYC'd and if the receiver of the funds is whitelisted.
+     */
     function srcPreHookCall(
         SrcPreHookCallParams memory params_
     )
@@ -80,6 +95,15 @@ contract KintoHook is LimitHook {
         return super.srcPostHookCall(params_);
     }
 
+    /**
+     * @dev called when user wants to bridge assets into Kinto. It checks if the receiver
+     * is a Kinto Wallet, if the wallet's signer is KYC'd and if the "original sender"
+     * (initiator of the tx on the vault chain) is whitelisted on the receiver's KintoWallet.
+     *
+     * If the receiver is the bridger L2, it skips all the checks.
+     * The "original sender" is passed as an encoded param through the SenderHook.
+     * If the sender is not in the allowlist (e.g Bridger L1), it checks it's whitelisted on the receiver's KintoWallet.
+     */
     function dstPreHookCall(
         DstPreHookCallParams memory params_
     )
@@ -96,8 +120,10 @@ contract KintoHook is LimitHook {
                 revert InvalidReceiver(receiver);
             if (!kintoID.isKYC(IKintoWallet(receiver).owners(0)))
                 revert KYCRequired();
-            if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender))
-                revert SenderNotAllowed(msgSender);
+            if (!senderAllowlist[msgSender]) {
+                if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender))
+                    revert SenderNotAllowed(msgSender);
+            }
         }
 
         return super.dstPreHookCall(params_);
