@@ -55,6 +55,7 @@ export const ExistingTokenAddresses: {
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     [Tokens.USDC]: "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
     [Tokens.WETH]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+    [Tokens.MTK]: "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
   },
   [ChainSlug.SYNDR_SEPOLIA_L3]: {
     [Tokens.USDC]: "0x9500C41799EBeDFb0452fadE36DA931Eb155cbD1",
