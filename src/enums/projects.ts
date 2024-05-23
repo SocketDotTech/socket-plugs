@@ -11,4 +11,5 @@ export enum Project {
   REYA = "reya",
   SPECTRAL_SIGNAL = "spectral-signal",
   TOKEN_TEST_PROJECT_TESTNET = "token_test_project_testnet",
+  BRIDGE_TEST_PROJECT_TESTNET = "bridge_test_project_testnet",
 }
