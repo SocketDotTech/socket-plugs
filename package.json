@@ -50,8 +50,8 @@
     "compile"
   ],
   "dependencies": {
+    "@socket.tech/dl-core": "^2.7.0",
     "lodash": "^4.17.21",
-    "@socket.tech/dl-core": "^2.4.41",
     "prompts": "^2.4.2"
   }
 }

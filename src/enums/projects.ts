@@ -10,4 +10,5 @@ export enum Project {
   REYA_CRONOS = "reya-cronos",
   REYA = "reya",
   SPECTRAL_SIGNAL = "spectral-signal",
+  TOKEN_TEST_PROJECT_TESTNET = "token_test_project_testnet",
 }

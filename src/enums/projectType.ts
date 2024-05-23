@@ -13,4 +13,5 @@ export const ProjectTypeMap: Record<Project, ProjectType> = {
   [Project.SPECTRAL_SIGNAL]: ProjectType.SUPERTOKEN,
   [Project.LEAF_TESTNET]: ProjectType.SUPERTOKEN,
   [Project.MIST_TESTNET]: ProjectType.SUPERTOKEN,
+  [Project.TOKEN_TEST_PROJECT_TESTNET]: ProjectType.SUPERTOKEN,
 };

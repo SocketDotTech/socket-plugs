@@ -14,7 +14,7 @@ export const pc: ProjectConstants = {
       controllerChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
         ChainSlug.AEVO_TESTNET,
-        ChainSlug.POLYGON_MUMBAI,
+        // ChainSlug.POLYGON_MUMBAI,
       ],
       superTokenInfo: {
         name: "Mist",
@@ -39,12 +39,12 @@ export const pc: ProjectConstants = {
               receivingLimit: "50000",
             },
           },
-          [ChainSlug.POLYGON_MUMBAI]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "50000",
-              receivingLimit: "50000",
-            },
-          },
+          // [ChainSlug.POLYGON_MUMBAI]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "50000",
+          //     receivingLimit: "50000",
+          //   },
+          // },
           [ChainSlug.OPTIMISM_SEPOLIA]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "50000",

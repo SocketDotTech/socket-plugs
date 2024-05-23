@@ -10,4 +10,5 @@ export enum Tokens {
   DAI = "DAI",
   GUARD = "GUARD",
   ETH = "ETH",
+  TESTOKEN = "TESTOKEN",
 }

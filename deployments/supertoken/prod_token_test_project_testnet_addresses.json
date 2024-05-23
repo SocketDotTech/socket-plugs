@@ -1,0 +1,26 @@
+{
+  "421614": {
+    "TESTOKEN": {
+      "SuperToken": "0xE5947f8C8980F7A4FC3C3012418867Ee5D48D383",
+      "Controller": "0x54948729E69347279269fb2422cC97be625fEC55",
+      "LimitHook": "0x015e86d50c6e82530a186C7D633971177113aa3e",
+      "connectors": {
+        "11155111": {
+          "FAST": "0x26c0f15052b1e1fA4466fbD5e9C2cfEA259459e8"
+        }
+      }
+    }
+  },
+  "11155111": {
+    "TESTOKEN": {
+      "SuperToken": "0x54948729E69347279269fb2422cC97be625fEC55",
+      "Controller": "0x015e86d50c6e82530a186C7D633971177113aa3e",
+      "LimitHook": "0x26c0f15052b1e1fA4466fbD5e9C2cfEA259459e8",
+      "connectors": {
+        "421614": {
+          "FAST": "0x8284F5062bAc33cE7da8777f96f03E2668cc9001"
+        }
+      }
+    }
+  }
+}
