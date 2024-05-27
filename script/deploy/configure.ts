@@ -109,11 +109,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             true
           );
 
-          if (
-            isSuperToken() &&
-            addr[TokenContracts.SuperToken] &&
-            !pc[token].superTokenInfo.address
-          ) {
+          if (isSuperToken() && addr[TokenContracts.SuperToken]) {
             let superTokenContract = await getInstance(
               TokenContracts.SuperToken,
               addr[TokenContracts.SuperToken]
