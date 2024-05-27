@@ -223,7 +223,8 @@ export const storeAllAddresses = async (
   projectName: Project,
   projectAddresses: SBAddresses | STAddresses
 ) => {
-  let filePath = getAllDeploymentPath();
+  const projectType = ProjectTypeMap[projectName];
+  let filePath = getAllDeploymentPath(projectType);
   let allAddresses: AllAddresses = readJSONFile(filePath);
 
   allAddresses = createObj(allAddresses, [projectName], projectAddresses);

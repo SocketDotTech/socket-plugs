@@ -34,11 +34,17 @@ export const ExistingTokenAddresses: {
     [Tokens.ALPHA]: "0x6a3E7C3c6EF65Ee26975b12293cA1AAD7e1dAeD2",
     [Tokens.KEK]: "0x42E5E06EF5b90Fe15F853F59299Fc96259209c5C",
     [Tokens.GLTR]: "0x3801C3B3B5c98F88a9c9005966AA96aa440B9Afc",
+    [Tokens.USDT]: "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+    [Tokens.DAI]: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+    [Tokens.WETH]: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+    [Tokens.WBTC]: "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
   },
   [ChainSlug.BASE]: {
     [Tokens.USDC]: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
     [Tokens.WSTETH]: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+    [Tokens.DAI]: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+    [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
   },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDC]: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",

@@ -17,7 +17,7 @@ export const pc: ProjectConstants = {
         decimals: 6,
         initialSupplyOwner: "0xab2f8c1588aca57bc2909512b645a860c65770d3",
         owner: "0xab2f8c1588aca57bc2909512b645a860c65770d3",
-        initialSupply: 1000000000,
+        initialSupply: "1000000000",
       },
       hook: {
         hookType: Hooks.LIMIT_HOOK,
@@ -54,7 +54,7 @@ export const pc: ProjectConstants = {
         decimals: 6,
         initialSupplyOwner: "0xab2f8c1588aca57bc2909512b645a860c65770d3",
         owner: "0xab2f8c1588aca57bc2909512b645a860c65770d3",
-        initialSupply: 1000000000,
+        initialSupply: "1000000000",
       },
       hook: {
         hookType: Hooks.LIMIT_HOOK,

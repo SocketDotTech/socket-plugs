@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import { updateTokenEnums } from "./configUtils";
+import { appendToEnvFile, updateTokenEnums } from "./configUtils";
 import { ChainSlug, MainnetIds, TestnetIds } from "@socket.tech/dl-core";
 import { ExistingTokenAddresses, Tokens } from "../../src/enums";
 import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
@@ -20,7 +20,11 @@ export const addNewToken = async () => {
   }));
   let newTokenInfo: NewTokenInfo = await getNewTokenInfo(chainOptions);
   if (!newTokenInfo.name) return;
-  await updateTokenEnums(newTokenInfo);
+  console.log("Adding new token: ", newTokenInfo);
+  console.log(Object.keys(Tokens), newTokenInfo.symbol.toUpperCase());
+  if (!Object.keys(Tokens).includes(newTokenInfo.symbol.toUpperCase())) {
+    await updateTokenEnums(newTokenInfo);
+  }
 
   const newTokensEnum = {
     ...Tokens,
@@ -28,9 +32,13 @@ export const addNewToken = async () => {
   };
 
   generateTokenAddressesFile(
-    newTokenInfo.chainSlug,
-    newTokenInfo.symbol.toUpperCase() as Tokens,
-    newTokenInfo.address,
+    [
+      {
+        chainSlug: newTokenInfo.chainSlug as ChainSlug,
+        token: newTokenInfo.symbol.toUpperCase() as Tokens,
+        address: newTokenInfo.address,
+      },
+    ],
     newTokensEnum
   );
 };
@@ -46,49 +54,13 @@ export const getNewTokenInfo = async (
     chainSlug: 0 as ChainSlug,
   };
 
-  const { chainSlug } = await prompts([
+  const { chainSlug, address } = await prompts([
     {
       name: "chainSlug",
       type: "select",
       message: "Select chain where token is deployed",
       choices: chainOptions,
     },
-  ]);
-
-  const isChainPresent = ExistingTokenAddresses[chainSlug];
-  if (isChainPresent) {
-    console.log("We have the following tokens on this chain:");
-
-    console.table(ExistingTokenAddresses[chainSlug]);
-  }
-
-  if (isChainPresent) {
-    const continueInfo = await prompts([
-      {
-        name: "continue",
-        type: "confirm",
-        message:
-          "Do you want to add a new token? (Select no if already present) ",
-        active: "yes",
-        inactive: "no",
-      },
-    ]);
-    if (!continueInfo.continue) return newTokenInfo;
-  }
-  let rpcKey = rpcKeys(chainSlug);
-  let rpc = process.env[rpcKey];
-  if (!rpc) {
-    const rpcInfo = await prompts([
-      {
-        name: "rpc",
-        type: "text",
-        message: `Enter RPC url for the chain ${chainSlug} (for fetching token metadata. Add it to .env file as ${rpcKey} to avoid entering again)`,
-        validate: (value) => validateRPC(chainSlug, value.trim()),
-      },
-    ]);
-    rpc = rpcInfo.rpc.trim();
-  }
-  newTokenInfo = await prompts([
     {
       name: "address",
       type: "text",
@@ -96,6 +68,38 @@ export const getNewTokenInfo = async (
       validate: (value) => validateEthereumAddress(value.trim()),
     },
   ]);
+  newTokenInfo.chainSlug = chainSlug as ChainSlug;
+  newTokenInfo.address = address.trim();
+
+  if (ExistingTokenAddresses[chainSlug]) {
+    for (let [symbol, address] of Object.entries(
+      ExistingTokenAddresses[newTokenInfo.chainSlug]
+    )) {
+      if (address.toLowerCase() === newTokenInfo.address.toLowerCase()) {
+        console.log(
+          `Token already present in the repo as ${symbol} on chain ${chainSlugReverseMap.get(
+            String(chainSlug)
+          )}`
+        );
+        return newTokenInfo;
+      }
+    }
+  }
+
+  let rpcKey = rpcKeys(chainSlug);
+  let rpc = process.env[rpcKey];
+  if (!rpc) {
+    const rpcInfo = await prompts([
+      {
+        name: "rpc",
+        type: "text",
+        message: `Enter RPC url for the chain ${chainSlug} (for fetching token metadata)`,
+        validate: (value) => validateRPC(chainSlug, value.trim()),
+      },
+    ]);
+    rpc = rpcInfo.rpc.trim();
+    appendToEnvFile(rpcKey, rpc);
+  }
 
   newTokenInfo.address = newTokenInfo.address.trim();
   let { name, symbol, decimals } = await getTokenMetadata(

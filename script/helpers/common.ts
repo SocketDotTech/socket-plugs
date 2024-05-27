@@ -71,6 +71,7 @@ export const updateConnectorStatus = async (
       ],
       chain
     );
+    console.log(`✔   Connector status set for chain ${chain}`);
   } else {
     console.log(`✔   Connector status already set for chain ${chain}`);
   }

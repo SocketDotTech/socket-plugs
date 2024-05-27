@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs";
+import fs, { appendFile, appendFileSync, writeFileSync } from "fs";
 import { writeFile } from "fs/promises";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { Tokens } from "../../src/enums";
@@ -12,6 +12,7 @@ import { ProjectType } from "../../src";
 import { NewTokenInfo } from "./common";
 
 export const enumFolderPath = path.join(__dirname, `/../../src/enums/`);
+export const envFolderPath = path.join(__dirname, `/../../`);
 
 export const buildEnvFile = async (
   projectName: string,
@@ -32,7 +33,8 @@ export const buildEnvFile = async (
   let envFileExists = fs.existsSync(".env");
   if (envFileExists) {
     const envFileData = parseEnvFile(".env");
-
+    writeFileSync(envFolderPath + ".envbackup", objectToEnv(envFileData));
+    console.log(`✔  Backup of existing .env file created`);
     // replace the existing values with the new values for public data
     const updatedPublicEnvData = { ...envFileData, ...publicEnvData };
     // merge the private data. if a key is already present in the env file, it will not be overwritten
@@ -40,8 +42,17 @@ export const buildEnvFile = async (
   } else {
     finalEnvData = { ...privateEnvData, ...publicEnvData };
   }
-  await writeFile(".env", objectToEnv(finalEnvData));
+  await writeFile(envFolderPath + ".env", objectToEnv(finalEnvData));
   console.log(`✔  Generated .env file`);
+};
+
+export const appendToEnvFile = (
+  variableName: string,
+  variableValue: string
+) => {
+  const envString = `${variableName}=${variableValue}\n`;
+  appendFileSync(envFolderPath + ".env", envString);
+  console.log(`✔  Updated .env file, added ${variableName} to .env`);
 };
 
 export const getProjectEnvData = (
@@ -108,7 +119,12 @@ export const updateProjectEnums = async (
   );
 };
 
-export const updateTokenEnums = async (newTokenInfo: NewTokenInfo) => {
+
+export const updateTokenEnums = async (newTokenInfo: {
+  name: string;
+  symbol: string;
+  decimals: number;
+}) => {
   if (!newTokenInfo.name) return;
 
   let { name, symbol, decimals } = newTokenInfo;
@@ -137,6 +153,7 @@ export const updateTokenEnums = async (newTokenInfo: NewTokenInfo) => {
 
   console.log(`✔  Updated Enums : Tokens, Symbols, Decimals, Token Names`);
 };
+
 const updateFile = async (fileName, newChainDetails, replaceWith) => {
   const filePath = enumFolderPath + fileName;
   const outputExists = fs.existsSync(filePath);

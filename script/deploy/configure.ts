@@ -108,9 +108,6 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             bridgeContract,
             true
           );
-          console.log(
-            `-   Checking limits and pool ids for chain ${chain}, siblings ${siblingSlugs}`
-          );
 
           if (
             isSuperToken() &&
