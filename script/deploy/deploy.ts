@@ -78,7 +78,9 @@ export const deploy = async () => {
       ...pc[token].vaultChains,
     ];
     const hookType = pc[token].hook.hookType;
+
     console.log(`Touching the following chains: ${allChains}`);
+
     for (let chain of allChains) {
       console.log(`\nDeploying contracts for ${chain}...`);
       let allDeployed = false;
