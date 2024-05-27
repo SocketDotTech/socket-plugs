@@ -119,7 +119,6 @@ export const updateProjectEnums = async (
   );
 };
 
-
 export const updateTokenEnums = async (newTokenInfo: {
   name: string;
   symbol: string;
