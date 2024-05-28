@@ -19,11 +19,11 @@ export type ProjectConfig = {
 };
 
 export type NewTokenInfo = {
+  name: string;
+  symbol: string;
+  decimals: number;
+  chainSlug: ChainSlug;
   address: string;
-  name?: string;
-  symbol?: string;
-  decimals?: number;
-  chainSlug?: ChainSlug;
 };
 
 type TokenRateLimits = Record<
