@@ -8,16 +8,13 @@ interface IHook {
      * @dev This function is used to execute a pre-hook call for the source underlyingAsset before initiating a transfer.
      * @param params_ Parameters for the pre-hook call.
      * @return transferInfo Information about the transfer.
-     * @return postSrcHookData returned from the pre-hook call.
+     * @return postHookData returned from the pre-hook call.
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
     )
         external
-        returns (
-            TransferInfo memory transferInfo,
-            bytes memory postSrcHookData
-        );
+        returns (TransferInfo memory transferInfo, bytes memory postHookData);
 
     function srcPostHookCall(
         SrcPostHookCallParams calldata params_
@@ -48,17 +45,14 @@ interface IHook {
      * @notice Executes a pre-retry hook for a failed transaction.
      * @dev This function is used to execute a pre-retry hook for a failed transaction.
      * @param params_ Parameters for the pre-retry hook.
-     * @return postRetryHookData Data from the post-retry hook.
+     * @return postHookData Data from the post-retry hook.
      * @return transferInfo Information about the transfer.
      */
     function preRetryHook(
         PreRetryHookCallParams calldata params_
     )
         external
-        returns (
-            bytes memory postRetryHookData,
-            TransferInfo memory transferInfo
-        );
+        returns (bytes memory postHookData, TransferInfo memory transferInfo);
 
     /**
      * @notice Executes a post-retry hook for a failed transaction.

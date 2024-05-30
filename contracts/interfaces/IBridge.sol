@@ -7,7 +7,7 @@ interface IBridge {
         uint256 amount_,
         uint256 msgGasLimit_,
         address connector_,
-        bytes calldata execPayload_,
+        bytes calldata extraData_,
         bytes calldata options_
     ) external payable;
 

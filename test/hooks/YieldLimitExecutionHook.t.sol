@@ -252,7 +252,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //         postSrcHookData,
     //         "post hook data sus"
     //     );
-    //     assertEq(payload, transferInfo.data, "new transfer data sus");
+    //     assertEq(payload, transferInfo.extraData, "new transfer data sus");
     //     assertEq(updatedAmount, transferInfo.amount, "shares to amount sus");
     // }
 
@@ -277,7 +277,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     assertEq(transferInfo.receiver, _raju, "receiver sus");
 
     //     bytes memory updatedPayload = abi.encode(options, bytes(""));
-    //     assertEq(transferInfo.data, updatedPayload, "extra data incorrect");
+    //     assertEq(transferInfo.extraData, updatedPayload, "extra data incorrect");
     // }
 
     // function testFullSrcHookCall() external {
@@ -334,7 +334,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //         "post hook data sus"
     //     );
     //     assertEq(withdrawAmount, transferInfo.amount, "shares to amount sus");
-    //     assertEq(payload, transferInfo.data, "new transfer data sus");
+    //     assertEq(payload, transferInfo.extraData, "new transfer data sus");
     // }
 
     // dst hooks (limit and execution edge cases expected to be covered in their hooks)
@@ -398,7 +398,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //     assertEq(transferInfo.amount, 0, "depositAmount sus");
     //     assertEq(transferInfo.receiver, address(0), "receiver sus");
     //     assertEq(postHookData, abi.encode(0, 0), "post hook data sus");
-    //     assertEq(transferInfo.data, bytes(""), "data sus");
+    //     assertEq(transferInfo.extraData, bytes(""), "data sus");
     // }
 
     // function testDstPostHookForSync() external {
@@ -471,7 +471,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //         abi.encode(limit, shares - limit),
     //         "post hook data sus"
     //     );
-    //     assertEq(transferInfo.data, data, "data sus");
+    //     assertEq(transferInfo.extraData, data, "data sus");
     //     assertEq(transferInfo.amount, limit, "depositAmount sus");
     // }
 
@@ -524,7 +524,7 @@ contract TestMintableTokenLimitExecutionHook is Setup {
     //             transferInfo.receiver,
     //             pending,
     //             _connector,
-    //             transferInfo.data
+    //             transferInfo.extraData
     //         ),
     //         "identifierCache sus"
     //     );

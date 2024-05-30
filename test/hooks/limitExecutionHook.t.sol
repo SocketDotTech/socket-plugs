@@ -182,7 +182,7 @@ contract TestLimitExecutionHook is Test {
         );
         assertEq(_raju, transferInfo.receiver, "receiver incorrect");
         assertEq(withdrawAmount, transferInfo.amount, "amount incorrect");
-        assertEq(transferInfo.data, payload, "extra data incorrect");
+        assertEq(transferInfo.extraData, payload, "extra data incorrect");
     }
 
     function testsrcPostHookCall() external {
@@ -197,7 +197,7 @@ contract TestLimitExecutionHook is Test {
                 TransferInfo(_raju, amount, payload)
             )
         );
-        assertEq(transferInfo.data, payload, "extra data incorrect");
+        assertEq(transferInfo.extraData, payload, "extra data incorrect");
         vm.stopPrank();
     }
 

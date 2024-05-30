@@ -103,11 +103,11 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
 
         transferInfo = srcPostHookCallParams_.transferInfo;
         if (srcPostHookCallParams_.transferInfo.amount == 0) {
-            transferInfo.data = abi.encode(totalYieldSync, bytes(""));
+            transferInfo.extraData = abi.encode(totalYieldSync, bytes(""));
         } else {
-            transferInfo.data = abi.encode(
+            transferInfo.extraData = abi.encode(
                 totalYieldSync,
-                srcPostHookCallParams_.transferInfo.data
+                srcPostHookCallParams_.transferInfo.extraData
             );
         }
     }
@@ -131,7 +131,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
             revert NotEnoughAssets();
 
         (bytes memory options_, bytes memory payload_) = abi.decode(
-            params_.transferInfo.data,
+            params_.transferInfo.extraData,
             (bytes, bytes)
         );
         bool pullFromStrategy = abi.decode(options_, (bool));
@@ -167,7 +167,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
             totalIdle = 0;
         } else totalIdle -= transferInfo.amount;
 
-        transferInfo.data = payload_;
+        transferInfo.extraData = payload_;
         transferInfo.receiver = params_.transferInfo.receiver;
     }
 
@@ -187,12 +187,9 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
         public
         override
         notShutdown
-        returns (
-            bytes memory postRetryHookData,
-            TransferInfo memory transferInfo
-        )
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (postRetryHookData, transferInfo) = super.preRetryHook(params_);
+        (postHookData, transferInfo) = super.preRetryHook(params_);
         if (transferInfo.amount > totalIdle) {
             _withdrawFromStrategy(transferInfo.amount - totalIdle);
             totalIdle = 0;

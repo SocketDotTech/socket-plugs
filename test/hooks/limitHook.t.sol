@@ -224,7 +224,7 @@ contract TestLimitHook is Test {
         );
         assertEq(_raju, transferInfo.receiver, "receiver incorrect");
         assertEq(withdrawAmount, transferInfo.amount, "amount incorrect");
-        assertEq(transferInfo.data, payload, "extra data incorrect");
+        assertEq(transferInfo.extraData, payload, "extra data incorrect");
     }
 
     function testsrcPostHookCall() external {
@@ -239,7 +239,7 @@ contract TestLimitHook is Test {
                 TransferInfo(_raju, amount, payload)
             )
         );
-        assertEq(transferInfo.data, payload, "extra data incorrect");
+        assertEq(transferInfo.extraData, payload, "extra data incorrect");
     }
 
     function testFullBurnLimitReplenish() external {
@@ -423,7 +423,7 @@ contract TestLimitHook is Test {
         );
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(transferInfo.amount, pendingAmount, "pending amount sus");
-        assertEq(transferInfo.data, bytes(""), "raju address sus");
+        assertEq(transferInfo.extraData, bytes(""), "raju address sus");
 
         // test 0 connector pendingAmount afterwards
         CacheData memory cacheData = limitHook__.postRetryHook(
@@ -489,7 +489,7 @@ contract TestLimitHook is Test {
         );
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(transferInfo.amount, _mintMaxLimit, "pending amount sus");
-        assertEq(transferInfo.data, bytes(""), "raju address sus");
+        assertEq(transferInfo.extraData, bytes(""), "raju address sus");
 
         // test 0 connector pendingAmount before
         CacheData memory cacheData = limitHook__.postRetryHook(

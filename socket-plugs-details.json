@@ -61,18 +61,21 @@
     },
     "421614": {
       "USDC": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
-      "WETH": "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
+      "WETH": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     },
     "11155111": {
       "USDC": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-      "WETH": "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa"
+      "WETH": "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa",
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     },
     "11155112": {
       "USDC": "0x4D435C00E09034ec2113F63088CCD0be0a0fd06e"
     },
     "11155420": {
       "USDC": "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
-      "WETH": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3"
+      "WETH": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     }
   },
   "tokenSymbols": {

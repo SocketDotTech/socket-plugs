@@ -79,7 +79,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) public virtual isVaultOrController returns (CacheData memory cacheData) {
-        bytes memory execPayload = params_.transferInfo.data;
+        bytes memory execPayload = params_.transferInfo.extraData;
 
         (
             uint256 consumedAmount,
@@ -136,10 +136,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         public
         virtual
         isVaultOrController
-        returns (
-            bytes memory postRetryHookData,
-            TransferInfo memory transferInfo
-        )
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         (address receiver, uint256 pendingMint, , address connector, ) = abi
             .decode(
@@ -154,7 +151,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             pendingMint
         );
 
-        postRetryHookData = abi.encode(receiver, consumedAmount, pendingAmount);
+        postHookData = abi.encode(receiver, consumedAmount, pendingAmount);
         transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
     }
 
@@ -173,7 +170,7 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
             );
 
         (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
-            .decode(params_.postRetryHookData, (address, uint256, uint256));
+            .decode(params_.postHookData, (address, uint256, uint256));
 
         uint256 connectorPendingAmount = _getConnectorPendingAmount(
             params_.cacheData.connectorCache

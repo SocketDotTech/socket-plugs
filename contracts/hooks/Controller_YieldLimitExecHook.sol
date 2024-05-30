@@ -62,11 +62,11 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         public
         override
         notShutdown
-        returns (TransferInfo memory transferInfo, bytes memory postSrcHookData)
+        returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
         super.srcPreHookCall(params_);
         uint256 amount = params_.transferInfo.amount;
-        postSrcHookData = abi.encode(amount);
+        postHookData = abi.encode(amount);
 
         totalUnderlyingAssets -= amount;
         transferInfo = params_.transferInfo;
@@ -84,12 +84,12 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         yieldToken__.updateTotalUnderlyingAssets(totalUnderlyingAssets);
 
         transferInfo.receiver = srcPostHookCallParams_.transferInfo.receiver;
-        transferInfo.data = abi.encode(
+        transferInfo.extraData = abi.encode(
             srcPostHookCallParams_.options,
-            srcPostHookCallParams_.transferInfo.data
+            srcPostHookCallParams_.transferInfo.extraData
         );
         transferInfo.amount = abi.decode(
-            srcPostHookCallParams_.postSrcHookData,
+            srcPostHookCallParams_.postHookData,
             (uint256)
         );
     }
@@ -108,7 +108,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         (uint256 increasedUnderlying, bytes memory payload) = abi.decode(
-            params_.transferInfo.data,
+            params_.transferInfo.extraData,
             (uint256, bytes)
         );
 
@@ -139,7 +139,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         transferInfo = params_.transferInfo;
         if (pendingUnderlying != 0) transferInfo.receiver = address(this);
         transferInfo.amount = sharesToMint;
-        transferInfo.data = payload;
+        transferInfo.extraData = payload;
     }
 
     /**
@@ -164,7 +164,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
                 params_.postHookData,
                 (uint256, uint256, uint256, address)
             );
-        bytes memory execPayload = params_.transferInfo.data;
+        bytes memory execPayload = params_.transferInfo.extraData;
 
         uint256 connectorPendingShares = _getConnectorPendingAmount(
             params_.connectorCache
@@ -232,7 +232,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     //  * @param connectorCache_ Sibling chain cache containing pending amount information.
     //  * @return updatedReceiver The updated receiver of the funds.
     //  * @return consumedUnderlying The amount consumed from the limit.
-    //  * @return postRetryHookData The post-hook data to be processed after the retry hook execution.
+    //  * @return postHookData The post-hook data to be processed after the retry hook execution.
     //  */
     function preRetryHook(
         PreRetryHookCallParams calldata params_
@@ -241,10 +241,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         override
         isVaultOrController
         notShutdown
-        returns (
-            bytes memory postRetryHookData,
-            TransferInfo memory transferInfo
-        )
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         (
             address receiver,
@@ -263,7 +260,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
             totalPendingShares
         );
 
-        postRetryHookData = abi.encode(receiver, consumedShares, pendingShares);
+        postHookData = abi.encode(receiver, consumedShares, pendingShares);
         uint256 consumedUnderlying = yieldToken__.convertToAssets(
             consumedShares
         );
@@ -278,7 +275,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
     //  * @param siblingChainSlug_ The unique identifier of the sibling chain.
     //  * @param identifierCache_ Identifier cache containing pending mint information.
     //  * @param connectorCache_ Sibling chain cache containing pending amount information.
-    //  * @param postRetryHookData_ The post-hook data containing updated receiver and consumed/pending amounts.
+    //  * @param postHookData_ The post-hook data containing updated receiver and consumed/pending amounts.
     //  * @return newIdentifierCache The updated identifier cache.
     //  * @return newConnectorCache The updated sibling chain cache.
     //  */
