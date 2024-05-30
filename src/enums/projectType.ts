@@ -13,4 +13,12 @@ export const ProjectTypeMap: Record<Project, ProjectType> = {
   [Project.SPECTRAL_SIGNAL]: ProjectType.SUPERTOKEN,
   [Project.LEAF_TESTNET]: ProjectType.SUPERTOKEN,
   [Project.MIST_TESTNET]: ProjectType.SUPERTOKEN,
+  [Project.SYNDR_SEPOLIA_TESTNET]: ProjectType.SUPERBRIDGE,
+  [Project.TESTING_MAINNET]: ProjectType.SUPERTOKEN,
+  [Project.AA_MAINNET]: ProjectType.SUPERTOKEN,
+  [Project.SV_MAINNET]: ProjectType.SUPERTOKEN,
+  [Project.ADG_MAINNET]: ProjectType.SUPERTOKEN,
+  [Project.AAVEGOTCHI_MAINNET]: ProjectType.SUPERTOKEN,
+  [Project.TIMESWAP_TEST_MAINNET]: ProjectType.SUPERTOKEN,
+  [Project.TESTING_TESTNET]: ProjectType.SUPERTOKEN,
 };

@@ -1,6 +1,9 @@
 import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
+import { EventEmitter } from "events";
+EventEmitter.defaultMaxListeners = 20;
+
 import { Contract, Wallet } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import {
@@ -62,6 +65,7 @@ export const deploy = async () => {
 
   for (let token of tokens) {
     console.log(`Deploying contracts for ${token}...`);
+
     pc[token] = getTokenConstants(token);
     let addresses: SBAddresses | STAddresses;
     try {
@@ -74,45 +78,47 @@ export const deploy = async () => {
       ...pc[token].vaultChains,
     ];
     const hookType = pc[token].hook.hookType;
-    await Promise.all(
-      allChains.map(async (chain: ChainSlug) => {
-        let allDeployed = false;
-        const signer = getSignerFromChainSlug(chain);
 
-        let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
-          chain
-        ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
+    console.log(`Touching the following chains: ${allChains}`);
 
-        let siblings: ChainSlug[] = [],
-          isAppchain: boolean = false;
-        if (projectType == ProjectType.SUPERBRIDGE) {
-          isAppchain = isSBAppChain(chain, token);
-          siblings = isAppchain
-            ? pc[token].vaultChains
-            : [pc[token].controllerChains[0]];
-        } else if (projectType == ProjectType.SUPERTOKEN)
-          siblings = allChains.filter((c) => c !== chain);
+    for (let chain of allChains) {
+      console.log(`\nDeploying contracts for ${chain}...`);
+      let allDeployed = false;
+      const signer = getSignerFromChainSlug(chain);
 
-        // console.log({ siblings, hook });
-        while (!allDeployed) {
-          const results: ReturnObj = await deployChainContracts(
-            isAppchain,
-            pc[token].vaultChains.includes(chain),
-            signer,
-            chain,
-            token,
-            siblings,
-            hookType,
-            chainAddresses
-          );
+      let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
+        chain
+      ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
 
-          allDeployed = results.allDeployed;
-          chainAddresses = results.deployedAddresses;
-          if (!allAddresses[chain]) allAddresses[chain] = {};
-          allAddresses[chain]![token] = chainAddresses;
-        }
-      })
-    );
+      let siblings: ChainSlug[] = [],
+        isAppchain: boolean = false;
+      if (projectType == ProjectType.SUPERBRIDGE) {
+        isAppchain = isSBAppChain(chain, token);
+        siblings = isAppchain
+          ? pc[token].vaultChains
+          : [pc[token].controllerChains[0]];
+      } else if (projectType == ProjectType.SUPERTOKEN)
+        siblings = allChains.filter((c) => c !== chain);
+
+      // console.log({ siblings, hook });
+      while (!allDeployed) {
+        const results: ReturnObj = await deployChainContracts(
+          isAppchain,
+          pc[token].vaultChains.includes(chain),
+          signer,
+          chain,
+          token,
+          siblings,
+          hookType,
+          chainAddresses
+        );
+
+        allDeployed = results.allDeployed;
+        chainAddresses = results.deployedAddresses;
+        if (!allAddresses[chain]) allAddresses[chain] = {};
+        allAddresses[chain]![token] = chainAddresses;
+      }
+    }
   }
   await storeAllAddresses(projectName as Project, allAddresses);
   return allAddresses;
@@ -247,6 +253,7 @@ const deployControllerChainContracts = async (
 
     if (isSuperToken()) {
       deployParams = await deploySuperToken(deployParams);
+
       let token = deployParams.addresses[TokenContracts.SuperToken];
       if (token) mintableToken = token;
       else throw new Error("SuperToken not found on chain");
@@ -327,6 +334,7 @@ const deployVaultChainContracts = async (
       [nonMintableToken],
       deployParams
     );
+
     deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
 
     deployParams = await deployHookContracts(false, deployParams);
@@ -387,6 +395,5 @@ const deploySuperToken = async (deployParams: DeployParams) => {
     );
     deployParams.addresses[contractName] = superTokenContract.address;
   }
-
   return deployParams;
 };

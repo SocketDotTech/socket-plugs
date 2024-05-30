@@ -32,7 +32,13 @@ Please go through the guide below to understand project terms before running the
 - run setup config script and provide project information - `npx ts-node script/setup.ts`.
   - **Note:** this scripts updates your .env to add relevant env variables. If you have anything sensitive/important in .env file, please take a backup first.
 - add necessary variables in .env (rpcs, private key)
-- run command `npx ts-node script/deploy.ts`.
+- run command `npx hardhat run script/deploy.ts`.
+
+To verify the contracts on a block explorer, you can use the following command:
+
+```bash
+npx hardhat run script/deploy/verifyContracts.ts --network <network>
+```
 
 **Note :** based on the chain you may run into some rpc issues like `intrinsic gas too low`, etc. while running the deploy script. We store network overrides in `script/helpers/networks.ts`. You can add overrides for gasPrice, gasLimits to be used by all scripts. For example, if you are running the script for arbitrum sepolia, and it throw `intrinsic gas too low` error, try increasing gas limit for arbitrum sepolia to 5 million and retry.
 

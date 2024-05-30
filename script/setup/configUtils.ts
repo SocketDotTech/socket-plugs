@@ -9,6 +9,7 @@ import {
   projectReverseMap,
 } from "./enumMaps";
 import { ProjectType } from "../../src";
+import { NewTokenInfo } from "./common";
 
 export const enumFolderPath = path.join(__dirname, `/../../src/enums/`);
 export const envFolderPath = path.join(__dirname, `/../../`);

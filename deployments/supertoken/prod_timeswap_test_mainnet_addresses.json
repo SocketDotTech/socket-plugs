@@ -1,0 +1,26 @@
+{
+  "10": {
+    "STIME": {
+      "SuperToken": "0x5e24d4e71d8fc876af3D45499f6b9E8A296EC694",
+      "Controller": "0x68E85149bCF40E717Be880a2B8798946794054DF",
+      "LimitHook": "0x16AC85d468B3D80Aee762f2B5739A67D7A916e86",
+      "connectors": {
+        "42161": {
+          "FAST": "0xac03f33BdDc7C7D002B9426cdA0f1f5Ad366E26b"
+        }
+      }
+    }
+  },
+  "42161": {
+    "STIME": {
+      "NonMintableToken": "0x17AfF554423D2C40A1BBF51b443E9d43dd8AE1eb",
+      "Vault": "0xac03f33BdDc7C7D002B9426cdA0f1f5Ad366E26b",
+      "LimitHook": "0x897692516f0e3408180f660b86f94b325a95B4d2",
+      "connectors": {
+        "10": {
+          "FAST": "0x54855aDcbfCE382F8aD4a933C67017D5B5A4636F"
+        }
+      }
+    }
+  }
+}
