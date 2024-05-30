@@ -42,6 +42,7 @@ import {
 } from "../../src/enums";
 import path from "path";
 import { ProjectTypeMap } from "../../src/enums/projectType";
+import { chainIdReverseMap } from "../setup/enumMaps";
 
 export const getOrDeploy = async (
   contractName: string,
@@ -145,10 +146,13 @@ export async function deployContractWithArgs(
     const Contract: ContractFactory = await ethers.getContractFactory(
       contractName
     );
-    // gasLimit is set to undefined to not use the value set in overrides
+
+    const chainId = await signer.getChainId();
+    const chainName = chainIdReverseMap.get(chainId.toString());
+    const chainSlug = ChainSlug[chainName];
+
     const contract: Contract = await Contract.connect(signer).deploy(...args, {
-      ...overrides[await signer.getChainId()],
-      // gasLimit: undefined,
+      ...overrides[chainSlug],
     });
     await contract.deployed();
     return contract;

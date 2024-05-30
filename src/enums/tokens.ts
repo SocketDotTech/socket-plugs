@@ -10,4 +10,11 @@ export enum Tokens {
   DAI = "DAI",
   GUARD = "GUARD",
   ETH = "ETH",
+  MTK = "MTK",
+  FUD = "FUD",
+  FOMO = "FOMO",
+  ALPHA = "ALPHA",
+  KEK = "KEK",
+  GLTR = "GLTR",
+  STIME = "STIME",
 }

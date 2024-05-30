@@ -10,4 +10,12 @@ export enum Project {
   REYA_CRONOS = "reya-cronos",
   REYA = "reya",
   SPECTRAL_SIGNAL = "spectral-signal",
+  SYNDR_SEPOLIA_TESTNET = "syndr_sepolia_testnet",
+  TESTING_MAINNET = "testing_mainnet",
+  AA_MAINNET = "aa_mainnet",
+  SV_MAINNET = "sv_mainnet",
+  ADG_MAINNET = "adg_mainnet",
+  AAVEGOTCHI_MAINNET = "aavegotchi_mainnet",
+  TIMESWAP_TEST_MAINNET = "timeswap_test_mainnet",
+  TESTING_TESTNET = "testing_testnet",
 }

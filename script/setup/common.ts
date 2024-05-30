@@ -15,7 +15,7 @@ export type ProjectConfig = {
   hookType: Hooks;
   owner: string;
   isMainnet: boolean;
-  newToken: boolean;
+  newToken?: boolean;
 };
 
 export type NewTokenInfo = {

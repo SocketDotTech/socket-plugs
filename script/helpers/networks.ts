@@ -96,10 +96,15 @@ export const overrides: {
     // gasLimit,
     gasPrice: 100_000_000,
   },
+  [ChainSlug.SYNDR_SEPOLIA_L3]: {
+    type: 2,
+    gasLimit: 400_000_000,
+    // gasPrice: 1_000_000_000,
+  },
   [ChainSlug.REYA]: {
     type: 1,
-    // gasLimit,
-    gasPrice: 100_000_000,
+    gasLimit: 1_000_000_000,
+    gasPrice: 100_000,
   },
 };
 

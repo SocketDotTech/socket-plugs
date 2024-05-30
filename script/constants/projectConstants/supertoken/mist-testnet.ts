@@ -11,11 +11,7 @@ export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       vaultChains: [ChainSlug.OPTIMISM_SEPOLIA],
-      controllerChains: [
-        ChainSlug.ARBITRUM_SEPOLIA,
-        ChainSlug.AEVO_TESTNET,
-        ChainSlug.POLYGON_MUMBAI,
-      ],
+      controllerChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.AEVO_TESTNET],
       superTokenInfo: {
         name: "Mist",
         symbol: "MIST",
@@ -34,12 +30,6 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.AEVO_TESTNET]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "50000",
-              receivingLimit: "50000",
-            },
-          },
-          [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "50000",
               receivingLimit: "50000",

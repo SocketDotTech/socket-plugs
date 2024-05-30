@@ -1,4 +1,5 @@
 import {
+  ChainId,
   ChainSlug,
   DeploymentMode,
   IntegrationTypes,
@@ -7,6 +8,7 @@ import { Project, Tokens } from "../../src/enums";
 import { Hooks } from "../../src";
 
 export const chainSlugReverseMap = createReverseEnumMap(ChainSlug);
+export const chainIdReverseMap = createReverseEnumMap(ChainId);
 export const tokensReverseMap = createReverseEnumMap(Tokens);
 export const integrationTypesreverseMap =
   createReverseEnumMap(IntegrationTypes);

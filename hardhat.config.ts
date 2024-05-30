@@ -6,6 +6,8 @@ import "hardhat-deploy";
 import "hardhat-abi-exporter";
 import "hardhat-change-network";
 
+import "@nomicfoundation/hardhat-foundry";
+
 import { config as dotenvConfig } from "dotenv";
 import type { HardhatUserConfig } from "hardhat/config";
 import type {
@@ -66,6 +68,7 @@ const liveNetworks = [
   HardhatChainName.BASE,
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
+  HardhatChainName.SYNDR_SEPOLIA_L3,
 ];
 
 let hardhatNetworkDetails = {};

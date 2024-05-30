@@ -32,16 +32,33 @@ export const verifyConstants = async () => {
       }
       let { superTokenInfo } = currentPc;
       checkMissingFields({ superTokenInfo });
-      let { name, symbol, decimals, initialSupplyOwner, owner, initialSupply } =
-        superTokenInfo!;
-      checkMissingFields({
-        name,
-        symbol,
-        decimals,
-        initialSupplyOwner,
-        owner,
-        initialSupply,
-      });
+
+      if ("address" in superTokenInfo) {
+        // Handle the case where only the address is present
+        checkMissingFields({ address: superTokenInfo.address });
+        console.log(`Using already deployed token ${superTokenInfo.address}`);
+      } else {
+        // Handle the case where detailed information is present
+        let {
+          name,
+          symbol,
+          decimals,
+          initialSupplyOwner,
+          owner,
+          initialSupply,
+        } = superTokenInfo;
+        checkMissingFields({
+          name,
+          symbol,
+          decimals,
+          initialSupplyOwner,
+          owner,
+          initialSupply,
+        });
+        console.log(
+          `Deploying new SuperToken with ${name} (${symbol}) with ${decimals} decimals`
+        );
+      }
     }
 
     if (currentPc.hook) {
