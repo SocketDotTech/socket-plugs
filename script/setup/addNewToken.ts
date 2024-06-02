@@ -13,21 +13,17 @@ import { chainSlugReverseMap } from "./enumMaps";
 import { getJsonRpcUrl, rpcKeys } from "../helpers";
 import { providers } from "ethers";
 
-export const addNewToken = async (customPrompts) => {
+export const addNewToken = async () => {
   let chainOptions = [...MainnetIds, ...TestnetIds].map((chain) => ({
     title: chainSlugReverseMap.get(String(chain)),
     value: chain,
   }));
-  let newTokenInfo = await getNewTokenInfo(chainOptions, customPrompts);
-  if (newTokenInfo === "back") return "back";
+  let newTokenInfo: NewTokenInfo = await getNewTokenInfo(chainOptions);
   if (!newTokenInfo.name) return;
-
-  console.log(".....Adding new token: ", newTokenInfo);
+  console.log("Adding new token: ", newTokenInfo);
   if (!Object.keys(Tokens).includes(newTokenInfo.symbol.toUpperCase())) {
     await updateTokenEnums(newTokenInfo);
   }
-  console.log("Token added successfully.....");
-  let newTokenList = Object.keys(Tokens);
 
   const newTokensEnum = {
     ...Tokens,
@@ -47,9 +43,8 @@ export const addNewToken = async (customPrompts) => {
 };
 
 export const getNewTokenInfo = async (
-  chainOptions: { title: string; value: number }[],
-  customPrompts
-): Promise<NewTokenInfo | "back"> => {
+  chainOptions: { title: string; value: number }[]
+) => {
   let newTokenInfo: NewTokenInfo = {
     name: "",
     symbol: "",
@@ -58,7 +53,7 @@ export const getNewTokenInfo = async (
     chainSlug: 0 as ChainSlug,
   };
 
-  const { chainSlug, address } = await customPrompts([
+  const { chainSlug, address } = await prompts([
     {
       name: "chainSlug",
       type: "select",
@@ -72,17 +67,14 @@ export const getNewTokenInfo = async (
       validate: (value) => validateEthereumAddress(value.trim()),
     },
   ]);
-
-  if (chainSlug === "back" || address === "back") return "back";
-
   newTokenInfo.chainSlug = chainSlug as ChainSlug;
   newTokenInfo.address = address.trim();
 
   if (ExistingTokenAddresses[chainSlug]) {
-    for (let [symbol, addr] of Object.entries(
+    for (let [symbol, address] of Object.entries(
       ExistingTokenAddresses[newTokenInfo.chainSlug]
     )) {
-      if (addr.toLowerCase() === newTokenInfo.address.toLowerCase()) {
+      if (address.toLowerCase() === newTokenInfo.address.toLowerCase()) {
         console.log(
           `Token already present in the repo as ${symbol} on chain ${chainSlugReverseMap.get(
             String(chainSlug)
@@ -96,7 +88,7 @@ export const getNewTokenInfo = async (
   let rpcKey = rpcKeys(chainSlug);
   let rpc = process.env[rpcKey];
   if (!rpc) {
-    const rpcInfo = await customPrompts([
+    const rpcInfo = await prompts([
       {
         name: "rpc",
         type: "text",
@@ -104,19 +96,16 @@ export const getNewTokenInfo = async (
         validate: (value) => validateRPC(chainSlug, value.trim()),
       },
     ]);
-
-    if (rpcInfo === "back") return "back";
-
     rpc = rpcInfo.rpc.trim();
     appendToEnvFile(rpcKey, rpc);
   }
 
+  newTokenInfo.address = newTokenInfo.address.trim();
   let { name, symbol, decimals } = await getTokenMetadata(
     chainSlug,
     newTokenInfo.address,
     rpc
   );
-
   if (
     ExistingTokenAddresses[chainSlug]?.[symbol.toUpperCase()]?.toLowerCase() ===
     newTokenInfo.address.toLowerCase()
@@ -124,7 +113,7 @@ export const getNewTokenInfo = async (
     console.log("Token already present in the list");
     return newTokenInfo;
   }
-
+  console.log("fetched token metadata: ", { name, symbol, decimals });
   newTokenInfo = {
     ...newTokenInfo,
     name,
@@ -132,6 +121,5 @@ export const getNewTokenInfo = async (
     decimals,
     chainSlug,
   };
-
   return newTokenInfo;
 };
