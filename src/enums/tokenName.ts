@@ -13,4 +13,8 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.GUARD]: "Guardian",
   [Tokens.ETH]: "Ether",
   [Tokens.TESTOKEN]: "TESTOKEN",
+  [Tokens.TOKEN1]: "token1",
+  [Tokens.TEST2]: "TEST2",
+  [Tokens.TEST3]: "TEST3",
+  [Tokens.PEPE]: "Pepe",
 };

@@ -23,17 +23,17 @@ export const overrides: {
 } = {
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     type,
-    // gasLimit: 20_000_000,
+    gasLimit: 5_000_000,
     gasPrice,
   },
   [ChainSlug.OPTIMISM_SEPOLIA]: {
     type,
-    // gasLimit: 20_000_000,
+    gasLimit: 5_000_000,
     gasPrice,
   },
   [ChainSlug.SEPOLIA]: {
     type: 0,
-    gasLimit,
+    gasLimit: 10_000_000,
     gasPrice: 25_000_000_000,
   },
   [ChainSlug.AEVO_TESTNET]: {

@@ -12,4 +12,10 @@ export enum Project {
   SPECTRAL_SIGNAL = "spectral-signal",
   TOKEN_TEST_PROJECT_TESTNET = "token_test_project_testnet",
   BRIDGE_TEST_PROJECT_TESTNET = "bridge_test_project_testnet",
+  TOKEN1_TESTNET = "token1_testnet",
+  TEST2_TESTNET = "test2_testnet",
+  BRIDGE1_TESTNET = "bridge1_testnet",
+  BRIDGE2_TESTNET = "bridge2_testnet",
+  BRIDGE3_TESTNET = "bridge3_testnet",
+  DF_TESTNET = "df_testnet",
 }

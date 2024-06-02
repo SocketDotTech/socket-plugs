@@ -22,12 +22,12 @@ import { chainSlugReverseMap } from "./enumMaps";
 import { validateEmptyValue } from "./common";
 var _ = require("lodash");
 
-export const editProject = async () => {
+export const editProject = async (customPrompts) => {
   const projectChoices = Object.values(Project).map((project) => ({
     title: project,
     value: project,
   }));
-  const projectInfo = await prompts([
+  const projectInfo = await customPrompts([
     {
       name: "projectName",
       type: "select",
@@ -35,6 +35,9 @@ export const editProject = async () => {
       choices: projectChoices,
     },
   ]);
+
+  if (projectInfo === 'back') return 'back';
+
   const projectType = ProjectTypeMap[projectInfo.projectName] as ProjectType;
   let projectConstantsPath = getConstantPathForProject(
     projectInfo.projectName,
@@ -45,11 +48,11 @@ export const editProject = async () => {
     console.log(
       `Project constants for ${projectInfo.projectName} not found at path ${projectConstantsPath}`
     );
-    return;
+    return 'back';
   }
   let pc = require(projectConstantsPath).pc;
 
-  const action = await prompts([
+  const action = await customPrompts([
     {
       name: "action",
       type: "select",
@@ -71,19 +74,22 @@ export const editProject = async () => {
     },
   ]);
 
+  if (action === 'back') return 'back';
+
   if (action.action === "addChain") {
-    await addChain(projectInfo.projectName, projectType, pc);
+    await addChain(projectInfo.projectName, projectType, pc, customPrompts);
   } else if (action.action === "addToken") {
-    await addToken(projectInfo.projectName, projectType, pc);
+    await addToken(projectInfo.projectName, projectType, pc, customPrompts);
   } else if (action.action === "updateLimit") {
-    await updateRateLimit(projectInfo.projectName, projectType, pc);
+    await updateRateLimit(projectInfo.projectName, projectType, pc, customPrompts);
   }
 };
 
 export const addChain = async (
   projectName: string,
   projectType: ProjectType,
-  pc: ProjectConstants
+  pc: ProjectConstants,
+  customPrompts
 ) => {
   let newPc: ProjectConstants = _.cloneDeep(pc);
 
@@ -111,7 +117,7 @@ export const addChain = async (
       value: chain,
     }));
 
-    const chainInfo = await prompts([
+    const chainInfo = await customPrompts([
       {
         name: "chain",
         type: "select",
@@ -120,11 +126,13 @@ export const addChain = async (
       },
     ]);
 
+    if (chainInfo === 'back') return 'back';
+
     const tokenChoices = projectTokens.map((token) => ({
       title: token,
       value: token,
     }));
-    const tokenInfo = await prompts([
+    const tokenInfo = await customPrompts([
       {
         name: "tokens",
         type: "multiselect",
@@ -133,6 +141,8 @@ export const addChain = async (
         min: 1,
       },
     ]);
+
+    if (tokenInfo === 'back') return 'back';
 
     for (const token of tokenInfo.tokens) {
       const newChainSlug = chainInfo.chain;
@@ -151,13 +161,15 @@ export const addChain = async (
     generateConstantsFile(projectType, projectName, newPc);
   } catch (error) {
     console.log(error);
+    return 'back';
   }
 };
 
 export const addToken = async (
   projectName: string,
   projectType: ProjectType,
-  pc: ProjectConstants
+  pc: ProjectConstants,
+  customPrompts
 ) => {
   let newPc: ProjectConstants = _.cloneDeep(pc);
 
@@ -186,7 +198,7 @@ export const addToken = async (
       value: token,
     }));
 
-    const tokenInfo = await prompts([
+    const tokenInfo = await customPrompts([
       {
         name: "tokens",
         type: "multiselect",
@@ -197,19 +209,23 @@ export const addToken = async (
       },
     ]);
 
-    const copytTokenChoices = projectTokens.map((token) => ({
+    if (tokenInfo === 'back') return 'back';
+
+    const copyTokenChoices = projectTokens.map((token) => ({
       title: token,
       value: token,
     }));
-    const copyTokenInfo = await prompts([
+    const copyTokenInfo = await customPrompts([
       {
         name: "copyToken",
         type: "select",
         message:
           "Select the token from where you want to copy configuration (vault chains, controller chains, limits etc)",
-        choices: copytTokenChoices,
+        choices: copyTokenChoices,
       },
     ]);
+
+    if (copyTokenInfo === 'back') return 'back';
 
     const copyTokenConfig = pc[DeploymentMode.PROD][
       copyTokenInfo.copyToken
@@ -220,13 +236,15 @@ export const addToken = async (
     generateConstantsFile(projectType, projectName, newPc);
   } catch (error) {
     console.log(error);
+    return 'back';
   }
 };
 
 export const updateRateLimit = async (
   projectName: string,
   projectType: ProjectType,
-  pc: ProjectConstants
+  pc: ProjectConstants,
+  customPrompts
 ) => {
   let newPc: ProjectConstants = _.cloneDeep(pc);
 
@@ -243,7 +261,7 @@ export const updateRateLimit = async (
         console.log(
           `Rate limits can only be updated for project with hook type LIMIT_HOOK or LIMIT_EXECUTION_HOOK. Returning ...`
         );
-        return;
+        return 'back';
       }
       const allChains = [
         ...tokenConstants.vaultChains,
@@ -260,7 +278,7 @@ export const updateRateLimit = async (
       value: token,
     }));
 
-    const tokenInfo = await prompts([
+    const tokenInfo = await customPrompts([
       {
         name: "tokens",
         type: "multiselect",
@@ -270,12 +288,14 @@ export const updateRateLimit = async (
       },
     ]);
 
+    if (tokenInfo === 'back') return 'back';
+
     const tokenChains = [...chains];
     const chainChoices = tokenChains.map((chain) => ({
       title: chainSlugReverseMap.get(String(chain)),
       value: chain,
     }));
-    const chainInfo = await prompts([
+    const chainInfo = await customPrompts([
       {
         name: "chains",
         type: "multiselect",
@@ -284,6 +304,8 @@ export const updateRateLimit = async (
         min: 1,
       },
     ]);
+
+    if (chainInfo === 'back') return 'back';
 
     for (const token of tokenInfo.tokens) {
       const currentTc = pc[DeploymentMode.PROD][token] as TokenConstants;
@@ -295,7 +317,7 @@ export const updateRateLimit = async (
       for (const chain of chainInfo.chains) {
         if (!currentTokenChains.includes(chain)) continue;
 
-        const limitInfo = await prompts([
+        const limitInfo = await customPrompts([
           {
             name: "sendingLimit",
             type: "text",
@@ -315,6 +337,9 @@ export const updateRateLimit = async (
             validate: (value) => validateEmptyValue(value.trim()),
           },
         ]);
+
+        if (limitInfo === 'back') return 'back';
+
         newTc.hook.limitsAndPoolId[chain][IntegrationTypes.fast] = {
           ...newTc.hook.limitsAndPoolId[chain][IntegrationTypes.fast], // to preserve poolId values
           sendingLimit: limitInfo.sendingLimit,
@@ -326,5 +351,6 @@ export const updateRateLimit = async (
     generateConstantsFile(projectType, projectName, newPc);
   } catch (error) {
     console.log(error);
+    return 'back';
   }
 };

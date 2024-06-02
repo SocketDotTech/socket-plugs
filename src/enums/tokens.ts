@@ -11,4 +11,8 @@ export enum Tokens {
   GUARD = "GUARD",
   ETH = "ETH",
   TESTOKEN = "TESTOKEN",
+  TOKEN1 = "TOKEN1",
+  TEST2 = "TEST2",
+  TEST3 = "TEST3",
+  PEPE = "PEPE",
 }

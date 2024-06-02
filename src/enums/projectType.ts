@@ -15,4 +15,10 @@ export const ProjectTypeMap: Record<Project, ProjectType> = {
   [Project.MIST_TESTNET]: ProjectType.SUPERTOKEN,
   [Project.TOKEN_TEST_PROJECT_TESTNET]: ProjectType.SUPERTOKEN,
   [Project.BRIDGE_TEST_PROJECT_TESTNET]: ProjectType.SUPERBRIDGE,
+  [Project.TOKEN1_TESTNET]: ProjectType.SUPERTOKEN,
+  [Project.TEST2_TESTNET]: ProjectType.SUPERTOKEN,
+  [Project.BRIDGE1_TESTNET]: ProjectType.SUPERBRIDGE,
+  [Project.BRIDGE2_TESTNET]: ProjectType.SUPERBRIDGE,
+  [Project.BRIDGE3_TESTNET]: ProjectType.SUPERBRIDGE,
+  [Project.DF_TESTNET]: ProjectType.SUPERTOKEN,
 };

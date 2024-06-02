@@ -43,7 +43,8 @@
     "buildJson": "npx ts-node ./script/helpers/updateJsons.ts",
     "abi": "hardhat export-abi",
     "compile": "forge build",
-    "test": "forge test"
+    "test": "forge test",
+    "setup": "ts-node setup.ts"
   },
   "pre-commit": [
     "lint",

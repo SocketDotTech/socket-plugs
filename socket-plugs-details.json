@@ -10,7 +10,9 @@
     "wstETH": 18,
     "DAI": 18,
     "GUARD": 18,
-    "ETH": 18
+    "ETH": 18,
+    "TESTOKEN": 18,
+    "TOKEN1": 18
   },
   "tokenAddresses": {
     "1": {
@@ -86,7 +88,9 @@
     "wstETH": "wstETH",
     "DAI": "DAI",
     "GUARD": "GUARD",
-    "ETH": "ETH"
+    "ETH": "ETH",
+    "TESTOKEN": "TESTOKEN",
+    "TOKEN1": "TOKEN1"
   },
   "projects": [
     "aevo",
@@ -99,7 +103,10 @@
     "mist-testnet",
     "reya-cronos",
     "reya",
-    "spectral-signal"
+    "spectral-signal",
+    "token_test_project_testnet",
+    "bridge_test_project_testnet",
+    "token1_testnet"
   ],
   "tokens": [
     "MOON",
@@ -112,6 +119,8 @@
     "wstETH",
     "DAI",
     "GUARD",
-    "ETH"
+    "ETH",
+    "TESTOKEN",
+    "TOKEN1"
   ]
 }

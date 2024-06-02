@@ -1,0 +1,52 @@
+{
+  "421614": [
+    [
+      "0x77e6C3f148eD3243E86Ad56F9Cca33E8a8B070d4",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x356fC87B4f360984D2CE899De6a8fFB6dA493cDf",
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        11155420
+      ]
+    ],
+    [
+      "0xd45147c2b7Ce9bCEd441837D0eE2D33356B7D1Ad",
+      "LimitHook",
+      "contracts/hooks/LimitHook.sol",
+      [
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        "0x356fC87B4f360984D2CE899De6a8fFB6dA493cDf",
+        false
+      ]
+    ],
+    [
+      "0x356fC87B4f360984D2CE899De6a8fFB6dA493cDf",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0x8537307810fC40F4073A12a38554D4Ff78EfFf41"
+      ]
+    ]
+  ],
+  "11155420": [
+    [
+      "0x6Ca0791115Cec6AA7eE804D55369c8ac799f0A6E",
+      "LimitHook",
+      "contracts/hooks/LimitHook.sol",
+      [
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        "0x8AcA3893F329692fE0F33f89258888BA4ee5b80c",
+        true
+      ]
+    ],
+    [
+      "0x8AcA3893F329692fE0F33f89258888BA4ee5b80c",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      [
+        "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf"
+      ]
+    ]
+  ]
+}

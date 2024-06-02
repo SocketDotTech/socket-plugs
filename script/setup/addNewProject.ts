@@ -43,8 +43,10 @@ type SuperTokenInfo = {
 
 let tokenEnum = Tokens;
 
-export const addProject = async () => {
-  const projectConfig = await getProjectInfo();
+export const addProject = async (customPrompts) => {
+  const projectConfig = await getProjectInfo(customPrompts);
+  if (projectConfig === 'back') return 'back';
+  
   let {
     projectName,
     projectType,
@@ -54,21 +56,27 @@ export const addProject = async () => {
     chainOptions,
   } = projectConfig;
 
-  let chainsInfo = await getChainsInfo(projectType, chainOptions);
+  let chainsInfo = await getChainsInfo(projectType, chainOptions, customPrompts);
+  if (chainsInfo === 'back') return 'back';
+
+  if (typeof chainsInfo !== 'object' || !('vaultChains' in chainsInfo) || !('controllerChains' in chainsInfo)) {
+    console.error('Invalid chainsInfo structure:', chainsInfo);
+    return 'back';
+  }
+
   let { vaultChains, controllerChains } = chainsInfo;
-  const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
+  const allChains = [...vaultChains, ...controllerChains];
   await updateProjectEnums(projectConfig.projectName, projectType);
   console.log(`✔  Updated Enums :Project`);
 
-  let tokenInfo: {
-    tokens: Tokens[];
-    superTokenInfoMap?: Record<string, SuperTokenInfo>;
-  } = await getProjectTokenListInfo(
+  let tokenInfo = await getProjectTokenListInfo(
     projectType,
     owner,
     vaultChains,
-    controllerChains
+    controllerChains,
+    customPrompts
   );
+  if (tokenInfo === 'back') return 'back';
 
   await buildEnvFile(
     projectConfig.projectName,
@@ -78,19 +86,21 @@ export const addProject = async () => {
     allChains
   );
 
-  const { tokenLimitInfo } = await getHookRelatedInfo(
+  const hookInfo = await getHookRelatedInfo(
     projectType,
     isLimitsRequired,
     tokenInfo.tokens,
-    tokenInfo.superTokenInfoMap
+    tokenInfo.superTokenInfoMap,
+    customPrompts
   );
+  if (hookInfo === 'back') return 'back';
 
   let projectConstants = await buildProjectConstants(
     tokenInfo,
     chainsInfo,
     hookType,
     isLimitsRequired,
-    tokenLimitInfo,
+    hookInfo.tokenLimitInfo,
     allChains
   );
   generateConstantsFile(projectType, projectName, projectConstants);
@@ -100,9 +110,9 @@ export const addProject = async () => {
   );
 };
 
-export const getProjectInfo = async () => {
+export const getProjectInfo = async (customPrompts) => {
   const currentOwnerAddress = process.env.OWNER_ADDRESS;
-  let projectInfo: ProjectConfig = await prompts([
+  let projectInfo: ProjectConfig | string = await customPrompts([
     {
       name: "projectType",
       type: "select",
@@ -160,6 +170,12 @@ export const getProjectInfo = async () => {
     },
   ]);
 
+  if (projectInfo === 'back') return 'back';
+
+  if (typeof projectInfo !== 'object') {
+    return 'back';
+  }
+
   projectInfo.projectName = projectInfo.isMainnet
     ? projectInfo.projectName + "_mainnet"
     : projectInfo.projectName + "_testnet";
@@ -175,12 +191,14 @@ export const getProjectInfo = async () => {
   }));
   return { ...projectInfo, isLimitsRequired, chainOptions };
 };
+
 export const getChainsInfo = async (
   projectType: ProjectType,
-  chainOptions: { title: string; value: number }[]
+  chainOptions: { title: string; value: number }[],
+  customPrompts
 ) => {
   if (projectType == ProjectType.SUPERBRIDGE) {
-    const vaultChainsInfo = await prompts([
+    const vaultChainsInfo = await customPrompts([
       {
         name: "vaultChains",
         type: "multiselect",
@@ -192,10 +210,12 @@ export const getChainsInfo = async (
       },
     ]);
 
+    if (vaultChainsInfo === 'back') return 'back';
+
     const controllerChainOptions = chainOptions.filter(
       (chainOption) => !vaultChainsInfo.vaultChains.includes(chainOption.value)
     );
-    const controllerChainsInfo = await prompts([
+    const controllerChainsInfo = await customPrompts([
       {
         name: "controllerChains",
         type: "select",
@@ -204,12 +224,15 @@ export const getChainsInfo = async (
         choices: controllerChainOptions,
       },
     ]);
+
+    if (controllerChainsInfo === 'back') return 'back';
+
     return {
       vaultChains: vaultChainsInfo.vaultChains,
       controllerChains: [controllerChainsInfo.controllerChains],
     };
   } else {
-    const vaultChainsInfo = await prompts([
+    const vaultChainsInfo = await customPrompts([
       {
         name: "vaultChains",
         type: "multiselect",
@@ -220,10 +243,13 @@ export const getChainsInfo = async (
         max: 1,
       },
     ]);
+
+    if (vaultChainsInfo === 'back') return 'back';
+
     const controllerChainOptions = chainOptions.filter(
       (chainOption) => !vaultChainsInfo.vaultChains.includes(chainOption.value)
     );
-    const controllerChainsInfo = await prompts([
+    const controllerChainsInfo = await customPrompts([
       {
         name: "controllerChains",
         type: "multiselect",
@@ -234,6 +260,8 @@ export const getChainsInfo = async (
         choices: controllerChainOptions,
       },
     ]);
+
+    if (controllerChainsInfo === 'back') return 'back';
 
     return {
       vaultChains: vaultChainsInfo.vaultChains,
@@ -246,7 +274,8 @@ export const getProjectTokenListInfo = async (
   projectType: ProjectType,
   ownerAddress: string,
   vaultChains: ChainSlug[],
-  controllerChains: ChainSlug[]
+  controllerChains: ChainSlug[],
+  customPrompts
 ) => {
   let tokenChoices = Object.keys(tokenEnum).map((token) => ({
     title: token,
@@ -254,46 +283,51 @@ export const getProjectTokenListInfo = async (
   }));
 
   if (projectType == ProjectType.SUPERBRIDGE) {
-    return await prompts([
+    return await customPrompts([
       {
         name: "tokens",
         type: "multiselect",
         message:
           "Select tokens to connect (the tokens we want to allow users to bridge to app chain)",
-        min: 1,
-        max: 20,
         choices: tokenChoices,
       },
     ]);
   } else if (projectType === ProjectType.SUPERTOKEN) {
     let allTokens: Tokens[] = [];
     let superTokenInfoMap: Record<string, SuperTokenInfo> = {};
-    console.log("provide Supertoken details : ");
+
     while (true) {
       let supertokenInfo = await getSuperTokenInfo(
         ownerAddress,
         vaultChains,
-        controllerChains
+        controllerChains,
+        customPrompts
       );
+      if (supertokenInfo === 'back') return 'back';
+
       let token = supertokenInfo.symbol;
       if (!(token in tokenEnum)) {
         await updateTokenEnums(supertokenInfo);
         tokenEnum[token] = token;
       }
-      if (supertokenInfo.currentAddresses.length > 0)
+      if (supertokenInfo.currentAddresses && supertokenInfo.currentAddresses.length > 0)
         generateTokenAddressesFile(supertokenInfo.currentAddresses, tokenEnum);
 
       allTokens.push(token as Tokens);
       superTokenInfoMap[token] = supertokenInfo;
-      let response = await prompts([
+
+      let response = await customPrompts([
         {
           name: "addMoreTokens",
           type: "confirm",
           message: "Want to add more tokens?",
         },
       ]);
+
+      if (response === 'back') return 'back';
       if (!response.addMoreTokens) break;
     }
+
     return { tokens: allTokens, superTokenInfoMap };
   }
 };
@@ -302,7 +336,8 @@ export const getHookRelatedInfo = async (
   projectType: ProjectType,
   isLimitsRequired: boolean,
   tokens: Tokens[],
-  superTokenInfoMap: Record<string, SuperTokenInfo> = {}
+  superTokenInfoMap: Record<string, SuperTokenInfo> = {},
+  customPrompts
 ) => {
   let tokenLimitInfo: TokenRateLimits = {};
   if (isLimitsRequired) {
@@ -312,9 +347,9 @@ export const getHookRelatedInfo = async (
         token,
         superTokenInfoMap
       );
-      // console.log("initialValue", initialValue, tokens);
-      // console.log(initialValue.sendingLimit, initialValue.receivingLimit);
-      let limitInfo = await prompts([
+      if (initialValue === 'back') return 'back';
+      
+      let limitInfo = await customPrompts([
         {
           name: "sendingLimit",
           type: "text",
@@ -331,6 +366,8 @@ export const getHookRelatedInfo = async (
         },
       ]);
 
+      if (limitInfo === 'back') return 'back';
+
       tokenLimitInfo[token] = limitInfo;
     }
   }
@@ -340,8 +377,9 @@ export const getHookRelatedInfo = async (
 export const getSuperTokenInfo = async (
   ownerAddress: string,
   vaultChains: ChainSlug[],
-  controllerChains: ChainSlug[]
-) => {
+  controllerChains: ChainSlug[],
+  customPrompts
+): Promise<SuperTokenInfo | 'back'> => {
   const isFreshDeployment = vaultChains.length === 0;
   let superTokenInfo: SuperTokenInfo = {
     name: "",
@@ -353,7 +391,7 @@ export const getSuperTokenInfo = async (
     currentAddresses: [],
   };
 
-  let info = await prompts([
+  let info = await customPrompts([
     {
       name: "name",
       type: "text",
@@ -372,7 +410,6 @@ export const getSuperTokenInfo = async (
       message: `Enter token decimals:`,
       validate: (value) => validateEmptyValue(String(value).trim()),
     },
-
     {
       name: "initialSupplyOwner",
       type: "text",
@@ -381,14 +418,18 @@ export const getSuperTokenInfo = async (
       initial: ownerAddress,
     },
   ]);
+
+  if (info === 'back') return 'back';
+
   superTokenInfo = { ...superTokenInfo, ...info };
   superTokenInfo.symbol = superTokenInfo.symbol.toUpperCase();
+
   if (isFreshDeployment) {
-    let response = await prompts([
+    let response = await customPrompts([
       {
         name: "initialSupply",
         type: "text",
-        message: `Enter initial supply(enter formatted value, ex: 1000 for 1000 WETH) :`,
+        message: `Enter initial supply (enter formatted value, ex: 1000 for 1000 WETH) :`,
         validate: (value) => validateEmptyValue(String(value).trim()),
       },
       {
@@ -404,11 +445,14 @@ export const getSuperTokenInfo = async (
         }),
       },
     ]);
+
+    if (response === 'back') return 'back';
+
     superTokenInfo.initialSupply = response.initialSupply;
     superTokenInfo.initialChain = response.initialChain;
   } else {
     while (true) {
-      let response = await prompts([
+      let response = await customPrompts([
         {
           name: "chain",
           type: "select",
@@ -434,6 +478,8 @@ export const getSuperTokenInfo = async (
             "Want to add more token addresses? If a token is already deployed somewhere, script won't deploy again.",
         },
       ]);
+
+      if (response === 'back') return 'back';
 
       superTokenInfo.currentAddresses = superTokenInfo.currentAddresses ?? [];
       superTokenInfo.currentAddresses.push({
@@ -508,6 +554,7 @@ export const getInitialLimitValue = async (
     );
   } else if (projectType == ProjectType.SUPERTOKEN) {
     let info = superTokenInfoMap[token.toUpperCase()];
+    if (typeof info === 'string') return 'back';
     return {
       sendingLimit: info?.initialSupply
         ? parseInt(info?.initialSupply) / 100
@@ -516,6 +563,5 @@ export const getInitialLimitValue = async (
         ? parseInt(info?.initialSupply) / 100
         : 0,
     };
-    // think about using initial supply
   }
 };

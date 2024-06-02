@@ -1,0 +1,15 @@
+{
+  "421614": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+      "Vault": "0x356fC87B4f360984D2CE899De6a8fFB6dA493cDf",
+      "LimitHook": "0xd45147c2b7Ce9bCEd441837D0eE2D33356B7D1Ad",
+      "connectors": {
+        "11155420": {
+          "FAST": "0x77e6C3f148eD3243E86Ad56F9Cca33E8a8B070d4"
+        }
+      }
+    }
+  }
+}

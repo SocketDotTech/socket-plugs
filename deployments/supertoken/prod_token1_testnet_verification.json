@@ -1,0 +1,94 @@
+{
+  "421614": [
+    [
+      "0x2E26f7195272C03DBdAE1DED832484783C005F44",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x73924bc36E58051770941982491b0b87C1385add",
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        11155111
+      ]
+    ],
+    [
+      "0xA94c334076c1c3C8988cb11b9F14191b4e445126",
+      "LimitHook",
+      "contracts/hooks/LimitHook.sol",
+      [
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        "0x73924bc36E58051770941982491b0b87C1385add",
+        false
+      ]
+    ],
+    [
+      "0x73924bc36E58051770941982491b0b87C1385add",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      [
+        "0x56b99C8c2677D7aB3C3d37f0a335A69331F077FE"
+      ]
+    ],
+    [
+      "0x56b99C8c2677D7aB3C3d37f0a335A69331F077FE",
+      "SuperToken",
+      "contracts/token/SuperToken.sol",
+      [
+        "token1",
+        "TOKEN1",
+        18,
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        {
+          "type": "BigNumber",
+          "hex": "0x3635c9adc5dea00000"
+        }
+      ]
+    ]
+  ],
+  "11155111": [
+    [
+      "0xe5F13bd14fE4FC1E2251f7C837C5fb22b8fE6051",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x611Ddb07c8B72F7491514a017889e3ce63cCdF9F",
+        "0x07e11D1A1543B0D0b91684eb741d1ab7D51ae237",
+        421614
+      ]
+    ],
+    [
+      "0x3a5c5ba3b4F17DFDD45806C3E8b15509915D3f40",
+      "LimitHook",
+      "contracts/hooks/LimitHook.sol",
+      [
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        "0x611Ddb07c8B72F7491514a017889e3ce63cCdF9F",
+        false
+      ]
+    ],
+    [
+      "0x611Ddb07c8B72F7491514a017889e3ce63cCdF9F",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      [
+        "0x4DcD5Bedd73C36B2670aDf0ff12b3CEb290527d2"
+      ]
+    ],
+    [
+      "0x4DcD5Bedd73C36B2670aDf0ff12b3CEb290527d2",
+      "SuperToken",
+      "contracts/token/SuperToken.sol",
+      [
+        "token1",
+        "TOKEN1",
+        18,
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        "0x265311267f352A24a8332ED0E1AD7e2AB610451B",
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        }
+      ]
+    ]
+  ]
+}

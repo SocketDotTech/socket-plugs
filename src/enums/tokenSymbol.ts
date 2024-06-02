@@ -13,4 +13,8 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.GUARD]: "GUARD",
   [Tokens.ETH]: "ETH",
   [Tokens.TESTOKEN]: "TESTOKEN",
+  [Tokens.TOKEN1]: "TOKEN1",
+  [Tokens.TEST2]: "TEST2",
+  [Tokens.TEST3]: "TEST3",
+  [Tokens.PEPE]: "PEPE",
 };
