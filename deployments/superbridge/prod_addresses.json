@@ -1812,5 +1812,46 @@
         }
       }
     }
+  },
+  "token1_testnet": {
+    "421614": {
+      "TOKEN1": {
+        "SuperToken": "0x56b99C8c2677D7aB3C3d37f0a335A69331F077FE",
+        "Controller": "0x73924bc36E58051770941982491b0b87C1385add",
+        "LimitHook": "0xA94c334076c1c3C8988cb11b9F14191b4e445126",
+        "connectors": {
+          "11155111": {
+            "FAST": "0x2E26f7195272C03DBdAE1DED832484783C005F44"
+          }
+        }
+      }
+    },
+    "11155111": {
+      "TOKEN1": {
+        "SuperToken": "0x4DcD5Bedd73C36B2670aDf0ff12b3CEb290527d2",
+        "Controller": "0x611Ddb07c8B72F7491514a017889e3ce63cCdF9F",
+        "LimitHook": "0x3a5c5ba3b4F17DFDD45806C3E8b15509915D3f40",
+        "connectors": {
+          "421614": {
+            "FAST": "0xe5F13bd14fE4FC1E2251f7C837C5fb22b8fE6051"
+          }
+        }
+      }
+    }
+  },
+  "bridge1_testnet": {
+    "421614": {
+      "USDC": {
+        "isAppChain": false,
+        "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+        "Vault": "0x356fC87B4f360984D2CE899De6a8fFB6dA493cDf",
+        "LimitHook": "0xd45147c2b7Ce9bCEd441837D0eE2D33356B7D1Ad",
+        "connectors": {
+          "11155420": {
+            "FAST": "0x77e6C3f148eD3243E86Ad56F9Cca33E8a8B070d4"
+          }
+        }
+      }
+    }
   }
 }

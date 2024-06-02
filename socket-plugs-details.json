@@ -12,7 +12,14 @@
     "GUARD": 18,
     "ETH": 18,
     "TESTOKEN": 18,
-    "TOKEN1": 18
+    "TOKEN1": 18,
+    "TEST2": 18,
+    "TEST3": 18,
+    "PEPE": 18,
+    "SHIB": 18,
+    "UNI": 18,
+    "EZETH": 18,
+    "LINK": 18
   },
   "tokenAddresses": {
     "1": {
@@ -23,7 +30,12 @@
       "SNX": "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
       "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
       "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "PEPE": "0x6982508145454Ce325dDbE47a25d4ec3d2311933",
+      "SHIB": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+      "UNI": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+      "EZETH": "0xbf5495Efe5DB9ce00f80364C8B423567e58d2110",
+      "LINK": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
     },
     "10": {
       "USDC": "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
@@ -90,7 +102,14 @@
     "GUARD": "GUARD",
     "ETH": "ETH",
     "TESTOKEN": "TESTOKEN",
-    "TOKEN1": "TOKEN1"
+    "TOKEN1": "TOKEN1",
+    "TEST2": "TEST2",
+    "TEST3": "TEST3",
+    "PEPE": "PEPE",
+    "SHIB": "SHIB",
+    "UNI": "UNI",
+    "EZETH": "EZETH",
+    "LINK": "LINK"
   },
   "projects": [
     "aevo",
@@ -106,7 +125,12 @@
     "spectral-signal",
     "token_test_project_testnet",
     "bridge_test_project_testnet",
-    "token1_testnet"
+    "token1_testnet",
+    "test2_testnet",
+    "bridge1_testnet",
+    "bridge2_testnet",
+    "bridge3_testnet",
+    "df_testnet"
   ],
   "tokens": [
     "MOON",
@@ -121,6 +145,13 @@
     "GUARD",
     "ETH",
     "TESTOKEN",
-    "TOKEN1"
+    "TOKEN1",
+    "TEST2",
+    "TEST3",
+    "PEPE",
+    "SHIB",
+    "UNI",
+    "EZETH",
+    "LINK"
   ]
 }

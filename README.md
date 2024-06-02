@@ -21,6 +21,7 @@ yarn build
 # setup socket command
 yarn setup
 ```
+
 Now `socket` command will be available to use in the root directory.
 
 ```bash=
