@@ -14,6 +14,10 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     [Tokens.PEPE]: "0x6982508145454Ce325dDbE47a25d4ec3d2311933",
+    [Tokens.SHIB]: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+    [Tokens.UNI]: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+    [Tokens.EZETH]: "0xbf5495Efe5DB9ce00f80364C8B423567e58d2110",
+    [Tokens.LINK]: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
   },
   [ChainSlug.OPTIMISM]: {
     [Tokens.USDC]: "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",

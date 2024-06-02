@@ -15,4 +15,8 @@ export enum Tokens {
   TEST2 = "TEST2",
   TEST3 = "TEST3",
   PEPE = "PEPE",
+  SHIB = "SHIB",
+  UNI = "UNI",
+  EZETH = "EZETH",
+  LINK = "LINK",
 }

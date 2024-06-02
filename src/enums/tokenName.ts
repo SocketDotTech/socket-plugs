@@ -17,4 +17,8 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.TEST2]: "TEST2",
   [Tokens.TEST3]: "TEST3",
   [Tokens.PEPE]: "Pepe",
+  [Tokens.SHIB]: "SHIBA INU",
+  [Tokens.UNI]: "Uniswap",
+  [Tokens.EZETH]: "Renzo Restaked ETH",
+  [Tokens.LINK]: "ChainLink Token",
 };

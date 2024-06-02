@@ -22,11 +22,12 @@ export const addNewToken = async (customPrompts) => {
   if (newTokenInfo === "back") return "back";
   if (!newTokenInfo.name) return;
 
-  console.log("Adding new token: ", newTokenInfo);
-  console.log(Object.keys(Tokens), newTokenInfo.symbol.toUpperCase());
+  console.log(".....Adding new token: ", newTokenInfo);
   if (!Object.keys(Tokens).includes(newTokenInfo.symbol.toUpperCase())) {
     await updateTokenEnums(newTokenInfo);
   }
+  console.log("Token added successfully.....");
+  let newTokenList = Object.keys(Tokens);
 
   const newTokensEnum = {
     ...Tokens,
