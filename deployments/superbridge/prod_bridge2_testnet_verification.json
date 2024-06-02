@@ -24,9 +24,7 @@
       "0x5f30d80714d77E14513db5310AC36b4fF1Bd8393",
       "Controller",
       "contracts/bridge/Controller.sol",
-      [
-        "0x8537307810fC40F4073A12a38554D4Ff78EfFf41"
-      ]
+      ["0x8537307810fC40F4073A12a38554D4Ff78EfFf41"]
     ]
   ],
   "11155111": [
@@ -54,9 +52,7 @@
       "0x262CDD82572e0a3fAABB1057684F3D864568440e",
       "Vault",
       "contracts/bridge/Vault.sol",
-      [
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339"
-      ]
+      ["0x565810cbfa3Cf1390963E5aFa2fB953795686339"]
     ]
   ]
 }

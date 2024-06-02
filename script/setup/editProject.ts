@@ -36,7 +36,7 @@ export const editProject = async (customPrompts) => {
     },
   ]);
 
-  if (projectInfo === 'back') return 'back';
+  if (projectInfo === "back") return "back";
 
   const projectType = ProjectTypeMap[projectInfo.projectName] as ProjectType;
   let projectConstantsPath = getConstantPathForProject(
@@ -48,7 +48,7 @@ export const editProject = async (customPrompts) => {
     console.log(
       `Project constants for ${projectInfo.projectName} not found at path ${projectConstantsPath}`
     );
-    return 'back';
+    return "back";
   }
   let pc = require(projectConstantsPath).pc;
 
@@ -74,14 +74,19 @@ export const editProject = async (customPrompts) => {
     },
   ]);
 
-  if (action === 'back') return 'back';
+  if (action === "back") return "back";
 
   if (action.action === "addChain") {
     await addChain(projectInfo.projectName, projectType, pc, customPrompts);
   } else if (action.action === "addToken") {
     await addToken(projectInfo.projectName, projectType, pc, customPrompts);
   } else if (action.action === "updateLimit") {
-    await updateRateLimit(projectInfo.projectName, projectType, pc, customPrompts);
+    await updateRateLimit(
+      projectInfo.projectName,
+      projectType,
+      pc,
+      customPrompts
+    );
   }
 };
 
@@ -126,7 +131,7 @@ export const addChain = async (
       },
     ]);
 
-    if (chainInfo === 'back') return 'back';
+    if (chainInfo === "back") return "back";
 
     const tokenChoices = projectTokens.map((token) => ({
       title: token,
@@ -142,7 +147,7 @@ export const addChain = async (
       },
     ]);
 
-    if (tokenInfo === 'back') return 'back';
+    if (tokenInfo === "back") return "back";
 
     for (const token of tokenInfo.tokens) {
       const newChainSlug = chainInfo.chain;
@@ -161,7 +166,7 @@ export const addChain = async (
     generateConstantsFile(projectType, projectName, newPc);
   } catch (error) {
     console.log(error);
-    return 'back';
+    return "back";
   }
 };
 
@@ -209,7 +214,7 @@ export const addToken = async (
       },
     ]);
 
-    if (tokenInfo === 'back') return 'back';
+    if (tokenInfo === "back") return "back";
 
     const copyTokenChoices = projectTokens.map((token) => ({
       title: token,
@@ -225,7 +230,7 @@ export const addToken = async (
       },
     ]);
 
-    if (copyTokenInfo === 'back') return 'back';
+    if (copyTokenInfo === "back") return "back";
 
     const copyTokenConfig = pc[DeploymentMode.PROD][
       copyTokenInfo.copyToken
@@ -236,7 +241,7 @@ export const addToken = async (
     generateConstantsFile(projectType, projectName, newPc);
   } catch (error) {
     console.log(error);
-    return 'back';
+    return "back";
   }
 };
 
@@ -261,7 +266,7 @@ export const updateRateLimit = async (
         console.log(
           `Rate limits can only be updated for project with hook type LIMIT_HOOK or LIMIT_EXECUTION_HOOK. Returning ...`
         );
-        return 'back';
+        return "back";
       }
       const allChains = [
         ...tokenConstants.vaultChains,
@@ -288,7 +293,7 @@ export const updateRateLimit = async (
       },
     ]);
 
-    if (tokenInfo === 'back') return 'back';
+    if (tokenInfo === "back") return "back";
 
     const tokenChains = [...chains];
     const chainChoices = tokenChains.map((chain) => ({
@@ -305,7 +310,7 @@ export const updateRateLimit = async (
       },
     ]);
 
-    if (chainInfo === 'back') return 'back';
+    if (chainInfo === "back") return "back";
 
     for (const token of tokenInfo.tokens) {
       const currentTc = pc[DeploymentMode.PROD][token] as TokenConstants;
@@ -338,7 +343,7 @@ export const updateRateLimit = async (
           },
         ]);
 
-        if (limitInfo === 'back') return 'back';
+        if (limitInfo === "back") return "back";
 
         newTc.hook.limitsAndPoolId[chain][IntegrationTypes.fast] = {
           ...newTc.hook.limitsAndPoolId[chain][IntegrationTypes.fast], // to preserve poolId values
@@ -351,6 +356,6 @@ export const updateRateLimit = async (
     generateConstantsFile(projectType, projectName, newPc);
   } catch (error) {
     console.log(error);
-    return 'back';
+    return "back";
   }
 };

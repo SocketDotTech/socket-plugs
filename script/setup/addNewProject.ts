@@ -45,8 +45,8 @@ let tokenEnum = Tokens;
 
 export const addProject = async (customPrompts) => {
   const projectConfig = await getProjectInfo(customPrompts);
-  if (projectConfig === 'back') return 'back';
-  
+  if (projectConfig === "back") return "back";
+
   let {
     projectName,
     projectType,
@@ -56,12 +56,20 @@ export const addProject = async (customPrompts) => {
     chainOptions,
   } = projectConfig;
 
-  let chainsInfo = await getChainsInfo(projectType, chainOptions, customPrompts);
-  if (chainsInfo === 'back') return 'back';
+  let chainsInfo = await getChainsInfo(
+    projectType,
+    chainOptions,
+    customPrompts
+  );
+  if (chainsInfo === "back") return "back";
 
-  if (typeof chainsInfo !== 'object' || !('vaultChains' in chainsInfo) || !('controllerChains' in chainsInfo)) {
-    console.error('Invalid chainsInfo structure:', chainsInfo);
-    return 'back';
+  if (
+    typeof chainsInfo !== "object" ||
+    !("vaultChains" in chainsInfo) ||
+    !("controllerChains" in chainsInfo)
+  ) {
+    console.error("Invalid chainsInfo structure:", chainsInfo);
+    return "back";
   }
 
   let { vaultChains, controllerChains } = chainsInfo;
@@ -76,7 +84,7 @@ export const addProject = async (customPrompts) => {
     controllerChains,
     customPrompts
   );
-  if (tokenInfo === 'back') return 'back';
+  if (tokenInfo === "back") return "back";
 
   await buildEnvFile(
     projectConfig.projectName,
@@ -93,7 +101,7 @@ export const addProject = async (customPrompts) => {
     tokenInfo.superTokenInfoMap,
     customPrompts
   );
-  if (hookInfo === 'back') return 'back';
+  if (hookInfo === "back") return "back";
 
   let projectConstants = await buildProjectConstants(
     tokenInfo,
@@ -170,10 +178,10 @@ export const getProjectInfo = async (customPrompts) => {
     },
   ]);
 
-  if (projectInfo === 'back') return 'back';
+  if (projectInfo === "back") return "back";
 
-  if (typeof projectInfo !== 'object') {
-    return 'back';
+  if (typeof projectInfo !== "object") {
+    return "back";
   }
 
   projectInfo.projectName = projectInfo.isMainnet
@@ -210,7 +218,7 @@ export const getChainsInfo = async (
       },
     ]);
 
-    if (vaultChainsInfo === 'back') return 'back';
+    if (vaultChainsInfo === "back") return "back";
 
     const controllerChainOptions = chainOptions.filter(
       (chainOption) => !vaultChainsInfo.vaultChains.includes(chainOption.value)
@@ -225,7 +233,7 @@ export const getChainsInfo = async (
       },
     ]);
 
-    if (controllerChainsInfo === 'back') return 'back';
+    if (controllerChainsInfo === "back") return "back";
 
     return {
       vaultChains: vaultChainsInfo.vaultChains,
@@ -244,7 +252,7 @@ export const getChainsInfo = async (
       },
     ]);
 
-    if (vaultChainsInfo === 'back') return 'back';
+    if (vaultChainsInfo === "back") return "back";
 
     const controllerChainOptions = chainOptions.filter(
       (chainOption) => !vaultChainsInfo.vaultChains.includes(chainOption.value)
@@ -261,7 +269,7 @@ export const getChainsInfo = async (
       },
     ]);
 
-    if (controllerChainsInfo === 'back') return 'back';
+    if (controllerChainsInfo === "back") return "back";
 
     return {
       vaultChains: vaultChainsInfo.vaultChains,
@@ -303,14 +311,17 @@ export const getProjectTokenListInfo = async (
         controllerChains,
         customPrompts
       );
-      if (supertokenInfo === 'back') return 'back';
+      if (supertokenInfo === "back") return "back";
 
       let token = supertokenInfo.symbol;
       if (!(token in tokenEnum)) {
         await updateTokenEnums(supertokenInfo);
         tokenEnum[token] = token;
       }
-      if (supertokenInfo.currentAddresses && supertokenInfo.currentAddresses.length > 0)
+      if (
+        supertokenInfo.currentAddresses &&
+        supertokenInfo.currentAddresses.length > 0
+      )
         generateTokenAddressesFile(supertokenInfo.currentAddresses, tokenEnum);
 
       allTokens.push(token as Tokens);
@@ -324,7 +335,7 @@ export const getProjectTokenListInfo = async (
         },
       ]);
 
-      if (response === 'back') return 'back';
+      if (response === "back") return "back";
       if (!response.addMoreTokens) break;
     }
 
@@ -347,8 +358,8 @@ export const getHookRelatedInfo = async (
         token,
         superTokenInfoMap
       );
-      if (initialValue === 'back') return 'back';
-      
+      if (initialValue === "back") return "back";
+
       let limitInfo = await customPrompts([
         {
           name: "sendingLimit",
@@ -366,7 +377,7 @@ export const getHookRelatedInfo = async (
         },
       ]);
 
-      if (limitInfo === 'back') return 'back';
+      if (limitInfo === "back") return "back";
 
       tokenLimitInfo[token] = limitInfo;
     }
@@ -379,7 +390,7 @@ export const getSuperTokenInfo = async (
   vaultChains: ChainSlug[],
   controllerChains: ChainSlug[],
   customPrompts
-): Promise<SuperTokenInfo | 'back'> => {
+): Promise<SuperTokenInfo | "back"> => {
   const isFreshDeployment = vaultChains.length === 0;
   let superTokenInfo: SuperTokenInfo = {
     name: "",
@@ -419,7 +430,7 @@ export const getSuperTokenInfo = async (
     },
   ]);
 
-  if (info === 'back') return 'back';
+  if (info === "back") return "back";
 
   superTokenInfo = { ...superTokenInfo, ...info };
   superTokenInfo.symbol = superTokenInfo.symbol.toUpperCase();
@@ -446,7 +457,7 @@ export const getSuperTokenInfo = async (
       },
     ]);
 
-    if (response === 'back') return 'back';
+    if (response === "back") return "back";
 
     superTokenInfo.initialSupply = response.initialSupply;
     superTokenInfo.initialChain = response.initialChain;
@@ -479,7 +490,7 @@ export const getSuperTokenInfo = async (
         },
       ]);
 
-      if (response === 'back') return 'back';
+      if (response === "back") return "back";
 
       superTokenInfo.currentAddresses = superTokenInfo.currentAddresses ?? [];
       superTokenInfo.currentAddresses.push({
@@ -554,7 +565,7 @@ export const getInitialLimitValue = async (
     );
   } else if (projectType == ProjectType.SUPERTOKEN) {
     let info = superTokenInfoMap[token.toUpperCase()];
-    if (typeof info === 'string') return 'back';
+    if (typeof info === "string") return "back";
     return {
       sendingLimit: info?.initialSupply
         ? parseInt(info?.initialSupply) / 100

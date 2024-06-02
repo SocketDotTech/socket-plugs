@@ -24,9 +24,7 @@
       "0x73924bc36E58051770941982491b0b87C1385add",
       "Controller",
       "contracts/bridge/Controller.sol",
-      [
-        "0x56b99C8c2677D7aB3C3d37f0a335A69331F077FE"
-      ]
+      ["0x56b99C8c2677D7aB3C3d37f0a335A69331F077FE"]
     ],
     [
       "0x56b99C8c2677D7aB3C3d37f0a335A69331F077FE",
@@ -70,9 +68,7 @@
       "0x611Ddb07c8B72F7491514a017889e3ce63cCdF9F",
       "Controller",
       "contracts/bridge/Controller.sol",
-      [
-        "0x4DcD5Bedd73C36B2670aDf0ff12b3CEb290527d2"
-      ]
+      ["0x4DcD5Bedd73C36B2670aDf0ff12b3CEb290527d2"]
     ],
     [
       "0x4DcD5Bedd73C36B2670aDf0ff12b3CEb290527d2",

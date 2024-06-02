@@ -5,8 +5,8 @@ import { addNewToken } from "./setup/addNewToken";
 import { editProject } from "./setup/editProject";
 import prompts, { PromptObject } from "prompts";
 
-const backOption = { title: 'Back', value: 'back' };
-const exitOption = { title: 'Exit', value: 'exit' };
+const backOption = { title: "Back", value: "back" };
+const exitOption = { title: "Exit", value: "exit" };
 
 async function main() {
   const args = process.argv.slice(2);
@@ -52,11 +52,13 @@ async function handlePrompts(questions: PromptObject[]): Promise<any> {
   for (const question of questions) {
     const response = await prompts({
       ...question,
-      choices: Array.isArray(question.choices) ? [...question.choices, backOption, exitOption] : undefined,
+      choices: Array.isArray(question.choices)
+        ? [...question.choices, backOption, exitOption]
+        : undefined,
     });
-    if (response[question.name] === 'back') {
-      return 'back';
-    } else if (response[question.name] === 'exit') {
+    if (response[question.name] === "back") {
+      return "back";
+    } else if (response[question.name] === "exit") {
       process.exit(0);
     }
     result = { ...result, ...response };
@@ -67,7 +69,7 @@ async function handlePrompts(questions: PromptObject[]): Promise<any> {
 async function handleAddProject() {
   while (true) {
     const projectConfig = await addProject(handlePrompts);
-    if (projectConfig === 'back') {
+    if (projectConfig === "back") {
       continue;
     }
     break;
@@ -77,7 +79,7 @@ async function handleAddProject() {
 async function handleEditProject() {
   while (true) {
     const editConfig = await editProject(handlePrompts);
-    if (editConfig === 'back') {
+    if (editConfig === "back") {
       continue;
     }
     break;
@@ -87,7 +89,7 @@ async function handleEditProject() {
 async function handleAddNewToken() {
   while (true) {
     const newTokenConfig = await addNewToken(handlePrompts);
-    if (newTokenConfig === 'back') {
+    if (newTokenConfig === "back") {
       continue;
     }
     break;

@@ -19,7 +19,7 @@ export const addNewToken = async (customPrompts) => {
     value: chain,
   }));
   let newTokenInfo = await getNewTokenInfo(chainOptions, customPrompts);
-  if (newTokenInfo === 'back') return 'back';
+  if (newTokenInfo === "back") return "back";
   if (!newTokenInfo.name) return;
 
   console.log("Adding new token: ", newTokenInfo);
@@ -48,7 +48,7 @@ export const addNewToken = async (customPrompts) => {
 export const getNewTokenInfo = async (
   chainOptions: { title: string; value: number }[],
   customPrompts
-): Promise<NewTokenInfo | 'back'> => {
+): Promise<NewTokenInfo | "back"> => {
   let newTokenInfo: NewTokenInfo = {
     name: "",
     symbol: "",
@@ -72,7 +72,7 @@ export const getNewTokenInfo = async (
     },
   ]);
 
-  if (chainSlug === 'back' || address === 'back') return 'back';
+  if (chainSlug === "back" || address === "back") return "back";
 
   newTokenInfo.chainSlug = chainSlug as ChainSlug;
   newTokenInfo.address = address.trim();
@@ -104,7 +104,7 @@ export const getNewTokenInfo = async (
       },
     ]);
 
-    if (rpcInfo === 'back') return 'back';
+    if (rpcInfo === "back") return "back";
 
     rpc = rpcInfo.rpc.trim();
     appendToEnvFile(rpcKey, rpc);
