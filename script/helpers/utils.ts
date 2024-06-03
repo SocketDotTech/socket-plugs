@@ -17,6 +17,7 @@ import {
   handleOps,
   isKinto,
 } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
+import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
 
 export let allDeploymentPath: string;
 export const getAllDeploymentPath = () => {
@@ -125,7 +126,11 @@ export async function execute(
     });
 
     if (isKinto(chain)) {
-      tx = await handleOps([txRequest], contract.signer);
+      tx = await handleOps(
+        process.env.OWNER_SIGNER_KEY,
+        [txRequest],
+        [`0x${process.env.KINTO_OWNER_ADDRESS}`, constants.LEDGER]
+      );
     } else {
       tx = await (await contract.signer.sendTransaction(txRequest)).wait();
     }

@@ -52,7 +52,7 @@
     "compile"
   ],
   "dependencies": {
-    "@socket.tech/dl-core": "https://github.com/KintoXYZ/socket-DL.git",
+    "@socket.tech/dl-core": "https://github.com/KintoXYZ/socket-DL.git#second-signer",
     "lodash": "^4.17.21",
     "prompts": "^2.4.2"
   }
