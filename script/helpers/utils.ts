@@ -166,7 +166,7 @@ export const isContractAtAddress = async (
   address: string
 ) => {
   const code = await provider.getCode(address);
-  console.log({ code });
+  // console.log({ code });
   if (code === "0x") {
     return false;
   }

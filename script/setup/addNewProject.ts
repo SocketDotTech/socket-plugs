@@ -57,8 +57,6 @@ export const addProject = async () => {
   let chainsInfo = await getChainsInfo(projectType, chainOptions);
   let { vaultChains, controllerChains } = chainsInfo;
   const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
-  await updateProjectEnums(projectConfig.projectName, projectType);
-  console.log(`✔  Updated Enums :Project`);
 
   let tokenInfo: {
     tokens: Tokens[];
@@ -69,20 +67,20 @@ export const addProject = async () => {
     vaultChains,
     controllerChains
   );
-
+  const { tokenLimitInfo } = await getHookRelatedInfo(
+    projectType,
+    isLimitsRequired,
+    tokenInfo.tokens,
+    tokenInfo.superTokenInfoMap
+  );
+  await updateProjectEnums(projectConfig.projectName, projectType);
+  console.log(`✔  Updated Enums :Project`);
   await buildEnvFile(
     projectConfig.projectName,
     projectConfig.projectType,
     projectConfig.owner,
     tokenInfo.tokens,
     allChains
-  );
-
-  const { tokenLimitInfo } = await getHookRelatedInfo(
-    projectType,
-    isLimitsRequired,
-    tokenInfo.tokens,
-    tokenInfo.superTokenInfoMap
   );
 
   let projectConstants = await buildProjectConstants(

@@ -21,7 +21,6 @@ export const addNewToken = async () => {
   let newTokenInfo: NewTokenInfo = await getNewTokenInfo(chainOptions);
   if (!newTokenInfo.name) return;
   console.log("Adding new token: ", newTokenInfo);
-  console.log(Object.keys(Tokens), newTokenInfo.symbol.toUpperCase());
   if (!Object.keys(Tokens).includes(newTokenInfo.symbol.toUpperCase())) {
     await updateTokenEnums(newTokenInfo);
   }

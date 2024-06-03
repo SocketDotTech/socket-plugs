@@ -14,6 +14,19 @@ forge install
 
 # install node dependencies
 yarn install
+
+# build the project
+yarn build
+
+# setup socket command
+yarn setup
+```
+
+Now `socket` command will be available to use in the root directory.
+
+```bash=
+# to get available features run:
+socket help
 ```
 
 ### Test
