@@ -1,10 +1,6 @@
 import { BigNumber, utils } from "ethers";
 
-import {
-  getProviderFromChainSlug,
-  getSignerFromChainSlug,
-  overrides,
-} from "../helpers/networks";
+import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getSuperBridgeAddresses, getSuperTokenAddresses } from "../helpers";
 import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
 import {
@@ -20,10 +16,8 @@ import { tokenDecimals } from "../../src/enums";
 import {
   handleOps,
   isKinto,
-  setFunderWhitelist,
 } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
 import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
-import { ethers } from "hardhat";
 
 const srcChain = ChainSlug.KINTO;
 const dstChain = ChainSlug.BASE;
@@ -31,38 +25,8 @@ const dstChain = ChainSlug.BASE;
 // const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
 // const amount = "0";
 const amount = "0.1";
-const RANDOM_EOA = "0x0A3A32884D3f1175D49C8DD9f67B0bc552A81362";
 const MESSAGE_ID: string = ""; // use if you want to retry a message
 const gasLimit = 500_000;
-
-// Bridge from Arbitrum -> Kinto when
-// 1. from is signer of kinto wallet to signer's kinto wallet (should work) ✅
-// 2. from is whitelisted address (should work) ✅
-// 3. from is non whitelisted address (should revert and trigger withdrawal) ✅
-// 4. from is a non kinto wallet (should revert and trigger withdrawal) ✅
-
-// Bridge from Kinto -> Arbitrum when
-// 5. to is signer of kinto wallet (should work) ✅
-// 6. to is whitelisted address (should work) ✅
-// 7. to is non-whitelisted address (should revert) (should revert) ✅ (maybe remove this check?)
-// 8. from is non KYC'd address (should revert)
-// 9. from is a non kinto wallet (should revert but I think this is not even possible)
-
-// Retrial scenarios
-// Bridge from Arbitrum -> Kinto when
-// 1. Kinto checks OK but receiving limit is 0 (should succeed but not mint tokens) ✅
-// 1.0 [DO NOT INCREASE RECEIVING LIMIT] Kinto checks OK + call `retry` on Kinto Controller (should succeed but not mint tokens) ✅
-// 1.1 [INCREASE RECEIVING LIMIT] Kinto checks OK + call `retry` on Kinto Controller (should mint tokens) ✅
-// 1.2 [INCREASE RECEIVING LIMIT + MAKE KINTO CHECK FAIL] Kinto checks NOTOK but + call `retry` on Kinto Controller (❓)
-// Should this scenario trigger a withdrawal or let it complete?
-
-// TODO: test all with sending the fees
-// TODO: test this scenario:
-// Bridge from Arb to Kinto
-// Then, re-deploy hooks
-// Finally, try bridging back from Kinto to Arbitrum
-// Check if it works
-// if you redeploy the hook, you will have to call the updatePoolLocked amount function so that it matches the value on old hook and then all will be good
 
 export const main = async () => {
   // retrying message
@@ -74,29 +38,12 @@ export const main = async () => {
   try {
     let senderSigner = getSignerFromChainSlug(srcChain);
 
-    // if there's a funder private key, use that as the sender
-    // sender must be whitelisted on Kinto Wallet of receiver
-    // const senderPrivateKey = process.env.FUNDER_PRIVATE_KEY;
-    // if (senderPrivateKey) {
-    //   senderSigner = new ethers.Wallet(
-    //     senderPrivateKey,
-    //     getProviderFromChainSlug(srcChain)
-    //   );
-    //   const kintoSigner = getSignerFromChainSlug(ChainSlug.KINTO);
-    //   await setFunderWhitelist([senderSigner.address], [false], kintoSigner);
-    // }
-
     const sender = isKinto(srcChain)
       ? process.env.KINTO_OWNER_ADDRESS
       : senderSigner.address;
     const receiver = isKinto(dstChain)
       ? process.env.KINTO_OWNER_ADDRESS
       : senderSigner.address;
-
-    // whitelist random EOA as receiver on vaults
-    // const receiver = RANDOM_EOA;
-    // const kintoSigner = getSignerFromChainSlug(ChainSlug.KINTO);
-    // await setFunderWhitelist([RANDOM_EOA], [true], kintoSigner);
 
     const tokens = getTokens();
     if (tokens.length > 1) throw Error("single token bridge allowed");
