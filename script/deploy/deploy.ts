@@ -44,8 +44,6 @@ import { deployHookContracts } from "./deployHook";
 import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract } from "../helpers/common";
 import { Project, Tokens } from "../../src/enums";
-import { handleOps } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
-import { ethers } from "hardhat";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};

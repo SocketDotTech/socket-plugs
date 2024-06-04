@@ -17,20 +17,22 @@ export const main = async () => {
         if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller
           const exchangeRateAddress = addresses[chain][token].ExchangeRate;
-          const exchangeRateContract = new ethers.Contract(
-            exchangeRateAddress,
-            OWNABLE_ABI,
-            getSignerFromChainSlug(+chain)
-          );
-          const [exchangeRateOwner, exchangeRateNominee, exchangeRateType] =
-            await getOwnerAndNominee(exchangeRateContract);
-          console.log(
-            `Owner of ${exchangeRateAddress}(${exchangeRateType}) is ${exchangeRateOwner}${
-              exchangeRateNominee === ZERO_ADDRESS
-                ? ""
-                : ` (nominee: ${exchangeRateNominee})`
-            } on chain: ${chain} (ExchangeRate for token: ${token})`
-          );
+          if (exchangeRateAddress) {
+            const exchangeRateContract = new ethers.Contract(
+              exchangeRateAddress,
+              OWNABLE_ABI,
+              getSignerFromChainSlug(+chain)
+            );
+            const [exchangeRateOwner, exchangeRateNominee, exchangeRateType] =
+              await getOwnerAndNominee(exchangeRateContract);
+            console.log(
+              `Owner of ${exchangeRateAddress}(${exchangeRateType}) is ${exchangeRateOwner}${
+                exchangeRateNominee === ZERO_ADDRESS
+                  ? ""
+                  : ` (nominee: ${exchangeRateNominee})`
+              } on chain: ${chain} (ExchangeRate for token: ${token})`
+            );
+          }
 
           const controllerAddress = addresses[chain][token].Controller;
           const controllerContract = new ethers.Contract(
