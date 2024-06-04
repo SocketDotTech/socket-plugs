@@ -106,16 +106,11 @@ export const overrides: {
     gasLimit: 1_000_000_000,
     gasPrice: 100_000,
   },
-  [ChainSlug.SYNDR_SEPOLIA_L3]: {
-    type: 1,
-    gasLimit: 500_000_000,
-    gasPrice: 1_000_000,
-  },
 };
 
 export const rpcKeys = (chainSlug: ChainSlug) => {
   const chainName = chainSlugReverseMap.get(String(chainSlug));
-  return `${chainName.toUpperCase()}_RPC`;
+  return chainName ? `${chainName.toUpperCase()}_RPC` : "";
 };
 
 export function getJsonRpcUrl(chain: ChainSlug): string {
