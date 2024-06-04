@@ -29,7 +29,12 @@ export const pc: ProjectConstants = {
         },
       },
       superTokenInfo: {
-        address: "0x4595Ea2d4d76e067D6701552b8A66743f048A38b",
+        name: "FUD",
+        symbol: "FUD",
+        decimals: 18,
+        initialSupplyOwner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        owner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        initialSupply: "0",
       },
     },
     [Tokens.FOMO]: {
@@ -53,7 +58,12 @@ export const pc: ProjectConstants = {
         },
       },
       superTokenInfo: {
-        address: "0xB501045c286E2e499D761106Da367B7b9D72De9e",
+        name: "FOMO",
+        symbol: "FOMO",
+        decimals: 18,
+        initialSupplyOwner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        owner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        initialSupply: "0",
       },
     },
     [Tokens.ALPHA]: {
@@ -77,7 +87,12 @@ export const pc: ProjectConstants = {
         },
       },
       superTokenInfo: {
-        address: "0x73e49fa294e6198400cA693a856816E23D0968Ee",
+        name: "ALPHA",
+        symbol: "ALPHA",
+        decimals: 18,
+        initialSupplyOwner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        owner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        initialSupply: "0",
       },
     },
     [Tokens.KEK]: {
@@ -101,7 +116,12 @@ export const pc: ProjectConstants = {
         },
       },
       superTokenInfo: {
-        address: "0x59c98408F27517937D2065d61862eBF129B07FD9",
+        name: "KEK",
+        symbol: "KEK",
+        decimals: 18,
+        initialSupplyOwner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        owner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        initialSupply: "0",
       },
     },
     [Tokens.GLTR]: {
@@ -125,7 +145,12 @@ export const pc: ProjectConstants = {
         },
       },
       superTokenInfo: {
-        address: "0x2D400eB3beee681471F59da5B1a0d61A18Dee743",
+        name: "GLTR",
+        symbol: "GLTR",
+        decimals: 18,
+        initialSupplyOwner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        owner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        initialSupply: "0",
       },
     },
   },
