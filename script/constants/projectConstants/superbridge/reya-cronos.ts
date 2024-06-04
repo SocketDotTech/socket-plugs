@@ -3,8 +3,8 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-
-import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
+import { Hooks, ProjectConstants } from "../../../../src";
+import { Tokens } from "../../../../src/enums";
 
 export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
@@ -12,7 +12,6 @@ export const pc: ProjectConstants = {
       controllerChains: [ChainSlug.REYA_CRONOS],
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
@@ -27,13 +26,6 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "100000000",
-              receivingLimit: "100000000",
-              poolCount: 0,
-            },
-          },
-          [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
@@ -59,10 +51,8 @@ export const pc: ProjectConstants = {
     },
     [Tokens.USDT]: {
       controllerChains: [ChainSlug.REYA_CRONOS],
-
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
@@ -77,13 +67,6 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "100000000",
-              receivingLimit: "100000000",
-              poolCount: 0,
-            },
-          },
-          [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
@@ -109,10 +92,8 @@ export const pc: ProjectConstants = {
     },
     [Tokens.DAI]: {
       controllerChains: [ChainSlug.REYA_CRONOS],
-
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
@@ -127,13 +108,6 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "100000000",
-              receivingLimit: "100000000",
-              poolCount: 0,
-            },
-          },
-          [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
@@ -159,10 +133,8 @@ export const pc: ProjectConstants = {
     },
     [Tokens.WETH]: {
       controllerChains: [ChainSlug.REYA_CRONOS],
-
       hook: {
         hookType: Hooks.LIMIT_EXECUTION_HOOK,
-
         limitsAndPoolId: {
           [ChainSlug.REYA_CRONOS]: {
             [IntegrationTypes.fast]: {
@@ -172,13 +144,6 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "100000000",
-              receivingLimit: "100000000",
-              poolCount: 0,
-            },
-          },
-          [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
@@ -203,14 +168,12 @@ export const pc: ProjectConstants = {
       },
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],
     },
     [Tokens.WBTC]: {
       controllerChains: [ChainSlug.REYA_CRONOS],
-
       hook: {
         hookType: Hooks.LIMIT_EXECUTION_HOOK,
         limitsAndPoolId: {
@@ -222,13 +185,6 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.ARBITRUM_SEPOLIA]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "100000000",
-              receivingLimit: "100000000",
-              poolCount: 0,
-            },
-          },
-          [ChainSlug.POLYGON_MUMBAI]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
@@ -253,7 +209,6 @@ export const pc: ProjectConstants = {
       },
       vaultChains: [
         ChainSlug.ARBITRUM_SEPOLIA,
-        // ChainSlug.POLYGON_MUMBAI,
         ChainSlug.SEPOLIA,
         ChainSlug.OPTIMISM_SEPOLIA,
       ],

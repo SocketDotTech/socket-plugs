@@ -2,30 +2,25 @@ import { config as dotenvConfig } from "dotenv";
 dotenvConfig();
 
 import { DeploymentMode } from "@socket.tech/dl-core";
-import { Project, ProjectType, Tokens } from "../../src";
+import { Project, Tokens } from "../../src/enums";
+import { ProjectType } from "../../src";
+import { ProjectTypeMap } from "../../src/enums/projectType";
+// import { Project, ProjectType, Tokens } from "../../src";
 
-export const getSocketOwner = () => {
-  if (!process.env.SOCKET_OWNER_ADDRESS)
+export const getOwner = () => {
+  if (!process.env.OWNER_ADDRESS)
     throw Error("Socket owner address not present");
-  return process.env.SOCKET_OWNER_ADDRESS;
+  return process.env.OWNER_ADDRESS;
 };
 
-export const getSocketSignerKey = () => {
-  if (!process.env.SOCKET_SIGNER_KEY)
-    throw Error("Socket signer key not present");
-  return process.env.SOCKET_SIGNER_KEY;
+export const getOwnerSignerKey = () => {
+  if (!process.env.OWNER_SIGNER_KEY)
+    throw Error("Owner signer key not present");
+  return process.env.OWNER_SIGNER_KEY;
 };
 
 export const getMode = () => {
-  if (!process.env.DEPLOYMENT_MODE)
-    throw new Error("DeploymentMode not mentioned");
-  if (
-    !Object.values(DeploymentMode).includes(
-      process.env.DEPLOYMENT_MODE as DeploymentMode
-    )
-  )
-    throw new Error("DeploymentMode is invalid");
-  return process.env.DEPLOYMENT_MODE as DeploymentMode;
+  return DeploymentMode.PROD;
 };
 
 export const getProjectName = () => {
@@ -36,14 +31,12 @@ export const getProjectName = () => {
 };
 
 export const getProjectType = () => {
-  if (!process.env.PROJECT_TYPE) throw new Error("PROJECT_TYPE not mentioned");
-  if (
-    !Object.values(ProjectType).includes(
-      process.env.PROJECT_TYPE as ProjectType
-    )
-  )
-    throw new Error("project is invalid");
-  return process.env.PROJECT_TYPE as ProjectType;
+  const projectType = ProjectTypeMap[getProjectName()];
+  if (!projectType)
+    throw new Error(
+      "Project type not found, please check src/enums/projectType.ts"
+    );
+  return projectType;
 };
 
 export const isSuperBridge = () => getProjectType() === ProjectType.SUPERBRIDGE;
@@ -73,14 +66,13 @@ export const getConfigs = () => {
   let projectName = getProjectName();
   let tokens = getTokens();
   let mode = getMode();
-  let socketOwner = getSocketOwner();
+  let socketOwner = getOwner();
   return { projectType, projectName, tokens, mode, socketOwner };
 };
 
 export const printConfigs = () => {
   let { projectType, projectName, tokens, mode, socketOwner } = getConfigs();
   console.log("========================================================");
-  console.log("MODE", mode);
   console.log("PROJECT", projectName);
   console.log("PROJECT_TYPE", projectType);
   console.log("TOKENS", tokens);

@@ -15,7 +15,6 @@ import {
   STTokenAddresses,
   STVaultChainAddresses,
   SuperBridgeContracts,
-  Tokens,
   UpdateLimitParams,
 } from "../../src";
 import { execute, getPoolIdHex } from "./utils";
@@ -31,6 +30,7 @@ import {
   isSBAppChain,
   isSTVaultChain,
 } from "./projectConstants";
+import { Tokens } from "../../src/enums";
 
 export const updateConnectorStatus = async (
   chain: ChainSlug,
@@ -71,6 +71,7 @@ export const updateConnectorStatus = async (
       ],
       chain
     );
+    console.log(`✔   Connector status set for chain ${chain}`);
   } else {
     console.log(`✔   Connector status already set for chain ${chain}`);
   }
@@ -176,8 +177,8 @@ export const getHookContract = async (
     contractName = HookContracts.LimitExecutionHook;
   }
 
-  if (!address) {
-    throw new Error("Hook address not found");
+  if (!address || !contractName) {
+    return { hookContract: contract, hookContractName: contractName };
   }
 
   contract = await getInstance(contractName, address);
@@ -210,21 +211,28 @@ export const checkAndGrantRole = async (
   roleHash: string = "",
   userAddress: string
 ) => {
-  let hasRole = await contract.hasRole(roleHash, userAddress);
-  if (!hasRole) {
+  try {
+    let hasRole = await contract.hasRole(roleHash, userAddress);
+    if (!hasRole) {
+      console.log(
+        `Adding ${roleName} role to signer`,
+        userAddress,
+        " for contract: ",
+        contract.address,
+        " on chain : ",
+        chain
+      );
+      await execute(contract, "grantRole", [roleHash, userAddress], chain);
+    } else {
+      console.log(
+        `✔ ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
+        chain
+      );
+    }
+  } catch (error) {
     console.log(
-      `Adding ${roleName} role to signer`,
-      userAddress,
-      " for contract: ",
-      contract.address,
-      " on chain : ",
-      chain
-    );
-    await execute(contract, "grantRole", [roleHash, userAddress], chain);
-  } else {
-    console.log(
-      `✔ ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
-      chain
+      "Error, while granting role. You might be using an already Deployed contract, please ask the owner to grant the role.",
+      error
     );
   }
 };

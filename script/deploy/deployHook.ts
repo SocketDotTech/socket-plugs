@@ -1,15 +1,10 @@
 import { Contract } from "ethers";
-import {
-  getSocketOwner,
-  isSuperBridge,
-  isSuperToken,
-} from "../constants/config";
+import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
 
 export const deployHookContracts = async (
-  isVaultChain: boolean,
   useConnnectorPools: boolean,
   deployParams: DeployParams
 ) => {
@@ -35,7 +30,7 @@ export const deployHookContracts = async (
   if (hookType == Hooks.LIMIT_HOOK) {
     contractName = HookContracts.LimitHook;
     args = [
-      getSocketOwner(),
+      getOwner(),
       bridgeAddress,
       useConnnectorPools, // useControllerPools
     ];
@@ -43,7 +38,7 @@ export const deployHookContracts = async (
     contractName = HookContracts.LimitExecutionHook;
     deployParams = await deployExecutionHelper(deployParams);
     args = [
-      getSocketOwner(),
+      getOwner(),
       bridgeAddress,
       deployParams.addresses[HookContracts.ExecutionHelper],
       useConnnectorPools, // useControllerPools
@@ -75,7 +70,7 @@ const deployExecutionHelper = async (deployParams: DeployParams) => {
   const executionHelperContract: Contract = await getOrDeploy(
     contractName,
     path,
-    [getSocketOwner()],
+    [getOwner()],
     deployParams
   );
   deployParams.addresses[contractName] = executionHelperContract.address;

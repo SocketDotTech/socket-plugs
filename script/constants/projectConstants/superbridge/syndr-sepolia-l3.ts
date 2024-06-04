@@ -3,172 +3,162 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Tokens } from "../../../src";
-import { ProjectConstants } from "../types";
+import { Hooks, ProjectConstants } from "../../../../src";
+import { Tokens } from "../../../../src/enums";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
-      appChain: ChainSlug.SYNDR_SEPOLIA_L3,
-      nonAppChains: {
-        // [ChainSlug.SEPOLIA]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
-        [ChainSlug.ARBITRUM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "10000",
-            depositRate: "0.11574",
-            withdrawLimit: "10000",
-            withdrawRate: "0.11574",
-            poolCount: 0,
+      controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
+          // [ChainSlug.SEPOLIA]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
+          [ChainSlug.ARBITRUM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "10000",
+
+              receivingLimit: "10000",
+            },
           },
+          // [ChainSlug.POLYGON_MUMBAI]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
         },
-        // [ChainSlug.POLYGON_MUMBAI]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
       },
     },
     [Tokens.USDT]: {
-      appChain: ChainSlug.SYNDR_SEPOLIA_L3,
-      nonAppChains: {
-        // [ChainSlug.SEPOLIA]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
-        [ChainSlug.ARBITRUM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "10000",
-            depositRate: "0.11574",
-            withdrawLimit: "10000",
-            withdrawRate: "0.11574",
-            poolCount: 0,
+      controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
+          // [ChainSlug.SEPOLIA]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
+          [ChainSlug.ARBITRUM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "10000",
+
+              receivingLimit: "10000",
+            },
           },
+          // [ChainSlug.POLYGON_MUMBAI]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
         },
-        // [ChainSlug.POLYGON_MUMBAI]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
       },
     },
     [Tokens.DAI]: {
-      appChain: ChainSlug.SYNDR_SEPOLIA_L3,
-      nonAppChains: {
-        // [ChainSlug.SEPOLIA]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
-        [ChainSlug.ARBITRUM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "10000",
-            depositRate: "0.11574",
-            withdrawLimit: "10000",
-            withdrawRate: "0.11574",
-            poolCount: 0,
+      controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.ARBITRUM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "10000",
+
+              receivingLimit: "10000",
+            },
           },
         },
-        // [ChainSlug.POLYGON_MUMBAI]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
       },
     },
     [Tokens.WETH]: {
-      appChain: ChainSlug.SYNDR_SEPOLIA_L3,
-      nonAppChains: {
-        // [ChainSlug.SEPOLIA]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
-        [ChainSlug.ARBITRUM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "10000",
-            depositRate: "0.11574",
-            withdrawLimit: "10000",
-            withdrawRate: "0.11574",
-            poolCount: 0,
+      controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
+          // [ChainSlug.SEPOLIA]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
+          [ChainSlug.ARBITRUM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "10000",
+
+              receivingLimit: "10000",
+            },
           },
+          // [ChainSlug.POLYGON_MUMBAI]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
         },
-        // [ChainSlug.POLYGON_MUMBAI]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
       },
     },
     [Tokens.WBTC]: {
-      appChain: ChainSlug.SYNDR_SEPOLIA_L3,
-      nonAppChains: {
-        // [ChainSlug.SEPOLIA]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
-        [ChainSlug.ARBITRUM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "10000",
-            depositRate: "0.11574",
-            withdrawLimit: "10000",
-            withdrawRate: "0.11574",
-            poolCount: 0,
+      controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
+          // [ChainSlug.SEPOLIA]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
+          [ChainSlug.ARBITRUM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "10000",
+
+              receivingLimit: "10000",
+            },
           },
+          // [ChainSlug.POLYGON_MUMBAI]: {
+          //   [IntegrationTypes.fast]: {
+          //     sendingLimit: "10000",
+          //
+          //     receivingLimit: "10000",
+          //
+          //
+          //   },
+          // },
         },
-        // [ChainSlug.POLYGON_MUMBAI]: {
-        //   [IntegrationTypes.fast]: {
-        //     depositLimit: "10000",
-        //     depositRate: "0.11574",
-        //     withdrawLimit: "10000",
-        //     withdrawRate: "0.11574",
-        //     poolCount: 0,
-        //   },
-        // },
       },
     },
   },
 };
-
-export = pc;

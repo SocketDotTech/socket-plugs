@@ -4,8 +4,9 @@ dotenvConfig();
 import { ChainSlug } from "@socket.tech/dl-core";
 import { isSuperBridge, isSuperToken, getConfigs } from "../constants/config";
 import { checkMissingFields } from "../helpers";
-import { Hooks, ProjectType, Tokens, TokenConstants } from "../../src";
+import { Hooks, ProjectType, TokenConstants } from "../../src";
 import { getTokenConstants } from "../helpers/projectConstants";
+import { Tokens } from "../../src/enums";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
@@ -31,16 +32,33 @@ export const verifyConstants = async () => {
       }
       let { superTokenInfo } = currentPc;
       checkMissingFields({ superTokenInfo });
-      let { name, symbol, decimals, initialSupplyOwner, owner, initialSupply } =
-        superTokenInfo!;
-      checkMissingFields({
-        name,
-        symbol,
-        decimals,
-        initialSupplyOwner,
-        owner,
-        initialSupply,
-      });
+
+      if ("address" in superTokenInfo) {
+        // Handle the case where only the address is present
+        checkMissingFields({ address: superTokenInfo.address });
+        console.log(`Using already deployed token ${superTokenInfo.address}`);
+      } else {
+        // Handle the case where detailed information is present
+        let {
+          name,
+          symbol,
+          decimals,
+          initialSupplyOwner,
+          owner,
+          initialSupply,
+        } = superTokenInfo;
+        checkMissingFields({
+          name,
+          symbol,
+          decimals,
+          initialSupplyOwner,
+          owner,
+          initialSupply,
+        });
+        console.log(
+          `Deploying new SuperToken with ${name} (${symbol}) with ${decimals} decimals`
+        );
+      }
     }
 
     if (currentPc.hook) {
@@ -62,15 +80,8 @@ export const verifyConstants = async () => {
         for (let chain in limitsAndPoolId) {
           let chainLimits = limitsAndPoolId[chain];
           for (let integration in chainLimits) {
-            let { sendingLimit, receivingLimit, poolCount } =
-              chainLimits[integration];
+            let { sendingLimit, receivingLimit } = chainLimits[integration];
             checkMissingFields({ sendingLimit, receivingLimit });
-            if (
-              isSuperBridge() &&
-              currentPc.vaultChains.includes(Number(chain) as ChainSlug)
-            ) {
-              checkMissingFields({ poolCount });
-            }
           }
         }
       }

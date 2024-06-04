@@ -1,37 +1,3 @@
-export enum Tokens {
-  Moon = "MOON",
-  USDCE = "USDC.e",
-  USDC = "USDC",
-  WETH = "WETH",
-  WBTC = "WBTC",
-  USDT = "USDT",
-  SNX = "SNX",
-  WSTETH = "wstETH",
-  DAI = "DAI",
-  GUARD = "GUARD",
-}
-
-export enum Project {
-  AEVO = "aevo",
-  AEVO_TESTNET = "aevo-testnet",
-  LYRA_TESTNET = "lyra-testnet",
-  LYRA = "lyra",
-  SX_NETWORK_TESTNET = "sx-network-testnet",
-  SOCKET_DEV = "socket-dev",
-  MODE_TESTNET = "mode-testnet",
-  VICTION_TESTNET = "viction-testnet",
-  MODE = "mode",
-  ANCIENT8_TESTNET2 = "ancient8-testnet2",
-  LEAF_TESTNET = "leaf-testnet",
-  SAND_TESTNET = "sand-testnet",
-  SOUND_TESTNET = "sound-testnet",
-  RAIN_TESTNET = "rain-testnet",
-  MIST_TESTNET = "mist-testnet",
-  REYA_CRONOS = "reya-cronos",
-  REYA = "reya",
-  SPECTRAL_SIGNAL = "spectral-signal",
-}
-
 export enum Hooks {
   NO_HOOK = "NO_HOOK",
   LIMIT_HOOK = "LIMIT_HOOK",

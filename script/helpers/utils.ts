@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
-import { overrides } from "./networks";
+import { getProviderFromChainSlug, overrides } from "./networks";
 import {
   getDryRun,
   getMode,
@@ -12,6 +12,21 @@ import * as fs from "fs";
 import path from "path";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
+import { StaticJsonRpcProvider } from "@ethersproject/providers";
+
+import { ProjectType } from "../../src";
+
+export let allDeploymentPath: string;
+export const getAllDeploymentPath = (
+  projectType: ProjectType = getProjectType()
+) => {
+  if (allDeploymentPath) return allDeploymentPath;
+  allDeploymentPath = path.join(
+    __dirname,
+    `/../../deployments/${projectType}/${getMode()}_addresses.json`
+  );
+  return allDeploymentPath;
+};
 
 export let deploymentPath: string;
 export const getDeploymentPath = () => {
@@ -43,6 +58,16 @@ export const getConstantPath = () => {
   return constantPath;
 };
 
+export const getConstantPathForProject = (
+  projectName: string,
+  projectType: ProjectType
+) => {
+  return path.join(
+    __dirname,
+    `/../constants/projectConstants/${projectType}/${projectName}`
+  );
+};
+
 export function encodePoolId(chainSlug: number, poolCount: number) {
   const encodedValue = (BigInt(chainSlug) << BigInt(224)) | BigInt(poolCount);
 
@@ -56,9 +81,9 @@ export const getPoolIdHex = (
   token: string,
   it: IntegrationTypes
 ): string => {
-  let poolCount = getIntegrationTypeConsts(it, chainSlug, token).poolCount;
-  if (poolCount === undefined || poolCount === null)
-    throw new Error("poolCount not found");
+  // use 0 as default for poolCount, merging all volume from a single chain
+  let poolCount =
+    getIntegrationTypeConsts(it, chainSlug, token)?.poolCount ?? 0;
   return encodePoolId(chainSlug, poolCount);
 };
 
@@ -117,7 +142,7 @@ export const readJSONFile = (filePath: string) => {
   try {
     let fileExists = fs.existsSync(filePath);
     if (!fileExists) {
-      fs.writeFileSync(filePath, "{}");
+      return {};
     }
     const data = fs.readFileSync(filePath, "utf8");
     return JSON.parse(data);
@@ -134,4 +159,16 @@ export const checkMissingFields = (fields: { [key: string]: any }) => {
       throw Error(`missing field : ${field}`);
     }
   }
+};
+
+export const isContractAtAddress = async (
+  provider: StaticJsonRpcProvider,
+  address: string
+) => {
+  const code = await provider.getCode(address);
+  // console.log({ code });
+  if (code === "0x") {
+    return false;
+  }
+  return true;
 };

@@ -9,7 +9,7 @@ import {
 import { getSignerFromChainSlug } from "../helpers/networks";
 import {
   getInstance,
-  getAllAddresses,
+  getProjectAddresses,
   getSocket,
   execute,
   printExecSummary,
@@ -22,7 +22,6 @@ import {
   ProjectType,
   TokenContracts,
   TokenConstants,
-  Tokens,
   SBAddresses,
   STAddresses,
   SBTokenAddresses,
@@ -42,6 +41,7 @@ import {
   updateConnectorStatus,
 } from "../helpers/common";
 import { configureHooks } from "./configureHook";
+import { Tokens } from "../../src/enums";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
@@ -61,7 +61,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
       // console.log(pc[token]);
       let addresses: SBAddresses | STAddresses;
       try {
-        addresses = allAddresses ?? getAllAddresses();
+        addresses = allAddresses ?? getProjectAddresses();
         // console.log(addresses);
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
@@ -107,9 +107,6 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             connectors,
             bridgeContract,
             true
-          );
-          console.log(
-            `-   Checking limits and pool ids for chain ${chain}, siblings ${siblingSlugs}`
           );
 
           if (isSuperToken() && addr[TokenContracts.SuperToken]) {
@@ -179,7 +176,7 @@ const connect = async (
         addresses?.[sibling]?.[token]?.connectors?.[chain];
       if (!localConnectorAddresses || !siblingConnectorAddresses) {
         throw new Error(
-          `connector addresses not found for ${chain}, ${sibling}`
+          `connector addresses not found for chain: ${chain},sibling: ${sibling}`
         );
       }
 

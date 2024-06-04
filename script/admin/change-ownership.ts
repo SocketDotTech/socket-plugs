@@ -2,7 +2,7 @@ import { getSuperBridgeAddresses, ZERO_ADDRESS } from "../helpers";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
-import { getSocketOwner } from "../constants/config";
+import { getOwner } from "../constants/config";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { ChainSlug } from "@socket.tech/dl-core";
 
@@ -56,7 +56,7 @@ export const main = async () => {
           );
 
           if (
-            exchangeRateOwner === getSocketOwner() &&
+            exchangeRateOwner === getOwner() &&
             exchangeRateNominee === ZERO_ADDRESS
           ) {
             if (exchangeRateType === 0) {
@@ -93,7 +93,7 @@ export const main = async () => {
           );
 
           if (
-            controllerOwner === getSocketOwner() &&
+            controllerOwner === getOwner() &&
             controllerNominee === ZERO_ADDRESS
           ) {
             if (controllerType === 0) {
@@ -128,10 +128,7 @@ export const main = async () => {
             } on chain: ${chain} (Vault for token: ${token})`
           );
 
-          if (
-            vaultOwner === getSocketOwner() &&
-            vaultNominee === ZERO_ADDRESS
-          ) {
+          if (vaultOwner === getOwner() && vaultNominee === ZERO_ADDRESS) {
             if (vaultType === 0) {
               const tx = await vaultContract.nominateOwner(
                 chainToExpectedOwner[+chain],
@@ -170,7 +167,7 @@ export const main = async () => {
               } on chain: ${chain} (Connector for ${token}, conn-chain: ${connectorChain}, conn-type: ${connectorType}`
             );
 
-            if (owner === getSocketOwner() && nominee === ZERO_ADDRESS) {
+            if (owner === getOwner() && nominee === ZERO_ADDRESS) {
               if (type === 0) {
                 const tx = await contract.nominateOwner(
                   chainToExpectedOwner[+chain],

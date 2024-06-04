@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
 import "./plugins/LimitPlugin.sol";
@@ -26,13 +27,14 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
     )
         external
         isVaultOrController
-        returns (TransferInfo memory transferInfo, bytes memory)
+        returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
         if (useControllerPools)
             _poolSrcHook(params_.connector, params_.transferInfo.amount);
 
         _limitSrcHook(params_.connector, params_.transferInfo.amount);
         transferInfo = params_.transferInfo;
+        postHookData = hex"";
     }
 
     function srcPostHookCall(
@@ -178,7 +180,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
 
     function _getIdentifierPendingAmount(
         bytes memory identifierCache_
-    ) internal view returns (uint256) {
+    ) internal pure returns (uint256) {
         if (identifierCache_.length > 0) {
             (, uint256 pendingAmount, ) = abi.decode(
                 identifierCache_,

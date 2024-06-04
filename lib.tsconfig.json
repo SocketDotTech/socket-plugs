@@ -8,5 +8,5 @@
     "declaration": true,
     "resolveJsonModule": true
   },
-  "include": ["./deployments", "./src"]
+  "include": ["./deployments", "./script", "./src", "./hardhat.config.ts"]
 }

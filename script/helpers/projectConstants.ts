@@ -1,8 +1,9 @@
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { BigNumber, utils } from "ethers";
-import { TokenConstants, tokenDecimals } from "../../src";
+import { ProjectConstants, TokenConstants } from "../../src";
 import { getMode, getProjectName } from "../constants/config";
 import { getConstantPath } from "./utils";
+import { tokenDecimals } from "../../src/enums/tokenDecimals";
 
 export const isSBAppChain = (chain: ChainSlug, token: string) =>
   getTokenConstants(token).controllerChains.includes(chain);
@@ -10,19 +11,22 @@ export const isSBAppChain = (chain: ChainSlug, token: string) =>
 export const isSTVaultChain = (chain: ChainSlug, token: string) =>
   getTokenConstants(token).vaultChains.includes(chain);
 
-let tc: TokenConstants;
+let pc: ProjectConstants;
 
 export const getTokenConstants = (tokenName: string): TokenConstants => {
-  if (tc) return tc;
-  console.log(getConstantPath());
-  const _tc = require(getConstantPath());
-  console.log(_tc);
-  tc = _tc?.[getMode()]?.[tokenName];
+  let pc_ = getProjectConstants();
+  const tc = pc_?.[getMode()]?.[tokenName];
   if (!tc)
     throw new Error(
       `config not found for ${getProjectName()}, ${getMode()}, ${tokenName}`
     );
   return tc;
+};
+
+export const getProjectConstants = (): ProjectConstants => {
+  if (pc) return pc;
+  pc = require(getConstantPath()).pc;
+  return pc;
 };
 
 export const getIntegrationTypeConsts = (
