@@ -92,12 +92,12 @@ export const pc: ProjectConstants = {
         },
       },
     },
-      [Tokens.WETH]: {
-        controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
-        vaultChains:[ ChainSlug.ARBITRUM_SEPOLIA],
-        hook: {
-          hookType: Hooks.LIMIT_HOOK,
-          limitsAndPoolId: {
+    [Tokens.WETH]: {
+      controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
           // [ChainSlug.SEPOLIA]: {
           //   [IntegrationTypes.fast]: {
           //     sendingLimit: "10000",
@@ -112,8 +112,6 @@ export const pc: ProjectConstants = {
               sendingLimit: "10000",
 
               receivingLimit: "10000",
-
-    
             },
           },
           // [ChainSlug.POLYGON_MUMBAI]: {
@@ -126,13 +124,14 @@ export const pc: ProjectConstants = {
           //   },
           // },
         },
-      },},
-      [Tokens.WBTC]: {
-        controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
-        vaultChains:[ ChainSlug.ARBITRUM_SEPOLIA],
-        hook: {
-          hookType: Hooks.LIMIT_HOOK,
-          limitsAndPoolId: {
+      },
+    },
+    [Tokens.WBTC]: {
+      controllerChains: [ChainSlug.SYNDR_SEPOLIA_L3],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
           // [ChainSlug.SEPOLIA]: {
           //   [IntegrationTypes.fast]: {
           //     sendingLimit: "10000",
@@ -147,8 +146,6 @@ export const pc: ProjectConstants = {
               sendingLimit: "10000",
 
               receivingLimit: "10000",
-
-    
             },
           },
           // [ChainSlug.POLYGON_MUMBAI]: {
