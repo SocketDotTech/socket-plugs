@@ -164,7 +164,7 @@ export const getHookContract = async (
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
 
-  let contract: Contract,
+  let contract: Contract | undefined,
     address: string = "",
     contractName: string = "";
 
@@ -211,8 +211,34 @@ export const checkAndGrantRole = async (
   roleHash: string = "",
   userAddress: string
 ) => {
+  let hasRole: boolean | undefined;
+
+  // Do checks first
   try {
-    let hasRole = await contract.hasRole(roleHash, userAddress);
+    // Check first if the contract has the function `hasRole`
+    hasRole = await contract.hasRole(roleHash, userAddress);
+
+    // Get owner and signer
+    const owner = await contract.owner();
+    const signer = getSignerFromChainSlug(chain);
+    console.log({ owner, signer });
+
+    // Check if the signer is the owner
+    if (owner !== signer.address) {
+      console.log(
+        `✔   Signer is not the owner of the contract, ask the owner to grant the role`
+      );
+      return; // Exit the function if the signer is not the owner
+    }
+  } catch (error) {
+    console.log(
+      "✔   Contract does not have the function `hasRole`, using custom contract, check with owner"
+    );
+    return; // Exit the function if the contract does not have the function `hasRole`
+  }
+
+  // Grant the role if the user does not have it
+  try {
     if (!hasRole) {
       console.log(
         `Adding ${roleName} role to signer`,
@@ -231,8 +257,7 @@ export const checkAndGrantRole = async (
     }
   } catch (error) {
     console.log(
-      "Error, while granting role. You might be using an already Deployed contract, please ask the owner to grant the role.",
-      error
+      "✗   Error, while granting role. You might be using an already Deployed contract, please ask the owner to grant the role."
     );
   }
 };
