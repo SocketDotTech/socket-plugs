@@ -7,10 +7,20 @@ import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { ChainSlug } from "@socket.tech/dl-core";
 
 const chainToExpectedOwner = {
-  [ChainSlug.OPTIMISM]: "0xa75509cB7c50362AC59908e2A8c3922aDF3EEF54",
-  [ChainSlug.ARBITRUM]: "0xa75509cB7c50362AC59908e2A8c3922aDF3EEF54",
-  [ChainSlug.AEVO]: "0xa75509cB7c50362AC59908e2A8c3922aDF3EEF54",
+  [ChainSlug.KINTO]: process.env.KINTO_OWNER_ADDRESS,
+  [ChainSlug.ARBITRUM]: process.env.ARBITRUM_SAFE,
+  [ChainSlug.BASE]: process.env.BASE_SAFE,
+  [ChainSlug.MAINNET]: process.env.MAINNET_SAFE,
+  // [ChainSlug.OPTIMISM]: process.env.OPTIMISM_SAFE,
 };
+
+// check if expected owner is not null
+for (const chain of Object.keys(chainToExpectedOwner)) {
+  if (!chainToExpectedOwner[+chain]) {
+    console.error(`Expected owner not found for chain ${chain}`);
+    throw new Error(`Expected owner not found for chain ${chain}`);
+  }
+}
 
 async function getOwnerAndNominee(contract: ethers.Contract) {
   const owner = await contract.owner();
@@ -37,42 +47,45 @@ export const main = async () => {
         }`
       );
       for (const token of Object.keys(addresses[chain])) {
+        console.log(`\nChecking addresses for token ${token}`);
         if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller
           const exchangeRateAddress = addresses[chain][token].ExchangeRate;
-          const exchangeRateContract = new ethers.Contract(
-            exchangeRateAddress,
-            OWNABLE_ABI,
-            getSignerFromChainSlug(+chain)
-          );
-          const [exchangeRateOwner, exchangeRateNominee, exchangeRateType] =
-            await getOwnerAndNominee(exchangeRateContract);
-          console.log(
-            `Owner of ${exchangeRateAddress} is ${exchangeRateOwner}${
-              exchangeRateNominee === ZERO_ADDRESS
-                ? ""
-                : ` (nominee: ${exchangeRateNominee})`
-            } on chain: ${chain} (ExchangeRate for token: ${token})`
-          );
+          if (exchangeRateAddress) {
+            const exchangeRateContract = new ethers.Contract(
+              exchangeRateAddress,
+              OWNABLE_ABI,
+              getSignerFromChainSlug(+chain)
+            );
+            const [exchangeRateOwner, exchangeRateNominee, exchangeRateType] =
+              await getOwnerAndNominee(exchangeRateContract);
+            console.log(
+              `Owner of ${exchangeRateAddress} is ${exchangeRateOwner}${
+                exchangeRateNominee === ZERO_ADDRESS
+                  ? ""
+                  : ` (nominee: ${exchangeRateNominee})`
+              } on chain: ${chain} (ExchangeRate for token: ${token})`
+            );
 
-          if (
-            exchangeRateOwner === getOwner() &&
-            exchangeRateNominee === ZERO_ADDRESS
-          ) {
-            if (exchangeRateType === 0) {
-              const tx = await exchangeRateContract.nominateOwner(
-                chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
-              );
-              console.log("Nominating, tx hash: ", tx.hash);
-              await tx.wait();
-            } else {
-              const tx = await exchangeRateContract.transferOwnership(
-                chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
-              );
-              console.log("Nominating, tx hash: ", tx.hash);
-              await tx.wait();
+            if (
+              exchangeRateOwner === getOwner() &&
+              exchangeRateNominee === ZERO_ADDRESS
+            ) {
+              if (exchangeRateType === 0) {
+                const tx = await exchangeRateContract.nominateOwner(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Nominating, tx hash: ", tx.hash);
+                await tx.wait();
+              } else {
+                const tx = await exchangeRateContract.transferOwnership(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Nominating, tx hash: ", tx.hash);
+                await tx.wait();
+              }
             }
           }
 

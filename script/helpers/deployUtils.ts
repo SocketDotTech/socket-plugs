@@ -5,6 +5,7 @@ import {
   deployOnKinto,
   isKinto,
 } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
+import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
 
 import fs from "fs";
 import { Address } from "hardhat-deploy/dist/types";
@@ -151,7 +152,12 @@ export async function deployContractWithArgs(
     );
     let contract: Contract;
     if (isKinto(await signer.getChainId())) {
-      contract = await deployOnKinto(contractName, args, signer);
+      contract = await deployOnKinto(
+        process.env.KINTO_OWNER_ADDRESS,
+        contractName,
+        args,
+        [`0x${process.env.OWNER_SIGNER_KEY}`, constants.LEDGER]
+      );
     } else {
       // gasLimit is set to undefined to not use the value set in overrides
       contract = await Contract.connect(signer).deploy(...args, {

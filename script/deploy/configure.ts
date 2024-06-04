@@ -153,9 +153,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
               MINTER_ROLE,
               a.Controller
             );
-          }
 
-          if (isSuperBridge() && chain === ChainSlug.KINTO) {
             // for each connector, grant socket relayer role to each one of the socket relayer role contracts
             const contracts = getAddresses(chain, getMode());
             const socketRelayerRoleContracts = [
@@ -173,7 +171,6 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             const connectorsAddresses = Object.values(connectors)
               .map((connector) => Object.values(connector))
               .flat();
-            console.log(connectorsAddresses);
             for (const contract of socketRelayerRoleContracts) {
               const contractInstance = new ethers.Contract(
                 contract,
@@ -203,6 +200,14 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             socketSigner,
             siblingSlugs,
             connectors,
+            addr
+          );
+
+          // nominate owner for Vaults and
+          connectors;
+          let { hookContract, hookContractName } = await getHookContract(
+            chain,
+            token,
             addr
           );
         })
