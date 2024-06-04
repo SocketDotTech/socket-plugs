@@ -1145,9 +1145,9 @@
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.31.28.tgz#b68831e7bc7d09daac26968ea32f42bedc968ede"
   integrity sha512-/s55Jujywdw/Jpan+vsy6JZs1z2ZTGxTmbZTPiuSL2wz9mfzA2gN1zzaqmvfi4pq+uOt7Du85fkiwv5ymW84aQ==
 
-"@socket.tech/dl-core@https://github.com/KintoXYZ/socket-DL.git#second-signer":
+"@socket.tech/dl-core@https://github.com/KintoXYZ/socket-DL.git":
   version "2.4.38"
-  resolved "https://github.com/KintoXYZ/socket-DL.git#330813b0ee5fcd285caa52022ce5b2177dceb730"
+  resolved "https://github.com/KintoXYZ/socket-DL.git#a23d25118dbf5da03c6e31c3105dfe72c50780ef"
   dependencies:
     "@ethers-ext/signer-ledger" "^6.0.0-beta.1"
     "@ledgerhq/hw-transport-node-hid" "^6.28.6"
