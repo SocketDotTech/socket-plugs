@@ -26,7 +26,7 @@ import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/cons
 import { ethers } from "hardhat";
 
 const srcChain = ChainSlug.KINTO;
-const dstChain = ChainSlug.MAINNET;
+const dstChain = ChainSlug.BASE;
 // const srcChain = ChainSlug.KINTO;
 // const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
 // const amount = "0";
@@ -168,7 +168,11 @@ export const main = async () => {
       );
 
       if (isKinto(srcChain)) {
-        tx = await handleOps([txRequest], tokenContract.signer);
+        tx = await handleOps(
+          process.env.KINTO_OWNER_ADDRESS,
+          [txRequest],
+          [`0x${process.env.OWNER_SIGNER_KEY}`, constants.TREZOR]
+        );
       } else {
         tx = await (
           await tokenContract.signer.sendTransaction(txRequest)
@@ -206,7 +210,12 @@ export const main = async () => {
     );
 
     if (isKinto(srcChain)) {
-      tx = await handleOps([txRequest], tokenContract.signer, fees);
+      tx = await handleOps(
+        process.env.KINTO_OWNER_ADDRESS,
+        [txRequest],
+        [`0x${process.env.OWNER_SIGNER_KEY}`, constants.TREZOR],
+        fees
+      );
     } else {
       tx = await (await tokenContract.signer.sendTransaction(txRequest)).wait();
     }
@@ -251,7 +260,11 @@ export const retry = async () => {
     ...overrides[srcChain],
   });
 
-  const tx = await handleOps([txRequest], signer);
+  const tx = await handleOps(
+    process.env.KINTO_OWNER_ADDRESS,
+    [txRequest],
+    [`0x${process.env.OWNER_SIGNER_KEY}`, constants.LEDGER]
+  );
 
   console.log("Retrial hash: ", tx.transactionHash);
   console.log(
