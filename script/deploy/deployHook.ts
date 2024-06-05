@@ -3,8 +3,8 @@ import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
-import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
-import { isKinto } from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
+import { kintoConfig } from "@kinto-utils/dist/utils/constants";
+import { isKinto } from "@kinto-utils/dist/kinto";
 
 export const deployHookContracts = async (
   useConnnectorPools: boolean,
@@ -57,8 +57,8 @@ export const deployHookContracts = async (
         process.env.KINTO_OWNER_ADDRESS,
         bridgeAddress,
         useConnnectorPools, // useControllerPools
-        constants.KINTO_DATA.contracts.kintoID.address,
-        constants.KINTO_DATA.contracts.factory.address,
+        kintoConfig[deployParams.currentChainSlug].contracts.kintoID.address,
+        kintoConfig[deployParams.currentChainSlug].contracts.factory.address,
       ];
     } else {
       contractName = HookContracts.SenderHook;

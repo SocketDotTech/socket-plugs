@@ -13,11 +13,8 @@ import { getTokens, isSuperBridge, isSuperToken } from "../constants/config";
 import { checkSendingLimit } from "./utils";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
 import { tokenDecimals } from "../../src/enums";
-import {
-  handleOps,
-  isKinto,
-} from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
-import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
+import { handleOps, isKinto } from "@kinto-utils/dist/kinto";
+import { TREZOR } from "@kinto-utils/dist/utils/constants";
 
 const srcChain = ChainSlug.KINTO;
 const dstChain = ChainSlug.BASE;
@@ -96,7 +93,7 @@ export const main = async () => {
         await tokenContract.decimals()
       )}`
     );
-    if (balance.lt(amountBN)) throw new Error("Not enough balance");
+    // if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
     // approve
     const currentApproval: BigNumber = await tokenContract.allowance(
@@ -115,11 +112,11 @@ export const main = async () => {
       );
 
       if (isKinto(srcChain)) {
-        tx = await handleOps(
-          process.env.KINTO_OWNER_ADDRESS,
-          [txRequest],
-          [`0x${process.env.OWNER_SIGNER_KEY}`, constants.TREZOR]
-        );
+        tx = await handleOps({
+          kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+          userOps: [txRequest],
+          privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
+        });
       } else {
         tx = await (
           await tokenContract.signer.sendTransaction(txRequest)
@@ -157,12 +154,12 @@ export const main = async () => {
     );
 
     if (isKinto(srcChain)) {
-      tx = await handleOps(
-        process.env.KINTO_OWNER_ADDRESS,
-        [txRequest],
-        [`0x${process.env.OWNER_SIGNER_KEY}`, constants.TREZOR],
-        fees
-      );
+      tx = await handleOps({
+        kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+        userOps: [txRequest],
+        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
+        value: [fees],
+      });
     } else {
       tx = await (await tokenContract.signer.sendTransaction(txRequest)).wait();
     }
@@ -207,11 +204,11 @@ export const retry = async () => {
     ...overrides[srcChain],
   });
 
-  const tx = await handleOps(
-    process.env.KINTO_OWNER_ADDRESS,
-    [txRequest],
-    [`0x${process.env.OWNER_SIGNER_KEY}`, constants.LEDGER]
-  );
+  const tx = await handleOps({
+    kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+    userOps: [txRequest],
+    privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
+  });
 
   console.log("Retrial hash: ", tx.transactionHash);
   console.log(

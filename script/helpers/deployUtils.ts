@@ -4,8 +4,9 @@ import { ContractFactory, Contract } from "ethers";
 import {
   deployOnKinto,
   isKinto,
-} from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
-import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
+  extractArgTypes,
+} from "@kinto-utils/dist/kinto";
+import { LEDGER } from "@kinto-utils/dist/utils/constants";
 
 import fs from "fs";
 import { Address } from "hardhat-deploy/dist/types";
@@ -152,12 +153,13 @@ export async function deployContractWithArgs(
     );
     let contract: Contract;
     if (isKinto(await signer.getChainId())) {
-      contract = await deployOnKinto(
-        process.env.KINTO_OWNER_ADDRESS,
-        contractName,
+      contract = await deployOnKinto({
+        kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+        bytecode: Contract.bytecode,
         args,
-        [`0x${process.env.OWNER_SIGNER_KEY}`, constants.LEDGER]
-      );
+        argTypes: extractArgTypes(Contract.interface),
+        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
+      });
     } else {
       // gasLimit is set to undefined to not use the value set in overrides
       contract = await Contract.connect(signer).deploy(...args, {

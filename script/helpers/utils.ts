@@ -13,11 +13,8 @@ import path from "path";
 
 import { getIntegrationTypeConsts } from "./projectConstants";
 import { ProjectType } from "../../src";
-import {
-  handleOps,
-  isKinto,
-} from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/kinto";
-import constants from "@socket.tech/dl-core/dist/scripts/deploy/utils/kinto/constants.json";
+import { handleOps, isKinto } from "@kinto-utils/dist/kinto";
+import { LEDGER } from "@kinto-utils/dist/utils/constants";
 
 export let allDeploymentPath: string;
 export const getAllDeploymentPath = () => {
@@ -129,7 +126,7 @@ export async function execute(
       tx = await handleOps(
         process.env.OWNER_SIGNER_KEY,
         [txRequest],
-        [`0x${process.env.KINTO_OWNER_ADDRESS}`, constants.LEDGER]
+        [`0x${process.env.KINTO_OWNER_ADDRESS}`, LEDGER]
       );
     } else {
       tx = await (await contract.signer.sendTransaction(txRequest)).wait();
