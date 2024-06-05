@@ -36,7 +36,7 @@ export const ExistingTokenAddresses: {
     // [Tokens.sUSDe]: "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2", no liquidity
     [Tokens.WSTETH]: "0x5979D7b546E38E414F7E9822514be443A4800529",
     [Tokens.weETH]: "0x35751007a407ca6FEFfE80b3cB397736D2cf4dbe",
-    // [Tokens.wUSDM]: "",
+    [Tokens.wUSDM]: "0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812",
     // [Tokens.ENA]: "",
     // [Tokens.eETH]: "",
     // [Tokens.EIGEN]: "",
