@@ -123,11 +123,11 @@ export async function execute(
     });
 
     if (isKinto(chain)) {
-      tx = await handleOps(
-        process.env.OWNER_SIGNER_KEY,
-        [txRequest],
-        [`0x${process.env.KINTO_OWNER_ADDRESS}`, LEDGER]
-      );
+      tx = await handleOps({
+        kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+        userOps: [txRequest],
+        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
+      });
     } else {
       tx = await (await contract.signer.sendTransaction(txRequest)).wait();
     }
