@@ -445,6 +445,17 @@
           "FAST": "0x9d46297E4d0fb4D911bDE9746dBb7077d897a908"
         }
       }
+    },
+    "wUSDM": {
+      "isAppChain": false,
+      "NonMintableToken": "0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812",
+      "Vault": "0x500c8337782a9f82C5376Ea71b66A749cE42b507",
+      "SenderHook": "0x3BE1d6f9442fe9fA62Fa311eb7874198fa29B66E",
+      "connectors": {
+        "7887": {
+          "FAST": "0xe5FA8E712B8932AdBB3bcd7e1d49Ea1E7cC0F58D"
+        }
+      }
     }
   }
 }
