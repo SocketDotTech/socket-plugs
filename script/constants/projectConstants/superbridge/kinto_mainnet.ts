@@ -285,21 +285,27 @@ export const pc: ProjectConstants = {
       },
     },
     [Tokens.wUSDM]: {
-      vaultChains: [ChainSlug.MAINNET],
+      vaultChains: [ChainSlug.MAINNET, ChainSlug.ARBITRUM],
       controllerChains: [ChainSlug.KINTO],
       hook: {
         hookType: Hooks.KINTO_HOOK,
         limitsAndPoolId: {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "324",
-              receivingLimit: "324",
+              sendingLimit: "4000000",
+              receivingLimit: "4000000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "324",
-              receivingLimit: "324",
+              sendingLimit: "4000000",
+              receivingLimit: "4000000",
+            },
+          },
+          [ChainSlug.ARBITRUM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "4000000",
+              receivingLimit: "4000000",
             },
           },
         },
