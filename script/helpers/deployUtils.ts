@@ -157,6 +157,7 @@ export async function deployContractWithArgs(
       contract = await deployOnKinto({
         kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
         bytecode: Contract.bytecode,
+        abi,
         args,
         argTypes: await extractArgTypes(abi),
         privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
