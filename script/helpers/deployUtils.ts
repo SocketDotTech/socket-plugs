@@ -157,7 +157,7 @@ export async function deployContractWithArgs(
         kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
         bytecode: Contract.bytecode,
         args,
-        argTypes: extractArgTypes(Contract.interface),
+        argTypes: extractArgTypes(Contract.interface.format(ethers.utils.FormatTypes.json)),
         privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
       });
     } else {
