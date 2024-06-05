@@ -43,6 +43,7 @@ import { verifyConstants } from "../helpers/verifyConstants";
 import {
   checkAndGrantRole,
   getBridgeContract,
+  getHookContract,
   updateConnectorStatus,
 } from "../helpers/common";
 import { configureHooks } from "./configureHook";
@@ -200,14 +201,6 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             socketSigner,
             siblingSlugs,
             connectors,
-            addr
-          );
-
-          // nominate owner for Vaults and
-          connectors;
-          let { hookContract, hookContractName } = await getHookContract(
-            chain,
-            token,
             addr
           );
         })
