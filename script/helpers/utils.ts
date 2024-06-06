@@ -103,24 +103,30 @@ export async function getRoleMembers(contract: Contract, roleToQuery: string) {
   const roleRevokedEvents = await contract.queryFilter(
     contract.filters.RoleRevoked(null, null)
   );
-  const roleMembers = {};
+  const roleMembers = new Map<string, number>();
 
   // process RoleGranted events
   roleGrantedEvents.forEach((event) => {
-    const member = event.args.grantee;
-    if (!roleMembers[member]) {
-      roleMembers[member] = true;
-    }
+    const grantee = event.args.grantee;
+    roleMembers.set(grantee, (roleMembers.get(grantee) || 0) + 1);
   });
 
   // process RoleRevoked events
   roleRevokedEvents.forEach((event) => {
-    const member = event.args.revokee;
-    if (roleMembers[member]) {
-      delete roleMembers[member];
+    const revokee = event.args.revokee;
+    const count = roleMembers.get(revokee) || 0;
+    if (count > 0) {
+      roleMembers.set(revokee, count - 1);
     }
   });
-  return Object.keys(roleMembers);
+
+  // filter users with positive net count (grants - revocations)
+  const members = Array.from(roleMembers.entries()).filter(
+    ([_, count]) => count > 0
+  );
+
+  // extract user addresses and return
+  return members.map(([address, _]) => address);
 }
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";

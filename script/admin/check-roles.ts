@@ -35,7 +35,7 @@ export const main = async () => {
               console.log(
                 `Addresses with ${
                   role.name
-                } for Controller contract: ${controllerAddress} are ${members.toString()}`
+                } for Controller contract: ${controllerAddress} are [${members.toString()}]`
               );
             }
           } else {
@@ -51,7 +51,7 @@ export const main = async () => {
               console.log(
                 `Addresses with ${
                   role.name
-                } for Vault contract: ${vaultAddress} are ${members.toString()}`
+                } for Vault contract: ${vaultAddress} are [${members.toString()}]`
               );
             }
           }
@@ -73,7 +73,7 @@ export const main = async () => {
                   role.name
                 } for ${hookContractName} contract: ${
                   hookContract.address
-                } are ${members.toString()}`
+                } are [${members.toString()}]`
               );
             }
           }
@@ -98,7 +98,7 @@ export const main = async () => {
                 console.log(
                   `Addresses with ${
                     role.name
-                  } for Connector contract: ${connectorAddress} are ${members.toString()}`
+                  } for Connector contract: ${connectorAddress} are [${members.toString()}]`
                 );
               }
             }
