@@ -21,8 +21,6 @@ interface IKintoWallet {
  * @notice meant to be deployed only Kinto. Inherits from LimitHook.
  */
 contract KintoHook is LimitHook {
-    address public constant BRIDGER_L2 =
-        0x26181Dfc530d96523350e895180b09BAf3d816a0;
     IKintoID public immutable kintoID;
     IKintoFactory public immutable kintoFactory;
 
@@ -95,7 +93,6 @@ contract KintoHook is LimitHook {
      * is a Kinto Wallet, if the wallet's signer is KYC'd and if the "original sender"
      * (initiator of the tx on the vault chain) is whitelisted on the receiver's KintoWallet.
      *
-     * If the receiver is the bridger L2, it skips all the checks.
      * The "original sender" is passed as an encoded param through the SenderHook.
      * If the sender is not in the allowlist (e.g Bridger L1), it checks it's whitelisted on the receiver's KintoWallet.
      */
@@ -110,15 +107,13 @@ contract KintoHook is LimitHook {
         address receiver = params_.transferInfo.receiver;
         address msgSender = abi.decode(params_.transferInfo.data, (address));
 
-        if (receiver != BRIDGER_L2) {
-            if (kintoFactory.walletTs(receiver) == 0)
-                revert InvalidReceiver(receiver);
-            if (!kintoID.isKYC(IKintoWallet(receiver).owners(0)))
-                revert KYCRequired();
-            if (!senderAllowlist[msgSender]) {
-                if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender))
-                    revert SenderNotAllowed(msgSender);
-            }
+        if (kintoFactory.walletTs(receiver) == 0)
+            revert InvalidReceiver(receiver);
+        if (!kintoID.isKYC(IKintoWallet(receiver).owners(0)))
+            revert KYCRequired();
+        if (!senderAllowlist[msgSender]) {
+            if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender))
+                revert SenderNotAllowed(msgSender);
         }
 
         return super.dstPreHookCall(params_);
