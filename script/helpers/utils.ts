@@ -95,6 +95,34 @@ export async function getOwnerAndNominee(contract: Contract) {
   return [owner, pendingOwner, 1];
 }
 
+export async function getRoleMembers(contract: Contract, roleToQuery: string) {
+  // get all events related to role grants and revocations
+  const roleGrantedEvents = await contract.queryFilter(
+    contract.filters.RoleGranted(null, null)
+  );
+  const roleRevokedEvents = await contract.queryFilter(
+    contract.filters.RoleRevoked(null, null)
+  );
+  const roleMembers = {};
+
+  // process RoleGranted events
+  roleGrantedEvents.forEach((event) => {
+    const member = event.args.grantee;
+    if (!roleMembers[member]) {
+      roleMembers[member] = true;
+    }
+  });
+
+  // process RoleRevoked events
+  roleRevokedEvents.forEach((event) => {
+    const member = event.args.revokee;
+    if (roleMembers[member]) {
+      delete roleMembers[member];
+    }
+  });
+  return Object.keys(roleMembers);
+}
+
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const execSummary: string[] = [];
