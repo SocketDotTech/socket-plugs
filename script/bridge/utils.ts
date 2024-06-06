@@ -1,11 +1,7 @@
 import { BigNumber } from "ethers";
-import {
-  ChainSlug,
-  SBTokenAddresses,
-  STTokenAddresses,
-  Tokens,
-} from "../../src";
+import { ChainSlug, SBTokenAddresses, STTokenAddresses } from "../../src";
 import { getHookContract } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 export const checkSendingLimit = async (
   chain: ChainSlug,

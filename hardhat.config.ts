@@ -6,6 +6,8 @@ import "hardhat-deploy";
 import "hardhat-abi-exporter";
 import "hardhat-change-network";
 
+import "@nomicfoundation/hardhat-foundry";
+
 import { config as dotenvConfig } from "dotenv";
 import type { HardhatUserConfig } from "hardhat/config";
 import type {
@@ -21,14 +23,16 @@ import {
   hardhatChainNameToSlug,
 } from "@socket.tech/dl-core";
 import { getJsonRpcUrl } from "./script/helpers/networks";
+import { constants } from "ethers";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
 
 // Ensure that we have all the environment variables we need.
-if (!process.env.SOCKET_SIGNER_KEY) throw new Error("No private key found");
-const privateKey: HardhatNetworkAccountUserConfig = process.env
-  .SOCKET_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
+// if (!process.env.OWNER_SIGNER_KEY) throw new Error("No private key found");
+const privateKey: HardhatNetworkAccountUserConfig = (process.env
+  .OWNER_SIGNER_KEY ||
+  constants.HashZero.slice(2)) as unknown as HardhatNetworkAccountUserConfig;
 
 function getChainConfig(chain: HardhatChainName): NetworkUserConfig {
   return {
@@ -47,29 +51,21 @@ function getRemappings() {
 }
 
 const liveNetworks = [
-  HardhatChainName.ARBITRUM_GOERLI,
   HardhatChainName.ARBITRUM_SEPOLIA,
-  HardhatChainName.OPTIMISM_GOERLI,
   HardhatChainName.OPTIMISM_SEPOLIA,
   HardhatChainName.POLYGON_MAINNET,
   HardhatChainName.ARBITRUM,
   HardhatChainName.BSC,
   HardhatChainName.AEVO,
-  HardhatChainName.GOERLI,
   HardhatChainName.MAINNET,
   HardhatChainName.OPTIMISM,
-  HardhatChainName.POLYGON_MUMBAI,
   HardhatChainName.BSC_TESTNET,
   HardhatChainName.SEPOLIA,
   HardhatChainName.AEVO_TESTNET,
   HardhatChainName.LYRA_TESTNET,
   HardhatChainName.LYRA,
   HardhatChainName.SX_NETWORK_TESTNET,
-  HardhatChainName.MODE_TESTNET,
-  HardhatChainName.VICTION_TESTNET,
   HardhatChainName.BASE,
-  HardhatChainName.MODE,
-  HardhatChainName.ANCIENT8_TESTNET2,
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
   HardhatChainName.SYNDR_SEPOLIA_L3,

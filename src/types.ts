@@ -4,12 +4,11 @@ import {
   CommonContracts,
   HookContracts,
   Hooks,
-  Project,
   ProjectType,
   SuperBridgeContracts,
   SuperTokenContracts,
-  Tokens,
 } from "./enum";
+import { Project, Tokens } from "./enums";
 
 export type ProjectConstantsMap = {
   [key in Project]: ProjectConstants;
@@ -33,7 +32,8 @@ export type TokenConstants = {
     decimals: number;
     initialSupplyOwner: string;
     owner: string;
-    initialSupply: number;
+    initialSupply: string;
+    initialChain?: ChainSlug;
   };
   // for superbridge yield project, controller chain
   yieldTokenInfo?: {
@@ -139,4 +139,16 @@ export type UpdateLimitParams = [
 export interface ReturnObj {
   allDeployed: boolean;
   deployedAddresses: SBTokenAddresses;
+}
+
+export type AllAddresses = Record<string, STAddresses | SBAddresses>;
+
+export interface SocketPlugsConfig {
+  tokenDecimals: { [key in Tokens]: number };
+  tokenSymbols: { [key in Tokens]: string };
+  tokenAddresses: {
+    [key in ChainSlug]?: { [key in Tokens]?: string };
+  };
+  projects: string[];
+  tokens: string[];
 }

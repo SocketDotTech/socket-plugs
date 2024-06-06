@@ -3,10 +3,11 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
-import { getSocketOwner } from "../../config";
+import { Hooks, ProjectConstants } from "../../../../src";
+import { Tokens } from "../../../../src/enums";
+import { getOwner } from "../../config";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.GUARD]: {
       vaultChains: [ChainSlug.BSC],
@@ -15,9 +16,9 @@ const pc: ProjectConstants = {
         name: "Guardian",
         symbol: "GUARD",
         decimals: 18,
-        initialSupplyOwner: getSocketOwner(),
-        owner: getSocketOwner(),
-        initialSupply: 0,
+        initialSupplyOwner: getOwner(),
+        owner: getOwner(),
+        initialSupply: "0",
       },
       hook: {
         hookType: Hooks.LIMIT_HOOK,
@@ -45,5 +46,3 @@ const pc: ProjectConstants = {
     },
   },
 };
-
-export = pc;

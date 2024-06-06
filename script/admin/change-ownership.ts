@@ -5,8 +5,7 @@ import {
 } from "../helpers";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { isSBAppChain } from "../helpers/projectConstants";
-import { getSocketOwner } from "../constants/config";
+import { getOwner } from "../constants/config";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { ChainSlug } from "@socket.tech/dl-core";
 import { HookContracts, SBAddresses, STAddresses } from "../../src";
@@ -69,7 +68,7 @@ async function handleOwnershipChangeover(
   nominee: string,
   type: 0 | 1
 ) {
-  if (owner === getSocketOwner() && nominee === ZERO_ADDRESS) {
+  if (owner === getOwner() && nominee === ZERO_ADDRESS) {
     if (type === 0) {
       const tx = await contract.nominateOwner(newOwner, {
         ...overrides[chain],

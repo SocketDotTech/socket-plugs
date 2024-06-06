@@ -3,58 +3,64 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Tokens } from "../../../../src";
-import { ProjectConstants } from "../types";
+import { Tokens } from "../../../../src/enums";
+import { Hooks, ProjectConstants } from "../../../../src";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
-      appChain: ChainSlug.AEVO_TESTNET,
-      nonAppChains: {
-        [ChainSlug.ARBITRUM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "50000",
-            depositRate: "0.5787",
-            withdrawLimit: "50000",
-            withdrawRate: "0.5787",
-            poolCount: 0,
+      controllerChains: [ChainSlug.AEVO_TESTNET],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.ARBITRUM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "50000",
+              receivingLimit: "50000",
+            },
           },
-        },
-        [ChainSlug.OPTIMISM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "50000",
-            depositRate: "0.5787",
-            withdrawLimit: "50000",
-            withdrawRate: "0.5787",
-            poolCount: 0,
+          [ChainSlug.OPTIMISM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "50000",
+              receivingLimit: "50000",
+            },
+          },
+          [ChainSlug.AEVO]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "50000",
+              receivingLimit: "50000",
+            },
           },
         },
       },
     },
     [Tokens.WETH]: {
-      appChain: ChainSlug.AEVO_TESTNET,
-      nonAppChains: {
-        [ChainSlug.ARBITRUM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "100",
-            depositRate: "0.0011574",
-            withdrawLimit: "100",
-            withdrawRate: "0.0011574",
-            poolCount: 0,
+      controllerChains: [ChainSlug.AEVO_TESTNET],
+      vaultChains: [ChainSlug.ARBITRUM_SEPOLIA, ChainSlug.OPTIMISM_SEPOLIA],
+      hook: {
+        hookType: Hooks.LIMIT_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.ARBITRUM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100",
+              receivingLimit: "100",
+            },
           },
-        },
-        [ChainSlug.OPTIMISM_SEPOLIA]: {
-          [IntegrationTypes.fast]: {
-            depositLimit: "100",
-            depositRate: "0.0011574",
-            withdrawLimit: "100",
-            withdrawRate: "0.0011574",
-            poolCount: 0,
+          [ChainSlug.OPTIMISM_SEPOLIA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100",
+              receivingLimit: "100",
+            },
+          },
+          [ChainSlug.AEVO]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100",
+              receivingLimit: "100",
+            },
           },
         },
       },
     },
   },
 };
-
-export = pc;

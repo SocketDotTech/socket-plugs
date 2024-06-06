@@ -1,10 +1,9 @@
 import { Contract } from "ethers";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { printExecSummary, getAllAddresses } from "../helpers";
+import { printExecSummary, getProjectAddresses } from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
   Connectors,
-  Tokens,
   ProjectType,
   TokenConstants,
   SBAddresses,
@@ -16,6 +15,7 @@ import { getProjectName, getProjectType, getTokens } from "../constants/config";
 import { connectorStatus, filterChains, siblingFilterChains } from "./utils";
 import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract, updateConnectorStatus } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 export enum ConnectorStatus {
   ACTIVE = "active",
@@ -44,7 +44,7 @@ export const main = async () => {
       pc[token] = getTokenConstants(token);
       let addresses: SBAddresses | STAddresses;
       try {
-        addresses = getAllAddresses();
+        addresses = getProjectAddresses();
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
       }

@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { getProviderFromChainSlug } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
 import { ERC20__factory } from "../../typechain-types";
-import { tokenDecimals } from "../../src";
+import { tokenDecimals } from "../../src/enums";
 
 export const main = async () => {
   try {

@@ -3,8 +3,9 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Hooks, ProjectConstants, Tokens } from "../../../../src";
-import { getSocketOwner } from "../../config";
+import { Hooks, ProjectConstants } from "../../../../src";
+import { Tokens } from "../../../../src/enums";
+import { getOwner } from "../../config";
 
 const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
@@ -19,8 +20,8 @@ const pc: ProjectConstants = {
         symbol: "weETHC",
         decimals: 18,
         initialSupplyOwner: "0x0000000000000000000000000000000000000000",
-        owner: getSocketOwner(),
-        initialSupply: 0,
+        owner: getOwner(),
+        initialSupply: "0",
       } as any, // set fields as undefined so token isn't deployed
       hook: {
         hookType: Hooks.LYRA_TSA_WITHDRAW_HOOK,
@@ -56,8 +57,8 @@ const pc: ProjectConstants = {
         symbol: "rswETHC",
         decimals: 18,
         initialSupplyOwner: "0x0000000000000000000000000000000000000000",
-        owner: getSocketOwner(),
-        initialSupply: 0,
+        owner: getOwner(),
+        initialSupply: "0",
       } as any, // set fields as undefined so token isn't deployed
       hook: {
         hookType: Hooks.LYRA_TSA_WITHDRAW_HOOK,

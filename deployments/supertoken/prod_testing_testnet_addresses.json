@@ -1,0 +1,26 @@
+{
+  "421614": {
+    "MTK": {
+      "NonMintableToken": "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
+      "Vault": "0x8B745d1979879e686E326c5274EF64E7dB4170dF",
+      "LimitHook": "0xe34847AaA952C85c0466ec26a438bfB4528a059F",
+      "connectors": {
+        "11155420": {
+          "FAST": "0x339c460Be9F32604273d1Ba6D47Af3691Cab2561"
+        }
+      }
+    }
+  },
+  "11155420": {
+    "MTK": {
+      "SuperToken": "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
+      "Controller": "0x8B745d1979879e686E326c5274EF64E7dB4170dF",
+      "LimitHook": "0xe34847AaA952C85c0466ec26a438bfB4528a059F",
+      "connectors": {
+        "421614": {
+          "FAST": "0x339c460Be9F32604273d1Ba6D47Af3691Cab2561"
+        }
+      }
+    }
+  }
+}

@@ -4,13 +4,14 @@ import {
   IntegrationTypes,
 } from "@socket.tech/dl-core";
 
-import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
+import { Hooks, ProjectConstants, ProjectType } from "../../../../src";
+import { Tokens } from "../../../../src/enums";
 
 export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       controllerChains: [ChainSlug.REYA],
-      vaultChains: [ChainSlug.MAINNET],
+      vaultChains: [ChainSlug.MAINNET, ChainSlug.BASE],
       hook: {
         hookType: Hooks.LIMIT_EXECUTION_HOOK,
         limitsAndPoolId: {
@@ -18,14 +19,18 @@ export const pc: ProjectConstants = {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
+            },
+          },
+          [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
             },
           },
         },
@@ -87,35 +92,30 @@ export const pc: ProjectConstants = {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.POLYGON_MAINNET]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.OPTIMISM]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
         },
@@ -128,6 +128,7 @@ export const pc: ProjectConstants = {
         ChainSlug.POLYGON_MAINNET,
         ChainSlug.MAINNET,
         ChainSlug.OPTIMISM,
+        ChainSlug.BASE,
       ],
       hook: {
         hookType: Hooks.LIMIT_EXECUTION_HOOK,
@@ -136,39 +137,84 @@ export const pc: ProjectConstants = {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.POLYGON_MAINNET]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
             },
           },
           [ChainSlug.OPTIMISM]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
-              poolCount: 0,
+            },
+          },
+          [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
             },
           },
         },
       },
+    },
+    [Tokens.ETH]: {
+      controllerChains: [ChainSlug.REYA],
+      hook: {
+        hookType: Hooks.LIMIT_EXECUTION_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.REYA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+            },
+          },
+          [ChainSlug.ARBITRUM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+            },
+          },
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+            },
+          },
+          [ChainSlug.OPTIMISM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+            },
+          },
+          [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+            },
+          },
+        },
+      },
+      vaultChains: [
+        ChainSlug.ARBITRUM,
+        ChainSlug.MAINNET,
+        ChainSlug.OPTIMISM,
+        ChainSlug.BASE,
+      ],
     },
     [Tokens.WETH]: {
       controllerChains: [ChainSlug.REYA],
@@ -177,46 +223,54 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.REYA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
-              poolCount: 0,
-            },
-          },
-          [ChainSlug.ARBITRUM]: {
-            [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
-              poolCount: 0,
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
             },
           },
           [ChainSlug.POLYGON_MAINNET]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
-              poolCount: 0,
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
+            },
+          },
+          [ChainSlug.ARBITRUM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
             },
           },
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
-              poolCount: 0,
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
             },
           },
           [ChainSlug.OPTIMISM]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "27.33",
-              receivingLimit: "27.33",
-              poolCount: 0,
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
+            },
+          },
+          [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+              poolCount: 1,
             },
           },
         },
       },
       vaultChains: [
-        ChainSlug.ARBITRUM,
         ChainSlug.POLYGON_MAINNET,
+        ChainSlug.ARBITRUM,
         ChainSlug.MAINNET,
         ChainSlug.OPTIMISM,
+        ChainSlug.BASE,
       ],
     },
     [Tokens.WBTC]: {
@@ -226,37 +280,32 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.REYA]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
-              poolCount: 0,
+              sendingLimit: "1581.52",
+              receivingLimit: "1581.52",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
-              poolCount: 0,
+              sendingLimit: "1581.52",
+              receivingLimit: "1581.52",
             },
           },
           [ChainSlug.POLYGON_MAINNET]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
-              poolCount: 0,
+              sendingLimit: "1581.52",
+              receivingLimit: "1581.52",
             },
           },
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
-              poolCount: 0,
+              sendingLimit: "1581.52",
+              receivingLimit: "1581.52",
             },
           },
           [ChainSlug.OPTIMISM]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "1.41",
-              receivingLimit: "1.41",
-              poolCount: 0,
+              sendingLimit: "1581.52",
+              receivingLimit: "1581.52",
             },
           },
         },
