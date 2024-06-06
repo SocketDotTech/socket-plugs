@@ -1,6 +1,42 @@
 {
   "901": [
     [
+      "0xdEdD7a99522c080e2f29Af974D0C8F533Eb2b8B8",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x467c0835499271530A8ac05Eb7Df75dD26E2bFEe",
+        "0xFDC28fA368c33DEC7853d63B65FC5Cfe01B212fc",
+        11155420
+      ]
+    ],
+    [
+      "0x1C8Ee27B24408E611f895D470A5c134c5429e880",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x467c0835499271530A8ac05Eb7Df75dD26E2bFEe",
+        "0xFDC28fA368c33DEC7853d63B65FC5Cfe01B212fc",
+        421614
+      ]
+    ],
+    [
+      "0x718442247621a14c08A048139B70553A06712E71",
+      "LyraTSAWithdrawHook",
+      "contracts/hooks/LyraTSAWithdrawHook.sol",
+      [
+        "0x000000A94C901AA5d4da1157B2Dd1c4c6b69815e",
+        "0x467c0835499271530A8ac05Eb7Df75dD26E2bFEe",
+        false
+      ]
+    ],
+    [
+      "0x467c0835499271530A8ac05Eb7Df75dD26E2bFEe",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      ["0xD9f47BEBEe03C90855c209e06f884fa0551c1fDd"]
+    ],
+    [
       "0x7378E8C016d1A512B976CE8Ab885C281b59a521A",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -106,6 +142,58 @@
     ]
   ],
   "421614": [
+    [
+      "0x008Ef590487F188E23Cd17De7C55d9d906d6b039",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xBcB494059969DAaB460E0B5d4f5c2366aab79aa1",
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        901
+      ]
+    ],
+    [
+      "0xb808a63851678E74d2d08116C46ec9313A3E0c68",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xBcB494059969DAaB460E0B5d4f5c2366aab79aa1",
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        11155420
+      ]
+    ],
+    [
+      "0x010e26422790C6Cb3872330980FAa7628FD20294",
+      "LyraTSAWithdrawHook",
+      "contracts/hooks/LyraTSAWithdrawHook.sol",
+      [
+        "0x000000A94C901AA5d4da1157B2Dd1c4c6b69815e",
+        "0xBcB494059969DAaB460E0B5d4f5c2366aab79aa1",
+        false
+      ]
+    ],
+    [
+      "0xBcB494059969DAaB460E0B5d4f5c2366aab79aa1",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      ["0xeCAAd20Fe81818E4Ce1EB35E463f681084ab2DD5"]
+    ],
+    [
+      "0xeCAAd20Fe81818E4Ce1EB35E463f681084ab2DD5",
+      "SuperToken",
+      "contracts/token/SuperToken.sol",
+      [
+        "rsETH Covered Call",
+        "rsETHC",
+        18,
+        "0x0000000000000000000000000000000000000000",
+        "0x000000A94C901AA5d4da1157B2Dd1c4c6b69815e",
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        }
+      ]
+    ],
     [
       "0xCa80293391423d8B81850Ff051BAd3FcE936EbB7",
       "ConnectorPlug",
@@ -362,6 +450,58 @@
     ]
   ],
   "11155420": [
+    [
+      "0x8519e21355763572edD3DA1C19C71CEa99883e57",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x4fF761D46Be8100063e388Bec1cb3653C3832908",
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        901
+      ]
+    ],
+    [
+      "0x9576aFF10dFdb1d24B507EEb88554dF3427E43D6",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x4fF761D46Be8100063e388Bec1cb3653C3832908",
+        "0xEA59E2b1539b514290dD3dCEa989Ea36279aC6F2",
+        421614
+      ]
+    ],
+    [
+      "0x4195dD7764f233fa00F31c978f0933719779687f",
+      "LyraTSAWithdrawHook",
+      "contracts/hooks/LyraTSAWithdrawHook.sol",
+      [
+        "0x000000A94C901AA5d4da1157B2Dd1c4c6b69815e",
+        "0x4fF761D46Be8100063e388Bec1cb3653C3832908",
+        false
+      ]
+    ],
+    [
+      "0x4fF761D46Be8100063e388Bec1cb3653C3832908",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      ["0xCfD701E3540d769427Bc699C63Ac5940B703fe48"]
+    ],
+    [
+      "0xCfD701E3540d769427Bc699C63Ac5940B703fe48",
+      "SuperToken",
+      "contracts/token/SuperToken.sol",
+      [
+        "rsETH Covered Call",
+        "rsETHC",
+        18,
+        "0x0000000000000000000000000000000000000000",
+        "0x000000A94C901AA5d4da1157B2Dd1c4c6b69815e",
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        }
+      ]
+    ],
     [
       "0x36d8bD1886cA09F476E6f15a15D1917FEB032CEB",
       "ConnectorPlug",

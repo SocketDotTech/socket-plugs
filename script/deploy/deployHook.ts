@@ -46,14 +46,14 @@ export const deployHookContracts = async (
   } else if (hookType == Hooks.LYRA_TSA_DEPOSIT_HOOK) {
     contractName = HookContracts.LyraTSADepositHook;
     args = [
-      getSocketOwner(),
+      getOwner(),
       bridgeAddress,
       useConnnectorPools, // useControllerPools
     ];
   } else if (hookType == Hooks.LYRA_TSA_WITHDRAW_HOOK) {
     contractName = HookContracts.LyraTSAWithdrawHook;
     args = [
-      getSocketOwner(),
+      getOwner(),
       bridgeAddress,
       useConnnectorPools, // useControllerPools
     ];

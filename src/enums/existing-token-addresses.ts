@@ -79,7 +79,7 @@ export const ExistingTokenAddresses: {
     [Tokens.WBTC]: "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
     // Dummy tokens
     [Tokens.WEETH]: "0xE0AcE05Ded5f3653aB0caAAf19E458DAb2E824F2",
-    [Tokens.RSWETH]: "0xadfe82e1fc0f59d87bc69be637b947758505a614",
+    [Tokens.RSETH]: "0x8C4516853074c4Bb3bA921fE9e714aC322F7081C",
   },
   [ChainSlug.SEPOLIA]: {
     [Tokens.USDC]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
@@ -107,6 +107,7 @@ export const ExistingTokenAddresses: {
     // Dummy tokens
     [Tokens.WEETH]: "0x8467d28492bB13cC964C49Fcc2fCA8A8B478836E",
     [Tokens.RSWETH]: "0x0b3639A094854796E3b236DB08646ffd21C0B1B2",
+    [Tokens.RSETH]: "0xE11D1F74C0FC6c4Fe45BEAD7daB6CC8044C234C8",
     // Lyra tokenized subaccount shares
     [Tokens.WEETHC]: "0xfe051Cc322F5124e53cA89611dD0c9a32F350a1C",
     [Tokens.RSWETHC]: "0x51741cbDcd28e770729f1c98d02Ab41E565A5960",
@@ -121,10 +122,14 @@ export const ExistingTokenAddresses: {
     [Tokens.USDT]: "0x0fd4d2dEc9c5830516176e5A1ee552f9431A1b09",
     [Tokens.SNX]: "0x751FD1d1B327D6d842cD57CAAEABf581836cFF5F",
     [Tokens.WSTETH]: "0x37Db2a7cFb832442861F0053db422bDEA20DE847",
+    // LRTs
     [Tokens.WEETH]: "0x7ef0873bBf91B8Ecac22c0e9466b17c6Cc14B1bd",
     [Tokens.RSWETH]: "0xa7456213A5c081F53fEb3A4F64b88A4637Bf3028",
+    [Tokens.RSETH]: "0xc3ad6f6E0940df79e12b30F307109fc4Ec2ED7D0",
+    // Vault tokens
     [Tokens.WEETHC]: "0x79AC9B13810D31066Be547EdA46C40264b39397D",
     [Tokens.RSWETHC]: "0x797Db58F4c6611253e92B9a3260E3Cc9C69430a5",
+    [Tokens.RSETHC]: "0xD9f47BEBEe03C90855c209e06f884fa0551c1fDd",
   },
   [ChainSlug.LYRA]: {
     [Tokens.USDC]: "0x6879287835A86F50f784313dBEd5E5cCC5bb8481",
@@ -133,8 +138,10 @@ export const ExistingTokenAddresses: {
     [Tokens.USDT]: "0x954bE1803546150bfd887c9ff70fd221F2F505d3",
     [Tokens.SNX]: "0xE4e6F3feeAD9C3714F3c9380F91CB56E04F7297E",
     [Tokens.WSTETH]: "0xdf77b286eDa539CCb6326e9eDB86aa69D83108a5",
+    // LRTs
     [Tokens.WEETH]: "0x7B35b4c05a90Ea5f311AeC815BE4148b446a68a2",
     [Tokens.RSWETH]: "0xC419959850d49166C2d5250Ee89ff9910679D8c8",
+    // Vault tokens
     [Tokens.WEETHC]: "0xec68928bd83B2E52fF5A8e8c215B6ea72879F521",
     [Tokens.RSWETHC]: "0x5bbef94dcee8f087D5146d2815bC4955C76B2794",
   },

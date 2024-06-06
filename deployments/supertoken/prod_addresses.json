@@ -1834,5 +1834,52 @@
         }
       }
     }
+  },
+  "lyra-tsa-testnet": {
+    "901": {
+      "rsETHC": {
+        "NonMintableToken": "0xD9f47BEBEe03C90855c209e06f884fa0551c1fDd",
+        "Vault": "0x467c0835499271530A8ac05Eb7Df75dD26E2bFEe",
+        "LyraTSAWithdrawHook": "0x718442247621a14c08A048139B70553A06712E71",
+        "connectors": {
+          "421614": {
+            "FAST": "0x1C8Ee27B24408E611f895D470A5c134c5429e880"
+          },
+          "11155420": {
+            "FAST": "0xdEdD7a99522c080e2f29Af974D0C8F533Eb2b8B8"
+          }
+        }
+      }
+    },
+    "421614": {
+      "rsETHC": {
+        "SuperToken": "0xeCAAd20Fe81818E4Ce1EB35E463f681084ab2DD5",
+        "Controller": "0xBcB494059969DAaB460E0B5d4f5c2366aab79aa1",
+        "LyraTSAWithdrawHook": "0x010e26422790C6Cb3872330980FAa7628FD20294",
+        "connectors": {
+          "901": {
+            "FAST": "0x008Ef590487F188E23Cd17De7C55d9d906d6b039"
+          },
+          "11155420": {
+            "FAST": "0xb808a63851678E74d2d08116C46ec9313A3E0c68"
+          }
+        }
+      }
+    },
+    "11155420": {
+      "rsETHC": {
+        "SuperToken": "0xCfD701E3540d769427Bc699C63Ac5940B703fe48",
+        "Controller": "0x4fF761D46Be8100063e388Bec1cb3653C3832908",
+        "LyraTSAWithdrawHook": "0x4195dD7764f233fa00F31c978f0933719779687f",
+        "connectors": {
+          "901": {
+            "FAST": "0x8519e21355763572edD3DA1C19C71CEa99883e57"
+          },
+          "421614": {
+            "FAST": "0x9576aFF10dFdb1d24B507EEb88554dF3427E43D6"
+          }
+        }
+      }
+    }
   }
 }

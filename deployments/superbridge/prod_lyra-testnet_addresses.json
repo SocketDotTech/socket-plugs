@@ -102,6 +102,20 @@
           "FAST": "0x8FF3f8bc7884fe59425F090d5ec6A570472DfF88"
         }
       }
+    },
+    "rsETH": {
+      "isAppChain": true,
+      "MintableToken": "0xc3ad6f6E0940df79e12b30F307109fc4Ec2ED7D0",
+      "Controller": "0xF99E92715024EF3CAAB0328107161ea405D61e01",
+      "LyraTSADepositHook": "0x7878AE5af5774d4A993B3C5FBC3DF81049E70800",
+      "connectors": {
+        "421614": {
+          "FAST": "0x96EB7012Dad44CF191B5B7d7E72eF2699EC2B250"
+        },
+        "11155420": {
+          "FAST": "0xA57ADfCf24c9a1eca8F39958B2B025ce27F0b781"
+        }
+      }
     }
   },
   "421614": {
@@ -144,6 +158,17 @@
       "connectors": {
         "901": {
           "FAST": "0x7b4c44F13bd5d8F234DA1A0Af71e75FdB77b2C6E"
+        }
+      }
+    },
+    "rsETH": {
+      "isAppChain": false,
+      "NonMintableToken": "0x8C4516853074c4Bb3bA921fE9e714aC322F7081C",
+      "Vault": "0x62a11f238e489A49d840ec337c8e544cc43A7eAd",
+      "LyraTSADepositHook": "0xD5Cb6ad7b35E1D1bd860B5b57B099f4716Dd7e64",
+      "connectors": {
+        "901": {
+          "FAST": "0xc0424453E78C6ee65c12329e8A908EfDEF54ABAa"
         }
       }
     }
@@ -271,6 +296,17 @@
         }
       },
       "LyraTSADepositHook": "0xC12ac2A9c4c41b64177725Ad7F36ae7F19265075"
+    },
+    "rsETH": {
+      "isAppChain": false,
+      "NonMintableToken": "0xE11D1F74C0FC6c4Fe45BEAD7daB6CC8044C234C8",
+      "Vault": "0x6961c56923eA4e8FD5450fE7bEE193744222C072",
+      "LyraTSADepositHook": "0x655e8765370bD80CCe4Df91cbd4aEAc12ff84D93",
+      "connectors": {
+        "901": {
+          "FAST": "0xedcA80caa863D1893EdE5E8764B6F4C34051d0E4"
+        }
+      }
     }
   }
 }

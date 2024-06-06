@@ -243,7 +243,7 @@ export const getAllAddresses = (
   if (!type_override && addresses) return addresses;
   addresses = readJSONFile(getDeploymentPath(type_override));
   return addresses;
-}
+};
 
 export const getProjectAddresses = (): SBAddresses | STAddresses => {
   if (addresses) return addresses;

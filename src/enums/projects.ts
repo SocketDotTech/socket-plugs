@@ -3,6 +3,8 @@ export enum Project {
   AEVO_TESTNET = "aevo-testnet",
   LYRA_TESTNET = "lyra-testnet",
   LYRA = "lyra",
+  LYRA_TSA = "lyra-tsa",
+  LYRA_TSA_TESTNET = "lyra-tsa-testnet",
   SX_NETWORK_TESTNET = "sx-network-testnet",
   LEAF_TESTNET = "leaf-testnet",
   RAIN_TESTNET = "rain-testnet",
