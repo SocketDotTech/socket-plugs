@@ -1,10 +1,19 @@
-import { getSuperBridgeAddresses, ZERO_ADDRESS } from "../helpers";
+import {
+  createBatchFiles,
+  execute,
+  getSuperBridgeAddresses,
+  ZERO_ADDRESS,
+} from "../helpers";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
 import { getOwner } from "../constants/config";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { ChainSlug } from "@socket.tech/dl-core";
+import { isKinto } from "@kinto-utils/dist/kinto";
+import { getHookContract } from "../helpers/common";
+import { Tokens } from "../../src/enums";
+import { SBTokenAddresses, STTokenAddresses } from "../../src";
 
 const chainToExpectedOwner = {
   [ChainSlug.KINTO]: process.env.KINTO_OWNER_ADDRESS,
@@ -42,9 +51,7 @@ export const main = async () => {
         throw new Error(`Expected owner not found for chain ${chain}`);
       }
       console.log(
-        `Expected owner found for chain ${chain}, ${
-          chainToExpectedOwner[+chain]
-        }`
+        `Expected owner for chain ${chain}: ${chainToExpectedOwner[+chain]}`
       );
       for (const token of Object.keys(addresses[chain])) {
         console.log(`\nChecking addresses for token ${token}`);
@@ -109,20 +116,32 @@ export const main = async () => {
             controllerOwner === getOwner() &&
             controllerNominee === ZERO_ADDRESS
           ) {
-            if (controllerType === 0) {
-              const tx = await controllerContract.nominateOwner(
-                chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
-              );
-              console.log("Nominating, tx hash: ", tx.hash);
-              await tx.wait();
+            if (!isKinto(chain)) {
+              if (controllerType === 0) {
+                const tx = await controllerContract.nominateOwner(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Nominating, tx hash: ", tx.hash);
+                await tx.wait();
+
+                console.log("Claim ownership tx");
+                await execute(
+                  controllerContract,
+                  "claimOwner",
+                  [],
+                  parseInt(chain)
+                );
+              } else {
+                const tx = await controllerContract.transferOwnership(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Transferring ownership, tx hash: ", tx.hash);
+                await tx.wait();
+              }
             } else {
-              const tx = await controllerContract.transferOwnership(
-                chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
-              );
-              console.log("Nominating, tx hash: ", tx.hash);
-              await tx.wait();
+              console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
             }
           }
         } else {
@@ -142,20 +161,72 @@ export const main = async () => {
           );
 
           if (vaultOwner === getOwner() && vaultNominee === ZERO_ADDRESS) {
-            if (vaultType === 0) {
-              const tx = await vaultContract.nominateOwner(
-                chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
-              );
-              console.log("Nominating, tx hash: ", tx.hash);
-              await tx.wait();
+            if (!isKinto(chain)) {
+              if (vaultType === 0) {
+                const tx = await vaultContract.nominateOwner(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Nominating, tx hash: ");
+                await tx.wait();
+
+                console.log("Claim ownership tx");
+                await execute(vaultContract, "claimOwner", [], parseInt(chain));
+              } else {
+                const tx = await vaultContract.transferOwnership(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Transferring ownership, tx hash: ");
+                await tx.wait();
+              }
             } else {
-              const tx = await vaultContract.transferOwnership(
-                chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
-              );
-              console.log("Nominating, tx hash: ", tx.hash);
-              await tx.wait();
+              console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
+            }
+          }
+        }
+
+        let { hookContract, hookContractName } = await getHookContract(
+          chain as unknown as ChainSlug,
+          token as unknown as Tokens,
+          isSBAppChain(+chain, token)
+            ? addresses[chain][token]
+            : (addresses[chain][token] as unknown as
+                | SBTokenAddresses
+                | STTokenAddresses)
+        );
+        const [hookOwner, hookNominee, hookType] = await getOwnerAndNominee(
+          hookContract
+        );
+        console.log(
+          `Owner of ${hookContract.address} is ${hookOwner}${
+            hookNominee === ZERO_ADDRESS ? "" : ` (nominee: ${hookNominee})`
+          } on chain: ${chain} (${hookContractName} for token: ${token})`
+        );
+
+        if (hookContract) {
+          if (hookOwner === getOwner() && hookNominee === ZERO_ADDRESS) {
+            if (!isKinto(chain)) {
+              if (hookType === 0) {
+                const tx = await hookContract.nominateOwner(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Nominating, tx hash: ", tx.hash);
+                await tx.wait();
+
+                console.log("Claim ownership tx");
+                await execute(hookContract, "claimOwner", [], parseInt(chain));
+              } else {
+                const tx = await hookContract.transferOwnership(
+                  chainToExpectedOwner[+chain],
+                  { ...overrides[+chain] }
+                );
+                console.log("Transferring ownership, tx hash: ", tx.hash);
+                await tx.wait();
+              }
+            } else {
+              console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
             }
           }
         }
@@ -179,22 +250,28 @@ export const main = async () => {
                 nominee === ZERO_ADDRESS ? "" : ` (nominee: ${nominee})`
               } on chain: ${chain} (Connector for ${token}, conn-chain: ${connectorChain}, conn-type: ${connectorType}`
             );
-
             if (owner === getOwner() && nominee === ZERO_ADDRESS) {
-              if (type === 0) {
-                const tx = await contract.nominateOwner(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Nominating, tx hash: ", tx.hash);
-                await tx.wait();
+              if (!isKinto(chain)) {
+                if (type === 0) {
+                  const tx = await contract.nominateOwner(
+                    chainToExpectedOwner[+chain],
+                    { ...overrides[+chain] }
+                  );
+                  console.log("Nominating, tx hash: ", tx.hash);
+                  await tx.wait();
+
+                  console.log("Claim ownership tx");
+                  await execute(contract, "claimOwner", [], parseInt(chain));
+                } else {
+                  const tx = await contract.transferOwnership(
+                    chainToExpectedOwner[+chain],
+                    { ...overrides[+chain] }
+                  );
+                  console.log("Transferring ownership, tx hash: ", tx.hash);
+                  await tx.wait();
+                }
               } else {
-                const tx = await contract.transferOwnership(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Nominating, tx hash: ", tx.hash);
-                await tx.wait();
+                console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
               }
             }
           }
@@ -204,6 +281,7 @@ export const main = async () => {
   } catch (error) {
     console.log("Error while sending transaction", error);
   }
+  createBatchFiles();
 };
 
 main()

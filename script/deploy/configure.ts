@@ -1,4 +1,5 @@
 import { Contract, Wallet } from "ethers";
+import * as fs from "fs";
 
 import {
   ChainSlug,
@@ -13,6 +14,7 @@ import {
   getSocket,
   execute,
   printExecSummary,
+  createBatchFiles,
 } from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
@@ -209,7 +211,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
 
     allConfigured = true;
   }
-
+  createBatchFiles();
   printExecSummary();
 };
 

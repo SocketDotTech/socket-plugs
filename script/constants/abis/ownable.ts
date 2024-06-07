@@ -46,4 +46,11 @@ export const OWNABLE_ABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [],
+    name: "claimOwner",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
