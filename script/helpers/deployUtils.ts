@@ -143,22 +143,32 @@ export async function deployContractWithArgs(
   args: Array<any>,
   signer: Wallet
 ) {
-  try {
-    const Contract: ContractFactory = await ethers.getContractFactory(
-      contractName
-    );
+  for (let i = 0; i < 10; ++i) {
+    if (i > 0) {
+      console.log(`Retrying deployment of ${contractName}...`);
+    }
+    try {
+      const Contract: ContractFactory = await ethers.getContractFactory(
+        contractName
+      );
 
-    const chainId = await signer.getChainId();
-    const chainName = chainIdReverseMap.get(chainId.toString());
-    const chainSlug = ChainSlug[chainName];
+      const chainId = await signer.getChainId();
+      const chainName = chainIdReverseMap.get(chainId.toString());
+      const chainSlug = ChainSlug[chainName];
 
-    const contract: Contract = await Contract.connect(signer).deploy(...args, {
-      ...overrides[chainSlug],
-    });
-    await contract.deployed();
-    return contract;
-  } catch (error) {
-    throw error;
+      const contract: Contract = await Contract.connect(signer).deploy(
+        ...args,
+        {
+          ...overrides[chainSlug],
+        }
+      );
+      await contract.deployed();
+      return contract;
+    } catch (error) {
+      if (i == 9) {
+        throw error;
+      }
+    }
   }
 }
 

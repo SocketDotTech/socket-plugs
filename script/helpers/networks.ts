@@ -68,8 +68,8 @@ export const overrides: {
     gasPrice: 100_000_000,
   },
   [ChainSlug.MAINNET]: {
-    type: 1,
-    gasLimit: 4_000_000,
+    // type: 1,
+    gasLimit: 5_000_000,
     // gasPrice: 10_000_000_000,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
@@ -89,7 +89,7 @@ export const overrides: {
   },
   [ChainSlug.BASE]: {
     // type: 1,
-    gasLimit,
+    gasLimit: 5_000_000,
     gasPrice,
   },
   [ChainSlug.REYA_CRONOS]: {

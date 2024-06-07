@@ -3,6 +3,7 @@ import { Contract } from "ethers";
 import {
   getDryRun,
   getMode,
+  getOwner,
   getProjectName,
   getProjectType,
 } from "../constants/config";
@@ -121,6 +122,11 @@ export async function execute(
     );
     execSummary.push("");
   } else {
+    if ((await contract.owner()) !== getOwner()) {
+      console.log("!!!! Not owner of contract, skipping");
+      console.log(`xxxxxx Skipping chain: ${chain} function: ${method}`);
+      return;
+    }
     let tx = await contract.functions[method](...args, {
       ...overrides[chain],
     });
