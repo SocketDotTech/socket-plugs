@@ -1,6 +1,10 @@
 import { Contract } from "ethers";
 
-import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
+import {
+  ChainSlug,
+  ChainSlugToKey,
+  IntegrationTypes,
+} from "@socket.tech/dl-core";
 import { overrides } from "./networks";
 import {
   getDryRun,
@@ -15,6 +19,7 @@ import { getIntegrationTypeConsts } from "./projectConstants";
 import { ProjectType } from "../../src";
 import { handleOps, isKinto } from "@kinto-utils/dist/kinto";
 import { LEDGER } from "@kinto-utils/dist/utils/constants";
+import { ethers } from "hardhat";
 
 export let allDeploymentPath: string;
 export const getAllDeploymentPath = () => {
@@ -162,12 +167,55 @@ export async function execute(
         userOps: [txRequest],
         privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
       });
+      console.log(
+        `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.transactionHash}`
+      );
     } else {
-      tx = await (await contract.signer.sendTransaction(txRequest)).wait();
+      const safe = process.env[ChainSlugToKey[chain].toUpperCase() + "_SAFE"];
+      let owner;
+      try {
+        owner = await contract.owner();
+      } catch (e) {
+        console.log("Contract is not ownable", e);
+      }
+      // if contract owner is the SAFE, add to batch
+      // if contract owner is not the SAFE, send transaction
+      // TODO: check if sender has the necessary role to do it
+      // or we just assume the SAFE always has the necessary roles.
+      if (owner.toLowerCase() == safe.toLowerCase()) {
+        console.log(`-   Owner of ${contract.address} is Gnosis Safe`);
+        console.log(
+          YELLOW,
+          `✔   Added tx with method: '${method}' for chain: ${chain} to the Gnosis Safe batch`
+        );
+        let jsonData = {};
+
+        if (fs.existsSync("safe_transactions.json")) {
+          // read the existing content
+          jsonData = JSON.parse(
+            fs.readFileSync("safe_transactions.json", "utf-8")
+          );
+          // append new transactions
+          jsonData[chain] = jsonData[chain]
+            ? (jsonData[chain] = [...jsonData[chain], txRequest])
+            : [txRequest];
+        } else {
+          // create a new JSON object
+          jsonData = {
+            [chain]: [txRequest],
+          };
+        }
+        fs.writeFileSync(
+          "safe_transactions.json",
+          JSON.stringify(jsonData, null, 2)
+        );
+      } else {
+        tx = await (await contract.signer.sendTransaction(txRequest)).wait();
+        console.log(
+          `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.transactionHash}`
+        );
+      }
     }
-    console.log(
-      `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.transactionHash}`
-    );
   }
 }
 
@@ -202,3 +250,107 @@ export const checkMissingFields = (fields: { [key: string]: any }) => {
     }
   }
 };
+
+export const createBatchFiles = () => {
+  let existingData: Object = {};
+  if (fs.existsSync("safe_transactions.json")) {
+    existingData = JSON.parse(
+      fs.readFileSync("safe_transactions.json", "utf-8")
+    );
+  } else {
+    console.log("\nNo transactions to execute on Gnosis Safe.");
+    return;
+  }
+
+  const chains = Object.keys(existingData);
+  const batchFiles = [];
+  console.log(YELLOW, "=".repeat(100));
+  for (let chain of chains) {
+    const transactions = existingData[chain].map((tx) => {
+      return getTx(tx.to, tx.method, tx.data);
+    });
+    const date = new Date().toISOString();
+    const chainId = chain;
+    const name = `batch_${chain}_${date}`;
+    const safe = process.env[ChainSlugToKey[chain].toUpperCase() + "_SAFE"];
+    const safeChain =
+      chainId == "1"
+        ? "eth"
+        : chainId == "8453"
+        ? "base"
+        : chainId == "42161"
+        ? "arb"
+        : "null";
+    const file = {
+      version: "1.0",
+      chainId,
+      createdAt: date,
+      meta: {
+        name,
+        description: "",
+        txBuilderVersion: "1.16.3",
+        createdFromSafeAddress: safe,
+        createdFromOwnerAddress: "",
+        checksum: "",
+      },
+      transactions,
+    };
+    file.meta.checksum = calculateChecksum(file);
+    const jsonString = JSON.stringify(file);
+    fs.writeFileSync(`${name}.json`, jsonString);
+    batchFiles.push(`${name}.json`);
+    console.log(YELLOW, `✔   Batch file created: [${batchFiles}]`);
+    console.log(
+      YELLOW,
+      `!!  Please, upload file on Gnosis Safe Transaction Builder: https://app.safe.global/apps/open?safe=${safeChain}:${safe}&appUrl=https://apps-portal.safe.global/tx-builder}`
+    );
+  }
+  fs.unlinkSync("safe_transactions.json");
+  console.log(YELLOW, "=".repeat(100));
+};
+
+const getTx = (to, method, data) => {
+  return {
+    to,
+    value: "0",
+    data,
+    method,
+    operation: "1",
+    contractMethod: null,
+    contractInputsValues: null,
+  };
+};
+
+const stringifyReplacer = (_, value) => (value === undefined ? null : value);
+
+const serializeJSONObject = (json) => {
+  if (Array.isArray(json)) {
+    return `[${json.map((el) => serializeJSONObject(el)).join(",")}]`;
+  }
+
+  if (typeof json === "object" && json !== null) {
+    let acc = "";
+    const keys = Object.keys(json).sort();
+    acc += `{${JSON.stringify(keys, stringifyReplacer)}`;
+
+    for (let i = 0; i < keys.length; i++) {
+      acc += `${serializeJSONObject(json[keys[i]])},`;
+    }
+
+    return `${acc}}`;
+  }
+
+  return `${JSON.stringify(json, stringifyReplacer)}`;
+};
+
+const calculateChecksum = (batchFile) => {
+  const serialized = serializeJSONObject({
+    ...batchFile,
+    meta: { ...batchFile.meta },
+  });
+  const sha = ethers.utils.soliditySha256(["string"], [serialized]);
+
+  return sha || undefined;
+};
+
+const YELLOW = "\x1b[33m%s\x1b[0m";
