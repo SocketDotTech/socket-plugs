@@ -153,7 +153,9 @@ export async function deployContractWithArgs(
     );
     let contract: Contract;
     if (isKinto(await signer.getChainId())) {
-      const abi = JSON.parse(Contract.interface.format(ethers.utils.FormatTypes.json) as string);
+      const abi = JSON.parse(
+        Contract.interface.format(ethers.utils.FormatTypes.json) as string
+      );
       contract = await deployOnKinto({
         kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
         bytecode: Contract.bytecode,

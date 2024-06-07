@@ -239,6 +239,32 @@ export const checkAndGrantRole = async (
   }
 };
 
+export const checkAndRevokeRole = async (
+  chain: ChainSlug,
+  contract: Contract,
+  roleName: string = "",
+  roleHash: string = "",
+  userAddress: string
+) => {
+  let hasRole = await contract.hasRole(roleHash, userAddress);
+  if (hasRole) {
+    console.log(
+      `-   Revoking ${roleName} role to signer`,
+      userAddress,
+      " for contract: ",
+      contract.address,
+      " on chain: ",
+      chain
+    );
+    await execute(contract, "revokeRole", [roleHash, userAddress], chain);
+  } else {
+    console.log(
+      `✔   ${roleName} role already revoked on ${contract.address} for ${userAddress} on chain `,
+      chain
+    );
+  }
+};
+
 export const updateLimitsAndPoolId = async (
   chain: ChainSlug,
   token: Tokens,
