@@ -1,4 +1,8 @@
-import { getSuperBridgeAddresses } from "../helpers";
+import {
+  createBatchFiles,
+  getSuperBridgeAddresses,
+  removeSafeTransactionsFile,
+} from "../helpers";
 import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
@@ -13,14 +17,19 @@ import { Tokens } from "../../src/enums";
 import { SBTokenAddresses, STTokenAddresses } from "../../src";
 
 // this script will grant or revoke all existing roles from a given address on all the existing contracts
-const GRANT = false; // set to true to grant roles, false to revoke roles
-const ADDRESS = "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c"; // address to grant/revoke roles
+const GRANT: boolean = false; // set to true to grant roles, false to revoke roles
+const ADDRESS: string = ""; // = "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c"; // address to grant/revoke roles
+if (ADDRESS.length === 0) {
+  console.error("Please provide an address to grant/revoke roles");
+  process.exit(1);
+}
 
 const TOKEN: string = ""; // = "wUSDM"; // token to grant/revoke roles [OPTIONAL]
 const CHAIN: string = ""; // = "42161"; // chain to grant/revoke roles [OPTIONAL]
 
 export const main = async () => {
   const ABI = [...ROLE_ABI, ...OWNABLE_ABI];
+  removeSafeTransactionsFile();
   try {
     const addresses = await getSuperBridgeAddresses();
     for (const chain of Object.keys(addresses)) {
@@ -153,6 +162,7 @@ export const main = async () => {
   } catch (error) {
     console.log("Error while sending transaction", error);
   }
+  createBatchFiles();
 };
 
 main()

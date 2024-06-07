@@ -251,6 +251,12 @@ export const checkMissingFields = (fields: { [key: string]: any }) => {
   }
 };
 
+export const removeSafeTransactionsFile = () => {
+  if (fs.existsSync("safe_transactions.json")) {
+    fs.unlinkSync("safe_transactions.json");
+  }
+};
+
 export const createBatchFiles = () => {
   let existingData: Object = {};
   if (fs.existsSync("safe_transactions.json")) {
