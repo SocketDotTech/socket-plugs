@@ -154,7 +154,7 @@ export async function deployContractWithArgs(
     let contract: Contract;
     if (isKinto(await signer.getChainId())) {
       const abi = JSON.parse(Contract.interface.format(ethers.utils.FormatTypes.json) as string);
-      contract = await deployOnKinto({
+      const contractAddr = await deployOnKinto({
         kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
         bytecode: Contract.bytecode,
         abi,
@@ -162,14 +162,15 @@ export async function deployContractWithArgs(
         argTypes: await extractArgTypes(abi),
         privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
       });
+      contract = await getInstance(contractName, contractAddr);
     } else {
       // gasLimit is set to undefined to not use the value set in overrides
       contract = await Contract.connect(signer).deploy(...args, {
         ...overrides[await signer.getChainId()],
         // gasLimit: undefined,
       });
+      contract = await contract.deployed();
     }
-    await contract.deployed();
     return contract;
   } catch (error) {
     throw error;
