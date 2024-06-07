@@ -367,6 +367,16 @@
   ],
   "7887": [
     [
+      "0xf8308F839e0C7407749bFF164b4573B5eAb87Cc3",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xe3F4C9cCA8eA855497D63800beFb43f290aC78c6",
+        "0x3e9727470C66B1e77034590926CDe0242B5A3dCc",
+        42161
+      ]
+    ],
+    [
       "0x36ec6dc8eb4563359D015c1d6518ab714876E890",
       "KintoHook",
       "contracts/hooks/KintoHook.sol",

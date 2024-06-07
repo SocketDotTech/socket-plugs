@@ -289,6 +289,9 @@
       "connectors": {
         "1": {
           "FAST": "0x1bd24BD09F3Aaa8deE0096Ca2606D94B0494f459"
+        },
+        "42161": {
+          "FAST": "0xf8308F839e0C7407749bFF164b4573B5eAb87Cc3"
         }
       },
       "KintoHook": "0xA187171b2Ed2757F29D160E7FFBCc959C2d9a36e"
