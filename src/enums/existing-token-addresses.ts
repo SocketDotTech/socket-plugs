@@ -84,6 +84,6 @@ export const ExistingTokenAddresses: {
     [Tokens.WBTC]: "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7",
   },
   [ChainSlug.SYNDR_SEPOLIA_L3]: {
-    [Tokens.USDC]:"0x2CAd2eCe3A78eF1Ef6ec2E0E43E264dcBEd7E8B0"
-  }
+    [Tokens.USDC]: "0x2CAd2eCe3A78eF1Ef6ec2E0E43E264dcBEd7E8B0",
+  },
 };
