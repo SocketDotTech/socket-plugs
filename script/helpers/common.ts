@@ -127,7 +127,7 @@ export const getTokenContract = async (
   const socketSigner = getSignerFromChainSlug(chain);
   let tokenContract: Contract,
     tokenAddress: string = "",
-    tokenContractName: string = "ERC20";
+    tokenContractName: string = "lib/solmate/src/tokens/ERC20.sol:ERC20";
   if (isSuperBridge()) {
     if (isSBAppChain(chain, token)) {
       const a = addr as AppChainAddresses;

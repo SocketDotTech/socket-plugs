@@ -14,9 +14,9 @@ import { checkSendingLimit } from "./utils";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
 import { tokenDecimals } from "../../src/enums";
 
-const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
-const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
-const amount = "0";
+const srcChain = ChainSlug.ARBITRUM_SEPOLIA;
+const dstChain = ChainSlug.SYNDR_SEPOLIA_L3;
+const amount = "100";
 // const amount = "1";
 
 const gasLimit = 500_000;

@@ -1974,5 +1974,33 @@
         }
       }
     }
+  },
+  "syndr_testnet": {
+    "421614": {
+      "USDC": {
+        "isAppChain": false,
+        "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+        "Vault": "0x4573188D01a5270d18A6484228c6D23F4b2E0b50",
+        "LimitHook": "0xDdaf467a0cE15933867537D41D3e35efFD14C851",
+        "connectors": {
+          "444444": {
+            "FAST": "0x669bf07350381D96f8775d0eAa4D657f0B25c363"
+          }
+        }
+      }
+    },
+    "444444": {
+      "USDC": {
+        "isAppChain": true,
+        "MintableToken": "0x2CAd2eCe3A78eF1Ef6ec2E0E43E264dcBEd7E8B0",
+        "Controller": "0xB81598BdD2851F223625Ed2C677ccaBD8049b323",
+        "LimitHook": "0x08c3e46CDbE16993d034e0BA87fD9C0dEF08F477",
+        "connectors": {
+          "421614": {
+            "FAST": "0xE2fA2892d482f469A0A055FcA52a9Ba1B65ABd2e"
+          }
+        }
+      }
+    }
   }
 }

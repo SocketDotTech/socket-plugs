@@ -83,4 +83,7 @@ export const ExistingTokenAddresses: {
     [Tokens.WETH]: "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
     [Tokens.WBTC]: "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7",
   },
+  [ChainSlug.SYNDR_SEPOLIA_L3]: {
+    [Tokens.USDC]:"0x2CAd2eCe3A78eF1Ef6ec2E0E43E264dcBEd7E8B0"
+  }
 };
