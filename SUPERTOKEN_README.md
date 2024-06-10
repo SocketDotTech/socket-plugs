@@ -2,7 +2,7 @@
 
 - Socket DL supported plug contract which is used to enable bridge for vault and super token.
 
-### Super Token
+### SuperToken
 
 - Super token is an ERC20 contract which allows socket bridge to mint and burn the tokens within a certain daily limit and rate.
 - If max limits reaches, it stores the pending amounts which can be minted when limit replenishes.
