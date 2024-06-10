@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="https://path-to-lightmode-logo.png#gh-light-mode-only" alt="Socket Logo" />
-  <img src="https://path-to-darkmode-logo.png#gh-dark-mode-only" alt="Socket Logo" />
+  <img src="https://avatars.githubusercontent.com/u/85499411?s=200&v=4#gh-light-mode-only" alt="Socket Logo" />
+  <img src="https://avatars.githubusercontent.com/u/85499411?s=200&v=4#gh-dark-mode-only" alt="Socket Logo" />
 </div>
 
 # Socket Plugs
