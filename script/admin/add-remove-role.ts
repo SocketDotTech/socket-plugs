@@ -6,39 +6,46 @@ import {
 import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
-import { ALL_ROLES, OWNABLE_ABI, ROLE_ABI } from "../constants";
+import { ALL_ROLES, MINTER_ABI, OWNABLE_ABI, ROLE_ABI } from "../constants";
 import {
   checkAndGrantRole,
   checkAndRevokeRole,
   getHookContract,
 } from "../helpers/common";
-import { ChainSlug } from "@socket.tech/dl-core";
+import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
 import { Tokens } from "../../src/enums";
 import { SBTokenAddresses, STTokenAddresses } from "../../src";
 
-// this script will grant or revoke all existing roles from a given address on all the existing contracts
-const GRANT: boolean = false; // set to true to grant roles, false to revoke roles
-const ADDRESS: string = ""; // = "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c"; // address to grant/revoke roles
+// Roles should be as follow:
+// - RESCUE_ROLE: Vault, Controller, Hook, Connector
+// - LIMIT_UPDATER_ROLE: Hook
+// - SOCKET_RELAYER_ROLE: Connector
+// - MINTER_ROLE: Token (only on Kinto, only Controller
+
+// This script will grant the corresponding roles to the corresponding Socket contracts to a given address.
+const GRANT: boolean = true; // set to true to grant roles, false to revoke roles
+const USE_SAFE_OR_KINTO_ADMIN = true; // set to true to use Safe address instead of ADDRESS.
+let ADDRESS: string = ""; // = "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c"; // address to grant/revoke roles
 if (ADDRESS.length === 0) {
   console.error("Please provide an address to grant/revoke roles");
   process.exit(1);
 }
 
-const TOKEN: string = ""; // = "wUSDM"; // token to grant/revoke roles [OPTIONAL]
-const CHAIN: string = ""; // = "42161"; // chain to grant/revoke roles [OPTIONAL]
-
 export const main = async () => {
-  const ABI = [...ROLE_ABI, ...OWNABLE_ABI];
+  const ABI = [...ROLE_ABI, ...OWNABLE_ABI, ...MINTER_ABI];
   removeSafeTransactionsFile();
   try {
     const addresses = await getSuperBridgeAddresses();
     for (const chain of Object.keys(addresses)) {
-      if (CHAIN.length > 0 && chain !== CHAIN) continue;
+      ADDRESS = USE_SAFE_OR_KINTO_ADMIN
+        ? chain === "7887"
+          ? process.env.KINTO_OWNER_ADDRESS
+          : process.env[ChainSlugToKey[chain].toUpperCase() + "_SAFE"]
+        : ADDRESS;
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
-        if (TOKEN.length > 0 && token !== TOKEN) continue;
         console.log(`\nChecking addresses for token ${token}`);
-        for (const role of ALL_ROLES) {
+        for (const role of ["RESCUE_ROLE"]) {
           if (isSBAppChain(+chain, token)) {
             const controllerAddress = addresses[chain][token].Controller;
             const controllerContract = new ethers.Contract(
@@ -52,17 +59,45 @@ export const main = async () => {
               await checkAndGrantRole(
                 parseInt(chain),
                 controllerContract,
-                role.name,
-                role.hash,
+                role,
+                ALL_ROLES[role],
                 ADDRESS
               );
             } else {
               await checkAndRevokeRole(
                 parseInt(chain),
                 controllerContract,
-                role.name,
-                role.hash,
+                role,
+                ALL_ROLES[role],
                 ADDRESS
+              );
+            }
+
+            // grant/revoke MINTER_ROLE on the token contract to the controller
+            const tokenAddress = addresses[chain][token].MintableToken;
+            if (GRANT) {
+              await checkAndGrantRole(
+                parseInt(chain),
+                new ethers.Contract(
+                  tokenAddress,
+                  ABI,
+                  getSignerFromChainSlug(+chain)
+                ),
+                role,
+                "MINTER_ROLE",
+                controllerContract.address
+              );
+            } else {
+              await checkAndRevokeRole(
+                parseInt(chain),
+                new ethers.Contract(
+                  tokenAddress,
+                  ABI,
+                  getSignerFromChainSlug(+chain)
+                ),
+                role,
+                "MINTER_ROLE",
+                controllerContract.address
               );
             }
           } else {
@@ -78,21 +113,23 @@ export const main = async () => {
               await checkAndGrantRole(
                 parseInt(chain),
                 vaultContract,
-                role.name,
-                role.hash,
+                role,
+                ALL_ROLES[role],
                 ADDRESS
               );
             } else {
               await checkAndRevokeRole(
                 parseInt(chain),
                 vaultContract,
-                role.name,
-                role.hash,
+                role,
+                ALL_ROLES[role],
                 ADDRESS
               );
             }
           }
+        }
 
+        for (const role of ["LIMIT_UPDATER_ROLE", "RESCUE_ROLE"]) {
           let { hookContract, hookContractName } = await getHookContract(
             chain as unknown as ChainSlug,
             token as unknown as Tokens,
@@ -107,21 +144,23 @@ export const main = async () => {
               await checkAndGrantRole(
                 parseInt(chain),
                 hookContract,
-                role.name,
-                role.hash,
+                role,
+                ALL_ROLES[role],
                 ADDRESS
               );
             } else {
               await checkAndRevokeRole(
                 parseInt(chain),
                 hookContract,
-                role.name,
-                role.hash,
+                role,
+                ALL_ROLES[role],
                 ADDRESS
               );
             }
           }
+        }
 
+        for (const role of ["RESCUE_ROLE"]) {
           for (const connectorChain of Object.keys(
             addresses[chain][token].connectors
           )) {
@@ -141,16 +180,16 @@ export const main = async () => {
                 await checkAndGrantRole(
                   parseInt(chain),
                   contract,
-                  role.name,
-                  role.hash,
+                  role,
+                  ALL_ROLES[role],
                   ADDRESS
                 );
               } else {
                 await checkAndRevokeRole(
                   parseInt(chain),
                   contract,
-                  role.name,
-                  role.hash,
+                  role,
+                  ALL_ROLES[role],
                   ADDRESS
                 );
               }

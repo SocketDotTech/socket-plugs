@@ -223,11 +223,11 @@ export const checkAndGrantRole = async (
   let hasRole = await contract.hasRole(roleHash, userAddress);
   if (!hasRole) {
     console.log(
-      `-   Adding ${roleName} role to signer`,
+      `-   Adding ${roleName} role to`,
       userAddress,
-      " for contract: ",
+      "for contract:",
       contract.address,
-      " on chain: ",
+      "on chain: ",
       chain
     );
     await execute(contract, "grantRole", [roleHash, userAddress], chain);
@@ -249,11 +249,11 @@ export const checkAndRevokeRole = async (
   let hasRole = await contract.hasRole(roleHash, userAddress);
   if (hasRole) {
     console.log(
-      `-   Revoking ${roleName} role to signer`,
+      `-   Revoking ${roleName} role to`,
       userAddress,
-      " for contract: ",
+      "for contract:",
       contract.address,
-      " on chain: ",
+      "on chain: ",
       chain
     );
     await execute(contract, "revokeRole", [roleHash, userAddress], chain);

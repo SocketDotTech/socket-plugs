@@ -101,32 +101,63 @@ export async function getOwnerAndNominee(contract: Contract) {
 }
 
 export async function getRoleMembers(contract: Contract, roleToQuery: string) {
-  const roleGrantedFilter: EventFilter = contract.filters.RoleGranted(
-    roleToQuery,
-    null
-  );
-  const roleRevokedFilter: EventFilter = contract.filters.RoleRevoked(
-    roleToQuery,
-    null
-  );
-
-  const roleGrantedEvents = await contract.queryFilter(roleGrantedFilter);
-  const roleRevokedEvents = await contract.queryFilter(roleRevokedFilter);
-
   const roleMembers = new Map<string, number>();
 
-  roleGrantedEvents.forEach((event) => {
-    const grantee = event.args.grantee;
-    roleMembers.set(grantee, (roleMembers.get(grantee) || 0) + 1);
-  });
+  // only for BridgedToken contracts
+  let roleGrantedBridgedTokenEvents = [];
+  let roleRevokedBridgedTokenEvents = [];
+  try {
+    const roleGrantedBridgedTokenFilter: EventFilter = contract.filters[
+      "RoleGranted(bytes32,address,address)"
+    ](roleToQuery, null, null);
+    const roleRevokedBridgedTokenFilter: EventFilter = contract.filters[
+      "RoleRevoked(bytes32,address,address)"
+    ](roleToQuery, null, null);
+    roleGrantedBridgedTokenEvents = await contract.queryFilter(
+      roleGrantedBridgedTokenFilter
+    );
+    roleRevokedBridgedTokenEvents = await contract.queryFilter(
+      roleRevokedBridgedTokenFilter
+    );
 
-  roleRevokedEvents.forEach((event) => {
-    const revokee = event.args.revokee;
-    const count = roleMembers.get(revokee) || 0;
-    if (count > 0) {
-      roleMembers.set(revokee, count - 1);
-    }
-  });
+    roleGrantedBridgedTokenEvents.forEach((event) => {
+      const grantee = event.args.account;
+      roleMembers.set(grantee, (roleMembers.get(grantee) || 0) + 1);
+    });
+
+    roleRevokedBridgedTokenEvents.forEach((event) => {
+      const revokee = event.args.account;
+      const count = roleMembers.get(revokee) || 0;
+      if (count > 0) {
+        roleMembers.set(revokee, count - 1);
+      }
+    });
+  } catch (e) {}
+
+  try {
+    const roleGrantedFilter: EventFilter = contract.filters[
+      "RoleGranted(bytes32,address)"
+    ](roleToQuery, null);
+    const roleRevokedFilter: EventFilter = contract.filters[
+      "RoleRevoked(bytes32,address)"
+    ](roleToQuery, null);
+
+    const roleGrantedEvents = await contract.queryFilter(roleGrantedFilter);
+    const roleRevokedEvents = await contract.queryFilter(roleRevokedFilter);
+
+    roleGrantedEvents.forEach((event) => {
+      const grantee = event.args.grantee;
+      roleMembers.set(grantee, (roleMembers.get(grantee) || 0) + 1);
+    });
+
+    roleRevokedEvents.forEach((event) => {
+      const revokee = event.args.revokee;
+      const count = roleMembers.get(revokee) || 0;
+      if (count > 0) {
+        roleMembers.set(revokee, count - 1);
+      }
+    });
+  } catch (e) {}
 
   const members = Array.from(roleMembers.entries()).filter(
     ([_, count]) => count > 0
@@ -183,7 +214,7 @@ export async function execute(
       // TODO: check if sender has the necessary role to do it
       // or we just assume the SAFE always has the necessary roles.
       if (owner.toLowerCase() == safe.toLowerCase()) {
-        console.log(`   -   Owner of ${contract.address} is Gnosis Safe`);
+        // console.log(`   -   Owner of ${contract.address} is Gnosis Safe`);
         console.log(
           YELLOW,
           `   ✔   Added tx with method: '${method}' for chain: ${chain} to the Gnosis Safe batch`
