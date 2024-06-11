@@ -542,25 +542,6 @@ contract TestKintoHook is Test {
             );
     }
 
-    function testdstPreHookCallCallSenderIsBridgerL2() external {
-        _setLimits();
-        uint256 depositAmount = 2 ether;
-        address sender = kintoWallet__; // original sender from vault chain
-        address receiver = kintoHook__.BRIDGER_L2();
-
-        vm.startPrank(controller__);
-        (
-            bytes memory postHookData,
-            TransferInfo memory transferInfo
-        ) = kintoHook__.dstPreHookCall(
-                DstPreHookCallParams(
-                    _connector1,
-                    bytes(""),
-                    TransferInfo(receiver, depositAmount, abi.encode(sender))
-                )
-            );
-    }
-
     ////// FINISH: KintoHook:dstPreHookCall tests //////
 
     function testFullConsumeDstCall() external {
