@@ -1,4 +1,4 @@
-import { Contract } from "ethers";
+import { Contract, EventFilter } from "ethers";
 
 import {
   ChainSlug,
@@ -101,36 +101,67 @@ export async function getOwnerAndNominee(contract: Contract) {
 }
 
 export async function getRoleMembers(contract: Contract, roleToQuery: string) {
-  // get all events related to role grants and revocations
-  const roleGrantedEvents = await contract.queryFilter(
-    contract.filters.RoleGranted(null, null)
-  );
-  const roleRevokedEvents = await contract.queryFilter(
-    contract.filters.RoleRevoked(null, null)
-  );
   const roleMembers = new Map<string, number>();
 
-  // process RoleGranted events
-  roleGrantedEvents.forEach((event) => {
-    const grantee = event.args.grantee;
-    roleMembers.set(grantee, (roleMembers.get(grantee) || 0) + 1);
-  });
+  // only for BridgedToken contracts
+  let roleGrantedBridgedTokenEvents = [];
+  let roleRevokedBridgedTokenEvents = [];
+  try {
+    const roleGrantedBridgedTokenFilter: EventFilter = contract.filters[
+      "RoleGranted(bytes32,address,address)"
+    ](roleToQuery, null, null);
+    const roleRevokedBridgedTokenFilter: EventFilter = contract.filters[
+      "RoleRevoked(bytes32,address,address)"
+    ](roleToQuery, null, null);
+    roleGrantedBridgedTokenEvents = await contract.queryFilter(
+      roleGrantedBridgedTokenFilter
+    );
+    roleRevokedBridgedTokenEvents = await contract.queryFilter(
+      roleRevokedBridgedTokenFilter
+    );
 
-  // process RoleRevoked events
-  roleRevokedEvents.forEach((event) => {
-    const revokee = event.args.revokee;
-    const count = roleMembers.get(revokee) || 0;
-    if (count > 0) {
-      roleMembers.set(revokee, count - 1);
-    }
-  });
+    roleGrantedBridgedTokenEvents.forEach((event) => {
+      const grantee = event.args.account;
+      roleMembers.set(grantee, (roleMembers.get(grantee) || 0) + 1);
+    });
 
-  // filter users with positive net count (grants - revocations)
+    roleRevokedBridgedTokenEvents.forEach((event) => {
+      const revokee = event.args.account;
+      const count = roleMembers.get(revokee) || 0;
+      if (count > 0) {
+        roleMembers.set(revokee, count - 1);
+      }
+    });
+  } catch (e) {}
+
+  try {
+    const roleGrantedFilter: EventFilter = contract.filters[
+      "RoleGranted(bytes32,address)"
+    ](roleToQuery, null);
+    const roleRevokedFilter: EventFilter = contract.filters[
+      "RoleRevoked(bytes32,address)"
+    ](roleToQuery, null);
+
+    const roleGrantedEvents = await contract.queryFilter(roleGrantedFilter);
+    const roleRevokedEvents = await contract.queryFilter(roleRevokedFilter);
+
+    roleGrantedEvents.forEach((event) => {
+      const grantee = event.args.grantee;
+      roleMembers.set(grantee, (roleMembers.get(grantee) || 0) + 1);
+    });
+
+    roleRevokedEvents.forEach((event) => {
+      const revokee = event.args.revokee;
+      const count = roleMembers.get(revokee) || 0;
+      if (count > 0) {
+        roleMembers.set(revokee, count - 1);
+      }
+    });
+  } catch (e) {}
+
   const members = Array.from(roleMembers.entries()).filter(
     ([_, count]) => count > 0
   );
-
-  // extract user addresses and return
   return members.map(([address, _]) => address);
 }
 
@@ -183,10 +214,10 @@ export async function execute(
       // TODO: check if sender has the necessary role to do it
       // or we just assume the SAFE always has the necessary roles.
       if (owner.toLowerCase() == safe.toLowerCase()) {
-        console.log(`-   Owner of ${contract.address} is Gnosis Safe`);
+        // console.log(`   -   Owner of ${contract.address} is Gnosis Safe`);
         console.log(
           YELLOW,
-          `✔   Added tx with method: '${method}' for chain: ${chain} to the Gnosis Safe batch`
+          `   ✔   Added tx with method: '${method}' for chain: ${chain} to the Gnosis Safe batch`
         );
         let jsonData = {};
 
@@ -248,6 +279,12 @@ export const checkMissingFields = (fields: { [key: string]: any }) => {
     if (value === undefined || value === null) {
       throw Error(`missing field : ${field}`);
     }
+  }
+};
+
+export const removeSafeTransactionsFile = () => {
+  if (fs.existsSync("safe_transactions.json")) {
+    fs.unlinkSync("safe_transactions.json");
   }
 };
 
