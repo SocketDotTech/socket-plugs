@@ -21,4 +21,5 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.wUSDM]: "wUSDM",
   [Tokens.weETH]: "weETH",
   [Tokens.ETHFI]: "ETHFI",
+  [Tokens.SolvBTC]: "SolvBTC",
 };

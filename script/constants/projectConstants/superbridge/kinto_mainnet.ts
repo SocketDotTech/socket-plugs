@@ -354,5 +354,34 @@ export const pc: ProjectConstants = {
         },
       },
     },
+    [Tokens.SolvBTC]: {
+      vaultChains: [ChainSlug.MAINNET, ChainSlug.ARBITRUM, ChainSlug.BASE],
+      controllerChains: [ChainSlug.KINTO],
+      hook: {
+        hookType: Hooks.KINTO_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              receivingLimit: "60",
+            },
+          },
+          [ChainSlug.KINTO]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "60",
+            },
+          },
+          [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              receivingLimit: "60",
+            },
+          },
+          [ChainSlug.ARBITRUM]: {
+            [IntegrationTypes.fast]: {
+              receivingLimit: "60",
+            },
+          },
+        },
+      },
+    },
   },
 };

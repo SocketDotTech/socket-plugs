@@ -41,6 +41,7 @@ export const ExistingTokenAddresses: {
     // [Tokens.eETH]: "",
     // [Tokens.EIGEN]: "",
     // [Tokens.ETHFI]: "0x07d65c18cecba423298c0aeb5d2beded4dfd5736", no liquidity
+    [Tokens.SolvBTC]: "0x3647c54c4c2c65bc7a2d63c0da2809b399dbbdc0"
   },
   [ChainSlug.BASE]: {
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
@@ -90,6 +91,7 @@ export const ExistingTokenAddresses: {
     [Tokens.eETH]: "0xee70005Ec41738eA7ED2B97D7d56ac829F1E99e6",
     [Tokens.EIGEN]: "0xe16E00eeFCd866e8aE5a4e43bBdd6831da6391E1",
     [Tokens.ETHFI]: "0xe70F10CD4bD932a28b80d48D771026a4c88E6285",
+    [Tokens.SolvBTC]: "0x501B7c581aEf05b8DD6C4924338fCBE8f930ab46",
   },
   [ChainSlug.POLYGON_MAINNET]: {
     [Tokens.USDCE]: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",

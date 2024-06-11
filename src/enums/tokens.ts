@@ -19,4 +19,5 @@ export enum Tokens {
   wUSDM = "wUSDM",
   weETH = "weETH",
   ETHFI = "ETHFI",
+  SolvBTC = "SolvBTC",
 }
