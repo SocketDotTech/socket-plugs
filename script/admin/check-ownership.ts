@@ -7,6 +7,21 @@ import { ethers } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
+import { Tokens } from "../../src/enums";
+
+const checkOwner = async (
+  contractName: string,
+  contract: ethers.Contract,
+  token: Tokens,
+  chain: string
+) => {
+  const [owner, nominee] = await getOwnerAndNominee(contract);
+  console.log(
+    `Owner of ${contract.address} is ${owner}${
+      nominee === ZERO_ADDRESS ? "" : ` (nominee: ${nominee})`
+    } on chain: ${chain} (${contractName} for token: ${token})`
+  );
+};
 
 export const main = async () => {
   try {
@@ -14,6 +29,7 @@ export const main = async () => {
     for (const chain of Object.keys(addresses)) {
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
+        console.log(`\nChecking addresses for token ${token}`);
         if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller
           const exchangeRateAddress = addresses[chain][token].ExchangeRate;
@@ -23,14 +39,11 @@ export const main = async () => {
               OWNABLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const [exchangeRateOwner, exchangeRateNominee, exchangeRateType] =
-              await getOwnerAndNominee(exchangeRateContract);
-            console.log(
-              `Owner of ${exchangeRateAddress}(${exchangeRateType}) is ${exchangeRateOwner}${
-                exchangeRateNominee === ZERO_ADDRESS
-                  ? ""
-                  : ` (nominee: ${exchangeRateNominee})`
-              } on chain: ${chain} (ExchangeRate for token: ${token})`
+            await checkOwner(
+              "Exchange Rate",
+              exchangeRateContract,
+              token as Tokens,
+              chain
             );
           }
 
@@ -40,14 +53,11 @@ export const main = async () => {
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [controllerOwner, controllerNominee, type] =
-            await getOwnerAndNominee(controllerContract);
-          console.log(
-            `Owner of ${controllerAddress}(${type}) is ${controllerOwner}${
-              controllerNominee === ZERO_ADDRESS
-                ? ""
-                : ` (nominee: ${controllerNominee})`
-            } on chain: ${chain} (Controller for token: ${token})`
+          await checkOwner(
+            "Controller",
+            controllerContract,
+            token as Tokens,
+            chain
           );
         } else {
           // Vault
@@ -57,14 +67,7 @@ export const main = async () => {
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [vaultOwner, vaultNominee, type] = await getOwnerAndNominee(
-            vaultContract
-          );
-          console.log(
-            `Owner of ${vaultAddress}(${type}) is ${vaultOwner}${
-              vaultNominee === ZERO_ADDRESS ? "" : ` (nominee: ${vaultNominee})`
-            } on chain: ${chain} (Vault for token: ${token})`
-          );
+          await checkOwner("Vault", vaultContract, token as Tokens, chain);
         }
 
         for (const connectorChain of Object.keys(
@@ -80,11 +83,11 @@ export const main = async () => {
               OWNABLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const [owner, nominee, type] = await getOwnerAndNominee(contract);
-            console.log(
-              `Owner of ${connectorAddress}(${type}) is ${owner}${
-                nominee === ZERO_ADDRESS ? "" : ` (nominee: ${nominee})`
-              } on chain: ${chain} (Connector for ${token}, conn-chain: ${connectorChain}, conn-type: ${connectorType}`
+            await checkOwner(
+              `Connector ${connectorType}`,
+              contract,
+              token as Tokens,
+              chain
             );
           }
         }

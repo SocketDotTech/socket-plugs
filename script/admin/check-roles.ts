@@ -9,6 +9,17 @@ import { Tokens } from "../../src/enums";
 import { SBTokenAddresses, STTokenAddresses } from "../../src";
 import { ROLE_ABI, ROLE_BRIDGED_TOKEN_ABI } from "../constants/abis/role";
 
+const checkRole = async (
+  contractName: string,
+  contract: ethers.Contract,
+  role: string
+) => {
+  const members = await getRoleMembers(contract, ALL_ROLES[role]);
+  console.log(
+    `Addresses with ${role} for ${contractName} are [${members.toString()}]`
+  );
+};
+
 export const main = async () => {
   try {
     const addresses = await getSuperBridgeAddresses();
@@ -24,28 +35,14 @@ export const main = async () => {
               ROLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const members = await getRoleMembers(
-              controllerContract,
-              ALL_ROLES[role]
-            );
-            console.log(
-              `Addresses with ${role} for Controller contract: ${controllerAddress} are [${members.toString()}]`
-            );
+            await checkRole("Controller", controllerContract, role);
 
             const tokenContract = new ethers.Contract(
               addresses[chain][token].MintableToken,
               ROLE_BRIDGED_TOKEN_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const tokenMembers = await getRoleMembers(
-              tokenContract,
-              ALL_ROLES[role]
-            );
-            console.log(
-              `Addresses with ${role} for ${token} contract: ${
-                addresses[chain][token].MintableToken
-              } are [${tokenMembers.toString()}]`
-            );
+            await checkRole(token, tokenContract, role);
           } else {
             // Vault
             const vaultAddress = addresses[chain][token].Vault;
@@ -54,13 +51,7 @@ export const main = async () => {
               ROLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const members = await getRoleMembers(
-              vaultContract,
-              ALL_ROLES[role]
-            );
-            console.log(
-              `Addresses with ${role} for Vault contract: ${vaultAddress} are [${members.toString()}]`
-            );
+            await checkRole("Vault", vaultContract, role);
           }
 
           let { hookContract, hookContractName } = await getHookContract(
@@ -73,12 +64,7 @@ export const main = async () => {
                   | STTokenAddresses)
           );
           if (hookContract) {
-            const members = await getRoleMembers(hookContract, ALL_ROLES[role]);
-            console.log(
-              `Addresses with ${role} for ${hookContractName} contract: ${
-                hookContract.address
-              } are [${members.toString()}]`
-            );
+            await checkRole(hookContractName, hookContract, role);
           }
 
           for (const connectorChain of Object.keys(
@@ -96,10 +82,7 @@ export const main = async () => {
                 ROLE_ABI,
                 getSignerFromChainSlug(+chain)
               );
-              const members = await getRoleMembers(contract, ALL_ROLES[role]);
-              console.log(
-                `Addresses with ${role} for Connector contract: ${connectorAddress} are [${members.toString()}]`
-              );
+              await checkRole(`Connector ${connectorType}`, contract, role);
             }
           }
         }

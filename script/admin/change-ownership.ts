@@ -1,6 +1,7 @@
 import {
   createBatchFiles,
   execute,
+  getOwnerAndNominee,
   getSuperBridgeAddresses,
   ZERO_ADDRESS,
 } from "../helpers";
@@ -31,15 +32,43 @@ for (const chain of Object.keys(chainToExpectedOwner)) {
   }
 }
 
-async function getOwnerAndNominee(contract: ethers.Contract) {
-  const owner = await contract.owner();
-  try {
-    const nominee = await contract.nominee();
-    return [owner, nominee, 0];
-  } catch (error) {}
-  const pendingOwner = await contract.pendingOwner();
-  return [owner, pendingOwner, 1];
-}
+const processOwnershipChange = async (
+  contractName: string,
+  contract: ethers.Contract,
+  token: Tokens,
+  chain: string
+) => {
+  const [owner, nominee, type] = await getOwnerAndNominee(contract);
+  console.log(
+    `Owner of ${contract.address} is ${owner}${
+      nominee === ZERO_ADDRESS ? "" : ` (nominee: ${nominee})`
+    } on chain: ${chain} (${contractName} for token: ${token})`
+  );
+
+  if (owner === getOwner() && nominee === ZERO_ADDRESS) {
+    if (!isKinto(chain)) {
+      if (type === 0) {
+        const tx = await contract.nominateOwner(chainToExpectedOwner[+chain], {
+          ...overrides[+chain],
+        });
+        console.log("Nominating, tx hash: ", tx.hash);
+        await tx.wait();
+
+        console.log("Claim ownership tx");
+        await execute(contract, "claimOwner", [], parseInt(chain));
+      } else {
+        const tx = await contract.transferOwnership(
+          chainToExpectedOwner[+chain],
+          { ...overrides[+chain] }
+        );
+        console.log("Transferring ownership, tx hash: ", tx.hash);
+        await tx.wait();
+      }
+    } else {
+      console.log("TODO: implement ownership change on Kinto chain");
+    }
+  }
+};
 
 export const main = async () => {
   try {
@@ -64,86 +93,25 @@ export const main = async () => {
               OWNABLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const [exchangeRateOwner, exchangeRateNominee, exchangeRateType] =
-              await getOwnerAndNominee(exchangeRateContract);
-            console.log(
-              `Owner of ${exchangeRateAddress} is ${exchangeRateOwner}${
-                exchangeRateNominee === ZERO_ADDRESS
-                  ? ""
-                  : ` (nominee: ${exchangeRateNominee})`
-              } on chain: ${chain} (ExchangeRate for token: ${token})`
+            await processOwnershipChange(
+              "Exchange Rate",
+              exchangeRateContract,
+              token as unknown as Tokens,
+              chain
             );
-
-            if (
-              exchangeRateOwner === getOwner() &&
-              exchangeRateNominee === ZERO_ADDRESS
-            ) {
-              if (exchangeRateType === 0) {
-                const tx = await exchangeRateContract.nominateOwner(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Nominating, tx hash: ", tx.hash);
-                await tx.wait();
-              } else {
-                const tx = await exchangeRateContract.transferOwnership(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Nominating, tx hash: ", tx.hash);
-                await tx.wait();
-              }
-            }
           }
-
           const controllerAddress = addresses[chain][token].Controller;
           const controllerContract = new ethers.Contract(
             controllerAddress,
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [controllerOwner, controllerNominee, controllerType] =
-            await getOwnerAndNominee(controllerContract);
-          console.log(
-            `Owner of ${controllerAddress} is ${controllerOwner}${
-              controllerNominee === ZERO_ADDRESS
-                ? ""
-                : ` (nominee: ${controllerNominee})`
-            } on chain: ${chain} (Controller for token: ${token})`
+          await processOwnershipChange(
+            "Controller",
+            controllerContract,
+            token as unknown as Tokens,
+            chain
           );
-
-          if (
-            controllerOwner === getOwner() &&
-            controllerNominee === ZERO_ADDRESS
-          ) {
-            if (!isKinto(chain)) {
-              if (controllerType === 0) {
-                const tx = await controllerContract.nominateOwner(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Nominating, tx hash: ", tx.hash);
-                await tx.wait();
-
-                console.log("Claim ownership tx");
-                await execute(
-                  controllerContract,
-                  "claimOwner",
-                  [],
-                  parseInt(chain)
-                );
-              } else {
-                const tx = await controllerContract.transferOwnership(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Transferring ownership, tx hash: ", tx.hash);
-                await tx.wait();
-              }
-            } else {
-              console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
-            }
-          }
         } else {
           // Vault
           const vaultAddress = addresses[chain][token].Vault;
@@ -152,38 +120,12 @@ export const main = async () => {
             OWNABLE_ABI,
             getSignerFromChainSlug(+chain)
           );
-          const [vaultOwner, vaultNominee, vaultType] =
-            await getOwnerAndNominee(vaultContract);
-          console.log(
-            `Owner of ${vaultAddress} is ${vaultOwner}${
-              vaultNominee === ZERO_ADDRESS ? "" : ` (nominee: ${vaultNominee})`
-            } on chain: ${chain} (Vault for token: ${token})`
+          await processOwnershipChange(
+            "Vault",
+            vaultContract,
+            token as unknown as Tokens,
+            chain
           );
-
-          if (vaultOwner === getOwner() && vaultNominee === ZERO_ADDRESS) {
-            if (!isKinto(chain)) {
-              if (vaultType === 0) {
-                const tx = await vaultContract.nominateOwner(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Nominating, tx hash: ");
-                await tx.wait();
-
-                console.log("Claim ownership tx");
-                await execute(vaultContract, "claimOwner", [], parseInt(chain));
-              } else {
-                const tx = await vaultContract.transferOwnership(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Transferring ownership, tx hash: ");
-                await tx.wait();
-              }
-            } else {
-              console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
-            }
-          }
         }
 
         let { hookContract, hookContractName } = await getHookContract(
@@ -195,40 +137,14 @@ export const main = async () => {
                 | SBTokenAddresses
                 | STTokenAddresses)
         );
-        const [hookOwner, hookNominee, hookType] = await getOwnerAndNominee(
-          hookContract
-        );
-        console.log(
-          `Owner of ${hookContract.address} is ${hookOwner}${
-            hookNominee === ZERO_ADDRESS ? "" : ` (nominee: ${hookNominee})`
-          } on chain: ${chain} (${hookContractName} for token: ${token})`
-        );
 
         if (hookContract) {
-          if (hookOwner === getOwner() && hookNominee === ZERO_ADDRESS) {
-            if (!isKinto(chain)) {
-              if (hookType === 0) {
-                const tx = await hookContract.nominateOwner(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Nominating, tx hash: ", tx.hash);
-                await tx.wait();
-
-                console.log("Claim ownership tx");
-                await execute(hookContract, "claimOwner", [], parseInt(chain));
-              } else {
-                const tx = await hookContract.transferOwnership(
-                  chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
-                );
-                console.log("Transferring ownership, tx hash: ", tx.hash);
-                await tx.wait();
-              }
-            } else {
-              console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
-            }
-          }
+          await processOwnershipChange(
+            hookContractName,
+            hookContract,
+            token as unknown as Tokens,
+            chain
+          );
         }
 
         for (const connectorChain of Object.keys(
@@ -244,36 +160,12 @@ export const main = async () => {
               OWNABLE_ABI,
               getSignerFromChainSlug(+chain)
             );
-            const [owner, nominee, type] = await getOwnerAndNominee(contract);
-            console.log(
-              `Owner of ${connectorAddress} is ${owner}${
-                nominee === ZERO_ADDRESS ? "" : ` (nominee: ${nominee})`
-              } on chain: ${chain} (Connector for ${token}, conn-chain: ${connectorChain}, conn-type: ${connectorType}`
+            await processOwnershipChange(
+              "Connector",
+              contract,
+              token as unknown as Tokens,
+              chain
             );
-            if (owner === getOwner() && nominee === ZERO_ADDRESS) {
-              if (!isKinto(chain)) {
-                if (type === 0) {
-                  const tx = await contract.nominateOwner(
-                    chainToExpectedOwner[+chain],
-                    { ...overrides[+chain] }
-                  );
-                  console.log("Nominating, tx hash: ", tx.hash);
-                  await tx.wait();
-
-                  console.log("Claim ownership tx");
-                  await execute(contract, "claimOwner", [], parseInt(chain));
-                } else {
-                  const tx = await contract.transferOwnership(
-                    chainToExpectedOwner[+chain],
-                    { ...overrides[+chain] }
-                  );
-                  console.log("Transferring ownership, tx hash: ", tx.hash);
-                  await tx.wait();
-                }
-              } else {
-                console.log("TODO: IMPLEMENT CHANGE OWNERSHIP ON KINTO");
-              }
-            }
           }
         }
       }
