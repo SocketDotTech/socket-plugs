@@ -16,11 +16,8 @@ import { tokenDecimals } from "../../src/enums";
 import { handleOps, isKinto } from "@kinto-utils/dist/kinto";
 import { TREZOR } from "@kinto-utils/dist/utils/constants";
 
-const srcChain = ChainSlug.KINTO;
-const dstChain = ChainSlug.BASE;
-// const srcChain = ChainSlug.KINTO;
-// const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
-// const amount = "0";
+const srcChain = ChainSlug.ARBITRUM;
+const dstChain = ChainSlug.KINTO;
 const amount = "0.1";
 const MESSAGE_ID: string = ""; // use if you want to retry a message
 const gasLimit = 500_000;
@@ -93,7 +90,7 @@ export const main = async () => {
         await tokenContract.decimals()
       )}`
     );
-    // if (balance.lt(amountBN)) throw new Error("Not enough balance");
+    if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
     // approve
     const currentApproval: BigNumber = await tokenContract.allowance(
