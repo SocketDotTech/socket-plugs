@@ -224,6 +224,8 @@ export const storeTokenAddresses = async (
   chainSlug: ChainSlug,
   tokenName: Tokens
 ) => {
+  if (getDryRun()) return;
+
   let deploymentAddresses: SBAddresses | STAddresses = readJSONFile(
     getDeploymentPath()
   );
@@ -243,6 +245,8 @@ export const storeAllAddresses = async (
   projectName: Project,
   projectAddresses: SBAddresses | STAddresses
 ) => {
+  if (getDryRun()) return;
+
   const projectType = ProjectTypeMap[projectName];
   let filePath = getAllDeploymentPath(projectType);
   let allAddresses: AllAddresses = readJSONFile(filePath);
@@ -273,6 +277,8 @@ export const storeVerificationParams = async (
   verificationDetail: any[],
   chainSlug: ChainSlug
 ) => {
+  if (getDryRun()) return;
+
   let verificationDetails: object = readJSONFile(getVerificationPath());
 
   if (!verificationDetails[chainSlug]) verificationDetails[chainSlug] = [];
