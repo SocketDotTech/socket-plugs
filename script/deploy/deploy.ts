@@ -73,46 +73,50 @@ export const deploy = async () => {
       ...pc[token].vaultChains,
     ];
     const hookType = pc[token].hook.hookType;
-    await Promise.all(
-      allChains.map(async (chain: ChainSlug) => {
-        console.log(`\nDeploying contracts for ${token} on chain ${chain}...`);
-        let allDeployed = false;
-        const signer = getSignerFromChainSlug(chain);
 
-        let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
-          chain
-        ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
-
-        let siblings: ChainSlug[] = [],
-          isAppchain: boolean = false;
-        if (projectType == ProjectType.SUPERBRIDGE) {
-          isAppchain = isSBAppChain(chain, token);
-          siblings = isAppchain
-            ? pc[token].vaultChains
-            : [pc[token].controllerChains[0]];
-        } else if (projectType == ProjectType.SUPERTOKEN)
-          siblings = allChains.filter((c) => c !== chain);
-
-        // console.log({ siblings, hook });
-        while (!allDeployed) {
-          const results: ReturnObj = await deployChainContracts(
-            isAppchain,
-            pc[token].vaultChains.includes(chain),
-            signer,
-            chain,
-            token,
-            siblings,
-            hookType,
-            chainAddresses
-          );
-
-          allDeployed = results.allDeployed;
-          chainAddresses = results.deployedAddresses;
-          if (!allAddresses[chain]) allAddresses[chain] = {};
-          allAddresses[chain]![token] = chainAddresses;
-        }
-      })
+    // process non-Kinto chains first
+    allChains = allChains.sort(
+      (a: any, b: any) =>
+        Number(a === ChainSlug.KINTO) - Number(b === ChainSlug.KINTO)
     );
+    for (let chain of allChains) {
+      console.log(`\nDeploying contracts for ${token} on chain ${chain}...`);
+      let allDeployed = false;
+      const signer = getSignerFromChainSlug(chain);
+
+      let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
+        chain
+      ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
+
+      let siblings: ChainSlug[] = [],
+        isAppchain: boolean = false;
+      if (projectType == ProjectType.SUPERBRIDGE) {
+        isAppchain = isSBAppChain(chain, token);
+        siblings = isAppchain
+          ? pc[token].vaultChains
+          : [pc[token].controllerChains[0]];
+      } else if (projectType == ProjectType.SUPERTOKEN)
+        siblings = allChains.filter((c) => c !== chain);
+
+      // console.log({ siblings, hook });
+      while (!allDeployed) {
+        const results: ReturnObj = await deployChainContracts(
+          isAppchain,
+          pc[token].vaultChains.includes(chain),
+          signer,
+          chain,
+          token,
+          siblings,
+          hookType,
+          chainAddresses
+        );
+
+        allDeployed = results.allDeployed;
+        chainAddresses = results.deployedAddresses;
+        if (!allAddresses[chain]) allAddresses[chain] = {};
+        allAddresses[chain]![token] = chainAddresses;
+      }
+    }
   }
   await storeAllAddresses(projectName as Project, allAddresses);
   return allAddresses;
