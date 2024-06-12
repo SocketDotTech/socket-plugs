@@ -15,6 +15,7 @@ import {
 import { ChainSlug } from "@socket.tech/dl-core";
 import { Tokens } from "../../src/enums";
 import { SBTokenAddresses, STTokenAddresses } from "../../src";
+import yargs from "yargs";
 
 // Roles should be as follow:
 // - RESCUE_ROLE: Vault, Controller, Hook, Connector
@@ -73,14 +74,38 @@ const processRole = async (
   );
 };
 
+const argv = yargs
+  .options({
+    token: { type: "string", demandOption: false },
+    "chain-id": { type: "number", demandOption: false },
+  })
+  .example(
+    "npx ts-node script/admin/change-roles.ts DAI 1",
+    "Change roles for DAI token on chain 1"
+  )
+  .example(
+    "npx ts-node script/admin/change-roles.ts DAI",
+    "Change roles for DAI token on all chains"
+  )
+  .example(
+    "npx ts-node script/admin/change-roles.ts",
+    "Change roles for all tokens on all chains"
+  )
+  .help().argv;
+
 export const main = async () => {
   const ABI = [...ROLE_ABI, ...OWNABLE_ABI, ...MINTER_ABI];
   removeSafeTransactionsFile();
   try {
     const addresses = await getSuperBridgeAddresses();
+    const chainId = argv["chain-id"];
+    const tokenParam = argv["token"];
+
     for (const chain of Object.keys(addresses)) {
+      if (chainId && +chain !== chainId) continue;
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
+        if (token && token !== tokenParam) continue;
         console.log(`\nChecking addresses for token ${token}`);
         for (const role of ["RESCUE_ROLE"]) {
           if (isSBAppChain(+chain, token)) {

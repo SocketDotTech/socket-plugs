@@ -8,6 +8,7 @@ import { getSignerFromChainSlug } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
 import { Tokens } from "../../src/enums";
+import yargs from "yargs";
 
 const checkOwner = async (
   contractName: string,
@@ -23,12 +24,36 @@ const checkOwner = async (
   );
 };
 
+const argv = yargs
+  .options({
+    token: { type: "string", demandOption: false },
+    "chain-id": { type: "number", demandOption: false },
+  })
+  .example(
+    "npx ts-node script/admin/check-ownership.ts DAI 1",
+    "Check ownership for DAI token on chain 1"
+  )
+  .example(
+    "npx ts-node script/admin/check-ownership.ts DAI",
+    "Check ownership for DAI token on all chains"
+  )
+  .example(
+    "npx ts-node script/admin/check-ownership.ts",
+    "Check ownership for all tokens on all chains"
+  )
+  .help().argv;
+
 export const main = async () => {
   try {
     const addresses = await getSuperBridgeAddresses();
+    const chainId = argv["chain-id"];
+    const tokenParam = argv["token"];
+
     for (const chain of Object.keys(addresses)) {
+      if (chainId && +chain !== chainId) continue;
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
+        if (token && token !== tokenParam) continue;
         console.log(`\nChecking addresses for token ${token}`);
         if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller

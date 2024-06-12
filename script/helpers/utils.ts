@@ -91,7 +91,12 @@ export const getPoolIdHex = (
 };
 
 export async function getOwnerAndNominee(contract: Contract) {
-  const owner = await contract.owner();
+  let owner;
+  try {
+    owner = await contract.owner();
+  } catch (error) {
+    return [null, null, null];
+  }
   try {
     const nominee = await contract.nominee();
     return [owner, nominee, 0];
@@ -203,17 +208,17 @@ export async function execute(
       );
     } else {
       const safe = process.env[ChainSlugToKey[chain].toUpperCase() + "_SAFE"];
-      let owner;
-      try {
-        owner = await contract.owner();
-      } catch (e) {
-        console.log("Contract is not ownable", e);
-      }
+      const [owner, nominee] = await getOwnerAndNominee(contract);
+
       // if contract owner is the SAFE, add to batch
       // if contract owner is not the SAFE, send transaction
       // TODO: check if sender has the necessary role to do it
       // or we just assume the SAFE always has the necessary roles.
-      if (owner.toLowerCase() == safe.toLowerCase()) {
+      if (
+        (method === "claimOwner" &&
+          nominee.toLowerCase() === safe.toLowerCase()) ||
+        owner.toLowerCase() == safe.toLowerCase()
+      ) {
         // console.log(`   -   Owner of ${contract.address} is Gnosis Safe`);
         console.log(
           YELLOW,

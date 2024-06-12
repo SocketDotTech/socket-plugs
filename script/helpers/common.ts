@@ -256,7 +256,7 @@ export const checkAndRevokeRole = async (
       "on chain: ",
       chain
     );
-    // await execute(contract, "revokeRole", [roleHash, userAddress], chain);
+    await execute(contract, "revokeRole", [roleHash, userAddress], chain);
   } else {
     console.log(
       `✔   ${roleName} role already revoked on ${contract.address} for ${userAddress} on chain `,

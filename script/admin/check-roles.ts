@@ -8,6 +8,26 @@ import { ChainSlug } from "@socket.tech/dl-core";
 import { Tokens } from "../../src/enums";
 import { SBTokenAddresses, STTokenAddresses } from "../../src";
 import { ROLE_ABI, ROLE_BRIDGED_TOKEN_ABI } from "../constants/abis/role";
+import yargs from "yargs";
+
+const argv = yargs
+  .options({
+    token: { type: "string", demandOption: false },
+    "chain-id": { type: "number", demandOption: false },
+  })
+  .example(
+    "npx ts-node script/admin/check-roles.ts DAI 1",
+    "Check roles for DAI token on chain 1"
+  )
+  .example(
+    "npx ts-node script/admin/check-roles.ts DAI",
+    "Check roles for DAI token on all chains"
+  )
+  .example(
+    "npx ts-node script/admin/check-roles.ts",
+    "Check roles for all tokens on all chains"
+  )
+  .help().argv;
 
 const checkRole = async (
   contractName: string,
@@ -22,10 +42,15 @@ const checkRole = async (
 
 export const main = async () => {
   try {
+    const tokenParam = argv["token"];
+    const chainId = argv["chain-id"];
     const addresses = await getSuperBridgeAddresses();
+
     for (const chain of Object.keys(addresses)) {
+      if (chainId && +chain !== chainId) continue;
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
+        if (token && token !== tokenParam) continue;
         console.log(`\nChecking addresses for token ${token}`);
         for (const role of Object.keys(ALL_ROLES)) {
           if (isSBAppChain(+chain, token)) {

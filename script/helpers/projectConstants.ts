@@ -4,6 +4,7 @@ import { ProjectConstants, TokenConstants } from "../../src";
 import { getMode, getProjectName } from "../constants/config";
 import { getConstantPath } from "./utils";
 import { tokenDecimals } from "../../src/enums/tokenDecimals";
+import { ethers } from "hardhat";
 
 export const isSBAppChain = (chain: ChainSlug, token: string) =>
   getTokenConstants(token).controllerChains.includes(chain);
@@ -46,15 +47,27 @@ export const getLimitBN = (
   isSending: boolean
 ): BigNumber => {
   if (isSending) {
-    return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain, token).sendingLimit,
-      tokenDecimals[token]
-    );
+    const sendingLimit = getIntegrationTypeConsts(
+      it,
+      chain,
+      token
+    ).sendingLimit;
+    if (!sendingLimit || sendingLimit == "") {
+      return ethers.constants.MaxUint256;
+    } else {
+      return utils.parseUnits(sendingLimit, tokenDecimals[token]);
+    }
   } else {
-    return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain, token).receivingLimit,
-      tokenDecimals[token]
-    );
+    const receivingLimit = getIntegrationTypeConsts(
+      it,
+      chain,
+      token
+    ).receivingLimit;
+    if (!receivingLimit || receivingLimit == "") {
+      return ethers.constants.MaxUint256;
+    } else {
+      return utils.parseUnits(receivingLimit, tokenDecimals[token]);
+    }
   }
 };
 
@@ -69,7 +82,7 @@ export const getRateBN = (
     isSending ? "sendingRatePerSecond" : "receivingRatePerSecond"
   ];
   if (!rate || rate == "") {
-    return limitBN.div(1);
+    return limitBN.div(86400); // default to daily
   } else {
     return utils.parseUnits(rate, tokenDecimals[token]);
   }

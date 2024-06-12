@@ -15,6 +15,7 @@ import { isKinto } from "@kinto-utils/dist/kinto";
 import { getHookContract } from "../helpers/common";
 import { Tokens } from "../../src/enums";
 import { SBTokenAddresses, STTokenAddresses } from "../../src";
+import yargs from "yargs";
 
 const chainToExpectedOwner = {
   [ChainSlug.KINTO]: process.env.KINTO_OWNER_ADDRESS,
@@ -32,6 +33,25 @@ for (const chain of Object.keys(chainToExpectedOwner)) {
   }
 }
 
+const argv = yargs
+  .options({
+    token: { type: "string", demandOption: false },
+    "chain-id": { type: "number", demandOption: false },
+  })
+  .example(
+    "npx ts-node script/admin/change-ownership.ts DAI 1",
+    "Change ownership for DAI token on chain 1"
+  )
+  .example(
+    "npx ts-node script/admin/change-ownership.ts DAI",
+    "Change ownership for DAI token on all chains"
+  )
+  .example(
+    "npx ts-node script/admin/change-ownership.ts",
+    "Change ownership for all tokens on all chains"
+  )
+  .help().argv;
+
 const processOwnershipChange = async (
   contractName: string,
   contract: ethers.Contract,
@@ -45,16 +65,21 @@ const processOwnershipChange = async (
     } on chain: ${chain} (${contractName} for token: ${token})`
   );
 
-  if (owner === getOwner() && nominee === ZERO_ADDRESS) {
+  if (owner === getOwner()) {
     if (!isKinto(chain)) {
       if (type === 0) {
-        const tx = await contract.nominateOwner(chainToExpectedOwner[+chain], {
-          ...overrides[+chain],
-        });
-        console.log("Nominating, tx hash: ", tx.hash);
-        await tx.wait();
+        if (nominee === ZERO_ADDRESS) {
+          const tx = await contract.nominateOwner(
+            chainToExpectedOwner[+chain],
+            {
+              ...overrides[+chain],
+            }
+          );
+          console.log("Nominating, tx hash: ", tx.hash);
+          await tx.wait();
+        }
 
-        console.log("Claim ownership tx");
+        console.log("Claim ownership");
         await execute(contract, "claimOwner", [], parseInt(chain));
       } else {
         const tx = await contract.transferOwnership(
@@ -73,7 +98,11 @@ const processOwnershipChange = async (
 export const main = async () => {
   try {
     const addresses = getSuperBridgeAddresses();
+    const chainId = argv["chain-id"];
+    const tokenParam = argv["token"];
+
     for (const chain of Object.keys(addresses)) {
+      if (chainId && +chain !== chainId) continue;
       console.log(`\nChecking addresses for chain ${chain}`);
       if (!chainToExpectedOwner?.[+chain]) {
         console.error(`Expected owner not found for chain ${chain}`);
@@ -83,6 +112,7 @@ export const main = async () => {
         `Expected owner for chain ${chain}: ${chainToExpectedOwner[+chain]}`
       );
       for (const token of Object.keys(addresses[chain])) {
+        if (token && token !== tokenParam) continue;
         console.log(`\nChecking addresses for token ${token}`);
         if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller
