@@ -28,7 +28,6 @@ export const ExistingTokenAddresses: {
   [ChainSlug.POLYGON_MAINNET]: {
     [Tokens.USDC]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
     [Tokens.USDCE]: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
     [Tokens.FUD]: "0x403e967b044d4be25170310157cb1a4bf10bdd0f",
     [Tokens.FOMO]: "0x44a6e0be76e1d9620a7f76588e4509fe4fa8e8c8",
     [Tokens.ALPHA]: "0x6a3E7C3c6EF65Ee26975b12293cA1AAD7e1dAeD2",
@@ -60,16 +59,20 @@ export const ExistingTokenAddresses: {
   },
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     [Tokens.USDC]: "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+    [Tokens.USDT]: "0x66DFb9987C36c4be232156e70B085f664367599A",
+    [Tokens.DAI]: "0x9a573B27D7298c6E2f4d2D4a41c37A0C8AF6accA",
     [Tokens.WETH]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     [Tokens.MTK]: "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
-  },
-  [ChainSlug.SYNDR_SEPOLIA_L3]: {
-    [Tokens.USDC]: "0x9500C41799EBeDFb0452fadE36DA931Eb155cbD1",
+    [Tokens.WBTC]: "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D",
   },
   [ChainSlug.SEPOLIA]: {
     [Tokens.USDC]: "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-    [Tokens.WETH]: "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa",
+    [Tokens.USDT]: "0xB4130e87A180b9448286B291331aEe8A9C154A3A",
+    [Tokens.DAI]: "0x255745E5C7Ae620b7f523F5E4A0Ead37660EC5d6",
+    // [Tokens.WETH]: "0xE67ABDA0D43f7AC8f37876bBF00D1DFadbB93aaa", // actual weth
+    [Tokens.WETH]: "0x771d1Ae208377453D478dF08BbC38034F72aC833", // dummy token
+    [Tokens.WBTC]: "0x94BEff5da6201cB2C8F489196FD970B3DF5aA32A",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
   },
   [ChainSlug.AEVO_TESTNET]: {
@@ -77,7 +80,10 @@ export const ExistingTokenAddresses: {
   },
   [ChainSlug.OPTIMISM_SEPOLIA]: {
     [Tokens.USDC]: "0x6D290609b3F5F02D52F28d97C75a443ED8564cBf",
+    [Tokens.USDT]: "0x2d1abA6FaBAe80bF5C1C9EA433AAe9030E07CB22",
+    [Tokens.DAI]: "0xDC0258dc3dB980090E97EbF4f1FD9Cc3C5AD5894",
     [Tokens.WETH]: "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    [Tokens.WBTC]: "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7",
   },
 };

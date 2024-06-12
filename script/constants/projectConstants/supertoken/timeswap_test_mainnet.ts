@@ -29,7 +29,12 @@ export const pc: ProjectConstants = {
         },
       },
       superTokenInfo: {
-        address: "0x5e24d4e71d8fc876af3D45499f6b9E8A296EC694",
+        name: "Timeswap Test",
+        symbol: "TSWP",
+        decimals: 18,
+        initialSupply: "0",
+        initialSupplyOwner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
+        owner: "0x572E38236eA3632b779962e27b47B3Dd75Fee127",
       },
     },
   },

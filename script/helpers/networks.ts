@@ -110,7 +110,7 @@ export const overrides: {
 
 export const rpcKeys = (chainSlug: ChainSlug) => {
   const chainName = chainSlugReverseMap.get(String(chainSlug));
-  return `${chainName.toUpperCase()}_RPC`;
+  return chainName ? `${chainName.toUpperCase()}_RPC` : "";
 };
 
 export function getJsonRpcUrl(chain: ChainSlug): string {
