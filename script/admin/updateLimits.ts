@@ -1,6 +1,9 @@
-import { Contract } from "ethers";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { printExecSummary, getProjectAddresses } from "../helpers";
+import {
+  printExecSummary,
+  getProjectAddresses,
+  createBatchFiles,
+} from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
   Connectors,
@@ -12,13 +15,9 @@ import {
   HookContracts,
 } from "../../src";
 import { getTokens } from "../constants/config";
-import { connectorStatus, filterChains, siblingFilterChains } from "./utils";
+import { filterChains, siblingFilterChains } from "./utils";
 import { verifyConstants } from "../helpers/verifyConstants";
-import {
-  getBridgeContract,
-  getHookContract,
-  updateLimitsAndPoolId,
-} from "../helpers/common";
+import { getHookContract, updateLimitsAndPoolId } from "../helpers/common";
 import { Tokens } from "../../src/enums";
 
 let pc: { [token: string]: TokenConstants } = {};
@@ -89,6 +88,7 @@ export const main = async () => {
     }
 
     printExecSummary();
+    createBatchFiles();
   } catch (error) {
     console.error("Error while sending transaction", error);
   }
