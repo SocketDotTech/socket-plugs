@@ -22,6 +22,7 @@ import {
   getProjectType,
   isSuperBridge,
   isSuperToken,
+  getDryRun,
 } from "../constants/config";
 import {
   getLimitBN,
@@ -54,8 +55,9 @@ export const updateConnectorStatus = async (
         siblingConnectorAddresses[it];
       if (!itConnectorAddress) continue;
 
-      let currentConnectorStatus =
-        await bridgeContract.callStatic.validConnectors(itConnectorAddress);
+      let currentConnectorStatus = getDryRun()
+        ? false
+        : await bridgeContract.callStatic.validConnectors(itConnectorAddress);
       if (currentConnectorStatus !== newConnectorStatus) {
         connectorAddresses.push(itConnectorAddress);
       }
@@ -287,19 +289,20 @@ export const updateLimitsAndPoolId = async (
         siblingConnectorAddresses[it];
       if (!itConnectorAddress) continue;
       // console.log({ itConnectorAddress });
-      let sendingParams = await hookContract.getSendingLimitParams(
-        itConnectorAddress
-      );
+      let sendingParams = getDryRun()
+        ? {}
+        : await hookContract.getSendingLimitParams(itConnectorAddress);
 
       // console.log({ sendingParams });
-      let receivingParams = await hookContract.getReceivingLimitParams(
-        itConnectorAddress
-      );
+      let receivingParams = getDryRun()
+        ? {}
+        : await hookContract.getReceivingLimitParams(itConnectorAddress);
 
       // mint/lock/deposit limits
       const sendingLimit = getLimitBN(it, chain, token, true);
       const sendingRate = getRateBN(it, chain, token, true);
       if (
+        getDryRun() ||
         !sendingLimit.eq(sendingParams["maxLimit"]) ||
         !sendingRate.eq(sendingParams["ratePerSecond"])
       ) {
@@ -319,6 +322,7 @@ export const updateLimitsAndPoolId = async (
       const receivingRate = getRateBN(it, chain, token, false);
 
       if (
+        getDryRun() ||
         !receivingLimit.eq(receivingParams["maxLimit"]) ||
         !receivingRate.eq(receivingParams["ratePerSecond"])
       ) {
@@ -340,9 +344,9 @@ export const updateLimitsAndPoolId = async (
         // chain !== ChainSlug.AEVO &&
         // chain !== ChainSlug.AEVO_TESTNET
       ) {
-        const poolId: BigNumber = await hookContract.connectorPoolIds(
-          itConnectorAddress
-        );
+        const poolId: BigNumber = getDryRun()
+          ? BigNumber.from(0)
+          : await hookContract.connectorPoolIds(itConnectorAddress);
         // console.log({ itConnectorAddress, poolId });
         const poolIdHex =
           "0x" + BigInt(poolId.toString()).toString(16).padStart(64, "0");

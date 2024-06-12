@@ -65,9 +65,14 @@ To create a new project, run:
 socket new
 ```
 
-Follow the prompts to create a new project. This will create a new project in `scripts/constants/projectConstants/supertoken/projectname_<mainnet/testnet>.ts` file.
+Follow the prompts to create a new project. This will create a new project in `scripts/constants/projectConstants/supertoken/projectname_<mainnet/testnet>.ts` or `scripts/constants/projectConstants/superbridge/projectname_<mainnet/testnet>.ts`.
 
 **Note:** this scripts updates your .env to add relevant env variables. If you have anything sensitive/important in .env file, please take a backup first.
+
+## SuperBridge requirements
+
+- On the destination chain, the token must be deployed and follow the [IMintableERC20 interface](./contracts/interfaces/IMintableERC20.sol).
+- Update the `src/enums/existing-token-addresses.ts` file to add the address of the token on the destination chain (it may be needed to add the ChainSlug).
 
 ## Deployment
 
@@ -84,6 +89,8 @@ yarn script:deploy
 ## Verify the contracts on a block explorer
 
 Add API keys for the block explorers you want to verify the contracts in the `.env` file. You might also need to update the `hardhat.config.ts` file to add the API keys for the block explorers you want to verify the contracts on.
+
+**Note:** If you are verifying the contracts for SuperBridge on the destination chain, you need to update the `hardhat.config.ts` file to add the network in `liveNetworks` and to add your chain in `customChains`.
 
 To verify the contracts on a block explorer, you can use the following command:
 
