@@ -286,7 +286,7 @@ contract TestController_YieldLimitExecHook is Setup {
             postSrcHookData,
             "post hook data sus"
         );
-        assertEq(payload, transferInfo.data, "new transfer data sus");
+        assertEq(payload, transferInfo.extraData, "new transfer data sus");
         assertEq(updatedAmount, transferInfo.amount, "shares to amount sus");
     }
 
@@ -311,7 +311,11 @@ contract TestController_YieldLimitExecHook is Setup {
         assertEq(transferInfo.receiver, _raju, "receiver sus");
 
         bytes memory updatedPayload = abi.encode(options, bytes(""));
-        assertEq(transferInfo.data, updatedPayload, "extra data incorrect");
+        assertEq(
+            transferInfo.extraData,
+            updatedPayload,
+            "extra data incorrect"
+        );
     }
 
     function testFullSrcHookCall() external {
@@ -372,7 +376,7 @@ contract TestController_YieldLimitExecHook is Setup {
             "post hook data sus"
         );
         assertEq(withdrawAmount, transferInfo.amount, "shares to amount sus");
-        assertEq(payload, transferInfo.data, "new transfer data sus");
+        assertEq(payload, transferInfo.extraData, "new transfer data sus");
     }
 
     // dst hooks (limit and execution edge cases expected to be covered in their hooks)
@@ -439,7 +443,7 @@ contract TestController_YieldLimitExecHook is Setup {
             abi.encode(0, 0, 0, address(0)),
             "post hook data sus"
         );
-        assertEq(transferInfo.data, bytes(""), "data sus");
+        assertEq(transferInfo.extraData, bytes(""), "data sus");
     }
 
     function testDstPostHookForSync() external {
@@ -516,7 +520,7 @@ contract TestController_YieldLimitExecHook is Setup {
             abi.encode(consumed, amount - consumed, amount, receiver),
             "post hook data sus"
         );
-        assertEq(transferInfo.data, bytes(""), "data sus");
+        assertEq(transferInfo.extraData, bytes(""), "data sus");
         assertEq(transferInfo.amount, shares, "depositAmount sus");
     }
 
