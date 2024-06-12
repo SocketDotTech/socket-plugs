@@ -41,7 +41,7 @@ export const ExistingTokenAddresses: {
     // [Tokens.eETH]: "",
     // [Tokens.EIGEN]: "",
     // [Tokens.ETHFI]: "0x07d65c18cecba423298c0aeb5d2beded4dfd5736", no liquidity
-    [Tokens.SolvBTC]: "0x3647c54c4c2c65bc7a2d63c0da2809b399dbbdc0"
+    [Tokens.SolvBTC]: "0x3647c54c4c2c65bc7a2d63c0da2809b399dbbdc0",
   },
   [ChainSlug.BASE]: {
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
