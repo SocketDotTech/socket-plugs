@@ -20,25 +20,25 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "",
+              sendingLimit:   "40000000",
               receivingLimit: "4000000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "4000000",
-              receivingLimit: "",
+              receivingLimit: "40000000",
             },
           },
           [ChainSlug.BASE]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "",
+              sendingLimit:   "40000000",
               receivingLimit: "4000000",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
-              sendingLimit: "",
+              sendingLimit:   "40000000",
               receivingLimit: "4000000",
             },
           },
@@ -54,21 +54,25 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "930",
+              sendingLimit: "9300",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "930",
+              receivingLimit: "9300",
             },
           },
           [ChainSlug.BASE]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "930",
+              sendingLimit: "9300",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "930",
+              sendingLimit: "9300"
             },
           },
         },
@@ -83,21 +87,26 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1135",
+              sendingLimit: "11350",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "1135",
+              receivingLimit: "11350",
+
             },
           },
           [ChainSlug.BASE]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1135",
+              sendingLimit: "11350",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1135",
+              sendingLimit: "11350",
             },
           },
         },
@@ -112,21 +121,25 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "4000000",
+              sendingLimit: "40000000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
+              receivingLimit: "40000000",
               sendingLimit: "4000000",
             },
           },
           [ChainSlug.BASE]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "4000000",
+              sendingLimit: "40000000",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "4000000",
+              sendingLimit: "40000000",
             },
           },
         },
@@ -141,11 +154,13 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "5714000",
+              sendingLimit: "57140000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "5714000",
+              receivingLimit: "57140000",
             },
           },
         },
@@ -184,11 +199,13 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1000000",
+              sendingLimit: "10000000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "1000000",
+              receivingLimit: "10000000",
             },
           },
         },
@@ -203,11 +220,14 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1088",
+              sendingLimit: "10880",
+
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "1088",
+              receivingLimit: "10880",
             },
           },
         },
@@ -222,11 +242,13 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "4000000",
+              sendingLimit: "40000000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "4000000",
+              receivingLimit: "40000000",
             },
           },
         },
@@ -241,11 +263,15 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "4000000",
+              sendingLimit: "40000000",
+
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "4000000",
+              receivingLimit: "40000000",
+
             },
           },
         },
@@ -259,16 +285,19 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
+              sendingLimit: "40000000",
               receivingLimit: "4000000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "4000000",
+              receivingLimit: "40000000",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
+              sendingLimit: "40000000",
               receivingLimit: "4000000",
             },
           },
@@ -284,21 +313,25 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1088",
+              sendingLimit: "10880",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "1088",
+              receivingLimit: "10880",
             },
           },
           [ChainSlug.BASE]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1088",
+              sendingLimit: "10880",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1088",
+              sendingLimit: "10880",
             },
           },
         },
@@ -313,11 +346,13 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "1050000",
+              sendingLimit: "10500000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "1050000",
+              receivingLimit: "10500000",
             },
           },
         },
