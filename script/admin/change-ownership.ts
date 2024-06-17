@@ -112,7 +112,7 @@ export const main = async () => {
         `Expected owner for chain ${chain}: ${chainToExpectedOwner[+chain]}`
       );
       for (const token of Object.keys(addresses[chain])) {
-        if (token && token !== tokenParam) continue;
+        if (tokenParam && token !== tokenParam) continue;
         console.log(`\nChecking addresses for token ${token}`);
         if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller

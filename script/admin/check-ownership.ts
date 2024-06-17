@@ -53,7 +53,7 @@ export const main = async () => {
       if (chainId && +chain !== chainId) continue;
       console.log(`\nChecking addresses for chain ${chain}`);
       for (const token of Object.keys(addresses[chain])) {
-        if (token && token !== tokenParam) continue;
+        if (tokenParam && token !== tokenParam) continue;
         console.log(`\nChecking addresses for token ${token}`);
         if (isSBAppChain(+chain, token)) {
           // ExchangeRate and Controller
