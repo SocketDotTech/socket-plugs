@@ -362,12 +362,14 @@ export const pc: ProjectConstants = {
         limitsAndPoolId: {
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
+              receivingLimit: "60",
               sendingLimit: "60",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "60",
+              sendingLimit: "60",
             },
           },
         },

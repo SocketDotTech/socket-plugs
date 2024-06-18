@@ -52,22 +52,14 @@ export const getLimitBN = (
       chain,
       token
     ).sendingLimit;
-    if (!sendingLimit || sendingLimit == "") {
-      return ethers.constants.MaxUint256;
-    } else {
-      return utils.parseUnits(sendingLimit, tokenDecimals[token]);
-    }
+    return utils.parseUnits(sendingLimit, tokenDecimals[token]);
   } else {
     const receivingLimit = getIntegrationTypeConsts(
       it,
       chain,
       token
     ).receivingLimit;
-    if (!receivingLimit || receivingLimit == "") {
-      return ethers.constants.MaxUint256;
-    } else {
-      return utils.parseUnits(receivingLimit, tokenDecimals[token]);
-    }
+    return utils.parseUnits(receivingLimit, tokenDecimals[token]);
   }
 };
 

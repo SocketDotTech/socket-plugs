@@ -1335,6 +1335,42 @@
   ],
   "42161": [
     [
+      "0x8c09e47d3F82Bd052DB18D3b88634e78790cD16F",
+      "SenderHook",
+      "contracts/hooks/SenderHook.sol",
+      [
+        "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c",
+        "0x25a1baC7314Ff40Ee8CD549251924D066D7d5bC6",
+        false
+      ]
+    ],
+    [
+      "0x5817bF28f6f0B0215f310837BAB88A127d29aBF3",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x25a1baC7314Ff40Ee8CD549251924D066D7d5bC6",
+        "0x37cc674582049b579571E2fFd890a4d99355f6Ba",
+        7887
+      ]
+    ],
+    [
+      "0x10636Fd5A8674aF8877b96eb02006f883f6d2cA0",
+      "SenderHook",
+      "contracts/hooks/SenderHook.sol",
+      [
+        "0x660ad4B5A74130a4796B4d54BC6750Ae93C86e6c",
+        "0x25a1baC7314Ff40Ee8CD549251924D066D7d5bC6",
+        false
+      ]
+    ],
+    [
+      "0x25a1baC7314Ff40Ee8CD549251924D066D7d5bC6",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      ["0x3647c54c4c2c65bc7a2d63c0da2809b399dbbdc0"]
+    ],
+    [
       "0x00F6B6e3151C2f1f064aF537aebc80f3832d0207",
       "SenderHook",
       "contracts/hooks/SenderHook.sol",

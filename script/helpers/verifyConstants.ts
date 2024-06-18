@@ -61,13 +61,13 @@ export const verifyConstants = async () => {
             );
           }
         }
-        // for (let chain in limitsAndPoolId) {
-        //   let chainLimits = limitsAndPoolId[chain];
-        //   for (let integration in chainLimits) {
-        //     let { sendingLimit, receivingLimit } = chainLimits[integration];
-        //     checkMissingFields({ sendingLimit, receivingLimit });
-        //   }
-        // }
+        for (let chain in limitsAndPoolId) {
+          let chainLimits = limitsAndPoolId[chain];
+          for (let integration in chainLimits) {
+            let { sendingLimit, receivingLimit } = chainLimits[integration];
+            checkMissingFields({ sendingLimit, receivingLimit });
+          }
+        }
       }
       if (hookType == Hooks.YIELD_LIMIT_EXECUTION_HOOK) {
         let { yieldTokenInfo } = currentPc;

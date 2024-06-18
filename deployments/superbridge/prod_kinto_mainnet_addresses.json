@@ -459,6 +459,17 @@
           "FAST": "0xe5FA8E712B8932AdBB3bcd7e1d49Ea1E7cC0F58D"
         }
       }
+    },
+    "SolvBTC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x3647c54c4c2c65bc7a2d63c0da2809b399dbbdc0",
+      "Vault": "0x25a1baC7314Ff40Ee8CD549251924D066D7d5bC6",
+      "connectors": {
+        "7887": {
+          "FAST": "0x5817bF28f6f0B0215f310837BAB88A127d29aBF3"
+        }
+      },
+      "SenderHook": "0x8c09e47d3F82Bd052DB18D3b88634e78790cD16F"
     }
   }
 }
