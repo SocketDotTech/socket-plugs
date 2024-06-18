@@ -174,15 +174,18 @@ export const pc: ProjectConstants = {
           [ChainSlug.MAINNET]: {
             [IntegrationTypes.fast]: {
               receivingLimit: "4000000",
+              sendingLimit: "4000000",
             },
           },
           [ChainSlug.KINTO]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "4000000",
+              receivingLimit: "4000000",
             },
           },
           [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
+              sendingLimit: "4000000",
               receivingLimit: "4000000",
             },
           },
