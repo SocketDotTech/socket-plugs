@@ -63,7 +63,8 @@
         "7887": {
           "FAST": "0x73E0d4953c356a5Ca3A3D172739128776B2920b5"
         }
-      }
+      },
+      "SenderHook": "0x811160b151B7Bdc135b967feFA782C60EB5E25a6"
     },
     "EIGEN": {
       "isAppChain": false,
@@ -234,7 +235,8 @@
         "42161": {
           "FAST": "0x308FfeB31Ef41005A9AD2b6d30bD1aA98E64F045"
         }
-      }
+      },
+      "KintoHook": "0x89d7f72A6B9924c51fFf03EBB49F7e03182f6A96"
     },
     "EIGEN": {
       "isAppChain": true,
@@ -321,6 +323,17 @@
         }
       },
       "KintoHook": "0x36ec6dc8eb4563359D015c1d6518ab714876E890"
+    },
+    "SolvBTC": {
+      "isAppChain": true,
+      "MintableToken": "0x501B7c581aEf05b8DD6C4924338fCBE8f930ab46",
+      "Controller": "0xA2a13094baB725D6D9dd8b9B5c01F1a1bF67F986",
+      "KintoHook": "0x23322968FF5eC65770e70E5D5F3C6FABb23f2f55",
+      "connectors": {
+        "42161": {
+          "FAST": "0x7DBf4Ff0700DfE20af554aeD0c3E1b4099CdAbaa"
+        }
+      }
     }
   },
   "8453": {
@@ -433,7 +446,8 @@
         "7887": {
           "FAST": "0x70ae312d3f1c9116BF89db833DaDc060D4AD820F"
         }
-      }
+      },
+      "SenderHook": "0xc3293652D1065EC006AE5DEDbD10D4be4Afa4a0b"
     },
     "weETH": {
       "isAppChain": false,
