@@ -1,1 +1,23 @@
-{"version":"1.0","chainId":"1","createdAt":"2024-06-18T19:35:57.742Z","meta":{"name":"batch_1_2024-06-18T19:35:57.742Z","description":"","txBuilderVersion":"1.16.3","createdFromSafeAddress":"0xf152Abda9E4ce8b134eF22Dc3C6aCe19C4895D82","createdFromOwnerAddress":"","checksum":"0x5775bf968e745a455ff911fb7dae7cf59198dc8b49c11a011b0c6a71d2f3a0f8"},"transactions":[{"to":"0xdf34E61B6e7B9e348713d528fEB019d504d38c1e","value":"0","data":"0xaad48d80000000000000000000000000811160b151b7bdc135b967fefa782c60eb5e25a60000000000000000000000000000000000000000000000000000000000000000","operation":"1","contractMethod":null,"contractInputsValues":null}]}
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": "2024-06-18T19:35:57.742Z",
+  "meta": {
+    "name": "batch_1_2024-06-18T19:35:57.742Z",
+    "description": "",
+    "txBuilderVersion": "1.16.3",
+    "createdFromSafeAddress": "0xf152Abda9E4ce8b134eF22Dc3C6aCe19C4895D82",
+    "createdFromOwnerAddress": "",
+    "checksum": "0x5775bf968e745a455ff911fb7dae7cf59198dc8b49c11a011b0c6a71d2f3a0f8"
+  },
+  "transactions": [
+    {
+      "to": "0xdf34E61B6e7B9e348713d528fEB019d504d38c1e",
+      "value": "0",
+      "data": "0xaad48d80000000000000000000000000811160b151b7bdc135b967fefa782c60eb5e25a60000000000000000000000000000000000000000000000000000000000000000",
+      "operation": "1",
+      "contractMethod": null,
+      "contractInputsValues": null
+    }
+  ]
+}
