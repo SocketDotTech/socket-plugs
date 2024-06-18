@@ -51,6 +51,8 @@ import {
 import { configureHooks } from "./configureHook";
 import { Tokens } from "../../src/enums";
 import { ethers } from "hardhat";
+import { whitelistApp } from "@kinto-utils/dist/kinto";
+import { LEDGER } from "@kinto-utils/dist/utils/constants";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
@@ -147,6 +149,15 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
                 "function hasRole(bytes32 role, address account) view returns (bool)",
               ],
               socketSigner
+            );
+
+            // whitelist token on kinto wallet
+            const kintoWalletAddr = process.env.KINTO_OWNER_ADDRESS;
+            const privateKeys = [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER];
+            await whitelistApp(
+              kintoWalletAddr,
+              tokenInstance.address,
+              privateKeys
             );
 
             await checkAndGrantRole(
