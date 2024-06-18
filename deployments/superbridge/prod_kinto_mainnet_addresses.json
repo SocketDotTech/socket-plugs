@@ -59,7 +59,6 @@
       "isAppChain": false,
       "NonMintableToken": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
       "Vault": "0xdf34E61B6e7B9e348713d528fEB019d504d38c1e",
-      "SenderHook": "0xf03E3CCcA51980E7FfF022CDF27B7F8130fB4287",
       "connectors": {
         "7887": {
           "FAST": "0x73E0d4953c356a5Ca3A3D172739128776B2920b5"
@@ -235,8 +234,7 @@
         "42161": {
           "FAST": "0x308FfeB31Ef41005A9AD2b6d30bD1aA98E64F045"
         }
-      },
-      "KintoHook": "0x99eCeCD90EaCdbC2027805523C269fbb191412A4"
+      }
     },
     "EIGEN": {
       "isAppChain": true,
@@ -431,7 +429,6 @@
       "isAppChain": false,
       "NonMintableToken": "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34",
       "Vault": "0x7C852c2a3e367453Ce3a68A4D12c313BaD0565e3",
-      "SenderHook": "0xb5171461B9C218be160DEF09E98aF254Df0a0904",
       "connectors": {
         "7887": {
           "FAST": "0x70ae312d3f1c9116BF89db833DaDc060D4AD820F"
