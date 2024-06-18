@@ -17,7 +17,7 @@ struct SrcPreHookCallParams {
 struct SrcPostHookCallParams {
     address connector;
     bytes options;
-    bytes postSrcHookData;
+    bytes postHookData;
     TransferInfo transferInfo;
 }
 
@@ -43,14 +43,14 @@ struct PreRetryHookCallParams {
 struct PostRetryHookCallParams {
     address connector;
     bytes32 messageId;
-    bytes postRetryHookData;
+    bytes postHookData;
     CacheData cacheData;
 }
 
 struct TransferInfo {
     address receiver;
     uint256 amount;
-    bytes data;
+    bytes extraData;
 }
 
 struct CacheData {

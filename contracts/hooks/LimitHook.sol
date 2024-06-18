@@ -103,16 +103,12 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         external
         nonReentrant
         isVaultOrController
-        returns (
-            bytes memory postRetryHookData,
-            TransferInfo memory transferInfo
-        )
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
-        (address updatedReceiver, uint256 pendingMint, address connector) = abi
-            .decode(
-                params_.cacheData.identifierCache,
-                (address, uint256, address)
-            );
+        (address receiver, uint256 pendingMint, address connector) = abi.decode(
+            params_.cacheData.identifierCache,
+            (address, uint256, address)
+        );
 
         if (connector != params_.connector) revert InvalidConnector();
 
@@ -121,12 +117,8 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
             pendingMint
         );
 
-        postRetryHookData = abi.encode(
-            updatedReceiver,
-            consumedAmount,
-            pendingAmount
-        );
-        transferInfo = TransferInfo(updatedReceiver, consumedAmount, bytes(""));
+        postHookData = abi.encode(receiver, consumedAmount, pendingAmount);
+        transferInfo = TransferInfo(receiver, consumedAmount, bytes(""));
     }
 
     function postRetryHook(
@@ -137,16 +129,13 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         nonReentrant
         returns (CacheData memory cacheData)
     {
-        (
-            address updatedReceiver,
-            uint256 consumedAmount,
-            uint256 pendingAmount
-        ) = abi.decode(params_.postRetryHookData, (address, uint256, uint256));
+        (address receiver, uint256 consumedAmount, uint256 pendingAmount) = abi
+            .decode(params_.postHookData, (address, uint256, uint256));
 
         // code reaches here after minting/unlocking the pending amount
         emit PendingTokensBridged(
             params_.connector,
-            updatedReceiver,
+            receiver,
             consumedAmount,
             pendingAmount,
             params_.messageId
@@ -159,7 +148,7 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
             connectorPendingAmount - consumedAmount
         );
         cacheData.identifierCache = abi.encode(
-            updatedReceiver,
+            receiver,
             pendingAmount,
             params_.connector
         );

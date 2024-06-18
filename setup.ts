@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, lstatSync } from "fs";
 import { join } from "path";
 
 // Path to the script.ts file
@@ -24,11 +24,31 @@ function makeExecutable() {
 }
 
 function createSymlink() {
-  if (existsSync(symlinkPath)) {
-    execSync(`rm ${symlinkPath}`);
+  try {
+    if (existsSync(symlinkPath)) {
+      const stats = lstatSync(symlinkPath);
+      const removeCommand = stats.isSymbolicLink()
+        ? `unlink ${symlinkPath}`
+        : `rm -rf ${symlinkPath}`;
+      console.log(
+        `Removing existing ${
+          stats.isSymbolicLink() ? "symbolic link" : "file or directory"
+        }...`
+      );
+      execSync(removeCommand);
+      console.log(
+        `Existing ${
+          stats.isSymbolicLink() ? "symbolic link" : "file or directory"
+        } removed.`
+      );
+    }
+
+    console.log("Creating new symbolic link...");
+    execSync(`ln -s ${scriptPath} ${symlinkPath}`);
+    console.log(`Symbolic link created at ${symlinkPath}`);
+  } catch (err) {
+    console.error("Error creating symbolic link", err);
   }
-  execSync(`ln -s ${scriptPath} ${symlinkPath}`);
-  console.log(`Symbolic link created at ${symlinkPath}`);
 }
 
 function ensureTsNode() {

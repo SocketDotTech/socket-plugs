@@ -46,7 +46,7 @@
     "abi": "hardhat export-abi",
     "compile": "forge build",
     "test": "forge test",
-    "setup:all": "forge install && yarn install && yarn build && yarn setup:dependencies && yarn setup:socket",
+    "setup:all": "forge install && yarn install && yarn setup:dependencies && yarn build && yarn setup:socket",
     "setup:dependencies": "yarn && yarn add @socket.tech/dl-core",
     "script:setup": "yarn setup:dependencies && npx ts-node script/setup.ts",
     "script:deploy": "npx hardhat run script/deploy.ts",

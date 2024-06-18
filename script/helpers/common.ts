@@ -22,6 +22,7 @@ import {
   getProjectType,
   isSuperBridge,
   isSuperToken,
+  getDryRun,
 } from "../constants/config";
 import {
   getLimitBN,
@@ -54,8 +55,9 @@ export const updateConnectorStatus = async (
         siblingConnectorAddresses[it];
       if (!itConnectorAddress) continue;
 
-      let currentConnectorStatus =
-        await bridgeContract.callStatic.validConnectors(itConnectorAddress);
+      let currentConnectorStatus = getDryRun()
+        ? false
+        : await bridgeContract.callStatic.validConnectors(itConnectorAddress);
       if (currentConnectorStatus !== newConnectorStatus) {
         connectorAddresses.push(itConnectorAddress);
       }
@@ -164,7 +166,7 @@ export const getHookContract = async (
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
 
-  let contract: Contract,
+  let contract: Contract | undefined,
     address: string = "",
     contractName: string = "";
 
@@ -211,8 +213,34 @@ export const checkAndGrantRole = async (
   roleHash: string = "",
   userAddress: string
 ) => {
+  let hasRole: boolean | undefined;
+
+  // Do checks first
   try {
-    let hasRole = await contract.hasRole(roleHash, userAddress);
+    // Check first if the contract has the function `hasRole`
+    hasRole = await contract.hasRole(roleHash, userAddress);
+
+    // Get owner and signer
+    const owner = await contract.owner();
+    const signer = getSignerFromChainSlug(chain);
+    console.log({ owner, signer });
+
+    // Check if the signer is the owner
+    if (owner !== signer.address) {
+      console.log(
+        `✔   Signer is not the owner of the contract, ask the owner to grant the role`
+      );
+      return; // Exit the function if the signer is not the owner
+    }
+  } catch (error) {
+    console.log(
+      "✔   Contract does not have the function `hasRole`, using custom contract, check with owner"
+    );
+    return; // Exit the function if the contract does not have the function `hasRole`
+  }
+
+  // Grant the role if the user does not have it
+  try {
     if (!hasRole) {
       console.log(
         `Adding ${roleName} role to signer`,
@@ -231,8 +259,7 @@ export const checkAndGrantRole = async (
     }
   } catch (error) {
     console.log(
-      "Error, while granting role. You might be using an already Deployed contract, please ask the owner to grant the role.",
-      error
+      "✗   Error, while granting role. You might be using an already Deployed contract, please ask the owner to grant the role."
     );
   }
 };
@@ -262,19 +289,20 @@ export const updateLimitsAndPoolId = async (
         siblingConnectorAddresses[it];
       if (!itConnectorAddress) continue;
       // console.log({ itConnectorAddress });
-      let sendingParams = await hookContract.getSendingLimitParams(
-        itConnectorAddress
-      );
+      let sendingParams = getDryRun()
+        ? {}
+        : await hookContract.getSendingLimitParams(itConnectorAddress);
 
       // console.log({ sendingParams });
-      let receivingParams = await hookContract.getReceivingLimitParams(
-        itConnectorAddress
-      );
+      let receivingParams = getDryRun()
+        ? {}
+        : await hookContract.getReceivingLimitParams(itConnectorAddress);
 
       // mint/lock/deposit limits
       const sendingLimit = getLimitBN(it, chain, token, true);
       const sendingRate = getRateBN(it, chain, token, true);
       if (
+        getDryRun() ||
         !sendingLimit.eq(sendingParams["maxLimit"]) ||
         !sendingRate.eq(sendingParams["ratePerSecond"])
       ) {
@@ -294,6 +322,7 @@ export const updateLimitsAndPoolId = async (
       const receivingRate = getRateBN(it, chain, token, false);
 
       if (
+        getDryRun() ||
         !receivingLimit.eq(receivingParams["maxLimit"]) ||
         !receivingRate.eq(receivingParams["ratePerSecond"])
       ) {
@@ -315,9 +344,9 @@ export const updateLimitsAndPoolId = async (
         // chain !== ChainSlug.AEVO &&
         // chain !== ChainSlug.AEVO_TESTNET
       ) {
-        const poolId: BigNumber = await hookContract.connectorPoolIds(
-          itConnectorAddress
-        );
+        const poolId: BigNumber = getDryRun()
+          ? BigNumber.from(0)
+          : await hookContract.connectorPoolIds(itConnectorAddress);
         // console.log({ itConnectorAddress, poolId });
         const poolIdHex =
           "0x" + BigInt(poolId.toString()).toString(16).padStart(64, "0");

@@ -10,6 +10,9 @@ import {
 } from "../../src";
 import { getHookContract, updateLimitsAndPoolId } from "../helpers/common";
 import { Tokens } from "../../src/enums";
+import { getDryRun } from "../constants/config";
+import { constants } from "ethers";
+const { AddressZero } = constants;
 
 export const configureHooks = async (
   chain: ChainSlug,
@@ -68,7 +71,9 @@ export const setHookInBridge = async (
   bridgeContract: Contract,
   hookContract: Contract
 ) => {
-  let storedHookAddress = await bridgeContract.hook__();
+  let storedHookAddress = getDryRun()
+    ? AddressZero
+    : await bridgeContract.hook__();
   if (storedHookAddress === hookContract.address) {
     console.log(`✔   Hook already set on Bridge for chain ${chain}`);
     return;

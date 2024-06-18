@@ -3,6 +3,9 @@ import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
+import { getDryRun } from "../constants/config";
+import { constants } from "ethers";
+const { AddressZero } = constants;
 
 export const deployHookContracts = async (
   useConnnectorPools: boolean,
@@ -55,7 +58,9 @@ export const deployHookContracts = async (
     args,
     deployParams
   );
-  deployParams.addresses[contractName] = hookContract.address;
+  deployParams.addresses[contractName] = getDryRun()
+    ? AddressZero
+    : hookContract.address;
 
   // console.log(deployParams.addresses);
   console.log(deployParams.currentChainSlug, "Hook Contracts deployed! ✔");

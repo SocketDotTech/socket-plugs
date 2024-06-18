@@ -16,16 +16,13 @@ import { StaticJsonRpcProvider } from "@ethersproject/providers";
 
 import { ProjectType } from "../../src";
 
-export let allDeploymentPath: string;
 export const getAllDeploymentPath = (
   projectType: ProjectType = getProjectType()
 ) => {
-  if (allDeploymentPath) return allDeploymentPath;
-  allDeploymentPath = path.join(
+  return path.join(
     __dirname,
     `/../../deployments/${projectType}/${getMode()}_addresses.json`
   );
-  return allDeploymentPath;
 };
 
 export let deploymentPath: string;

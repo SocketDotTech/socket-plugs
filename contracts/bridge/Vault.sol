@@ -29,7 +29,7 @@ contract Vault is Base {
      * @param amount_ The amount of tokens to bridge.
      * @param msgGasLimit_ The gas limit for the execution of the bridging process.
      * @param connector_ The address of the connector contract responsible for the bridge.
-     * @param execPayload_ The payload for executing the bridging process on the connector.
+     * @param extraData_ The extra data passed to hook functions.
      * @param options_ Additional options for the bridging process.
      */
     function bridge(
@@ -37,7 +37,7 @@ contract Vault is Base {
         uint256 amount_,
         uint256 msgGasLimit_,
         address connector_,
-        bytes calldata execPayload_,
+        bytes calldata extraData_,
         bytes calldata options_
     ) external payable nonReentrant {
         (
@@ -45,7 +45,7 @@ contract Vault is Base {
             bytes memory postHookData
         ) = _beforeBridge(
                 connector_,
-                TransferInfo(receiver_, amount_, execPayload_)
+                TransferInfo(receiver_, amount_, extraData_)
             );
 
         _receiveTokens(transferInfo.amount);
@@ -104,12 +104,12 @@ contract Vault is Base {
         bytes32 messageId_
     ) external nonReentrant {
         (
-            bytes memory postRetryHookData,
+            bytes memory postHookData,
             TransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
         _transferTokens(transferInfo.receiver, transferInfo.amount);
 
-        _afterRetry(connector_, messageId_, postRetryHookData);
+        _afterRetry(connector_, messageId_, postHookData);
     }
 
     function _transferTokens(address receiver_, uint256 amount_) internal {

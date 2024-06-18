@@ -126,7 +126,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
      * @param msgGasLimit_ The gas limit for the outbound call.
      * @param connector_ The address of the connector responsible for the transfer.
      * @param options_ Additional options for the outbound call.
-     * @param postSrcHookData_ Data returned from the source post-hook call.
+     * @param postHookData_ Data returned from the source post-hook call.
      * @param transferInfo_ Information about the transfer.
      * @dev Reverts with `MessageIdMisMatched` if the returned message ID does not match the expected message ID.
      */
@@ -134,7 +134,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
         uint256 msgGasLimit_,
         address connector_,
         bytes memory options_,
-        bytes memory postSrcHookData_,
+        bytes memory postHookData_,
         TransferInfo memory transferInfo_
     ) internal {
         TransferInfo memory transferInfo = transferInfo_;
@@ -143,7 +143,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
                 SrcPostHookCallParams(
                     connector_,
                     options_,
-                    postSrcHookData_,
+                    postHookData_,
                     transferInfo_
                 )
             );
@@ -162,7 +162,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
                 transferInfo.receiver,
                 transferInfo.amount,
                 messageId,
-                transferInfo.data
+                transferInfo.extraData
             ),
             options_
         );
@@ -260,7 +260,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
      * and executes the pre-retry hook if defined.
      * @param connector_ The address of the connector responsible for the failed transaction.
      * @param messageId_ The unique identifier for the failed transaction.
-     * @return postRetryHookData Data returned from the pre-retry hook call.
+     * @return postHookData Data returned from the pre-retry hook call.
      * @return transferInfo Information about the transfer.
      * @dev Reverts with `InvalidConnector` if the connector is not valid.
      * Reverts with `NoPendingData` if there is no pending data for the given message ID.
@@ -270,10 +270,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
         bytes32 messageId_
     )
         internal
-        returns (
-            bytes memory postRetryHookData,
-            TransferInfo memory transferInfo
-        )
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         if (!validConnectors[connector_]) revert InvalidConnector();
 
@@ -283,7 +280,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
         );
 
         if (cacheData.identifierCache.length == 0) revert NoPendingData();
-        (postRetryHookData, transferInfo) = hook__.preRetryHook(
+        (postHookData, transferInfo) = hook__.preRetryHook(
             PreRetryHookCallParams(connector_, cacheData)
         );
     }
@@ -295,12 +292,12 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
      * and updates cache data.
      * @param connector_ The address of the connector responsible for the failed transaction.
      * @param messageId_ The unique identifier for the failed transaction.
-     * @param postRetryHookData Data returned from the pre-retry hook call.
+     * @param postHookData Data returned from the pre-retry hook call.
      */
     function _afterRetry(
         address connector_,
         bytes32 messageId_,
-        bytes memory postRetryHookData
+        bytes memory postHookData
     ) internal {
         CacheData memory cacheData = CacheData(
             identifierCache[messageId_],
@@ -311,7 +308,7 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
             PostRetryHookCallParams(
                 connector_,
                 messageId_,
-                postRetryHookData,
+                postHookData,
                 cacheData
             )
         );

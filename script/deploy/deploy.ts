@@ -17,6 +17,7 @@ import {
   isSuperToken,
   getConfigs,
   printConfigs,
+  getDryRun,
 } from "../constants/config";
 import {
   createObj,
@@ -48,6 +49,9 @@ import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract } from "../helpers/common";
 import { Project, Tokens } from "../../src/enums";
 import { parseUnits } from "ethers/lib/utils";
+
+import { constants } from "ethers";
+const { AddressZero } = constants;
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
@@ -226,7 +230,7 @@ const deployConnectors = async (
       deployParams.addresses = createObj(
         deployParams.addresses,
         ["connectors", sibling.toString(), intType],
-        connector.address
+        getDryRun() ? AddressZero : connector.address
       );
     }
 
@@ -291,8 +295,9 @@ const deployControllerChainContracts = async (
       deployParams
     );
 
-    deployParams.addresses[SuperBridgeContracts.Controller] =
-      controller.address;
+    deployParams.addresses[SuperBridgeContracts.Controller] = getDryRun()
+      ? AddressZero
+      : controller.address;
 
     deployParams = await deployHookContracts(true, deployParams);
     console.log(
@@ -335,7 +340,9 @@ const deployVaultChainContracts = async (
       deployParams
     );
 
-    deployParams.addresses[SuperBridgeContracts.Vault] = vault.address;
+    deployParams.addresses[SuperBridgeContracts.Vault] = getDryRun()
+      ? AddressZero
+      : vault.address;
 
     deployParams = await deployHookContracts(false, deployParams);
     console.log(
