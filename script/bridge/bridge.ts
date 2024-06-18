@@ -16,7 +16,7 @@ import { tokenDecimals } from "../../src/enums";
 
 const srcChain = ChainSlug.ARBITRUM_SEPOLIA;
 const dstChain = ChainSlug.SYNDR_SEPOLIA_L3;
-const amount = "100";
+const amount = "0";
 // const amount = "1";
 
 const gasLimit = 500_000;

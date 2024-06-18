@@ -74,13 +74,16 @@
       "STIME": "0x17AfF554423D2C40A1BBF51b443E9d43dd8AE1eb"
     },
     "421614": {
-      "USDC": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+      "USDC": "0x3e496788Ff59aefd51e52832C8c35dB262D52708",
       "USDT": "0x66DFb9987C36c4be232156e70B085f664367599A",
       "DAI": "0x9a573B27D7298c6E2f4d2D4a41c37A0C8AF6accA",
       "WETH": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
       "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
       "MTK": "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
       "WBTC": "0x1019958C2BD43B882a4e1349337a32Ef9563FC4D"
+    },
+    "444444": {
+      "USDC": "0x87C0C1cFE792d8F3aC97CfcE852a352fC5aF37CE"
     },
     "11155111": {
       "USDC": "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
@@ -141,7 +144,8 @@
     "adg_mainnet",
     "aavegotchi_mainnet",
     "timeswap_test_mainnet",
-    "testing_testnet"
+    "testing_testnet",
+    "syndr_testnet"
   ],
   "tokens": [
     "MOON",
