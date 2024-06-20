@@ -198,9 +198,15 @@ const connect = async (
 
         if (!switchboard) {
           console.log(
-            `switchboard not found for ${chain}, ${sibling}, ${integration}`
+            `✗   Switchboard not found for chain: ${chain}, sibling: ${sibling}, integration: ${integration}.\n`,
+            `   Please update the dl-core package with the latest constants.\n`,
+            `   If the issue persists, it means chains ${sibling} and ${chain} are not connected yet. Please contact the Socket team for assistance.`
+          );
+          throw Error(
+            `Switchboard not found for ${chain}, ${sibling}, ${integration}`
           );
         }
+
         // console.log(
         //   { localConnectorPlug, sibling, switchboard },
         //   socketContract.address
