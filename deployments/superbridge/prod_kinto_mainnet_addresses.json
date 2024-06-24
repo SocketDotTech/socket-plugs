@@ -142,6 +142,17 @@
           "FAST": "0xdE9D8c2d465669c661672d7945D4d4f5407d22E2"
         }
       }
+    },
+    "KINTO": {
+      "isAppChain": false,
+      "NonMintableToken": "0x2367C8395a283f0285c6E312D5aA15826f1fEA25",
+      "Vault": "0x2f87464d5F5356dB350dcb302FE28040986783a7",
+      "SenderHook": "0x7851Dfc291573eaa50b25755ccDf059D0FD5029c",
+      "connectors": {
+        "7887": {
+          "FAST": "0xA7384185a6428e6B0D33199256fE67b6fA5D8e40"
+        }
+      }
     }
   },
   "7887": {
