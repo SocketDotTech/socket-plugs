@@ -20,4 +20,5 @@ export enum Tokens {
   weETH = "weETH",
   ETHFI = "ETHFI",
   SolvBTC = "SolvBTC",
+  KINTO = "KINTO",
 }

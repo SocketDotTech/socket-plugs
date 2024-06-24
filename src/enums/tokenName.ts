@@ -22,4 +22,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.weETH]: "Wrapped eETH",
   [Tokens.ETHFI]: "ether.fi governance token",
   [Tokens.SolvBTC]: "ether.fi governance token",
+  [Tokens.KINTO]: "Kinto Token",
 };
