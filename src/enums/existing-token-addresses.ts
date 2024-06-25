@@ -22,6 +22,7 @@ export const ExistingTokenAddresses: {
     [Tokens.eETH]: "0x35fA164735182de50811E8e2E824cFb9B6118ac2",
     [Tokens.EIGEN]: "0xec53bF9167f50cDEB3Ae105f56099aaaB9061F83",
     [Tokens.ETHFI]: "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
+    [Tokens.KINTO]: "0x2367C8395a283f0285c6E312D5aA15826f1fEA25",
   },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDCE]: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
@@ -92,6 +93,7 @@ export const ExistingTokenAddresses: {
     [Tokens.EIGEN]: "0xe16E00eeFCd866e8aE5a4e43bBdd6831da6391E1",
     [Tokens.ETHFI]: "0xe70F10CD4bD932a28b80d48D771026a4c88E6285",
     [Tokens.SolvBTC]: "0x501B7c581aEf05b8DD6C4924338fCBE8f930ab46",
+    [Tokens.KINTO]: "0x010700808D59d2bb92257fCafACfe8e5bFF7aB87",
   },
   [ChainSlug.POLYGON_MAINNET]: {
     [Tokens.USDCE]: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
