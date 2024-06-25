@@ -535,6 +535,36 @@
   ],
   "7887": [
     [
+      "0x0bf0dcEfa8d7E31d18cEf882A74499FA277F088C",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xE1857425c14afe4142cE4df1eCb3439f194d5D1b",
+        "0x3e9727470C66B1e77034590926CDe0242B5A3dCc",
+        1
+      ]
+    ],
+    [
+      "0x3286C8e295b90347a9aC3cFb3d9465279FE8446f",
+      "KintoHook",
+      "contracts/hooks/KintoHook.sol",
+      [
+        "0x2e2B1c42E38f5af81771e65D87729E57ABD1337a",
+        "0xE1857425c14afe4142cE4df1eCb3439f194d5D1b",
+        true,
+        "0xf369f78E3A0492CC4e96a90dae0728A38498e9c7",
+        "0x8a4720488CA32f1223ccFE5A087e250fE3BC5D75"
+      ]
+    ],
+    [
+      "0xE1857425c14afe4142cE4df1eCb3439f194d5D1b",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      [
+        "0x010700808D59d2bb92257fCafACfe8e5bFF7aB87"
+      ]
+    ],
+    [
       "0x89d7f72A6B9924c51fFf03EBB49F7e03182f6A96",
       "KintoHook",
       "contracts/hooks/KintoHook.sol",

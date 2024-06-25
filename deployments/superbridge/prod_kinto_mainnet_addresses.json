@@ -345,6 +345,17 @@
           "FAST": "0x7DBf4Ff0700DfE20af554aeD0c3E1b4099CdAbaa"
         }
       }
+    },
+    "KINTO": {
+      "isAppChain": true,
+      "MintableToken": "0x010700808D59d2bb92257fCafACfe8e5bFF7aB87",
+      "Controller": "0xE1857425c14afe4142cE4df1eCb3439f194d5D1b",
+      "KintoHook": "0x3286C8e295b90347a9aC3cFb3d9465279FE8446f",
+      "connectors": {
+        "1": {
+          "FAST": "0x0bf0dcEfa8d7E31d18cEf882A74499FA277F088C"
+        }
+      }
     }
   },
   "8453": {

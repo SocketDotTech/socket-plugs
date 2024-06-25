@@ -1733,6 +1733,17 @@
   },
   "kinto_mainnet": {
     "1": {
+      "KINTO": {
+        "isAppChain": false,
+        "NonMintableToken": "0x2367C8395a283f0285c6E312D5aA15826f1fEA25",
+        "Vault": "0x2f87464d5F5356dB350dcb302FE28040986783a7",
+        "SenderHook": "0x7851Dfc291573eaa50b25755ccDf059D0FD5029c",
+        "connectors": {
+          "7887": {
+            "FAST": "0xA7384185a6428e6B0D33199256fE67b6fA5D8e40"
+          }
+        }
+      },
       "USDe": {
         "isAppChain": false,
         "NonMintableToken": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
@@ -1746,6 +1757,17 @@
       }
     },
     "7887": {
+      "KINTO": {
+        "isAppChain": true,
+        "MintableToken": "0x010700808D59d2bb92257fCafACfe8e5bFF7aB87",
+        "Controller": "0xE1857425c14afe4142cE4df1eCb3439f194d5D1b",
+        "KintoHook": "0x3286C8e295b90347a9aC3cFb3d9465279FE8446f",
+        "connectors": {
+          "1": {
+            "FAST": "0x0bf0dcEfa8d7E31d18cEf882A74499FA277F088C"
+          }
+        }
+      },
       "SolvBTC": {
         "isAppChain": true,
         "MintableToken": "0x501B7c581aEf05b8DD6C4924338fCBE8f930ab46",
