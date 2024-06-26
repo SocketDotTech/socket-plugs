@@ -67,7 +67,7 @@ socket new
 
 Follow the prompts to create a new project. This will create a new project in `scripts/constants/projectConstants/supertoken/projectname_<mainnet/testnet>.ts` or `scripts/constants/projectConstants/superbridge/projectname_<mainnet/testnet>.ts`.
 
-**Note:** Custom setups are possible on superbridge, where multiple tokens on vault chain are mapped to the same token on app chain. For these check out the **Project Constants Help Guide** section and reach out to team for more info.
+**Note:** SuperBridge allows custom setups where multiple tokens on the vault chain can be mapped to a single token on the app chain. For more information, refer to the **Project Constants Help Guide** section and contact the team for assistance.
 
 **Note:** this scripts updates your .env to add relevant env variables. If you have anything sensitive/important in .env file, please take a backup first.
 
@@ -104,13 +104,13 @@ yarn script:verify --network <your network>
 
 - **Vault Chains** - The chains where the token contract is already deployed, and the token will be locked/unlocked for bridging.
 
-  - For superbridge, we will have ≥1 vault chains where we will bridge from.
-  - For supertoken, if the token is already deployed on a chain, then that chain will be a vault chain. If it is a fresh supertoken deployment (token does not exist on any chain), there will be no vault chains. Therefore, for supertoken, the number of vault chains ≤1.
+  - For SuperBridge, we will have ≥1 vault chains where we will bridge from.
+  - For SuperToken, if the token is already deployed on a chain, then that chain will be a vault chain. If it is a fresh SuperToken deployment (token does not exist on any chain), there will be no vault chains. Therefore, for SuperToken, the number of vault chains ≤1.
 
 - **Controller Chains** - The chains where the token is minted/burned.
 
-  - For superbridge, this will be the new chain where users are bridging. There will be only 1 controller chain (app chain) for superbridge.
-  - For supertoken, all the chains (except the one where the token is deployed) are controller chains, as the token is minted/burned. The number of controller chains ≥1.
+  - For SuperBridge, this will be the new chain where users are bridging. There will be only 1 controller chain (app chain) for SuperBridge.
+  - For SuperToken, all the chains (except the one where the token is deployed) are controller chains, as the token is minted/burned. The number of controller chains ≥1.
   - Note: If you are not able to find your chain in the list of chains during setup, check if the chain already has socket core contracts deployed, and if you have updated the @socket.tech/dl-core package.
 
 - **Hooks** - Hooks are plugins that can be added for extra functionality. We have 2 options for hooks right now:
@@ -130,10 +130,15 @@ yarn script:verify --network <your network>
   - FAST: This is the default integration type. It uses socket's 1/n security model to verify messages. Bridging time is ~5-10 mins.
   - OPTIMISTIC: This integration type uses an optimistic security model, where messages are executed after 2 hours.
   - NATIVE_BRIDGE: This uses the native messaging bridge of underlying chains. This provides the security of NATIVE bridges.
-- **Pool Count** - This only applies for superbridge. Normally, we don't need to specify this and have a default value of 0.
+- **Pool Count** - This only applies for SuperBridge. Normally, we don't need to specify this and have a default value of 0.
   - When we are bridging out from an App chain (controller chain), we check if the destination chain has enough liquidity to allow the user to bridge successfully. This accounting is done in poolPlugin.
   - We support different paths for bridging, i.e., FAST, OPTIMISTIC, and NATIVE_BRIDGE. If a user bridges to a chain using the NATIVE_BRIDGE path and wants to withdraw using the FAST path, we can allow the user to do that by keeping the poolCount for both paths the same. If we don't want to allow this, we can restrict this behavior by keeping the poolId different.
-  - Pool count can also be used for deployments where 2 or more tokens on vault side are mapped to the same token on app chain. Egs for these include USDC, USDC.e mapped to single USDC instance on app chain. ETH, WETH mapped to single WETH on app chain. In such deployments, it makes sense to do seperate accounting of both vaults since they are different assets. We recommend changing the poolCount for one of the token vaults. Convention to follow is 0 for USDC, 1 for USDC.e, 0 for ETH, 1 for WETH.
+  - Pool count can also be used for deployments where two or more tokens on the vault chain are mapped to the same token on the App chain. Examples of this include: USDC and USDC.e mapped to a single USDC instance on the App chain, ETH and WETH mapped to a single WETH instance on the App chain.
+    In such deployments, it is recommended to separate accounting for both vaults since they are responsible for different assets. We recommend changing the poolCount for one of the token vaults. The convention to follow is:
+    - 0 for USDC
+    - 1 for USDC.e
+    - 0 for ETH
+    - 1 for WETH
 
 ## Test
 
