@@ -67,6 +67,8 @@ socket new
 
 Follow the prompts to create a new project. This will create a new project in `scripts/constants/projectConstants/supertoken/projectname_<mainnet/testnet>.ts` or `scripts/constants/projectConstants/superbridge/projectname_<mainnet/testnet>.ts`.
 
+**Note:** Custom setups are possible on superbridge, where multiple tokens on vault chain are mapped to the same token on app chain. For these check out the **Project Constants Help Guide** section and reach out to team for more info.
+
 **Note:** this scripts updates your .env to add relevant env variables. If you have anything sensitive/important in .env file, please take a backup first.
 
 ## SuperBridge requirements
@@ -131,6 +133,7 @@ yarn script:verify --network <your network>
 - **Pool Count** - This only applies for superbridge. Normally, we don't need to specify this and have a default value of 0.
   - When we are bridging out from an App chain (controller chain), we check if the destination chain has enough liquidity to allow the user to bridge successfully. This accounting is done in poolPlugin.
   - We support different paths for bridging, i.e., FAST, OPTIMISTIC, and NATIVE_BRIDGE. If a user bridges to a chain using the NATIVE_BRIDGE path and wants to withdraw using the FAST path, we can allow the user to do that by keeping the poolCount for both paths the same. If we don't want to allow this, we can restrict this behavior by keeping the poolId different.
+  - Pool count can also be used for deployments where 2 or more tokens on vault side are mapped to the same token on app chain. Egs for these include USDC, USDC.e mapped to single USDC instance on app chain. ETH, WETH mapped to single WETH on app chain. In such deployments, it makes sense to do seperate accounting of both vaults since they are different assets. We recommend changing the poolCount for one of the token vaults. Convention to follow is 0 for USDC, 1 for USDC.e, 0 for ETH, 1 for WETH.
 
 ## Test
 
