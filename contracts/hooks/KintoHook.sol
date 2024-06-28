@@ -3,7 +3,7 @@ pragma solidity 0.8.13;
 
 import "./LimitHook.sol";
 
-import 'forge-std/console2.sol';
+import "forge-std/console2.sol";
 
 interface IKintoID {
     function isKYC(address) external view returns (bool);
@@ -48,9 +48,13 @@ contract KintoHook is LimitHook {
      * @param kintoID_ KintoID contract address.
      * @param kintoFactory_ KintoFactory contract address.
      */
-    constructor(address owner_, address controller_, bool useControllerPools_, address kintoID_, address kintoFactory_)
-        LimitHook(owner_, controller_, useControllerPools_)
-    {
+    constructor(
+        address owner_,
+        address controller_,
+        bool useControllerPools_,
+        address kintoID_,
+        address kintoFactory_
+    ) LimitHook(owner_, controller_, useControllerPools_) {
         hookType = keccak256("KINTO");
         kintoID = IKintoID(kintoID_);
         kintoFactory = IKintoFactory(kintoFactory_);
@@ -76,7 +80,9 @@ contract KintoHook is LimitHook {
      * @dev called when Kinto user wants to "withdraw" (bridge out). Checks if sender is a KintoWallet,
      * if the wallet's signer is KYC'd and if the receiver of the funds is whitelisted.
      */
-    function srcPreHookCall(SrcPreHookCallParams memory params_)
+    function srcPreHookCall(
+        SrcPreHookCallParams memory params_
+    )
         public
         override
         isVaultOrController
@@ -91,13 +97,9 @@ contract KintoHook is LimitHook {
         return super.srcPreHookCall(params_);
     }
 
-    function srcPostHookCall(SrcPostHookCallParams memory params_)
-        public
-        view
-        override
-        isVaultOrController
-        returns (TransferInfo memory)
-    {
+    function srcPostHookCall(
+        SrcPostHookCallParams memory params_
+    ) public view override isVaultOrController returns (TransferInfo memory) {
         return super.srcPostHookCall(params_);
     }
 
@@ -109,7 +111,9 @@ contract KintoHook is LimitHook {
      * The "original sender" is passed as an encoded param through the SenderHook.
      * If the sender is not in the allowlist (e.g Bridger L1), it checks it's whitelisted on the receiver's KintoWallet.
      */
-    function dstPreHookCall(DstPreHookCallParams memory params_)
+    function dstPreHookCall(
+        DstPreHookCallParams memory params_
+    )
         public
         override
         isVaultOrController
@@ -137,12 +141,9 @@ contract KintoHook is LimitHook {
         return super.dstPreHookCall(params_);
     }
 
-    function dstPostHookCall(DstPostHookCallParams memory params_)
-        public
-        override
-        isVaultOrController
-        returns (CacheData memory cacheData)
-    {
+    function dstPostHookCall(
+        DstPostHookCallParams memory params_
+    ) public override isVaultOrController returns (CacheData memory cacheData) {
         return super.dstPostHookCall(params_);
     }
 }

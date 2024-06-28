@@ -71,7 +71,13 @@ contract TestKintoHook is Test {
         _siblingSlug1 = uint32(_c++);
         _siblingSlug2 = uint32(_c++);
 
-        kintoHook__ = new KintoHook(_admin, controller__, false, kintoId__, kintoFactory__);
+        kintoHook__ = new KintoHook(
+            _admin,
+            controller__,
+            false,
+            kintoId__,
+            kintoFactory__
+        );
         _token = new MintableToken("Moon", "MOON", 18);
         _token.mint(_admin, _initialSupply);
         _token.mint(_raju, _rajuInitialBal);
@@ -98,14 +104,33 @@ contract TestKintoHook is Test {
     function testUpdateLimitParams() external {
         _setLimits();
 
-        LimitParams memory burnLimitParams = kintoHook__.getSendingLimitParams(_connector1);
-        LimitParams memory mintLimitParams = kintoHook__.getReceivingLimitParams(_connector1);
+        LimitParams memory burnLimitParams = kintoHook__.getSendingLimitParams(
+            _connector1
+        );
+        LimitParams memory mintLimitParams = kintoHook__
+            .getReceivingLimitParams(_connector1);
 
-        assertEq(burnLimitParams.maxLimit, _burnMaxLimit, "burn max limit not updated");
-        assertEq(burnLimitParams.ratePerSecond, _burnRate, "burn rate not updated");
+        assertEq(
+            burnLimitParams.maxLimit,
+            _burnMaxLimit,
+            "burn max limit not updated"
+        );
+        assertEq(
+            burnLimitParams.ratePerSecond,
+            _burnRate,
+            "burn rate not updated"
+        );
 
-        assertEq(mintLimitParams.maxLimit, _mintMaxLimit, "mint max limit not updated");
-        assertEq(mintLimitParams.ratePerSecond, _mintRate, "mint rate not updated");
+        assertEq(
+            mintLimitParams.maxLimit,
+            _mintMaxLimit,
+            "mint max limit not updated"
+        );
+        assertEq(
+            mintLimitParams.ratePerSecond,
+            _mintRate,
+            "mint rate not updated"
+        );
     }
 
     function testUpdateLimitParamsRaju() external {
@@ -114,7 +139,12 @@ contract TestKintoHook is Test {
         u[1] = UpdateLimitParams(false, _connector1, _burnMaxLimit, _burnRate);
 
         vm.prank(_raju);
-        vm.expectRevert(abi.encodeWithSelector(AccessControl.NoPermit.selector, LIMIT_UPDATER_ROLE));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                AccessControl.NoPermit.selector,
+                LIMIT_UPDATER_ROLE
+            )
+        );
         kintoHook__.updateLimitParams(u);
     }
 
@@ -133,9 +163,15 @@ contract TestKintoHook is Test {
 
         vm.startPrank(controller__);
 
-        vm.expectRevert(abi.encodeWithSelector(KintoHook.InvalidSender.selector, sender));
+        vm.expectRevert(
+            abi.encodeWithSelector(KintoHook.InvalidSender.selector, sender)
+        );
         kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(_connector1, address(sender), TransferInfo(receiver, withdrawAmount, bytes("")))
+            SrcPreHookCallParams(
+                _connector1,
+                address(sender),
+                TransferInfo(receiver, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
@@ -159,7 +195,11 @@ contract TestKintoHook is Test {
 
         vm.expectRevert(KintoHook.KYCRequired.selector);
         kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(_connector1, address(sender), TransferInfo(receiver, withdrawAmount, bytes("")))
+            SrcPreHookCallParams(
+                _connector1,
+                address(sender),
+                TransferInfo(receiver, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
@@ -178,7 +218,11 @@ contract TestKintoHook is Test {
         vm.startPrank(controller__);
 
         kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(_connector1, address(sender), TransferInfo(receiver, withdrawAmount, bytes("")))
+            SrcPreHookCallParams(
+                _connector1,
+                address(sender),
+                TransferInfo(receiver, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
@@ -206,7 +250,11 @@ contract TestKintoHook is Test {
         vm.startPrank(controller__);
 
         kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(_connector1, address(sender), TransferInfo(receiver, withdrawAmount, bytes("")))
+            SrcPreHookCallParams(
+                _connector1,
+                address(sender),
+                TransferInfo(receiver, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
@@ -225,7 +273,11 @@ contract TestKintoHook is Test {
         vm.startPrank(_admin);
         vm.expectRevert(NotAuthorized.selector);
         kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(_otherConnector, address(_raju), TransferInfo(_raju, withdrawAmount, bytes("")))
+            SrcPreHookCallParams(
+                _otherConnector,
+                address(_raju),
+                TransferInfo(_raju, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
@@ -245,7 +297,11 @@ contract TestKintoHook is Test {
 
         vm.expectRevert(SiblingNotSupported.selector);
         kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(_otherConnector, address(sender), TransferInfo(receiver, withdrawAmount, bytes("")))
+            SrcPreHookCallParams(
+                _otherConnector,
+                address(sender),
+                TransferInfo(receiver, withdrawAmount, bytes(""))
+            )
         );
         vm.stopPrank();
     }
@@ -256,23 +312,39 @@ contract TestKintoHook is Test {
         address sender = kintoWallet__;
         address receiver = kintoWalletSigner__;
 
-        uint256 burnLimitBefore = kintoHook__.getCurrentSendingLimit(_connector1);
+        uint256 burnLimitBefore = kintoHook__.getCurrentSendingLimit(
+            _connector1
+        );
 
-        assertTrue(withdrawAmount <= kintoHook__.getCurrentSendingLimit(_connector1), "too big withdraw");
+        assertTrue(
+            withdrawAmount <= kintoHook__.getCurrentSendingLimit(_connector1),
+            "too big withdraw"
+        );
 
         bytes memory payload = abi.encode(receiver, withdrawAmount);
 
         vm.startPrank(controller__);
-        (TransferInfo memory transferInfo, bytes memory postSrcHookData) = kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(
-                _connector1, address(sender), TransferInfo(kintoWalletSigner__, withdrawAmount, payload)
-            )
-        );
+        (
+            TransferInfo memory transferInfo,
+            bytes memory postSrcHookData
+        ) = kintoHook__.srcPreHookCall(
+                SrcPreHookCallParams(
+                    _connector1,
+                    address(sender),
+                    TransferInfo(kintoWalletSigner__, withdrawAmount, payload)
+                )
+            );
         vm.stopPrank();
 
-        uint256 burnLimitAfter = kintoHook__.getCurrentSendingLimit(_connector1);
+        uint256 burnLimitAfter = kintoHook__.getCurrentSendingLimit(
+            _connector1
+        );
 
-        assertEq(burnLimitAfter, burnLimitBefore - transferInfo.amount, "burn limit sus");
+        assertEq(
+            burnLimitAfter,
+            burnLimitBefore - transferInfo.amount,
+            "burn limit sus"
+        );
         assertEq(receiver, transferInfo.receiver, "receiver incorrect");
         assertEq(withdrawAmount, transferInfo.amount, "amount incorrect");
         assertEq(transferInfo.data, payload, "extra data incorrect");
@@ -283,7 +355,12 @@ contract TestKintoHook is Test {
         bytes memory payload = abi.encode(_raju, amount);
         vm.startPrank(controller__);
         TransferInfo memory transferInfo = kintoHook__.srcPostHookCall(
-            SrcPostHookCallParams(_connector1, payload, bytes(""), TransferInfo(_raju, amount, payload))
+            SrcPostHookCallParams(
+                _connector1,
+                payload,
+                bytes(""),
+                TransferInfo(_raju, amount, payload)
+            )
         );
         assertEq(transferInfo.data, payload, "extra data incorrect");
     }
@@ -300,18 +377,29 @@ contract TestKintoHook is Test {
         vm.startPrank(controller__);
 
         kintoHook__.srcPreHookCall(
-            SrcPreHookCallParams(_connector1, address(sender), TransferInfo(receiver, withdrawAmount, payload))
+            SrcPreHookCallParams(
+                _connector1,
+                address(sender),
+                TransferInfo(receiver, withdrawAmount, payload)
+            )
         );
         vm.stopPrank();
 
-        uint256 burnLimitBefore = kintoHook__.getCurrentSendingLimit(_connector1);
+        uint256 burnLimitBefore = kintoHook__.getCurrentSendingLimit(
+            _connector1
+        );
 
         assertTrue(burnLimitBefore < _burnMaxLimit, "full limit avail");
-        assertTrue(burnLimitBefore + time * _burnRate > _burnMaxLimit, "not enough time");
+        assertTrue(
+            burnLimitBefore + time * _burnRate > _burnMaxLimit,
+            "not enough time"
+        );
 
         skip(time);
 
-        uint256 burnLimitAfter = kintoHook__.getCurrentSendingLimit(_connector1);
+        uint256 burnLimitAfter = kintoHook__.getCurrentSendingLimit(
+            _connector1
+        );
         assertEq(burnLimitAfter, _burnMaxLimit, "burn limit sus");
     }
 
@@ -323,11 +411,20 @@ contract TestKintoHook is Test {
         address sender = kintoWalletSigner__; // original sender from vault chain
         address receiver = address(0xfede);
 
-        vm.expectRevert(abi.encodeWithSelector(KintoHook.InvalidReceiver.selector, receiver));
-        vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
+        vm.expectRevert(
+            abi.encodeWithSelector(KintoHook.InvalidReceiver.selector, receiver)
         );
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
     }
 
     function testdstPreHookCallReceiverNotKYCd() external {
@@ -342,9 +439,16 @@ contract TestKintoHook is Test {
 
         vm.expectRevert(KintoHook.KYCRequired.selector);
         vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
-        );
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
     }
 
     function testdstPreHookCallSenderNotAllowed() external {
@@ -353,11 +457,20 @@ contract TestKintoHook is Test {
         address sender = address(0xfede); // original sender from vault chain
         address receiver = kintoWallet__;
 
-        vm.expectRevert(abi.encodeWithSelector(KintoHook.SenderNotAllowed.selector, sender));
-        vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
+        vm.expectRevert(
+            abi.encodeWithSelector(KintoHook.SenderNotAllowed.selector, sender)
         );
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
     }
 
     function testdstPreHookCallCallReceiverIsInAllowlist() external {
@@ -373,9 +486,16 @@ contract TestKintoHook is Test {
         kintoHook__.setReceiver(receiver, true);
 
         vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
-        );
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
     }
 
     function testdstPreHookCallCallSenderIsInAllowlist() external {
@@ -388,9 +508,16 @@ contract TestKintoHook is Test {
         kintoHook__.setSender(sender, true); // allow sender to bypass Kinto check (e.g BridgerL1)
 
         vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
-        );
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
     }
 
     function testdstPreHookCallCallSenderIsKintoWalletSigner() external {
@@ -400,9 +527,16 @@ contract TestKintoHook is Test {
         address receiver = kintoWallet__;
 
         vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
-        );
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
     }
 
     function testdstPreHookCallCallSenderAllowed() external {
@@ -421,9 +555,16 @@ contract TestKintoHook is Test {
         KintoWallet(kintoWallet__).setFunderWhitelist(whitelist, flags);
 
         vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
-        );
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
     }
 
     ////// FINISH: KintoHook:dstPreHookCall tests //////
@@ -435,18 +576,33 @@ contract TestKintoHook is Test {
         address receiver = kintoWallet__;
 
         vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
-        );
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
 
         assertEq(transferInfo.amount, depositAmount, "depositAmount sus");
         assertEq(transferInfo.receiver, receiver, "raju address sus");
 
-        assertEq(postHookData, abi.encode(depositAmount, 0), "postHookData sus");
+        assertEq(
+            postHookData,
+            abi.encode(depositAmount, 0),
+            "postHookData sus"
+        );
         vm.startPrank(controller__);
         CacheData memory cacheData = kintoHook__.dstPostHookCall(
             DstPostHookCallParams(
-                _connector1, _messageId, bytes(""), postHookData, TransferInfo(receiver, depositAmount, bytes(""))
+                _connector1,
+                _messageId,
+                bytes(""),
+                postHookData,
+                TransferInfo(receiver, depositAmount, bytes(""))
             )
         );
 
@@ -461,23 +617,46 @@ contract TestKintoHook is Test {
         address receiver = kintoWallet__;
 
         vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
-        );
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
         assertTrue(depositAmount > _mintMaxLimit, "deposit amount not enough");
         assertEq(transferInfo.amount, _mintMaxLimit, "depositAmount sus");
 
         uint256 pendingAmount = depositAmount - _mintMaxLimit;
-        assertEq(postHookData, abi.encode(_mintMaxLimit, pendingAmount), "postHookData sus");
+        assertEq(
+            postHookData,
+            abi.encode(_mintMaxLimit, pendingAmount),
+            "postHookData sus"
+        );
         vm.startPrank(controller__);
         CacheData memory cacheData = kintoHook__.dstPostHookCall(
             DstPostHookCallParams(
-                _connector1, _messageId, bytes(""), postHookData, TransferInfo(receiver, depositAmount, bytes(""))
+                _connector1,
+                _messageId,
+                bytes(""),
+                postHookData,
+                TransferInfo(receiver, depositAmount, bytes(""))
             )
         );
 
-        assertEq(cacheData.identifierCache, abi.encode(receiver, pendingAmount, _connector1), "identifierCache sus");
-        assertEq(cacheData.connectorCache, abi.encode(pendingAmount), "connectorCache sus");
+        assertEq(
+            cacheData.identifierCache,
+            abi.encode(receiver, pendingAmount, _connector1),
+            "identifierCache sus"
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(pendingAmount),
+            "connectorCache sus"
+        );
     }
 
     function testPartConsumeDstCallConnectorCache() external {
@@ -488,11 +667,20 @@ contract TestKintoHook is Test {
         address sender = kintoWalletSigner__; // original sender from vault chain
         address receiver = kintoWallet__;
 
-        bytes memory connectorCacheBefore = abi.encode(connectorPendingAmountBefore);
-        vm.startPrank(controller__);
-        (bytes memory postHookData, TransferInfo memory transferInfo) = kintoHook__.dstPreHookCall(
-            DstPreHookCallParams(_connector1, bytes(""), TransferInfo(receiver, depositAmount, abi.encode(sender)))
+        bytes memory connectorCacheBefore = abi.encode(
+            connectorPendingAmountBefore
         );
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
 
         CacheData memory cacheData = kintoHook__.dstPostHookCall(
             DstPostHookCallParams(
@@ -504,7 +692,9 @@ contract TestKintoHook is Test {
             )
         );
         assertEq(
-            cacheData.connectorCache, abi.encode(pendingAmount + connectorPendingAmountBefore), "connectorCache sus"
+            cacheData.connectorCache,
+            abi.encode(pendingAmount + connectorPendingAmountBefore),
+            "connectorCache sus"
         );
     }
 
@@ -515,13 +705,24 @@ contract TestKintoHook is Test {
         address receiver = kintoWallet__;
 
         vm.startPrank(controller__);
-        (bytes memory postRetryHookData, TransferInfo memory transferInfo) = kintoHook__.preRetryHook(
-            PreRetryHookCallParams(
-                _connector1, CacheData(abi.encode(receiver, pendingAmount, _connector1), abi.encode(pendingAmount))
-            )
-        );
+        (
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.preRetryHook(
+                PreRetryHookCallParams(
+                    _connector1,
+                    CacheData(
+                        abi.encode(receiver, pendingAmount, _connector1),
+                        abi.encode(pendingAmount)
+                    )
+                )
+            );
 
-        assertEq(postRetryHookData, abi.encode(receiver, pendingAmount, 0), "postHookData sus");
+        assertEq(
+            postRetryHookData,
+            abi.encode(receiver, pendingAmount, 0),
+            "postHookData sus"
+        );
         assertEq(transferInfo.receiver, receiver, "raju address sus");
         assertEq(transferInfo.amount, pendingAmount, "pending amount sus");
         assertEq(transferInfo.data, bytes(""), "raju address sus");
@@ -532,7 +733,10 @@ contract TestKintoHook is Test {
                 _connector1,
                 _messageId,
                 postRetryHookData,
-                CacheData(abi.encode(receiver, pendingAmount, _connector1), abi.encode(pendingAmount))
+                CacheData(
+                    abi.encode(receiver, pendingAmount, _connector1),
+                    abi.encode(pendingAmount)
+                )
             )
         );
 
@@ -545,12 +749,19 @@ contract TestKintoHook is Test {
                 _connector1,
                 _messageId,
                 postRetryHookData,
-                CacheData(abi.encode(receiver, pendingAmount, _connector1), abi.encode(pendingAmount + 10 ether))
+                CacheData(
+                    abi.encode(receiver, pendingAmount, _connector1),
+                    abi.encode(pendingAmount + 10 ether)
+                )
             )
         );
 
         assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
-        assertEq(cacheData.connectorCache, abi.encode(10 ether), "connectorCache sus");
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(10 ether),
+            "connectorCache sus"
+        );
     }
 
     function testPartConsumeRetryHookCall() external {
@@ -558,17 +769,26 @@ contract TestKintoHook is Test {
         uint256 pendingAmount = 200 ether;
         uint256 connectorAlreadyPendingAmount = 100 ether;
         vm.startPrank(controller__);
-        (bytes memory postRetryHookData, TransferInfo memory transferInfo) = kintoHook__.preRetryHook(
-            PreRetryHookCallParams(
-                _connector1,
-                CacheData(
-                    abi.encode(_raju, pendingAmount, _connector1),
-                    abi.encode(pendingAmount + connectorAlreadyPendingAmount)
+        (
+            bytes memory postRetryHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.preRetryHook(
+                PreRetryHookCallParams(
+                    _connector1,
+                    CacheData(
+                        abi.encode(_raju, pendingAmount, _connector1),
+                        abi.encode(
+                            pendingAmount + connectorAlreadyPendingAmount
+                        )
+                    )
                 )
-            )
-        );
+            );
 
-        assertEq(postRetryHookData, abi.encode(_raju, _mintMaxLimit, pendingAmount - _mintMaxLimit), "postHookData sus");
+        assertEq(
+            postRetryHookData,
+            abi.encode(_raju, _mintMaxLimit, pendingAmount - _mintMaxLimit),
+            "postHookData sus"
+        );
         assertEq(transferInfo.receiver, _raju, "raju address sus");
         assertEq(transferInfo.amount, _mintMaxLimit, "pending amount sus");
         assertEq(transferInfo.data, bytes(""), "raju address sus");
@@ -579,24 +799,10 @@ contract TestKintoHook is Test {
                 _connector1,
                 _messageId,
                 postRetryHookData,
-                CacheData(abi.encode(_raju, pendingAmount, _connector1), abi.encode(pendingAmount))
-            )
-        );
-
-        assertEq(
-            cacheData.identifierCache,
-            abi.encode(_raju, pendingAmount - _mintMaxLimit, _connector1),
-            "identifierCache sus"
-        );
-        assertEq(cacheData.connectorCache, abi.encode(pendingAmount - _mintMaxLimit), "connectorCache sus");
-
-        // test non 0 connector pendingAmount before
-        cacheData = kintoHook__.postRetryHook(
-            PostRetryHookCallParams(
-                _connector1,
-                _messageId,
-                postRetryHookData,
-                CacheData(abi.encode(_raju, pendingAmount), abi.encode(pendingAmount + connectorAlreadyPendingAmount))
+                CacheData(
+                    abi.encode(_raju, pendingAmount, _connector1),
+                    abi.encode(pendingAmount)
+                )
             )
         );
 
@@ -607,7 +813,33 @@ contract TestKintoHook is Test {
         );
         assertEq(
             cacheData.connectorCache,
-            abi.encode(pendingAmount + connectorAlreadyPendingAmount - _mintMaxLimit),
+            abi.encode(pendingAmount - _mintMaxLimit),
+            "connectorCache sus"
+        );
+
+        // test non 0 connector pendingAmount before
+        cacheData = kintoHook__.postRetryHook(
+            PostRetryHookCallParams(
+                _connector1,
+                _messageId,
+                postRetryHookData,
+                CacheData(
+                    abi.encode(_raju, pendingAmount),
+                    abi.encode(pendingAmount + connectorAlreadyPendingAmount)
+                )
+            )
+        );
+
+        assertEq(
+            cacheData.identifierCache,
+            abi.encode(_raju, pendingAmount - _mintMaxLimit, _connector1),
+            "identifierCache sus"
+        );
+        assertEq(
+            cacheData.connectorCache,
+            abi.encode(
+                pendingAmount + connectorAlreadyPendingAmount - _mintMaxLimit
+            ),
             "connectorCache sus"
         );
     }
