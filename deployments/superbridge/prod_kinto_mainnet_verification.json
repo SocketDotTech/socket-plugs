@@ -535,6 +535,18 @@
   ],
   "7887": [
     [
+      "0x2bF336782456649bb38dBF9aEe1021E7244694a4",
+      "KintoHook",
+      "contracts/hooks/KintoHook.sol",
+      [
+        "0x2e2B1c42E38f5af81771e65D87729E57ABD1337a",
+        "0xE1857425c14afe4142cE4df1eCb3439f194d5D1b",
+        true,
+        "0xf369f78E3A0492CC4e96a90dae0728A38498e9c7",
+        "0x8a4720488CA32f1223ccFE5A087e250fE3BC5D75"
+      ]
+    ],
+    [
       "0x903c97A375578b3CDd386773a05E7E9Af39062C4",
       "KintoHook",
       "contracts/hooks/KintoHook.sol",
