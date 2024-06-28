@@ -473,6 +473,37 @@ contract TestKintoHook is Test {
             );
     }
 
+    function testdstPreHookCallCallReceiverIsInAllowlist() external {
+        _setLimits();
+        uint256 depositAmount = 2 ether;
+        address sender = address(0xfede); // original sender from vault chain
+        address receiver = kintoWallet__;
+
+        vm.prank(kintoHook__.owner());
+        kintoHook__.setReceiver(receiver, true); // allow receiver to bypass Kinto check
+
+        // whitelist the receiver
+        address[] memory whitelist = new address[](1);
+        whitelist[0] = sender;
+        bool[] memory flags = new bool[](1);
+        flags[0] = true;
+
+        vm.prank(kintoWallet__);
+        KintoWallet(kintoWallet__).setFunderWhitelist(whitelist, flags);
+
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
+    }
+
     function testdstPreHookCallCallSenderIsInAllowlist() external {
         _setLimits();
         uint256 depositAmount = 2 ether;

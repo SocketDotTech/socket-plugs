@@ -24,6 +24,9 @@ contract KintoHook is LimitHook {
     IKintoID public immutable kintoID;
     IKintoFactory public immutable kintoFactory;
 
+    // addresses that can receive assets while being not wallets on dstPreHookCall
+    mapping(address => bool) public receiveAllowlist;
+
     // addresses that can bypass funder whitelisted check on dstPreHookCall
     mapping(address => bool) public senderAllowlist;
 
@@ -32,6 +35,7 @@ contract KintoHook is LimitHook {
     error KYCRequired();
     error SenderNotAllowed(address sender);
 
+    event ReceiverSet(address indexed receiver, bool allowed);
     event SenderSet(address indexed sender, bool allowed);
 
     /**
@@ -52,6 +56,14 @@ contract KintoHook is LimitHook {
         hookType = keccak256("KINTO");
         kintoID = IKintoID(kintoID_);
         kintoFactory = IKintoFactory(kintoFactory_);
+    }
+
+    /*
+     * @notice Sets a receiver to be allowed (or not) to receive funds to an Kinto address bypassing checks
+     */
+    function setReceiver(address receiver, bool allowed) external onlyOwner {
+        senderAllowlist[receiver] = allowed;
+        emit ReceiverSet(receiver, allowed);
     }
 
     /*
@@ -107,8 +119,10 @@ contract KintoHook is LimitHook {
         address receiver = params_.transferInfo.receiver;
         address msgSender = abi.decode(params_.transferInfo.data, (address));
 
-        if (kintoFactory.walletTs(receiver) == 0)
-            revert InvalidReceiver(receiver);
+        if (!receiveAllowlist[receiver]) {
+            if (kintoFactory.walletTs(receiver) == 0)
+                revert InvalidReceiver(receiver);
+        }
         if (!kintoID.isKYC(IKintoWallet(receiver).owners(0)))
             revert KYCRequired();
         if (!senderAllowlist[msgSender]) {
