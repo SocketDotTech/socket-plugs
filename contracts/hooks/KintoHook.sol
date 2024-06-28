@@ -3,6 +3,8 @@ pragma solidity 0.8.13;
 
 import "./LimitHook.sol";
 
+import 'forge-std/console2.sol';
+
 interface IKintoID {
     function isKYC(address) external view returns (bool);
 }
@@ -116,7 +118,7 @@ contract KintoHook is LimitHook {
         address receiver = params_.transferInfo.receiver;
         address msgSender = abi.decode(params_.transferInfo.data, (address));
 
-        if (!(receiveAllowlist[receiver] && senderAllowlist[msgSender])) {
+        if (!receiveAllowlist[receiver] || !senderAllowlist[msgSender]) {
             if (kintoFactory.walletTs(receiver) == 0) {
                 revert InvalidReceiver(receiver);
             }
