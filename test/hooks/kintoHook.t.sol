@@ -473,6 +473,31 @@ contract TestKintoHook is Test {
             );
     }
 
+    function testdstPreHookCallCallReceiverIsInAllowlist() external {
+        _setLimits();
+        uint256 depositAmount = 2 ether;
+        address sender = address(0xfede); // original sender from vault chain
+        address receiver = address(0xdead);
+
+        vm.prank(kintoHook__.owner());
+        kintoHook__.setSender(sender, true);
+
+        vm.prank(kintoHook__.owner());
+        kintoHook__.setReceiver(receiver, true);
+
+        vm.startPrank(controller__);
+        (
+            bytes memory postHookData,
+            TransferInfo memory transferInfo
+        ) = kintoHook__.dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector1,
+                    bytes(""),
+                    TransferInfo(receiver, depositAmount, abi.encode(sender))
+                )
+            );
+    }
+
     function testdstPreHookCallCallSenderIsInAllowlist() external {
         _setLimits();
         uint256 depositAmount = 2 ether;
