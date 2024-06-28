@@ -46,13 +46,9 @@ contract KintoHook is LimitHook {
      * @param kintoID_ KintoID contract address.
      * @param kintoFactory_ KintoFactory contract address.
      */
-    constructor(
-        address owner_,
-        address controller_,
-        bool useControllerPools_,
-        address kintoID_,
-        address kintoFactory_
-    ) LimitHook(owner_, controller_, useControllerPools_) {
+    constructor(address owner_, address controller_, bool useControllerPools_, address kintoID_, address kintoFactory_)
+        LimitHook(owner_, controller_, useControllerPools_)
+    {
         hookType = keccak256("KINTO");
         kintoID = IKintoID(kintoID_);
         kintoFactory = IKintoFactory(kintoFactory_);
@@ -62,7 +58,7 @@ contract KintoHook is LimitHook {
      * @notice Sets a receiver to be allowed (or not) to receive funds to an Kinto address bypassing checks
      */
     function setReceiver(address receiver, bool allowed) external onlyOwner {
-        senderAllowlist[receiver] = allowed;
+        receiveAllowlist[receiver] = allowed;
         emit ReceiverSet(receiver, allowed);
     }
 
@@ -78,9 +74,7 @@ contract KintoHook is LimitHook {
      * @dev called when Kinto user wants to "withdraw" (bridge out). Checks if sender is a KintoWallet,
      * if the wallet's signer is KYC'd and if the receiver of the funds is whitelisted.
      */
-    function srcPreHookCall(
-        SrcPreHookCallParams memory params_
-    )
+    function srcPreHookCall(SrcPreHookCallParams memory params_)
         public
         override
         isVaultOrController
@@ -88,15 +82,20 @@ contract KintoHook is LimitHook {
     {
         address sender = params_.msgSender;
         if (kintoFactory.walletTs(sender) == 0) revert InvalidSender(sender);
-        if (!kintoID.isKYC(IKintoWallet(sender).owners(0)))
+        if (!kintoID.isKYC(IKintoWallet(sender).owners(0))) {
             revert KYCRequired();
+        }
 
         return super.srcPreHookCall(params_);
     }
 
-    function srcPostHookCall(
-        SrcPostHookCallParams memory params_
-    ) public view override isVaultOrController returns (TransferInfo memory) {
+    function srcPostHookCall(SrcPostHookCallParams memory params_)
+        public
+        view
+        override
+        isVaultOrController
+        returns (TransferInfo memory)
+    {
         return super.srcPostHookCall(params_);
     }
 
@@ -108,9 +107,7 @@ contract KintoHook is LimitHook {
      * The "original sender" is passed as an encoded param through the SenderHook.
      * If the sender is not in the allowlist (e.g Bridger L1), it checks it's whitelisted on the receiver's KintoWallet.
      */
-    function dstPreHookCall(
-        DstPreHookCallParams memory params_
-    )
+    function dstPreHookCall(DstPreHookCallParams memory params_)
         public
         override
         isVaultOrController
@@ -119,23 +116,31 @@ contract KintoHook is LimitHook {
         address receiver = params_.transferInfo.receiver;
         address msgSender = abi.decode(params_.transferInfo.data, (address));
 
-        if (!receiveAllowlist[receiver]) {
-            if (kintoFactory.walletTs(receiver) == 0)
+        if (!(receiveAllowlist[receiver] && senderAllowlist[msgSender])) {
+            if (kintoFactory.walletTs(receiver) == 0) {
                 revert InvalidReceiver(receiver);
-        }
-        if (!kintoID.isKYC(IKintoWallet(receiver).owners(0)))
-            revert KYCRequired();
-        if (!senderAllowlist[msgSender]) {
-            if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender))
-                revert SenderNotAllowed(msgSender);
+            }
+
+            if (!kintoID.isKYC(IKintoWallet(receiver).owners(0))) {
+                revert KYCRequired();
+            }
+
+            if (!senderAllowlist[msgSender]) {
+                if (!IKintoWallet(receiver).isFunderWhitelisted(msgSender)) {
+                    revert SenderNotAllowed(msgSender);
+                }
+            }
         }
 
         return super.dstPreHookCall(params_);
     }
 
-    function dstPostHookCall(
-        DstPostHookCallParams memory params_
-    ) public override isVaultOrController returns (CacheData memory cacheData) {
+    function dstPostHookCall(DstPostHookCallParams memory params_)
+        public
+        override
+        isVaultOrController
+        returns (CacheData memory cacheData)
+    {
         return super.dstPostHookCall(params_);
     }
 }
