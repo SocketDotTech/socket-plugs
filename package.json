@@ -31,7 +31,6 @@
     "hardhat-dependency-compiler": "^1.1.4",
     "hardhat-deploy": "^0.11.20",
     "hardhat-preprocessor": "^0.1.4",
-    "pre-commit": "^1.2.2",
     "prettier": "^2.6.1",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "ts-node": "^10.7.0",
@@ -47,13 +46,9 @@
     "forge-compile": "forge build",
     "test": "forge test"
   },
-  "pre-commit": [
-    "lint",
-    "compile"
-  ],
   "dependencies": {
-    "@socket.tech/dl-core": "https://github.com/KintoXYZ/socket-DL.git",
     "@kinto-utils": "https://github.com/KintoXYZ/kinto-utils.git",
+    "@socket.tech/dl-core": "https://github.com/KintoXYZ/socket-DL.git",
     "lodash": "^4.17.21",
     "prompts": "^2.4.2"
   }
