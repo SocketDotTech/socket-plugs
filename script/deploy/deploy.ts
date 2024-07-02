@@ -68,7 +68,7 @@ export const deploy = async () => {
   let allAddresses: SBAddresses | STAddresses = {};
 
   for (let token of tokens) {
-    console.log(`Deploying contracts for ${token}...`);
+    console.log(`\n\nDeploying contracts for ${token}...`);
 
     pc[token] = getTokenConstants(token);
     let addresses: SBAddresses | STAddresses;
