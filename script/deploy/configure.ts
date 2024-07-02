@@ -56,7 +56,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
   let allConfigured = false;
   while (!allConfigured) {
     for (let token of tokens) {
-      console.log(`\nConfiguring ${token}...`);
+      console.log(`\n\nConfiguring ${token}...`);
       pc[token] = getTokenConstants(token);
       // console.log(pc[token]);
       let addresses: SBAddresses | STAddresses;
@@ -70,9 +70,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
         ...pc[token].controllerChains,
         ...pc[token].vaultChains,
       ];
-      // console.log(allChains);
-      await Promise.all(
-        allChains.map(async (chain) => {
+      for(const chain of allChains) {
           let addr: SBTokenAddresses | STTokenAddresses = (addresses[chain]?.[
             token
           ] ?? {}) as SBTokenAddresses | STTokenAddresses;
@@ -86,7 +84,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
           let siblingSlugs: ChainSlug[] = Object.keys(connectors).map((k) =>
             parseInt(k)
           ) as ChainSlug[];
-
+          siblingSlugs = siblingSlugs.filter((s) => s !== chain && allChains.includes(s));
           let bridgeContract: Contract = await getBridgeContract(
             chain,
             token,
@@ -132,8 +130,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             connectors,
             addr
           );
-        })
-      );
+        }
     }
 
     allConfigured = true;
