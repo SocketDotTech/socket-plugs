@@ -90,7 +90,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
           siblingSlugs = siblingSlugs.filter(
             (s) => s !== chain && allChains.includes(s)
           );
-          
+
           let bridgeContract: Contract = await getBridgeContract(
             chain,
             token,
