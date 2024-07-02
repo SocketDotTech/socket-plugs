@@ -87,6 +87,10 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             parseInt(k)
           ) as ChainSlug[];
 
+          siblingSlugs = siblingSlugs.filter(
+            (s) => s !== chain && allChains.includes(s)
+          );
+
           let bridgeContract: Contract = await getBridgeContract(
             chain,
             token,
