@@ -14,11 +14,10 @@ import { checkSendingLimit } from "./utils";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
 import { tokenDecimals } from "../../src/enums";
 
-const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
-const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
-const amount = "0";
-// const amount = "1";
-
+const srcChain = ChainSlug.ARBITRUM;
+const dstChain = ChainSlug.OPTIMISM;
+// without decimals
+const amount = "20000000000";
 const gasLimit = 500_000;
 
 export const main = async () => {
@@ -89,7 +88,6 @@ export const main = async () => {
 
     // deposit
     console.log(`depositing ${amountBN} to ${dstChain} from ${srcChain}`);
-
     const fees = await bridgeContract.getMinFees(connectorAddr, gasLimit, 0);
 
     const depositTx = await bridgeContract.bridge(

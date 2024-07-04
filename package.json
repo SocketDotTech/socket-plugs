@@ -51,7 +51,10 @@
     "script:setup": "yarn setup:dependencies && npx ts-node script/setup.ts",
     "script:deploy": "npx hardhat run script/deploy.ts",
     "script:verify": "npx hardhat run script/deploy/verifyContracts.ts",
-    "setup:socket": "ts-node setup.ts"
+    "setup:socket": "ts-node setup.ts",
+    "add:project": "npx ts-node script/script.ts new",
+    "deploy:project": "yarn script:deploy",
+    "bridge": "npx hardhat run script/bridge/bridge.ts"
   },
   "pre-commit": [
     "lint",
