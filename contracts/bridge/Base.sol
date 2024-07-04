@@ -111,11 +111,12 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
         if (token == ETH_ADDRESS && msg.value < transferInfo_.amount)
             revert InsufficientMsgValue();
 
-        transferInfo = transferInfo_;
         if (address(hook__) != address(0)) {
             (transferInfo, postHookData) = hook__.srcPreHookCall(
                 SrcPreHookCallParams(connector_, msg.sender, transferInfo_)
             );
+        } else {
+            transferInfo = transferInfo_;
         }
     }
 

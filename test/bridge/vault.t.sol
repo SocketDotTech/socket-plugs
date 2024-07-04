@@ -33,7 +33,13 @@ contract TestVault is Test {
     Vault _vault;
     ExecutionHelper _executionHelper;
     bytes32 constant LIMIT_UPDATER_ROLE = keccak256("LIMIT_UPDATER_ROLE");
-
+    event BridgingTokens(
+        address connector,
+        address sender,
+        address receiver,
+        uint256 amount,
+        bytes32 messageId
+    );
     event ConnectorStatusUpdated(address connector, bool status);
 
     function setUp() external {
@@ -317,6 +323,65 @@ contract TestVault is Test {
             rajuBalBefore + withdrawAmount,
             "raju balance sus"
         );
+    }
+
+    function testBridgeWithNoHook() external {
+        address[] memory connectors = new address[](1);
+        connectors[0] = _connector;
+        _setConnectorStatus(connectors);
+        vm.prank(_admin);
+        // set NO Hook for the vault
+        _vault.updateHook(address(0), false);
+        uint256 withdrawAmount = 10 ether;
+        deal(_raju, _fees);
+        deal(address(_token), _raju, withdrawAmount, true);
+
+        vm.startPrank(_raju);
+        _token.approve(address(_vault), withdrawAmount);
+
+        bytes memory payload = abi.encode(
+            _raju,
+            withdrawAmount,
+            _messageId,
+            new bytes(0)
+        );
+
+        uint256 msgValue = _fees;
+
+        vm.mockCall(
+            _connector,
+            abi.encodeCall(IConnector.getMessageId, ()),
+            abi.encode(_messageId)
+        );
+
+        vm.mockCall(
+            _connector,
+            _fees,
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, payload, new bytes(0))
+            ),
+            abi.encode(_messageId)
+        );
+        vm.expectEmit(true, true, true, true);
+        emit BridgingTokens(
+            _connector,
+            _raju,
+            _raju,
+            withdrawAmount,
+            _messageId
+        );
+
+        _vault.bridge{value: msgValue}(
+            _raju,
+            withdrawAmount,
+            _msgGasLimit,
+            _connector,
+            new bytes(0),
+            new bytes(0)
+        );
+
+        vm.stopPrank();
     }
 
     function testNativeBridge() external {
