@@ -39,6 +39,19 @@ abstract contract TestBaseController is Test {
 
     event ConnectorPoolIdUpdated(address connector, uint256 poolId);
     event ConnectorStatusUpdated(address connector, bool status);
+    event BridgingTokens(
+        address connector,
+        address sender,
+        address receiver,
+        uint256 amount,
+        bytes32 messageId
+    );
+    event TokensBridged(
+        address connecter,
+        address receiver,
+        uint256 amount,
+        bytes32 messageId
+    );
 
     function _setLimits(address[] memory connectors_) internal {
         UpdateLimitParams[] memory u = new UpdateLimitParams[](
@@ -413,6 +426,75 @@ abstract contract TestBaseController is Test {
             poolLockedBefore - withdrawAmount,
             "connector locked sus"
         );
+    }
+
+    function testWithdrawWithNoHook() external {
+        address[] memory connectors = new address[](1);
+        connectors[0] = _connector;
+        _setConnectorStatus(connectors);
+        vm.prank(_admin);
+        // set NO Hook for the controller
+        _controller.updateHook(address(0), false);
+        uint256 withdrawAmount = 10 ether;
+
+        vm.prank(_connector);
+        vm.expectEmit(true, true, true, true);
+        emit TokensBridged(_connector, _raju, withdrawAmount, _messageId);
+
+        _controller.receiveInbound(
+            _siblingChainSlug,
+            abi.encode(_raju, withdrawAmount, _messageId, new bytes(0))
+        );
+
+        deal(_raju, _fees);
+        vm.startPrank(_raju);
+        if (isFiatTokenV2_1) {
+            _token.approve(address(_controller), withdrawAmount);
+        }
+
+        bytes memory payload = abi.encode(
+            _raju,
+            withdrawAmount,
+            _messageId,
+            new bytes(0)
+        );
+
+        uint256 msgValue = _fees;
+
+        vm.mockCall(
+            _connector,
+            abi.encodeCall(IConnector.getMessageId, ()),
+            abi.encode(_messageId)
+        );
+
+        vm.mockCall(
+            _connector,
+            _fees,
+            abi.encodeCall(
+                IConnector.outbound,
+                (_msgGasLimit, payload, new bytes(0))
+            ),
+            abi.encode(_messageId)
+        );
+        vm.expectEmit(true, true, true, true);
+        emit BridgingTokens(
+            _connector,
+            _raju,
+            _raju,
+            withdrawAmount,
+            _messageId
+        );
+
+        _controller.bridge{value: msgValue}(
+            _raju,
+            withdrawAmount,
+            _msgGasLimit,
+            _connector,
+            new bytes(0),
+            new bytes(0)
+        );
+
+        vm.stopPrank();
     }
 
     function testFullConsumeInboundReceive() external {

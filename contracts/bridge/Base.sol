@@ -215,6 +215,8 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
                     transferInfo_
                 )
             );
+        } else {
+            transferInfo = transferInfo_;
         }
     }
 
