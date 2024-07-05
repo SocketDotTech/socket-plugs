@@ -223,7 +223,6 @@ export const checkAndGrantRole = async (
     // Get owner and signer
     const owner = await contract.owner();
     const signer = getSignerFromChainSlug(chain);
-    console.log({ owner, signer });
 
     // Check if the signer is the owner
     if (owner !== signer.address) {

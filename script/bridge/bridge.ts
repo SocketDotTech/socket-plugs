@@ -16,9 +16,9 @@ import { tokenDecimals } from "../../src/enums";
 
 const srcChain = ChainSlug.ARBITRUM;
 const dstChain = ChainSlug.OPTIMISM;
-// without decimals
-const amount = "20000000000";
 const gasLimit = 500_000;
+// without decimals
+const amount = 1;
 
 export const main = async () => {
   try {
@@ -26,7 +26,7 @@ export const main = async () => {
     if (tokens.length > 1) throw Error("single token bridge allowed");
     const token = tokens[0];
 
-    const amountBN = utils.parseUnits(amount, tokenDecimals[token]);
+    const amountBN = utils.parseUnits(amount.toString(), tokenDecimals[token]);
 
     let addresses: SBAddresses | STAddresses | undefined = {};
     if (isSuperBridge()) {
