@@ -27,9 +27,6 @@ export const verifyConstants = async () => {
       }
     }
     if (isSuperToken()) {
-      if (currentPc.vaultChains.length > 1) {
-        throw new Error("SuperToken can only have 1 or 0 vaultChains");
-      }
       let { superTokenInfo } = currentPc;
       checkMissingFields({ superTokenInfo });
 
