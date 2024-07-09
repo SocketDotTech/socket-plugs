@@ -43,6 +43,7 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
                     payload_
                 );
         } else {
+            if (options_.length != 64) revert InvalidOptionsLength();
             (bytes32 executionParams, bytes32 transmissionParams) = abi.decode(
                 options_,
                 (bytes32, bytes32)
