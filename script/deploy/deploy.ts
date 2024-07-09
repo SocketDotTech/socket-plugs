@@ -212,13 +212,18 @@ const deployConnectors = async (
       deployParams.addresses
     );
     bridgeAddress = bridgeContract.address;
-    if (!bridgeAddress) throw new Error("Hub not found!");
+    if (!bridgeAddress) throw new Error("Bridge not found!");
 
-    integrationTypes = Object.keys(
-      pc[deployParams.currentToken].hook.limitsAndPoolId?.[
-        deployParams.currentChainSlug
-      ]
-    ) as IntegrationTypes[];
+    // Currently we only support fast integration type via setup script. For other types, can edit the project constants file.
+    // Will need to add here if we want to support other types in the future for No Hook case.
+    integrationTypes =
+      deployParams.hookType == Hooks.NO_HOOK
+        ? [IntegrationTypes.fast]
+        : (Object.keys(
+            pc[deployParams.currentToken].hook.limitsAndPoolId?.[
+              deployParams.currentChainSlug
+            ]
+          ) as IntegrationTypes[]);
 
     for (let intType of integrationTypes) {
       const connector: Contract = await getOrDeployConnector(

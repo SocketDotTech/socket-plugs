@@ -11,6 +11,10 @@ export const checkSendingLimit = async (
   amountBN: BigNumber
 ) => {
   let { hookContract } = await getHookContract(chain, token, addr);
+  if (!hookContract) {
+    console.log("No hook contract found, skipping limit check");
+    return;
+  }
   const limit: BigNumber = await hookContract.getCurrentSendingLimit(
     connectorAddr
   );
