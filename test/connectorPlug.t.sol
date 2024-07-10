@@ -90,10 +90,9 @@ contract TestVault is Test {
 
     function testOutboundWithOptions() public {
         // Setup
-        bytes memory options = abi.encode(
-            bytes32(uint256(1)),
-            bytes32(uint256(1))
-        );
+        bytes32 executionParams = bytes32(uint256(1));
+        bytes32 transmissionParams = bytes32(uint256(2));
+        bytes memory options = abi.encode(executionParams, transmissionParams);
         bytes memory payload = abi.encode(_raju, _amount);
 
         // Test
@@ -104,8 +103,8 @@ contract TestVault is Test {
                 (
                     _siblingChainSlug,
                     _msgGasLimit,
-                    bytes32(uint256(1)),
-                    bytes32(uint256(1)),
+                    executionParams,
+                    transmissionParams,
                     payload
                 )
             )
@@ -118,8 +117,8 @@ contract TestVault is Test {
                 (
                     _siblingChainSlug,
                     _msgGasLimit,
-                    bytes32(uint256(1)),
-                    bytes32(uint256(1)),
+                    executionParams,
+                    transmissionParams,
                     payload
                 )
             ),
