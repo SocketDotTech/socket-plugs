@@ -26,3 +26,4 @@ error InsufficientFunds();
 error PermitDeadlineExpired();
 error InvalidSigner();
 error InsufficientMsgValue();
+error InvalidOptionsLength();

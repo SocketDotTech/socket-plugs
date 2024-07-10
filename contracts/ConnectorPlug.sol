@@ -30,18 +30,34 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
     function outbound(
         uint256 msgGasLimit_,
         bytes memory payload_,
-        bytes memory
+        bytes memory options_
     ) external payable override returns (bytes32 messageId_) {
         if (msg.sender != address(bridge__)) revert NotBridge();
-
-        return
-            socket__.outbound{value: msg.value}(
-                siblingChainSlug,
-                msgGasLimit_,
-                bytes32(0),
-                bytes32(0),
-                payload_
+        if (options_.length == 0) {
+            return
+                socket__.outbound{value: msg.value}(
+                    siblingChainSlug,
+                    msgGasLimit_,
+                    bytes32(0),
+                    bytes32(0),
+                    payload_
+                );
+        } else {
+            if (options_.length != 64) revert InvalidOptionsLength();
+            (bytes32 executionParams, bytes32 transmissionParams) = abi.decode(
+                options_,
+                (bytes32, bytes32)
             );
+
+            return
+                socket__.outbound{value: msg.value}(
+                    siblingChainSlug,
+                    msgGasLimit_,
+                    executionParams,
+                    transmissionParams,
+                    payload_
+                );
+        }
     }
 
     function inbound(
