@@ -58,8 +58,13 @@ const main = async () => {
 
       const chainAddresses = addresses[chainSlug];
       for (const token of Object.keys(chainAddresses)) {
-        const tokenAddresses: SBTokenAddresses | STTokenAddresses = addresses[chainSlug][token];
-        let contractList: ContractList = getContractList(tokenAddresses, chainSlug, token);
+        const tokenAddresses: SBTokenAddresses | STTokenAddresses =
+          addresses[chainSlug][token];
+        let contractList: ContractList = getContractList(
+          tokenAddresses,
+          chainSlug,
+          token
+        );
 
         for (const contract of contractList) {
           await checkAndClaim(
@@ -105,7 +110,9 @@ const checkAndClaim = async (
 
     if (sendTx) {
       console.log(`✨ ${label}: Claiming`);
-      const tx = await contract.claimOwner({ ...overrides[parseInt(chainSlug)] });
+      const tx = await contract.claimOwner({
+        ...overrides[parseInt(chainSlug)],
+      });
       const receipt = await tx.wait();
       console.log(`🚀 ${label}: Done: ${receipt.transactionHash}`);
     } else {

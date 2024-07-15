@@ -69,8 +69,13 @@ const main = async () => {
 
       const chainAddresses = addresses[chainSlug];
       for (const token of Object.keys(chainAddresses)) {
-        const tokenAddresses: SBTokenAddresses | STTokenAddresses = addresses[chainSlug][token];
-        let contractList: ContractList = getContractList(tokenAddresses, chainSlug, token);
+        const tokenAddresses: SBTokenAddresses | STTokenAddresses =
+          addresses[chainSlug][token];
+        let contractList: ContractList = getContractList(
+          tokenAddresses,
+          chainSlug,
+          token
+        );
 
         for (const contract of contractList) {
           await checkAndNominate(
