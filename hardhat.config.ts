@@ -104,6 +104,7 @@ const config: HardhatUserConfig = {
       "lyra-testnet": "none",
       reya_cronos: "none",
       reya: "none",
+      aevo: "none",
     },
     customChains: [
       {
@@ -192,6 +193,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://explorer.reya.network/api",
           browserURL: "https://explorer.reya.network/",
+        },
+      },
+      {
+        network: "aevo",
+        chainId: hardhatChainNameToSlug[HardhatChainName.AEVO],
+        urls: {
+          apiURL: "https://explorer.aevo.xyz/api",
+          browserURL: "https://explorer.aevo.xyz/",
         },
       },
     ],
