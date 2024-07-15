@@ -1,26 +1,6 @@
 {
   "10": [
     [
-      "0x3B250ef646f970Dc56AE8EebDdB01f7707e757fF",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x5c7Dd6cb73d93879E94F20d103804C495A10aE7e",
-        "0x301bD265F0b3C16A58CbDb886Ad87842E3A1c0a4",
-        2999
-      ]
-    ],
-    [
-      "0x3431fCFB44597f18E38744a3156a916A388BA4D0",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x7809621a6D7e61E400853C64b61568aA773A28Ef",
-        "0x301bD265F0b3C16A58CbDb886Ad87842E3A1c0a4",
-        2999
-      ]
-    ],
-    [
       "0xF0A0B2E99D081Ee737496DAD5E2267ab12139793",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
@@ -112,26 +92,6 @@
       ]
     ],
     [
-      "0x435ff7bF9801c3a283521378A031Bd303DCe8C49",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x9a956704888A805C954B2c68d4fAEeAF1Eb45115",
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-        10
-      ]
-    ],
-    [
-      "0xdF32FA09180F73E49C2531409d0DDa2Cd2df47Df",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x9a956704888A805C954B2c68d4fAEeAF1Eb45115",
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-        42161
-      ]
-    ],
-    [
       "0xffe81B87bcDd6F816eC258050ABD03cB6Ea28D2E",
       "ConnectorPlug",
       "contracts/superbridge/ConnectorPlug.sol",
@@ -139,26 +99,6 @@
         "0x7D0e65D8914Dbd4259c6D430b79E5aEc2B08De9a",
         "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
         8453
-      ]
-    ],
-    [
-      "0xCa43c4e7f07c0DCDBe1aCf67A770334653F9c98E",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x7D0e65D8914Dbd4259c6D430b79E5aEc2B08De9a",
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-        10
-      ]
-    ],
-    [
-      "0x86b0335304132A56F90F0389C2d311F18E9208D0",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x7D0e65D8914Dbd4259c6D430b79E5aEc2B08De9a",
-        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
-        42161
       ]
     ],
     [
@@ -281,26 +221,6 @@
     ]
   ],
   "42161": [
-    [
-      "0x7Fc2dE692a21282B034084b0C2C0D5955f295F2e",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x90bFB3C35ddfBbA42D998414F0ff1eADD430E161",
-        "0x37cc674582049b579571E2fFd890a4d99355f6Ba",
-        2999
-      ]
-    ],
-    [
-      "0x540B35F5A42418061FB546C4149Fa534aA02a48C",
-      "ConnectorPlug",
-      "contracts/superbridge/ConnectorPlug.sol",
-      [
-        "0x7711C90bD0a148F3dd3f0e587742dc152c3E9DDB",
-        "0x37cc674582049b579571E2fFd890a4d99355f6Ba",
-        2999
-      ]
-    ],
     [
       "0x070FeadF2208303d341D1d2DA6aa41395f8BCE43",
       "ConnectorPlug",
