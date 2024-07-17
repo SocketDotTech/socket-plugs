@@ -20,7 +20,7 @@ export type ChainDetails = {
   srcChainSlug: number;
   dstChainSlug: number;
   dstRPC: string;
-  isArbStackChain: boolean
+  isArbStackChain: boolean;
 };
 
 const ConnectorABI = [
