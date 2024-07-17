@@ -21,4 +21,9 @@ export enum Tokens {
   ETHFI = "ETHFI",
   SolvBTC = "SolvBTC",
   KINTO = "KINTO",
+  MKR = "MKR",
+  PAXG = "PAXG",
+  XAUT = "XAUT",
+  stUSD = "stUSD",
+  stEUR = "stEUR",
 }

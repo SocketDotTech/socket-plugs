@@ -23,4 +23,9 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.ETHFI]: "ETHFI",
   [Tokens.SolvBTC]: "SolvBTC",
   [Tokens.KINTO]: "KINTO",
+  [Tokens.MKR]: "MKR",
+  [Tokens.PAXG]: "PAXG",
+  [Tokens.XAUT]: "XAUT",
+  [Tokens.stUSD]: "stUSD",
+  [Tokens.stEUR]: "stEUR",
 };

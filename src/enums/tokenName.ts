@@ -23,4 +23,9 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.ETHFI]: "ether.fi governance token",
   [Tokens.SolvBTC]: "ether.fi governance token",
   [Tokens.KINTO]: "Kinto Token",
+  [Tokens.MKR]: "Maker",
+  [Tokens.PAXG]: "Paxos Gold",
+  [Tokens.XAUT]: "Tether Gold",
+  [Tokens.stUSD]: "Staked USDA",
+  [Tokens.stEUR]: "Staked EURA",
 };

@@ -23,6 +23,9 @@ export const ExistingTokenAddresses: {
     [Tokens.EIGEN]: "0xec53bF9167f50cDEB3Ae105f56099aaaB9061F83",
     [Tokens.ETHFI]: "0xFe0c30065B384F05761f15d0CC899D4F9F9Cc0eB",
     [Tokens.KINTO]: "0x2367C8395a283f0285c6E312D5aA15826f1fEA25",
+    [Tokens.MKR]: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+    [Tokens.PAXG]: "0x45804880De22913dAFE09f4980848ECE6EcbAf78",
+    [Tokens.XAUT]: "0x68749665FF8D2d112Fa859AA293F07A622782F38",
   },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDCE]: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
@@ -43,6 +46,8 @@ export const ExistingTokenAddresses: {
     // [Tokens.EIGEN]: "",
     // [Tokens.ETHFI]: "0x07d65c18cecba423298c0aeb5d2beded4dfd5736", no liquidity
     [Tokens.SolvBTC]: "0x3647c54c4c2c65bc7a2d63c0da2809b399dbbdc0",
+    [Tokens.stUSD]: "0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776",
+    [Tokens.stEUR]: "0x004626A008B1aCdC4c74ab51644093b155e59A23",
   },
   [ChainSlug.BASE]: {
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
