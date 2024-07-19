@@ -16,7 +16,7 @@ export const tokensWithOnePoolId: Tokens[] = [Tokens.USDCE, Tokens.WETH];
 export const tokensAllowingMergingInbound: {
   [token in Tokens]?: Tokens[];
 } = {
-  [Tokens.USDC]: [Tokens.USDCE], // Currently only USDC can be merged into USDCE. Later on can add SUSD, DAI, etc. if needed.
+  [Tokens.USDC]: [Tokens.USDCE], // Currently only USDC can be merged into USDCE. Later on can add SUSD, USDT, DAI, etc. if needed.
   [Tokens.USDCE]: [Tokens.USDC],
   [Tokens.WETH]: [Tokens.ETH],
   [Tokens.ETH]: [Tokens.WETH],
