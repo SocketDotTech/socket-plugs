@@ -1,29 +1,32 @@
-import { Contract, utils } from "ethers";
-import prompts from "prompts";
-import {
-  buildEnvFile,
-  updateProjectEnums,
-  updateTokenEnums,
-} from "./configUtils";
-import { Hooks, ProjectConstants, ProjectType } from "../../src";
 import {
   ChainSlug,
-  ChainSlugToKey,
   DeploymentMode,
   IntegrationTypes,
   MainnetIds,
   TestnetIds,
 } from "@socket.tech/dl-core";
-import { ExistingTokenAddresses, Tokens } from "../../src/enums";
-import { generateConstantsFile } from "./generateConstants";
-import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
+import prompts from "prompts";
+import {
+  Hooks,
+  ProjectConstants,
+  ProjectType,
+  tokensWithOnePoolId,
+} from "../../src";
+import { Tokens } from "../../src/enums";
 import {
   ProjectConfig,
   initialLimitsForSuperbridge,
   validateEmptyValue,
   validateEthereumAddress,
 } from "./common";
+import {
+  buildEnvFile,
+  updateProjectEnums,
+  updateTokenEnums,
+} from "./configUtils";
 import { chainSlugReverseMap } from "./enumMaps";
+import { generateConstantsFile } from "./generateConstants";
+import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
 
 type TokenRateLimits = Record<
   string,
@@ -461,10 +464,11 @@ export const buildProjectConstants = async (
   };
 
   for (const token of tokenInfo.tokens) {
+    const poolCount = tokensWithOnePoolId.includes(token) ? 1 : 0;
     const limitsAndPoolId = {};
     for (const chain of allChains) {
       limitsAndPoolId[chain] = {
-        [IntegrationTypes.fast]: tokenLimitInfo[token],
+        [IntegrationTypes.fast]: { ...tokenLimitInfo[token], poolCount },
       };
     }
 
