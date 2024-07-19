@@ -64,9 +64,9 @@ export const addProject = async () => {
   let tokenInfo: {
     tokens: Tokens[];
     superTokenInfoMap?: Record<string, SuperTokenInfo>;
-    mergeInboundWithTokens?:{
+    mergeInboundWithTokens?: {
       [key in Tokens]?: Tokens[];
-    }
+    };
   } = await getProjectTokenListInfo(
     projectType,
     owner,
@@ -258,7 +258,7 @@ export const getProjectTokenListInfo = async (
   }));
 
   if (projectType == ProjectType.SUPERBRIDGE) {
-    const response =  await prompts([
+    const response = await prompts([
       {
         name: "tokens",
         type: "multiselect",
@@ -270,15 +270,17 @@ export const getProjectTokenListInfo = async (
       },
     ]);
     const tokens = response.tokens as Tokens[];
-    const isEthAndWethPresent = tokens.includes(Tokens.ETH) && tokens.includes(Tokens.WETH);
-    const isUsdcAndUsdcePresent = tokens.includes(Tokens.USDC) && tokens.includes(Tokens.USDCE);
+    const isEthAndWethPresent =
+      tokens.includes(Tokens.ETH) && tokens.includes(Tokens.WETH);
+    const isUsdcAndUsdcePresent =
+      tokens.includes(Tokens.USDC) && tokens.includes(Tokens.USDCE);
 
     let mergeEthAndWeth = false;
     let mergeUsdcAndUsdce = false;
-    let mergeInboundWithTokens:{
+    let mergeInboundWithTokens: {
       [key in Tokens]?: Tokens[];
     } = {};
-    
+
     if (isEthAndWethPresent) {
       let response = await prompts([
         {
@@ -292,8 +294,8 @@ export const getProjectTokenListInfo = async (
       if (mergeEthAndWeth) {
         mergeInboundWithTokens[Tokens.ETH] = [Tokens.WETH];
         mergeInboundWithTokens[Tokens.WETH] = [Tokens.ETH];
+      }
     }
-  }
     if (isUsdcAndUsdcePresent) {
       let response = await prompts([
         {
@@ -301,7 +303,7 @@ export const getProjectTokenListInfo = async (
           type: "confirm",
           message:
             "Want to merge USDC and USDCE deposits to app chain? Both deposits will mint USDC on app chain",
-        }
+        },
       ]);
       mergeUsdcAndUsdce = response.mergeUsdcAndUsdce;
       if (mergeUsdcAndUsdce) {
@@ -309,16 +311,8 @@ export const getProjectTokenListInfo = async (
         mergeInboundWithTokens[Tokens.USDCE] = [Tokens.USDC];
       }
     }
-    
-    
-    
-    
-    
+
     return { tokens, mergeInboundWithTokens };
-
-
-
-
   } else if (projectType === ProjectType.SUPERTOKEN) {
     let allTokens: Tokens[] = [];
     let superTokenInfoMap: Record<string, SuperTokenInfo> = {};
@@ -505,9 +499,9 @@ export const buildProjectConstants = async (
   tokenInfo: {
     tokens: Tokens[];
     superTokenInfoMap?: Record<string, SuperTokenInfo>;
-    mergeInboundWithTokens?:{
+    mergeInboundWithTokens?: {
       [key in Tokens]?: Tokens[];
-    }
+    };
   },
   chainsInfo: { vaultChains: ChainSlug[]; controllerChains: ChainSlug[] },
   hookType: Hooks,
@@ -531,7 +525,7 @@ export const buildProjectConstants = async (
     projectConstants[DeploymentMode.PROD][token] = {
       vaultChains: chainsInfo.vaultChains,
       controllerChains: chainsInfo.controllerChains,
-      mergeInboundWithTokens: tokenInfo.mergeInboundWithTokens[token] ?? [],
+      mergeInboundWithTokens: tokenInfo.mergeInboundWithTokens[token],
       hook: {
         hookType,
       },

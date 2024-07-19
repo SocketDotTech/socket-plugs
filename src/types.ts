@@ -128,6 +128,8 @@ export interface DeployParams {
   currentChainSlug: number;
   currentToken: Tokens;
   hookType?: Hooks;
+  mergeInboundWithTokens: Tokens[];
+  tc: TokenConstants;
 }
 
 export type UpdateLimitParams = [

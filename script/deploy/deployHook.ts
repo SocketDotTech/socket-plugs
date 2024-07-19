@@ -1,15 +1,25 @@
 import { Contract } from "ethers";
 import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
-import { Hooks, HookContracts, DeployParams } from "../../src";
+import {
+  Hooks,
+  HookContracts,
+  DeployParams,
+  SBAddresses,
+  STAddresses,
+  STTokenAddresses,
+  SBTokenAddresses,
+  AppChainAddresses,
+} from "../../src";
 import { getBridgeContract } from "../helpers/common";
 import { getDryRun } from "../constants/config";
 import { constants } from "ethers";
 const { AddressZero } = constants;
 
 export const deployHookContracts = async (
-  useConnnectorPools: boolean,
-  deployParams: DeployParams
+  deployParams: DeployParams,
+  allAddresses: SBAddresses | STAddresses,
+  isControllerChain: boolean
 ) => {
   const hookType = deployParams.hookType;
   if (!hookType) return deployParams;
@@ -19,9 +29,60 @@ export const deployHookContracts = async (
   let args: any[] = [];
 
   let bridgeContract: Contract, bridgeAddress: string;
+  if (
+    isSuperBridge() &&
+    deployParams.mergeInboundWithTokens.length &&
+    isControllerChain &&
+    !deployParams.addresses[HookContracts.LimitHook] &&
+    !(
+      deployParams.addresses[HookContracts.LimitExecutionHook] &&
+      deployParams.addresses[HookContracts.ExecutionHelper]
+    )
+  ) {
+    for (const siblingToken of deployParams.mergeInboundWithTokens) {
+      const siblingTokenAddr: AppChainAddresses =
+        allAddresses[deployParams.currentChainSlug]?.[siblingToken];
+
+      let LimitHookAddress = siblingTokenAddr?.[HookContracts.LimitHook];
+      let LimitExecutionHookAddress =
+        siblingTokenAddr?.[HookContracts.LimitExecutionHook];
+      let ExecutionHelperAddress =
+        siblingTokenAddr?.[HookContracts.ExecutionHelper];
+
+      if (LimitHookAddress) {
+        deployParams.addresses[HookContracts.LimitHook] = LimitHookAddress;
+        console.log(
+          `LimitHook found on ${deployParams.currentChainSlug} at address ${LimitHookAddress} for sibling token ${siblingToken}`
+        );
+      }
+      if (ExecutionHelperAddress) {
+        deployParams.addresses[HookContracts.ExecutionHelper] =
+          ExecutionHelperAddress;
+        console.log(
+          `ExecutionHelper found on ${deployParams.currentChainSlug} at address ${ExecutionHelperAddress} for sibling token ${siblingToken}`
+        );
+      }
+      if (LimitExecutionHookAddress) {
+        deployParams.addresses[HookContracts.LimitExecutionHook] =
+          LimitExecutionHookAddress;
+        console.log(
+          `LimitExecutionHook found on ${deployParams.currentChainSlug} at address ${LimitExecutionHookAddress} for sibling token ${siblingToken}`
+        );
+      }
+
+      if (
+        LimitHookAddress ||
+        (LimitExecutionHookAddress && ExecutionHelperAddress)
+      ) {
+        return deployParams;
+      }
+    }
+  }
 
   // no use of connectorPools for superToken
-  useConnnectorPools = isSuperToken() ? false : useConnnectorPools;
+  let useConnnectorPools: boolean = false;
+  if (isSuperToken()) useConnnectorPools = false;
+  if (isSuperBridge()) useConnnectorPools = isControllerChain; // use pools only for controller chain
 
   bridgeContract = await getBridgeContract(
     deployParams.currentChainSlug,
