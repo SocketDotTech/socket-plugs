@@ -15,7 +15,7 @@ export const ExistingTokenAddresses: {
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
   },
   [ChainSlug.OPTIMISM]: {
-    [Tokens.USDC]: "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
+    [Tokens.USDC]: "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
     [Tokens.USDCE]: "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
     [Tokens.USDT]: "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
