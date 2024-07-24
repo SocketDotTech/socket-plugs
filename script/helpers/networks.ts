@@ -49,7 +49,7 @@ export const overrides: {
   [ChainSlug.ARBITRUM]: {
     // type,
     // gasLimit: 2_000_000,
-    gasPrice,
+    // gasPrice,
   },
   [ChainSlug.AEVO]: {
     type: 1,
@@ -77,14 +77,14 @@ export const overrides: {
     gasPrice,
   },
   [ChainSlug.POLYGON_MAINNET]: {
-    type: 1,
-    gasLimit: 5_000_000,
-    gasPrice: 250_000_000_000,
+    // type: 1,
+    // gasLimit: 1_000_000,
+    // gasPrice: 50_000_000_000,
   },
   [ChainSlug.BSC]: {
-    type: 1,
-    gasLimit: 5_000_000,
-    gasPrice: 5_000_000_000,
+    // type: 1,
+    // gasLimit: 1_000_000,
+    // gasPrice: 10_000_000_000,
   },
   [ChainSlug.BASE]: {
     // type: 1,
