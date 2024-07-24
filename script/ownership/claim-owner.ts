@@ -20,11 +20,11 @@ dotenvConfig();
  *
  * --sendtx         Send claim tx along with ownership check.
  *                  Default is only check owner, nominee.
- *                  Eg. npx --sendtx ts-node scripts/admin/rotate-owner/claim.ts
+ *                  Eg. npx --sendtx ts-node script/ownership/claim-owner.ts
  *
  * --chains         Run only for specified chains.
  *                  Default is all chains.
- *                  Eg. npx --chains=10,2999 ts-node scripts/admin/rotate-owner/claim.ts
+ *                  Eg. npx --chains=10,2999 ts-node script/ownership/claim-owner.ts
  */
 
 const signerKey = process.env.OWNER_SIGNER_KEY;
