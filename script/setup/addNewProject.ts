@@ -275,14 +275,12 @@ export const getProjectTokenListInfo = async (
     const isUsdcAndUsdcePresent =
       tokens.includes(Tokens.USDC) && tokens.includes(Tokens.USDCE);
 
-    let mergeEthAndWeth = false;
-    let mergeUsdcAndUsdce = false;
-    let mergeInboundWithTokens: {
+    const mergeInboundWithTokens: {
       [key in Tokens]?: Tokens[];
     } = {};
 
     if (isEthAndWethPresent) {
-      let response = await prompts([
+      const response = await prompts([
         {
           name: "mergeEthAndWeth",
           type: "confirm",
@@ -290,14 +288,13 @@ export const getProjectTokenListInfo = async (
             "Want to merge ETH and WETH deposits to app chain? Both deposits will mint WETH on app chain",
         },
       ]);
-      mergeEthAndWeth = response.mergeEthAndWeth;
-      if (mergeEthAndWeth) {
+      if (response.mergeEthAndWeth) {
         mergeInboundWithTokens[Tokens.ETH] = [Tokens.WETH];
         mergeInboundWithTokens[Tokens.WETH] = [Tokens.ETH];
       }
     }
     if (isUsdcAndUsdcePresent) {
-      let response = await prompts([
+      const response = await prompts([
         {
           name: "mergeUsdcAndUsdce",
           type: "confirm",
@@ -305,8 +302,7 @@ export const getProjectTokenListInfo = async (
             "Want to merge USDC and USDCE deposits to app chain? Both deposits will mint USDC on app chain",
         },
       ]);
-      mergeUsdcAndUsdce = response.mergeUsdcAndUsdce;
-      if (mergeUsdcAndUsdce) {
+      if (response.mergeUsdcAndUsdce) {
         mergeInboundWithTokens[Tokens.USDC] = [Tokens.USDCE];
         mergeInboundWithTokens[Tokens.USDCE] = [Tokens.USDC];
       }
@@ -314,16 +310,16 @@ export const getProjectTokenListInfo = async (
 
     return { tokens, mergeInboundWithTokens };
   } else if (projectType === ProjectType.SUPERTOKEN) {
-    let allTokens: Tokens[] = [];
-    let superTokenInfoMap: Record<string, SuperTokenInfo> = {};
+    const allTokens: Tokens[] = [];
+    const superTokenInfoMap: Record<string, SuperTokenInfo> = {};
     console.log("provide Supertoken details : ");
     while (true) {
-      let supertokenInfo = await getSuperTokenInfo(
+      const supertokenInfo = await getSuperTokenInfo(
         ownerAddress,
         vaultChains,
         controllerChains
       );
-      let token = supertokenInfo.symbol;
+      const token = supertokenInfo.symbol;
       if (!(token in tokenEnum)) {
         await updateTokenEnums(supertokenInfo);
         tokenEnum[token] = token;
@@ -333,7 +329,7 @@ export const getProjectTokenListInfo = async (
 
       allTokens.push(token as Tokens);
       superTokenInfoMap[token] = supertokenInfo;
-      let response = await prompts([
+      const response = await prompts([
         {
           name: "addMoreTokens",
           type: "confirm",
@@ -514,7 +510,7 @@ export const buildProjectConstants = async (
   };
 
   for (const token of tokenInfo.tokens) {
-    const poolCount = tokensWithOnePoolId.includes(token) ? 1 : 0;
+    const poolCount = tokensWithOnePoolId.includes(token) ? 1 : undefined; // If poolCount is not 1, assign undefined to avoid adding poolCount 0 in constants file.
     const limitsAndPoolId = {};
     for (const chain of allChains) {
       limitsAndPoolId[chain] = {
@@ -544,7 +540,7 @@ export const buildProjectConstants = async (
     }
   }
 
-  return projectConstants;
+  return JSON.parse(JSON.stringify(projectConstants)); // stringify and parse to remove undefined values
 };
 
 export const getInitialLimitValue = async (

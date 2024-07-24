@@ -90,7 +90,7 @@ export const deploy = async () => {
       let allDeployed = false;
       const signer = getSignerFromChainSlug(chain);
 
-      let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
+      let tokenAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
         chain
       ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
 
@@ -114,16 +114,15 @@ export const deploy = async () => {
           token,
           siblings,
           hookType,
-          pc[token].mergeInboundWithTokens ?? [],
-          chainAddresses,
+          tokenAddresses,
           allAddresses,
           pc[token]
         );
 
         allDeployed = results.allDeployed;
-        chainAddresses = results.deployedAddresses;
+        tokenAddresses = results.deployedAddresses;
         if (!allAddresses[chain]) allAddresses[chain] = {};
-        allAddresses[chain]![token] = chainAddresses;
+        allAddresses[chain]![token] = tokenAddresses;
       }
     }
   }
@@ -141,7 +140,6 @@ const deployChainContracts = async (
   token: Tokens,
   siblings: number[],
   hookType: Hooks,
-  mergeInboundWithTokens: Tokens[],
   deployedAddresses: SBTokenAddresses | STTokenAddresses,
   allAddresses: SBAddresses | STAddresses,
   tc: TokenConstants
@@ -154,7 +152,7 @@ const deployChainContracts = async (
     currentChainSlug: chainSlug,
     currentToken: token,
     hookType,
-    mergeInboundWithTokens,
+    mergeInboundWithTokens: tc.mergeInboundWithTokens ?? [],
     tc,
   };
 
