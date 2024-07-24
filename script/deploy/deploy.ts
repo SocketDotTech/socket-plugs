@@ -90,7 +90,7 @@ export const deploy = async () => {
       let allDeployed = false;
       const signer = getSignerFromChainSlug(chain);
 
-      let chainAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
+      let tokenAddresses: SBTokenAddresses | STTokenAddresses = (addresses[
         chain
       ]?.[token] ?? {}) as SBTokenAddresses | STTokenAddresses;
 
@@ -114,13 +114,15 @@ export const deploy = async () => {
           token,
           siblings,
           hookType,
-          chainAddresses
+          tokenAddresses,
+          allAddresses,
+          pc[token]
         );
 
         allDeployed = results.allDeployed;
-        chainAddresses = results.deployedAddresses;
+        tokenAddresses = results.deployedAddresses;
         if (!allAddresses[chain]) allAddresses[chain] = {};
-        allAddresses[chain]![token] = chainAddresses;
+        allAddresses[chain]![token] = tokenAddresses;
       }
     }
   }
@@ -138,7 +140,9 @@ const deployChainContracts = async (
   token: Tokens,
   siblings: number[],
   hookType: Hooks,
-  deployedAddresses: SBTokenAddresses | STTokenAddresses
+  deployedAddresses: SBTokenAddresses | STTokenAddresses,
+  allAddresses: SBAddresses | STAddresses,
+  tc: TokenConstants
 ): Promise<ReturnObj> => {
   let allDeployed = false;
 
@@ -148,6 +152,8 @@ const deployChainContracts = async (
     currentChainSlug: chainSlug,
     currentToken: token,
     hookType,
+    mergeInboundWithTokens: tc.mergeInboundWithTokens ?? [],
+    tc,
   };
 
   try {
@@ -157,15 +163,28 @@ const deployChainContracts = async (
       deployUtils.addresses = addr;
 
       if (isAppChain) {
-        deployUtils = await deployControllerChainContracts(deployUtils);
+        deployUtils = await deployControllerChainContracts(
+          deployUtils,
+          allAddresses
+        );
       } else {
-        deployUtils = await deployVaultChainContracts(deployUtils);
+        deployUtils = await deployVaultChainContracts(
+          deployUtils,
+          allAddresses
+        );
       }
     }
     if (isSuperToken()) {
       if (isVaultChain)
-        deployUtils = await deployVaultChainContracts(deployUtils);
-      else deployUtils = await deployControllerChainContracts(deployUtils);
+        deployUtils = await deployVaultChainContracts(
+          deployUtils,
+          allAddresses
+        );
+      else
+        deployUtils = await deployControllerChainContracts(
+          deployUtils,
+          allAddresses
+        );
     }
 
     for (let sibling of siblings) {
@@ -251,13 +270,15 @@ const deployConnectors = async (
   return deployParams;
 };
 
-const deployControllerChainContracts = async (
-  deployParams: DeployParams
+export const deployControllerChainContracts = async (
+  deployParams: DeployParams,
+  allAddresses: SBAddresses | STAddresses
 ): Promise<DeployParams> => {
   try {
     let mintableToken: string = "",
       controller: Contract,
       contractName: string = "",
+      controllerAddress: string = "",
       contractPath: string = "";
 
     if (isSuperToken()) {
@@ -285,26 +306,52 @@ const deployControllerChainContracts = async (
         deployParams.addresses[SuperBridgeContracts.MintableToken] =
           mintableToken;
 
-      contractName = pc[deployParams.currentToken].isFiatTokenV2_1
+      contractName = deployParams.tc.isFiatTokenV2_1
         ? SuperBridgeContracts.FiatTokenV2_1_Controller
         : SuperBridgeContracts.Controller;
-      contractPath = pc[deployParams.currentToken].isFiatTokenV2_1
+      contractPath = deployParams.tc.isFiatTokenV2_1
         ? "contracts/bridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
         : "contracts/bridge/Controller.sol";
     }
 
-    controller = await getOrDeploy(
-      contractName,
-      contractPath,
-      [mintableToken],
-      deployParams
-    );
+    // If controller address is already in addresses object, skip
+    // If mergeInboundWithTokens is provided, pick the first token's controller address which is present.
+    // For example, if USDC and USDCe are to be merged, if UDSC is already deployed, use USDC's controller address
+    // while deploying USDCe.
+    if (
+      !deployParams.addresses[SuperBridgeContracts.Controller] &&
+      isSuperBridge() &&
+      deployParams.mergeInboundWithTokens.length
+    ) {
+      for (const siblingToken of deployParams.mergeInboundWithTokens) {
+        controllerAddress =
+          allAddresses[deployParams.currentChainSlug]?.[siblingToken]
+            ?.Controller;
+        if (controllerAddress) {
+          console.log(
+            `${contractName} found on ${deployParams.currentChainSlug} at address ${controllerAddress} for sibling token ${siblingToken}`
+          );
+          deployParams.addresses[SuperBridgeContracts.Controller] =
+            controllerAddress;
+          break;
+        }
+      }
+    }
 
-    deployParams.addresses[SuperBridgeContracts.Controller] = getDryRun()
-      ? AddressZero
-      : controller.address;
+    // If controller address is not found from already deployed sibling token, deploy controller
+    if (!controllerAddress) {
+      controller = await getOrDeploy(
+        contractName,
+        contractPath,
+        [mintableToken],
+        deployParams
+      );
 
-    deployParams = await deployHookContracts(true, deployParams);
+      deployParams.addresses[SuperBridgeContracts.Controller] = getDryRun()
+        ? AddressZero
+        : controller.address;
+    }
+    deployParams = await deployHookContracts(deployParams, allAddresses, true);
     console.log(
       deployParams.currentChainSlug,
       " Controller Chain Contracts deployed! ✔"
@@ -320,8 +367,9 @@ const deployControllerChainContracts = async (
   return deployParams;
 };
 
-const deployVaultChainContracts = async (
-  deployParams: DeployParams
+export const deployVaultChainContracts = async (
+  deployParams: DeployParams,
+  allAddresses: SBAddresses | STAddresses
 ): Promise<DeployParams> => {
   console.log(
     `Deploying vault chain contracts, chain: ${deployParams.currentChainSlug}...`
@@ -349,7 +397,7 @@ const deployVaultChainContracts = async (
       ? AddressZero
       : vault.address;
 
-    deployParams = await deployHookContracts(false, deployParams);
+    deployParams = await deployHookContracts(deployParams, allAddresses, false);
     console.log(
       deployParams.currentChainSlug,
       " Vault Chain Contracts deployed! ✔"
@@ -379,7 +427,7 @@ const deploySuperToken = async (deployParams: DeployParams) => {
       ];
   } else {
     let path = `contracts/token/${contractName}.sol`;
-    let superTokenInfo = pc[deployParams.currentToken].superTokenInfo;
+    let superTokenInfo = deployParams.tc.superTokenInfo;
     if (!superTokenInfo) throw new Error("SuperToken info not found!");
     let {
       name,

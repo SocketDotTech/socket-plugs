@@ -23,6 +23,7 @@ export type ProjectConstants = {
 export type TokenConstants = {
   controllerChains: ChainSlug[];
   vaultChains: ChainSlug[];
+  mergeInboundWithTokens?: Tokens[];
   // for superbridge project, controller chains
   isFiatTokenV2_1?: boolean;
   // for supertoken project, controller chain
@@ -127,6 +128,8 @@ export interface DeployParams {
   currentChainSlug: number;
   currentToken: Tokens;
   hookType?: Hooks;
+  mergeInboundWithTokens: Tokens[];
+  tc: TokenConstants;
 }
 
 export type UpdateLimitParams = [

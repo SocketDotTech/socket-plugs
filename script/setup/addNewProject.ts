@@ -1,29 +1,32 @@
-import { Contract, utils } from "ethers";
-import prompts from "prompts";
-import {
-  buildEnvFile,
-  updateProjectEnums,
-  updateTokenEnums,
-} from "./configUtils";
-import { Hooks, ProjectConstants, ProjectType } from "../../src";
 import {
   ChainSlug,
-  ChainSlugToKey,
   DeploymentMode,
   IntegrationTypes,
   MainnetIds,
   TestnetIds,
 } from "@socket.tech/dl-core";
-import { ExistingTokenAddresses, Tokens } from "../../src/enums";
-import { generateConstantsFile } from "./generateConstants";
-import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
+import prompts from "prompts";
+import {
+  Hooks,
+  ProjectConstants,
+  ProjectType,
+  tokensWithOnePoolId,
+} from "../../src";
+import { Tokens } from "../../src/enums";
 import {
   ProjectConfig,
   initialLimitsForSuperbridge,
   validateEmptyValue,
   validateEthereumAddress,
 } from "./common";
+import {
+  buildEnvFile,
+  updateProjectEnums,
+  updateTokenEnums,
+} from "./configUtils";
 import { chainSlugReverseMap } from "./enumMaps";
+import { generateConstantsFile } from "./generateConstants";
+import { generateTokenAddressesFile } from "./updateExistingTokenAddresses";
 
 type TokenRateLimits = Record<
   string,
@@ -61,6 +64,9 @@ export const addProject = async () => {
   let tokenInfo: {
     tokens: Tokens[];
     superTokenInfoMap?: Record<string, SuperTokenInfo>;
+    mergeInboundWithTokens?: {
+      [key in Tokens]?: Tokens[];
+    };
   } = await getProjectTokenListInfo(
     projectType,
     owner,
@@ -252,7 +258,7 @@ export const getProjectTokenListInfo = async (
   }));
 
   if (projectType == ProjectType.SUPERBRIDGE) {
-    return await prompts([
+    const response = await prompts([
       {
         name: "tokens",
         type: "multiselect",
@@ -263,17 +269,57 @@ export const getProjectTokenListInfo = async (
         choices: tokenChoices,
       },
     ]);
+    const tokens = response.tokens as Tokens[];
+    const isEthAndWethPresent =
+      tokens.includes(Tokens.ETH) && tokens.includes(Tokens.WETH);
+    const isUsdcAndUsdcePresent =
+      tokens.includes(Tokens.USDC) && tokens.includes(Tokens.USDCE);
+
+    const mergeInboundWithTokens: {
+      [key in Tokens]?: Tokens[];
+    } = {};
+
+    if (isEthAndWethPresent) {
+      const response = await prompts([
+        {
+          name: "mergeEthAndWeth",
+          type: "confirm",
+          message:
+            "Want to merge ETH and WETH deposits to app chain? Both deposits will mint WETH on app chain",
+        },
+      ]);
+      if (response.mergeEthAndWeth) {
+        mergeInboundWithTokens[Tokens.ETH] = [Tokens.WETH];
+        mergeInboundWithTokens[Tokens.WETH] = [Tokens.ETH];
+      }
+    }
+    if (isUsdcAndUsdcePresent) {
+      const response = await prompts([
+        {
+          name: "mergeUsdcAndUsdce",
+          type: "confirm",
+          message:
+            "Want to merge USDC and USDCE deposits to app chain? Both deposits will mint USDC on app chain",
+        },
+      ]);
+      if (response.mergeUsdcAndUsdce) {
+        mergeInboundWithTokens[Tokens.USDC] = [Tokens.USDCE];
+        mergeInboundWithTokens[Tokens.USDCE] = [Tokens.USDC];
+      }
+    }
+
+    return { tokens, mergeInboundWithTokens };
   } else if (projectType === ProjectType.SUPERTOKEN) {
-    let allTokens: Tokens[] = [];
-    let superTokenInfoMap: Record<string, SuperTokenInfo> = {};
+    const allTokens: Tokens[] = [];
+    const superTokenInfoMap: Record<string, SuperTokenInfo> = {};
     console.log("provide Supertoken details : ");
     while (true) {
-      let supertokenInfo = await getSuperTokenInfo(
+      const supertokenInfo = await getSuperTokenInfo(
         ownerAddress,
         vaultChains,
         controllerChains
       );
-      let token = supertokenInfo.symbol;
+      const token = supertokenInfo.symbol;
       if (!(token in tokenEnum)) {
         await updateTokenEnums(supertokenInfo);
         tokenEnum[token] = token;
@@ -283,7 +329,7 @@ export const getProjectTokenListInfo = async (
 
       allTokens.push(token as Tokens);
       superTokenInfoMap[token] = supertokenInfo;
-      let response = await prompts([
+      const response = await prompts([
         {
           name: "addMoreTokens",
           type: "confirm",
@@ -449,6 +495,9 @@ export const buildProjectConstants = async (
   tokenInfo: {
     tokens: Tokens[];
     superTokenInfoMap?: Record<string, SuperTokenInfo>;
+    mergeInboundWithTokens?: {
+      [key in Tokens]?: Tokens[];
+    };
   },
   chainsInfo: { vaultChains: ChainSlug[]; controllerChains: ChainSlug[] },
   hookType: Hooks,
@@ -461,16 +510,18 @@ export const buildProjectConstants = async (
   };
 
   for (const token of tokenInfo.tokens) {
+    const poolCount = tokensWithOnePoolId.includes(token) ? 1 : undefined; // If poolCount is not 1, assign undefined to avoid adding poolCount 0 in constants file.
     const limitsAndPoolId = {};
     for (const chain of allChains) {
       limitsAndPoolId[chain] = {
-        [IntegrationTypes.fast]: tokenLimitInfo[token],
+        [IntegrationTypes.fast]: { ...tokenLimitInfo[token], poolCount },
       };
     }
 
     projectConstants[DeploymentMode.PROD][token] = {
       vaultChains: chainsInfo.vaultChains,
       controllerChains: chainsInfo.controllerChains,
+      mergeInboundWithTokens: tokenInfo.mergeInboundWithTokens[token],
       hook: {
         hookType,
       },
@@ -489,7 +540,7 @@ export const buildProjectConstants = async (
     }
   }
 
-  return projectConstants;
+  return JSON.parse(JSON.stringify(projectConstants)); // stringify and parse to remove undefined values
 };
 
 export const getInitialLimitValue = async (
