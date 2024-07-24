@@ -1,7 +1,7 @@
 {
   "name": "@socket.tech/socket-plugs",
   "license": "MIT",
-  "version": "1.0.24-test.2",
+  "version": "1.0.28",
   "description": "Plugs built using socket's data layer",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -61,7 +61,9 @@
     "compile"
   ],
   "dependencies": {
-    "@socket.tech/dl-core": "^2.15.0",
+    "@arbitrum/sdk": "^3.7.0",
+    "@eth-optimism/sdk": "^3.3.2",
+    "@socket.tech/dl-core": "^2.19.0",
     "lodash": "^4.17.21",
     "prompts": "^2.4.2"
   }
