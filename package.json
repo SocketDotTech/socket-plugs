@@ -46,13 +46,14 @@
     "abi": "hardhat export-abi",
     "compile": "forge build",
     "test": "forge test",
-    "setup:all": "forge install && yarn install && yarn setup:dependencies && yarn build && yarn setup:socket",
+    "setup:all": "forge install && yarn install && yarn setup:dependencies && yarn build",
     "setup:dependencies": "yarn && yarn add @socket.tech/dl-core",
     "script:setup": "yarn setup:dependencies && npx ts-node script/setup.ts",
     "script:deploy": "npx hardhat run script/deploy.ts",
     "script:verify": "npx hardhat run script/deploy/verifyContracts.ts",
-    "add:project": "npx ts-node script/script.ts new",
-    "deploy:project": "yarn script:deploy",
+    "project:new": "npx ts-node script/script.ts new",
+    "project:edit": "npx ts-node script/script.ts edit",
+    "project:addToken": "npx ts-node script/script.ts addToken",
     "bridge": "npx hardhat run script/bridge/bridge.ts"
   },
   "pre-commit": [
