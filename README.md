@@ -49,20 +49,12 @@ Install all dependencies.
 yarn setup:all
 ```
 
-Now `socket` command will be available to use in the root directory.
-
-To get available features run:
-
-```bash
-socket help
-```
-
 ## Create a new project
 
 To create a new project, run:
 
 ```bash
-socket new
+yarn project:new
 ```
 
 Follow the prompts to create a new project. This will create a new project in `scripts/constants/projectConstants/supertoken/projectname_<mainnet/testnet>.ts` or `scripts/constants/projectConstants/superbridge/projectname_<mainnet/testnet>.ts`.
