@@ -6,9 +6,8 @@ import { editProject } from "./setup/editProject";
 
 function showHelp() {
   console.log(`
-    Usage:
-      socket <command>
-      
+    Add following options to add or update a project.
+
     Commands:
       new         Add a new Project
       edit        Edit an existing Project
