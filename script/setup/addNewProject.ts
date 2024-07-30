@@ -521,7 +521,7 @@ export const buildProjectConstants = async (
     projectConstants[DeploymentMode.PROD][token] = {
       vaultChains: chainsInfo.vaultChains,
       controllerChains: chainsInfo.controllerChains,
-      mergeInboundWithTokens: tokenInfo.mergeInboundWithTokens[token],
+      mergeInboundWithTokens: tokenInfo?.mergeInboundWithTokens?.[token],
       hook: {
         hookType,
       },
