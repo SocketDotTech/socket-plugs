@@ -1,8 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 import { getProjectAddresses } from "../helpers";
-import OwnableArtifact from "../../out/Ownable.sol/Ownable.json";
 import { Signer, Wallet, ethers } from "ethers";
-import { Ownable } from "../../typechain-types/contracts/utils/Ownable";
+import { Ownable, Ownable__factory } from "../../typechain-types";
 import { getProviderFromChainSlug, overrides } from "../helpers/networks";
 import {
   ChainSlug,
@@ -42,8 +41,6 @@ const allChainSlugs = Object.keys(addresses);
 const filteredChainSlugs = !filterChainsParam
   ? allChainSlugs
   : allChainSlugs.filter((c) => filterChainsParam.includes(c));
-
-const ownableABI = OwnableArtifact.abi;
 
 const wallet: Wallet = new ethers.Wallet(signerKey);
 const signerAddress = wallet.address.toLowerCase();
@@ -88,7 +85,7 @@ const checkAndClaim = async (
   label = label.padEnd(45);
   const contract = new ethers.Contract(
     contractAddress,
-    ownableABI,
+    Ownable__factory.abi,
     signer
   ) as Ownable;
 
