@@ -161,16 +161,13 @@ contract TestLimitExecutionHook is Test {
         bytes memory payload = abi.encode(_raju, withdrawAmount);
 
         vm.startPrank(controller__);
-        (
-            TransferInfo memory transferInfo,
-            bytes memory postSrcHookData
-        ) = hook__.srcPreHookCall(
-                SrcPreHookCallParams(
-                    _connector1,
-                    address(_raju),
-                    TransferInfo(_raju, withdrawAmount, payload)
-                )
-            );
+        (TransferInfo memory transferInfo, ) = hook__.srcPreHookCall(
+            SrcPreHookCallParams(
+                _connector1,
+                address(_raju),
+                TransferInfo(_raju, withdrawAmount, payload)
+            )
+        );
         vm.stopPrank();
 
         uint256 burnLimitAfter = hook__.getCurrentSendingLimit(_connector1);

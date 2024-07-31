@@ -21,6 +21,7 @@ contract MockStrategy is IStrategy {
         uint256 total = token.balanceOf(address(this));
         if (total < amount_) revert InsufficientFunds();
         token.transfer(msg.sender, amount_);
+        return amount_;
     }
 
     function withdrawAll() external {
