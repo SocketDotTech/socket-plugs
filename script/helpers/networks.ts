@@ -88,8 +88,8 @@ export const overrides: {
   },
   [ChainSlug.BASE]: {
     // type: 1,
-    gasLimit,
-    gasPrice,
+    // gasLimit: 5_000_000,
+    // gasPrice,
   },
   [ChainSlug.REYA_CRONOS]: {
     type: 1,
