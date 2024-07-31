@@ -85,8 +85,12 @@ contract Vault is Base {
         bytes32 r_,
         bytes32 s_
     ) external payable {
-        ERC20(token).permit(msg.sender, address(this), amount_, deadline_, v_, r_, s_);
-        bridge(receiver_, amount_, msgGasLimit_, connector_, execPayload_, options_);
+
+        try ERC20(token).permit(msg.sender, address(this), amount_, deadline_, v_, r_, s_) {
+            bridge(receiver_, amount_, msgGasLimit_, connector_, execPayload_, options_);
+        } catch {
+            bridge(receiver_, amount_, msgGasLimit_, connector_, extraData_, options_);
+        }
     }
 
     /**

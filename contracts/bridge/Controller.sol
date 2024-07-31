@@ -28,25 +28,14 @@ contract Controller is Base {
         bytes calldata extraData_,
         bytes calldata options_
     ) public payable nonReentrant {
-        (
-            TransferInfo memory transferInfo,
-            bytes memory postHookData
-        ) = _beforeBridge(
-                connector_,
-                TransferInfo(receiver_, amount_, extraData_)
-            );
+        (TransferInfo memory transferInfo, bytes memory postHookData) =
+            _beforeBridge(connector_, TransferInfo(receiver_, amount_, extraData_));
 
         // to maintain socket dl specific accounting for super token
         // re check this logic for mint and mint use cases and if other minter involved
         totalMinted -= transferInfo.amount;
         _burn(msg.sender, transferInfo.amount);
-        _afterBridge(
-            msgGasLimit_,
-            connector_,
-            options_,
-            postHookData,
-            transferInfo
-        );
+        _afterBridge(msgGasLimit_, connector_, options_, postHookData, transferInfo);
     }
 
     /**
@@ -75,10 +64,13 @@ contract Controller is Base {
         bytes32 r_,
         bytes32 s_
     ) external payable {
-        ERC20(token).permit(msg.sender, address(this), amount_, deadline_, v_, r_, s_);
-        bridge(receiver_, amount_, msgGasLimit_, connector_, execPayload_, options_);
-    }
 
+        try ERC20(token).permit(msg.sender, address(this), amount_, deadline_, v_, r_, s_) {
+            bridge(receiver_, amount_, msgGasLimit_, connector_, execPayload_, options_);
+        } catch {
+            bridge(receiver_, amount_, msgGasLimit_, connector_, extraData_, options_);
+        }
+    }
 
     /**
      * @notice Receives inbound tokens from another chain.
@@ -86,28 +78,14 @@ contract Controller is Base {
      * @param siblingChainSlug_ The identifier of the sibling chain.
      * @param payload_ The payload containing the inbound tokens.
      */
-    function receiveInbound(
-        uint32 siblingChainSlug_,
-        bytes memory payload_
-    ) external payable override nonReentrant {
-        (
-            address receiver,
-            uint256 lockAmount,
-            bytes32 messageId,
-            bytes memory extraData
-        ) = abi.decode(payload_, (address, uint256, bytes32, bytes));
+    function receiveInbound(uint32 siblingChainSlug_, bytes memory payload_) external payable override nonReentrant {
+        (address receiver, uint256 lockAmount, bytes32 messageId, bytes memory extraData) =
+            abi.decode(payload_, (address, uint256, bytes32, bytes));
 
         // convert to shares
-        TransferInfo memory transferInfo = TransferInfo(
-            receiver,
-            lockAmount,
-            extraData
-        );
+        TransferInfo memory transferInfo = TransferInfo(receiver, lockAmount, extraData);
         bytes memory postHookData;
-        (postHookData, transferInfo) = _beforeMint(
-            siblingChainSlug_,
-            transferInfo
-        );
+        (postHookData, transferInfo) = _beforeMint(siblingChainSlug_, transferInfo);
 
         _mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
@@ -121,14 +99,8 @@ contract Controller is Base {
      * @param connector_ The address of the connector contract responsible for the failed transaction.
      * @param messageId_ The unique identifier of the failed transaction.
      */
-    function retry(
-        address connector_,
-        bytes32 messageId_
-    ) external nonReentrant {
-        (
-            bytes memory postHookData,
-            TransferInfo memory transferInfo
-        ) = _beforeRetry(connector_, messageId_);
+    function retry(address connector_, bytes32 messageId_) external nonReentrant {
+        (bytes memory postHookData, TransferInfo memory transferInfo) = _beforeRetry(connector_, messageId_);
         _mint(transferInfo.receiver, transferInfo.amount);
         totalMinted += transferInfo.amount;
 
