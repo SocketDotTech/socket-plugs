@@ -372,16 +372,13 @@ contract TestLimitHook is Test {
             connectorPendingAmountBefore
         );
         vm.startPrank(controller__);
-        (
-            bytes memory postHookData,
-            TransferInfo memory transferInfo
-        ) = limitHook__.dstPreHookCall(
-                DstPreHookCallParams(
-                    _connector1,
-                    bytes(""),
-                    TransferInfo(_raju, depositAmount, bytes(""))
-                )
-            );
+        (bytes memory postHookData, ) = limitHook__.dstPreHookCall(
+            DstPreHookCallParams(
+                _connector1,
+                bytes(""),
+                TransferInfo(_raju, depositAmount, bytes(""))
+            )
+        );
 
         CacheData memory cacheData = limitHook__.dstPostHookCall(
             DstPostHookCallParams(
