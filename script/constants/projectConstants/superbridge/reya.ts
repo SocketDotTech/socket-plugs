@@ -317,5 +317,47 @@ export const pc: ProjectConstants = {
         ChainSlug.OPTIMISM,
       ],
     },
+    [Tokens.USDE]: {
+      controllerChains: [ChainSlug.REYA],
+      vaultChains: [ChainSlug.MAINNET],
+      hook: {
+        hookType: Hooks.LIMIT_EXECUTION_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.REYA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+        },
+      },
+    },
+    [Tokens.WSTETH]: {
+      controllerChains: [ChainSlug.REYA],
+      hook: {
+        hookType: Hooks.LIMIT_EXECUTION_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.REYA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+            },
+          },
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "32203.42",
+              receivingLimit: "32203.42",
+            },
+          },
+        },
+      },
+      vaultChains: [ChainSlug.MAINNET],
+    },
   },
 };

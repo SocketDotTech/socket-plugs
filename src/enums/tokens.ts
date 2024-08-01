@@ -17,4 +17,5 @@ export enum Tokens {
   GLTR = "GLTR",
   STIME = "STIME",
   Moon = "MOON",
+  USDE = "USDe",
 }
