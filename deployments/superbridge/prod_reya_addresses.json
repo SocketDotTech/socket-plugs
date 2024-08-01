@@ -71,6 +71,30 @@
           "FAST": "0x32295769ea702BA9337EE5B65c6b42aFF75FEC62"
         }
       }
+    },
+    "USDe": {
+      "isAppChain": false,
+      "NonMintableToken": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
+      "Vault": "0xaA2f2B6cD33Eaabb795c6DB60AAec599C8450F35",
+      "ExecutionHelper": "0xb11C04AFC9B61Ef83658dF6062E5F62fe2e0c8aF",
+      "LimitExecutionHook": "0xB6170138b6460538CF4DAA97F06A16d6bb2aD38f",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0x91CE463148bD7695d4db41f4aA36088E502428F7"
+        }
+      }
+    },
+    "wstETH": {
+      "isAppChain": false,
+      "NonMintableToken": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+      "Vault": "0x052B82b3A096A592F3F28d4736c4796445BB98Ef",
+      "ExecutionHelper": "0x48261a0EA65cb1427e24B3119CBC94cba1b752C1",
+      "LimitExecutionHook": "0x835531a17d01Df9eCe37Fd197E6b232FCDA981B3",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0xcb473D87A56b4609A695753711F727E5c4335cCf"
+        }
+      }
     }
   },
   "10": {
@@ -475,6 +499,30 @@
         },
         "42161": {
           "FAST": "0x42229a5DDC5E32149311265F6F4BC016EaB778FC"
+        }
+      }
+    },
+    "USDe": {
+      "isAppChain": true,
+      "MintableToken": "0xAAB18B45467eCe5e47F85CA6d3dc4DF2a350fd42",
+      "Controller": "0xF5D4ea96d2efbdAB9C63fA85d2c45e8B75dF640c",
+      "ExecutionHelper": "0xC53D91C6D595b4259fa5649d77e1e31E648202A3",
+      "LimitExecutionHook": "0x5feF31D88C3EaEF04076D9C33D12AA9e95Cc5c59",
+      "connectors": {
+        "1": {
+          "FAST": "0xc2dE372337308cEd2754d8d9bC0AB1A1B004C3be"
+        }
+      }
+    },
+    "wstETH": {
+      "isAppChain": true,
+      "MintableToken": "0x7ae54d5a9e5a975DFC3261d915f8151dCcA76bE0",
+      "Controller": "0x454bd326Fb446702C22E1b5097942dA1c9852aAC",
+      "ExecutionHelper": "0x8d422bb223EDe166A6Ca821Fb472e07B446a243b",
+      "LimitExecutionHook": "0x1156bAFb7c72bfFC963038E5C65E8531F15a4a21",
+      "connectors": {
+        "1": {
+          "FAST": "0xd21109653316B21853e3FAB84E4C1E06B9Ee4429"
         }
       }
     }
