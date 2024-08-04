@@ -1,4 +1,4 @@
-![Superbridge Architecture](arch.jpg)
+![Superbridge Architecture](diagrams/arch.jpg)
 
 ### Gauge
 
