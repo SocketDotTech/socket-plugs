@@ -12,6 +12,7 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
     IBridge public immutable bridge__;
     ISocket public immutable socket__;
     uint32 public immutable siblingChainSlug;
+    bytes32 public immutable transmissionParams;
     uint256 public messageIdPart;
 
     event ConnectorPlugDisconnected();
@@ -19,11 +20,13 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
     constructor(
         address bridge_,
         address socket_,
-        uint32 siblingChainSlug_
+        uint32 siblingChainSlug_,
+        bytes32 transmissionParams_
     ) AccessControl(msg.sender) {
         bridge__ = IBridge(bridge_);
         socket__ = ISocket(socket_);
         siblingChainSlug = siblingChainSlug_;
+        transmissionParams = transmissionParams_;
         _grantRole(RESCUE_ROLE, msg.sender);
     }
 
@@ -39,15 +42,12 @@ contract ConnectorPlug is IConnector, IPlug, RescueBase {
                     siblingChainSlug,
                     msgGasLimit_,
                     bytes32(0),
-                    bytes32(0),
+                    transmissionParams,
                     payload_
                 );
         } else {
-            if (options_.length != 64) revert InvalidOptionsLength();
-            (bytes32 executionParams, bytes32 transmissionParams) = abi.decode(
-                options_,
-                (bytes32, bytes32)
-            );
+            if (options_.length != 32) revert InvalidOptionsLength();
+            bytes32 executionParams = abi.decode(options_, (bytes32));
 
             return
                 socket__.outbound{value: msg.value}(
