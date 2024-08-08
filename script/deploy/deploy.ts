@@ -246,7 +246,7 @@ const deployConnectors = async (
 
     for (let intType of integrationTypes) {
       const connector: Contract = await getOrDeployConnector(
-        [bridgeAddress, socket, sibling],
+        [bridgeAddress, socket, sibling, constants.HashZero],
         deployParams,
         sibling,
         intType
