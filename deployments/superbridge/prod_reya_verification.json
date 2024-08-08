@@ -1,6 +1,28 @@
 {
   "1": [
     [
+      "0x4E83292d5cacf05B85bED2c3D4a6056F42EE1738",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x052B82b3A096A592F3F28d4736c4796445BB98Ef",
+        "0x943AC2775928318653e91d350574436A1b9b16f9",
+        1324967486,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x1aE19B11B71b1e232c43Fe65cB1d31E139Ac7A63",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xaA2f2B6cD33Eaabb795c6DB60AAec599C8450F35",
+        "0x943AC2775928318653e91d350574436A1b9b16f9",
+        1324967486,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
       "0xcb473D87A56b4609A695753711F727E5c4335cCf",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -1036,6 +1058,28 @@
     ]
   ],
   "1324967486": [
+    [
+      "0x880997ed94Dd2098395D2b3ECDb1c93026894106",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x454bd326Fb446702C22E1b5097942dA1c9852aAC",
+        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+        1,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0xf004c4c51b6c026247B5910706Ee78134299eaBD",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xF5D4ea96d2efbdAB9C63fA85d2c45e8B75dF640c",
+        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+        1,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
     [
       "0xd21109653316B21853e3FAB84E4C1E06B9Ee4429",
       "ConnectorPlug",
