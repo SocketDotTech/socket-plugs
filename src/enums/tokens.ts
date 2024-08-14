@@ -18,4 +18,5 @@ export enum Tokens {
   STIME = "STIME",
   Moon = "MOON",
   USDE = "USDe",
+  MAGIC = "MAGIC",
 }

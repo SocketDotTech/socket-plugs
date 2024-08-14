@@ -1,0 +1,24 @@
+{
+  "10": {
+    "MAGIC": {
+      "SuperToken": "0x0d3eC0ec5BfBDCC1527060E2e0939251B1D12a31",
+      "Controller": "0xa240B15bCB997320Ee74606197CC5F48bC0e57ef",
+      "connectors": {
+        "42161": {
+          "OPTIMISTIC": "0xc3A52186d2DD0Ad084e49822854C7C93FC0E8735"
+        }
+      }
+    }
+  },
+  "42161": {
+    "MAGIC": {
+      "NonMintableToken": "0x539bde0d7dbd336b79148aa742883198bbf60342",
+      "Vault": "0xa240B15bCB997320Ee74606197CC5F48bC0e57ef",
+      "connectors": {
+        "10": {
+          "OPTIMISTIC": "0xc3A52186d2DD0Ad084e49822854C7C93FC0E8735"
+        }
+      }
+    }
+  }
+}
