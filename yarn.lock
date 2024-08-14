@@ -774,10 +774,10 @@
     "@sentry/types" "5.30.0"
     tslib "^1.9.3"
 
-"@socket.tech/dl-core@^2.21.0":
-  version "2.21.0"
-  resolved "https://registry.yarnpkg.com/@socket.tech/dl-core/-/dl-core-2.21.0.tgz#91d28aecc4776adbec97297043571af4a12377f1"
-  integrity sha512-ymfEQamW8LWaqfqzDJfkvRAatX3JsCpKW2BxV2qFEWoBDDa6QtAaRG0/yxN3fJveBt4ZeQa+aUpDxGUw0aX6Rw==
+"@socket.tech/dl-core@^2.22.0":
+  version "2.22.0"
+  resolved "https://registry.yarnpkg.com/@socket.tech/dl-core/-/dl-core-2.22.0.tgz#54d92d1b78d500efd63c2f88d2435b37a6fceaec"
+  integrity sha512-c5vfWbya3/bb+zhifAwHjiILxNKjfHRTP1xI9p62TPkUTkNiLLdNPae7UGSzINC+nUxeABbHpyIelVko/wD2pA==
   dependencies:
     axios "^1.3.6"
     prompts "^2.4.2"

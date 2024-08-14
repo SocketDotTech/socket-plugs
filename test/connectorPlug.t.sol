@@ -13,17 +13,19 @@ contract TestVault is Test {
     address immutable _raju = address(uint160(_c++));
     address immutable _bridge = address(uint160(_c++));
     address immutable _socket = address(uint160(_c++));
-    uint32 _siblingChainSlug = uint32(_c++);
-    bytes32 _messageId = bytes32(_c++);
+    uint32 immutable _siblingChainSlug = uint32(_c++);
+    bytes32 immutable _messageId = bytes32(_c++);
     uint256 constant _fees = 0.001 ether;
     uint256 constant _amount = 1 ether;
     uint256 constant _msgGasLimit = 200_000;
+    bytes32 immutable _transmissionParams = bytes32(_c++);
 
     function setUp() external {
         connectorPlug = new ConnectorPlug(
             address(_bridge),
             address(_socket),
-            _siblingChainSlug
+            _siblingChainSlug,
+            _transmissionParams
         );
     }
 
@@ -36,7 +38,10 @@ contract TestVault is Test {
     }
 
     function testInvalidLengthOptions() public {
-        bytes memory options = abi.encode(bytes32(uint256(1)));
+        bytes memory options = abi.encode(
+            bytes32(uint256(1)),
+            bytes32(uint256(2))
+        );
         bytes memory payload = abi.encode(_raju, _amount);
         vm.prank(_bridge);
         vm.expectRevert(InvalidOptionsLength.selector);
@@ -57,7 +62,7 @@ contract TestVault is Test {
                     _siblingChainSlug,
                     _msgGasLimit,
                     bytes32(0),
-                    bytes32(0),
+                    _transmissionParams,
                     payload
                 )
             )
@@ -71,7 +76,7 @@ contract TestVault is Test {
                     _siblingChainSlug,
                     _msgGasLimit,
                     bytes32(0),
-                    bytes32(0),
+                    _transmissionParams,
                     payload
                 )
             ),
@@ -91,8 +96,7 @@ contract TestVault is Test {
     function testOutboundWithOptions() public {
         // Setup
         bytes32 executionParams = bytes32(uint256(1));
-        bytes32 transmissionParams = bytes32(uint256(2));
-        bytes memory options = abi.encode(executionParams, transmissionParams);
+        bytes memory options = abi.encode(executionParams);
         bytes memory payload = abi.encode(_raju, _amount);
 
         // Test
@@ -104,7 +108,7 @@ contract TestVault is Test {
                     _siblingChainSlug,
                     _msgGasLimit,
                     executionParams,
-                    transmissionParams,
+                    _transmissionParams,
                     payload
                 )
             )
@@ -118,7 +122,7 @@ contract TestVault is Test {
                     _siblingChainSlug,
                     _msgGasLimit,
                     executionParams,
-                    transmissionParams,
+                    _transmissionParams,
                     payload
                 )
             ),
