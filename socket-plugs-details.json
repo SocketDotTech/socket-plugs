@@ -17,7 +17,8 @@
     "ALPHA": 18,
     "KEK": 18,
     "GLTR": 18,
-    "STIME": 18
+    "STIME": 18,
+    "USDe": 6
   },
   "tokenAddresses": {
     "1": {
@@ -28,10 +29,11 @@
       "SNX": "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f",
       "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
       "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "USDe": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3"
     },
     "10": {
-      "USDC": "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757",
+      "USDC": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
       "USDC.e": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
       "USDT": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
       "WETH": "0x4200000000000000000000000000000000000006",
@@ -120,7 +122,8 @@
     "ALPHA": "ALPHA",
     "KEK": "KEK",
     "GLTR": "GLTR",
-    "STIME": "STIME"
+    "STIME": "STIME",
+    "USDe": "USDe"
   },
   "projects": [
     "aevo",
@@ -144,23 +147,24 @@
     "testing_testnet"
   ],
   "tokens": [
-    "MOON",
     "USDC.e",
     "USDC",
-    "WETH",
-    "WBTC",
     "USDT",
-    "SNX",
-    "wstETH",
     "DAI",
-    "GUARD",
+    "WETH",
     "ETH",
+    "wstETH",
+    "WBTC",
+    "SNX",
+    "GUARD",
     "MTK",
     "FUD",
     "FOMO",
     "ALPHA",
     "KEK",
     "GLTR",
-    "STIME"
+    "STIME",
+    "MOON",
+    "USDe"
   ]
 }
