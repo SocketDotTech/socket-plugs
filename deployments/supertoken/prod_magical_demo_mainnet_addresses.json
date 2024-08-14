@@ -1,0 +1,47 @@
+{
+  "10": {
+    "MAGIC": {
+      "SuperToken": "0xbc325c4C4c74E3586f080AFc6f4C177eBe2900bf",
+      "Controller": "0xa3dd024BAE09aa606257976215bE1AcC9B2ffdd8",
+      "LimitHook": "0xB5dbaC5d028FA9680171AB70E82aBF2Ab9902618",
+      "connectors": {
+        "8453": {
+          "FAST": "0x349Dd53d3fe777405Ae4fC83F7F842C2A564a0da"
+        },
+        "42161": {
+          "FAST": "0x19Ba6C8D70f526F8Fa8C6086608dB871F41C8704"
+        }
+      }
+    }
+  },
+  "8453": {
+    "MAGIC": {
+      "SuperToken": "0x83A52B74e06d1A705e35BB939Be95fcEF7b14CAb",
+      "Controller": "0x5E5677D808795844662681c3A6CEd9855cf4B476",
+      "LimitHook": "0x04a6f5bc61Fe5e7908955F60e80779730c4069B1",
+      "connectors": {
+        "10": {
+          "FAST": "0x8e89587020D99D92f4AE987A5D168d6DFDb54011"
+        },
+        "42161": {
+          "FAST": "0xae69069B4eb0ff55f68d3b9700337eC3d1353785"
+        }
+      }
+    }
+  },
+  "42161": {
+    "MAGIC": {
+      "NonMintableToken": "0x539bde0d7dbd336b79148aa742883198bbf60342",
+      "Vault": "0x349Dd53d3fe777405Ae4fC83F7F842C2A564a0da",
+      "LimitHook": "0x19Ba6C8D70f526F8Fa8C6086608dB871F41C8704",
+      "connectors": {
+        "10": {
+          "FAST": "0xf27d68CD34ddaB4Fa49461768345B2d8764cBB70"
+        },
+        "8453": {
+          "FAST": "0xDC5645EF6ecF650A83B4D2a63979B9C0908Bb0Cb"
+        }
+      }
+    }
+  }
+}
