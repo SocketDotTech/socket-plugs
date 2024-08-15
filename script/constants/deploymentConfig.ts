@@ -12,7 +12,7 @@ import { getMode } from "./config";
 import { chainSlugReverseMap } from "../setup/enumMaps";
 
 export const DEPLOYMENT_CONFIG_URL =
-  "https://la9apjt8o9.execute-api.us-east-1.amazonaws.com/surge/v1/getS3Config";
+  "https://surge-deploy.socket.tech/v1/getS3Config";
 export let testnetIds: ChainSlug[] = [];
 export let mainnetIds: ChainSlug[] = [];
 export let addresses: DeploymentAddresses = {};

@@ -13,7 +13,7 @@ contract DummyERC20 is ERC20 {
      * @notice constructor for creating a new Token
      * @param name_ token name
      * @param symbol_ token symbol
-     * @param decimals_ token decimals 
+     * @param decimals_ token decimals
      */
     constructor(
         string memory name_,
