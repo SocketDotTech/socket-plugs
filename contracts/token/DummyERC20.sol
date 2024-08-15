@@ -4,13 +4,11 @@ pragma solidity 0.8.13;
 import "solmate/tokens/ERC20.sol";
 
 /**
- * @title SuperToken
- * @notice An ERC20 contract which enables bridging a token to its sibling chains.
- * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
+ * @title DummyERC20
+ * @notice An Dummy ERC20 contract which is used for testing Superbridge. Do not use in production
+ * @dev This contract suports minting and burning of tokens
  */
 contract DummyERC20 is ERC20 {
-    // for all controller access (mint, burn)
-
     /**
      * @notice constructor for creating a new SuperToken.
      * @param name_ token name

@@ -49,7 +49,7 @@ export type TokenConstants = {
     hookType: Hooks;
     // for limitHook, limitExecutionHook
     limitsAndPoolId?: {
-      [key in number]?: {
+      [chainSlug: number]: {
         [key in IntegrationTypes]?: {
           sendingLimit: string;
           receivingLimit: string;
