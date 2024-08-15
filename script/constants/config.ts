@@ -19,8 +19,11 @@ export const getOwnerSignerKey = () => {
   return process.env.OWNER_SIGNER_KEY;
 };
 
+// use prod as default if not mentioned
 export const getMode = () => {
-  return DeploymentMode.PROD;
+  if (process.env.DEPLOYMENT_MODE)
+    return process.env.DEPLOYMENT_MODE as DeploymentMode;
+  else return DeploymentMode.PROD;
 };
 
 export const getProjectName = () => {

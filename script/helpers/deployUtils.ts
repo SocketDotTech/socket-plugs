@@ -4,11 +4,7 @@ import { ContractFactory, Contract } from "ethers";
 
 import fs from "fs";
 import { Address } from "hardhat-deploy/dist/types";
-import {
-  ChainSlug,
-  IntegrationTypes,
-  getAddresses,
-} from "@socket.tech/dl-core";
+import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
 import {
@@ -45,6 +41,7 @@ import {
 import path from "path";
 import { ProjectTypeMap } from "../../src/enums/projectType";
 import { chainIdReverseMap } from "../setup/enumMaps";
+import { getAddresses } from "../constants";
 
 export const getOrDeploy = async (
   contractName: string,

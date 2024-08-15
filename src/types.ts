@@ -21,9 +21,12 @@ export type ProjectConstants = {
 };
 
 export type TokenConstants = {
-  controllerChains: ChainSlug[];
-  vaultChains: ChainSlug[];
+  controllerChains: number[];
+  vaultChains: number[];
   mergeInboundWithTokens?: Tokens[];
+  tokenAddresses?: {
+    [chainSlug: number]: string;
+  };
   // for superbridge project, controller chains
   isFiatTokenV2_1?: boolean;
   // for supertoken project, controller chain
@@ -34,7 +37,7 @@ export type TokenConstants = {
     initialSupplyOwner: string;
     owner: string;
     initialSupply: string;
-    initialChain?: ChainSlug;
+    initialChain?: number;
   };
   // for superbridge yield project, controller chain
   yieldTokenInfo?: {
@@ -46,7 +49,7 @@ export type TokenConstants = {
     hookType: Hooks;
     // for limitHook, limitExecutionHook
     limitsAndPoolId?: {
-      [key in ChainSlug]?: {
+      [key in number]?: {
         [key in IntegrationTypes]?: {
           sendingLimit: string;
           receivingLimit: string;

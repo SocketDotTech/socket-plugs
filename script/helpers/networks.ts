@@ -4,6 +4,7 @@ import { resolve } from "path";
 import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
 import { getOwnerSignerKey } from "../constants/config";
 import { chainSlugReverseMap } from "../setup/enumMaps";
+import { getChainName } from "../constants";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -109,8 +110,8 @@ export const overrides: {
 };
 
 export const rpcKeys = (chainSlug: ChainSlug) => {
-  const chainName = chainSlugReverseMap.get(String(chainSlug));
-  return chainName ? `${chainName.toUpperCase()}_RPC` : "";
+  const chainName = getChainName(chainSlug);
+  return chainName ? `${chainName}_RPC` : "";
 };
 
 export function getJsonRpcUrl(chain: ChainSlug): string {

@@ -6,11 +6,7 @@ EventEmitter.defaultMaxListeners = 20;
 
 import { Contract, Wallet } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
-import {
-  ChainSlug,
-  IntegrationTypes,
-  getAddresses,
-} from "@socket.tech/dl-core";
+import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import {
   getMode,
   isSuperBridge,
@@ -51,6 +47,7 @@ import { Project, Tokens } from "../../src/enums";
 import { parseUnits } from "ethers/lib/utils";
 
 import { constants } from "ethers";
+import { getAddresses } from "../constants";
 const { AddressZero } = constants;
 
 let projectType: ProjectType;
@@ -165,12 +162,14 @@ const deployChainContracts = async (
       if (isAppChain) {
         deployUtils = await deployControllerChainContracts(
           deployUtils,
-          allAddresses
+          allAddresses,
+          tc
         );
       } else {
         deployUtils = await deployVaultChainContracts(
           deployUtils,
-          allAddresses
+          allAddresses,
+          tc
         );
       }
     }
@@ -178,12 +177,14 @@ const deployChainContracts = async (
       if (isVaultChain)
         deployUtils = await deployVaultChainContracts(
           deployUtils,
-          allAddresses
+          allAddresses,
+          tc
         );
       else
         deployUtils = await deployControllerChainContracts(
           deployUtils,
-          allAddresses
+          allAddresses,
+          tc
         );
     }
 
@@ -272,7 +273,8 @@ const deployConnectors = async (
 
 export const deployControllerChainContracts = async (
   deployParams: DeployParams,
-  allAddresses: SBAddresses | STAddresses
+  allAddresses: SBAddresses | STAddresses,
+  tc: TokenConstants
 ): Promise<DeployParams> => {
   try {
     let mintableToken: string = "",
@@ -297,7 +299,8 @@ export const deployControllerChainContracts = async (
         deployParams.addresses[SuperBridgeContracts.MintableToken] ??
         ExistingTokenAddresses[deployParams.currentChainSlug]?.[
           deployParams.currentToken
-        ];
+        ] ??
+        tc.tokenAddresses?.[deployParams.currentChainSlug];
       if (token) mintableToken = token;
       else throw new Error("Token not found on app chain");
 
@@ -369,7 +372,8 @@ export const deployControllerChainContracts = async (
 
 export const deployVaultChainContracts = async (
   deployParams: DeployParams,
-  allAddresses: SBAddresses | STAddresses
+  allAddresses: SBAddresses | STAddresses,
+  tc: TokenConstants
 ): Promise<DeployParams> => {
   console.log(
     `Deploying vault chain contracts, chain: ${deployParams.currentChainSlug}...`
@@ -379,7 +383,8 @@ export const deployVaultChainContracts = async (
       deployParams.addresses[SuperBridgeContracts.NonMintableToken] ??
       ExistingTokenAddresses[deployParams.currentChainSlug]?.[
         deployParams.currentToken
-      ];
+      ] ??
+      tc.tokenAddresses?.[deployParams.currentChainSlug];
     if (!nonMintableToken) throw new Error("Token not found on vault chain");
 
     if (!deployParams.addresses[SuperBridgeContracts.NonMintableToken])

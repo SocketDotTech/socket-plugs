@@ -17,15 +17,15 @@ export const generateConstantsFile = (
 
   const content = `
 import {
-    ChainSlug,
-    DeploymentMode,
-    IntegrationTypes,
+  ChainSlug,
+  DeploymentMode,
+  IntegrationTypes,
 } from "@socket.tech/dl-core";
 import { Hooks, ProjectConstants } from "../../../../src";
 import { Tokens } from "../../../../src/enums";
 
 export const pc: ProjectConstants = {
-    ${serializeConstants(projectConstants, 0, tokensEnum)}
+${serializeConstants(projectConstants, 1, tokensEnum)}
 };
 `;
   fs.writeFileSync(filePath, content);
