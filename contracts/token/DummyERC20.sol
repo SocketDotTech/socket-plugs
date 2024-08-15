@@ -10,10 +10,10 @@ import "solmate/tokens/ERC20.sol";
  */
 contract DummyERC20 is ERC20 {
     /**
-     * @notice constructor for creating a new SuperToken.
+     * @notice constructor for creating a new Token
      * @param name_ token name
      * @param symbol_ token symbol
-     * @param decimals_ token decimals (should be same on all chains)
+     * @param decimals_ token decimals 
      */
     constructor(
         string memory name_,
