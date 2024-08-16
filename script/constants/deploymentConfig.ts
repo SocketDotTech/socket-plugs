@@ -27,7 +27,6 @@ export const fetchDeploymentConfig = async (): Promise<S3Config> => {
     throw new Error("Failed to fetch deployment config");
   }
   let result = await response.json();
-  console.log("deployment config fetched, Getting started...");
   return result?.data;
 };
 

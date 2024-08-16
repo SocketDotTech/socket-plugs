@@ -1,11 +1,13 @@
 import prompts from "prompts";
-import { Hooks, ProjectType } from "../../../src";
+import { DeploymentMode, Hooks, ProjectType } from "../../../src";
 import {
   getChainName,
   getMainnetIds,
   getTestnetIds,
+  initDeploymentConfig,
 } from "../../constants/deploymentConfig";
 import { ProjectConfig, validateEthereumAddress } from "../common";
+import { getMode, setMode } from "../../constants";
 
 export const getProjectInfo = async () => {
   const currentOwnerAddress = process.env.OWNER_ADDRESS;
@@ -67,6 +69,12 @@ export const getProjectInfo = async () => {
     },
   ]);
 
+  if (projectInfo.isMainnet) {
+    setMode(DeploymentMode.PROD);
+  } else {
+    setMode(DeploymentMode.SURGE);
+  }
+  await initDeploymentConfig();
   projectInfo.projectName = projectInfo.isMainnet
     ? projectInfo.projectName + "_mainnet"
     : projectInfo.projectName + "_testnet";
