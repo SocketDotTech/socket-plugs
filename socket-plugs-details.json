@@ -148,11 +148,7 @@
     "aavegotchi_mainnet",
     "timeswap_test_mainnet",
     "testing_testnet",
-    "magic_mainnet",
-    "asdf_testnet",
-    "fd_testnet",
-    "ds_testnet",
-    "er_testnet"
+    "magic_mainnet"
   ],
   "tokens": [
     "USDC.e",
