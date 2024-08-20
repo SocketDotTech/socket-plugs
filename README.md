@@ -66,7 +66,17 @@ Follow the prompts to create a new project. This will create a new project in `s
 ## SuperBridge requirements
 
 - On the destination chain, the token must be deployed and follow the [IMintableERC20 interface](./contracts/interfaces/IMintableERC20.sol).
-- Update the `src/enums/existing-token-addresses.ts` file to add the address of the token on the destination chain (it may be needed to add the ChainSlug).
+  - If you want to deploy (and verify) a test token on destination chain to get started with testing, can use the following command (Note : don't use this in production) -
+  ```bash
+  forge create --rpc-url <your_rpc_url> \
+    --constructor-args "USDCoin" "USDC" 6 \
+    --private-key <your_private_key> \
+    --etherscan-api-key <your_etherscan_api_key> \
+    --verify \
+    contracts/token/DummyERC20.sol:DummyERC20
+  ```
+  update the constructor arguments according to your needs.
+- The app chain's token addresses will be required during running the setup script.
 
 ## Deployment
 
