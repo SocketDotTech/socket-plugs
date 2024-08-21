@@ -1,3 +1,4 @@
+import { initDeploymentConfig } from "./constants";
 import { configure } from "./deploy/configure";
 import { deploy } from "./deploy/deploy";
 
@@ -6,6 +7,7 @@ EventEmitter.defaultMaxListeners = 20;
 
 export const main = async () => {
   try {
+    await initDeploymentConfig();
     let allAddresses = await deploy();
     await configure(allAddresses);
   } catch (error) {

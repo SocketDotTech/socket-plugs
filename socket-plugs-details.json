@@ -18,7 +18,8 @@
     "KEK": 18,
     "GLTR": 18,
     "STIME": 18,
-    "USDe": 6
+    "USDe": 6,
+    "MAGIC": 18
   },
   "tokenAddresses": {
     "1": {
@@ -73,7 +74,8 @@
       "DAI": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
       "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
       "MTK": "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
-      "STIME": "0x17AfF554423D2C40A1BBF51b443E9d43dd8AE1eb"
+      "STIME": "0x17AfF554423D2C40A1BBF51b443E9d43dd8AE1eb",
+      "MAGIC": "0x539bde0d7dbd336b79148aa742883198bbf60342"
     },
     "421614": {
       "USDC": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
@@ -123,7 +125,8 @@
     "KEK": "KEK",
     "GLTR": "GLTR",
     "STIME": "STIME",
-    "USDe": "USDe"
+    "USDe": "USDe",
+    "MAGIC": "MAGIC"
   },
   "projects": [
     "aevo",
@@ -144,7 +147,8 @@
     "adg_mainnet",
     "aavegotchi_mainnet",
     "timeswap_test_mainnet",
-    "testing_testnet"
+    "testing_testnet",
+    "magic_mainnet"
   ],
   "tokens": [
     "USDC.e",
@@ -165,6 +169,7 @@
     "GLTR",
     "STIME",
     "MOON",
-    "USDe"
+    "USDe",
+    "MAGIC"
   ]
 }

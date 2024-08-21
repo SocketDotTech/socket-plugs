@@ -1,39 +1,65 @@
 import { BigNumber, utils } from "ethers";
 
-import { getSignerFromChainSlug, overrides } from "../helpers/networks";
-import { getSuperBridgeAddresses, getSuperTokenAddresses } from "../helpers";
 import { ChainSlug } from "@socket.tech/dl-core";
+import yargs from "yargs";
 import {
   SBAddresses,
+  SBTokenAddresses,
   STAddresses,
   STTokenAddresses,
-  SBTokenAddresses,
 } from "../../src";
-import { getTokens, isSuperBridge, isSuperToken } from "../constants/config";
-import { checkSendingLimit } from "./utils";
+import { tokenDecimals, Tokens } from "../../src/enums";
+import { getProjectAddresses } from "../helpers";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
-import { tokenDecimals } from "../../src/enums";
+import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { checkSendingLimit, getDLAPIBaseUrl } from "./utils";
 
-const srcChain = ChainSlug.ARBITRUM;
-const dstChain = ChainSlug.OPTIMISM;
 const gasLimit = 500_000;
-// without decimals
-const amount = 1;
 
 export const main = async () => {
   try {
-    const tokens = getTokens();
-    if (tokens.length > 1) throw Error("single token bridge allowed");
-    const token = tokens[0];
+    const argv = await yargs
+      .option({
+        srcChain: {
+          description: "srcChainSlug",
+          type: "string",
+          demandOption: true,
+        },
+      })
+      .option({
+        dstChain: {
+          description: "dstChainSlug",
+          type: "string",
+          demandOption: true,
+        },
+      })
+      .option({
+        amount: {
+          description: "token amount to bridge (formatted value)",
+          type: "string",
+          demandOption: true,
+        },
+      })
+      .option({
+        token: {
+          description: "token",
+          type: "string",
+          demandOption: true,
+        },
+      }).argv;
+
+    const srcChain = Number(argv.srcChain) as ChainSlug;
+    const dstChain = Number(argv.dstChain) as ChainSlug;
+    const amount = argv.amount;
+    const token = argv.token as Tokens;
+
+    if (!Object.values(Tokens).includes(token))
+      throw Error("token not allowed");
 
     const amountBN = utils.parseUnits(amount.toString(), tokenDecimals[token]);
 
-    let addresses: SBAddresses | STAddresses | undefined = {};
-    if (isSuperBridge()) {
-      addresses = getSuperBridgeAddresses() as SBAddresses;
-    } else if (isSuperToken()) {
-      addresses = getSuperTokenAddresses() as STAddresses;
-    }
+    let addresses: SBAddresses | STAddresses | undefined =
+      getProjectAddresses();
 
     const srcAddresses: SBTokenAddresses | STTokenAddresses | undefined =
       addresses[srcChain]?.[token];
@@ -101,7 +127,9 @@ export const main = async () => {
     );
     console.log("Tokens deposited: ", depositTx.hash);
     console.log(
-      `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`
+      `Track message here: ${getDLAPIBaseUrl()}/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${
+        depositTx.hash
+      }`
     );
     await depositTx.wait();
   } catch (error) {

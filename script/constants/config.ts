@@ -5,6 +5,7 @@ import { DeploymentMode } from "@socket.tech/dl-core";
 import { Project, Tokens } from "../../src/enums";
 import { ProjectType } from "../../src";
 import { ProjectTypeMap } from "../../src/enums/projectType";
+import { ProdTestnetProjects } from "../../src/enums/prodTestnetProjects";
 // import { Project, ProjectType, Tokens } from "../../src";
 
 export const getOwner = () => {
@@ -19,8 +20,36 @@ export const getOwnerSignerKey = () => {
   return process.env.OWNER_SIGNER_KEY;
 };
 
+let deploymentMode: DeploymentMode;
+// use prod as default if not mentioned
 export const getMode = () => {
-  return DeploymentMode.PROD;
+  if (deploymentMode) return deploymentMode;
+
+  // If deployment Mode set in env, give it preference
+  if (process.env.DEPLOYMENT_MODE) {
+    deploymentMode = process.env.DEPLOYMENT_MODE as DeploymentMode;
+    return deploymentMode;
+  }
+
+  const projectName = process.env.PROJECT;
+  // project name wont be present if user is running new project script. return as it is, will be undefined. it is handled in projectInfo script,
+  // where it is set to surge or prod based on project is mainnet or testnet
+  if (!projectName) return deploymentMode;
+
+  // If project is testnet and not in ProdTestnetProjects, set deployment mode to surge, else prod
+  if (
+    projectName.includes("testnet") &&
+    !ProdTestnetProjects.includes(projectName as Project)
+  ) {
+    deploymentMode = DeploymentMode.SURGE;
+  } else {
+    deploymentMode = DeploymentMode.PROD;
+  }
+  return deploymentMode;
+};
+
+export const setMode = (mode: DeploymentMode) => {
+  deploymentMode = mode;
 };
 
 export const getProjectName = () => {
@@ -76,6 +105,7 @@ export const printConfigs = () => {
   console.log("PROJECT", projectName);
   console.log("PROJECT_TYPE", projectType);
   console.log("TOKENS", tokens);
+  console.log("MODE", mode);
   console.log(
     `Make sure ${mode}_${projectName}_addresses.json and ${mode}_${projectName}_verification.json is cleared for given networks if redeploying!!`
   );

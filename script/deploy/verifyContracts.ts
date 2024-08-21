@@ -7,9 +7,10 @@ import {
   ChainSlugToKey as ChainSlugToHardhatKey,
 } from "@socket.tech/dl-core";
 import { getVerificationPath } from "../helpers/utils";
+import { CustomNetworksConfig } from "../../hardhat.config";
 
 export type VerifyParams = {
-  [chain in ChainSlug]?: VerifyArgs[];
+  [chainSlug in ChainSlug]?: VerifyArgs[];
 };
 type VerifyArgs = [string, string, string, any[]];
 
@@ -26,28 +27,35 @@ export const main = async () => {
       fs.readFileSync(path, "utf-8")
     );
 
-    const chains: ChainSlug[] = Object.keys(verificationParams).map((c) =>
+    const chainSlugs: ChainSlug[] = Object.keys(verificationParams).map((c) =>
       Number(c)
     );
 
-    console.log("Chains array:", chains);
-    if (!chains) {
-      console.log("No chains found, exiting.");
+    console.log("Chains array:", chainSlugs);
+    if (!chainSlugs) {
+      console.log("No chainSlugs found, exiting.");
       return;
     }
 
-    for (let chainIndex = 0; chainIndex < chains.length; chainIndex++) {
-      console.log(`Verifying contracts for chain ${chains[chainIndex]}...`);
+    for (let chainIndex = 0; chainIndex < chainSlugs.length; chainIndex++) {
+      console.log(
+        `Verifying contracts for chainSlug ${chainSlugs[chainIndex]}...`
+      );
 
-      const chain = chains[chainIndex];
-      // hre.changeNetwork(ChainSlugToHardhatKey[chain]);
-      if (hre.network.name !== ChainSlugToHardhatKey[chain]) {
+      const chainSlug = chainSlugs[chainIndex];
+      // hre.changeNetwork(ChainSlugToHardhatKey[chainSlug]);
+
+      if (
+        hre.network.name !== ChainSlugToHardhatKey[chainSlug] &&
+        CustomNetworksConfig[hre.network.name]?.chainId !== chainSlug
+      ) {
         console.log(
-          `Skipping verification for chain ${chain} as the network param does not match.`
+          `Skipping verification for chainSlug ${chainSlug} as the network param does not match.`
         );
         continue;
       }
-      const chainParams: VerifyArgs[] | undefined = verificationParams[chain];
+      const chainParams: VerifyArgs[] | undefined =
+        verificationParams[chainSlug];
       if (!chainParams) continue;
       if (chainParams.length) {
         const len = chainParams.length;

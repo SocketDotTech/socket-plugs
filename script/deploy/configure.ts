@@ -1,10 +1,6 @@
 import { Contract, Wallet } from "ethers";
 
-import {
-  ChainSlug,
-  IntegrationTypes,
-  getAddresses,
-} from "@socket.tech/dl-core";
+import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 
 import { getSignerFromChainSlug } from "../helpers/networks";
 import {
@@ -42,6 +38,7 @@ import {
 } from "../helpers/common";
 import { configureHooks } from "./configureHook";
 import { Tokens } from "../../src/enums";
+import { getAddresses } from "../constants";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};

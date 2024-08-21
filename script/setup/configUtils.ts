@@ -10,6 +10,7 @@ import {
 } from "./enumMaps";
 import { ProjectType } from "../../src";
 import { NewTokenInfo } from "./common";
+import { getChainName } from "../constants";
 
 export const enumFolderPath = path.join(__dirname, `/../../src/enums/`);
 export const envFolderPath = path.join(__dirname, `/../../`);
@@ -91,7 +92,7 @@ export const getProjectEnvData = (
   }
 
   for (let chain of chains) {
-    let chainName = chainSlugReverseMap.get(String(chain));
+    let chainName = getChainName(chain);
     privateEnvData[`${chainName}_RPC`] = "";
   }
 
@@ -200,7 +201,7 @@ export const serializeConstants = (
 
   const serializedEntries = entries.map(([key, value]) => {
     const enumKey = checkValueIfEnum(key, tokensEnum);
-    const newKey = enumKey ? `[${enumKey}]` : key;
+    const newKey = enumKey ? `[${enumKey}]` : String(key);
 
     if (typeof value === "object" && !Array.isArray(value) && value !== null) {
       return `${indent}${newKey}: {\n${serializeConstants(

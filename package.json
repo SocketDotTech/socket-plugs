@@ -1,7 +1,7 @@
 {
   "name": "@socket.tech/socket-plugs",
   "license": "MIT",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "description": "Plugs built using socket's data layer",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -51,6 +51,7 @@
     "script:setup": "yarn setup:dependencies && npx ts-node script/setup.ts",
     "script:deploy": "npx hardhat run script/deploy.ts",
     "script:verify": "npx hardhat run script/deploy/verifyContracts.ts",
+    "script:bridge": "npx ts-node script/bridge/bridge.ts",
     "project:new": "npx ts-node script/script.ts new",
     "project:edit": "npx ts-node script/script.ts edit",
     "project:addToken": "npx ts-node script/script.ts addToken",

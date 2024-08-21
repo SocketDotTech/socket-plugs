@@ -66,7 +66,15 @@ Follow the prompts to create a new project. This will create a new project in `s
 ## SuperBridge requirements
 
 - On the destination chain, the token must be deployed and follow the [IMintableERC20 interface](./contracts/interfaces/IMintableERC20.sol).
-- Update the `src/enums/existing-token-addresses.ts` file to add the address of the token on the destination chain (it may be needed to add the ChainSlug).
+  - If you want to deploy (and verify) a test token on destination chain to get started with testing, can use the following command (Note : don't use this in production) -
+  ```bash
+  forge create --rpc-url <your_rpc_url> \
+    --constructor-args "USDCoin" "USDC" 6 \
+    --private-key <your_private_key> \
+    contracts/token/DummyERC20.sol:DummyERC20
+  ```
+  update the constructor arguments according to your needs.
+- The app chain's token addresses will be required during running the setup script.
 
 ## Deployment
 
@@ -82,15 +90,29 @@ yarn script:deploy
 
 ## Verify the contracts on a block explorer
 
-Add API keys for the block explorers you want to verify the contracts in the `.env` file. You might also need to update the `hardhat.config.ts` file to add the API keys for the block explorers you want to verify the contracts on.
-
-**Note:** If you are verifying the contracts for SuperBridge on the destination chain, you need to update the `hardhat.config.ts` file to add the network in `liveNetworks` and to add your chain in `customChains`.
-
 To verify the contracts on a block explorer, you can use the following command:
 
 ```bash
 yarn script:verify --network <your network>
 ```
+
+If you are verifying the contracts for SuperBridge on the destination chain and the verify command throws an error `H100: Network doesn't exist`, you need to update the `hardhat.config.ts` file to add the network -
+
+- add your network name in `CustomNetworks`
+- add your network's config in `CustomNetworksConfig` (chainId, rpc, accounts)
+- add your networks name in `liveNetworks` array
+- add verification api key in `config.etherscan.apiKey`
+- add your network's verification config in `config.etherscan.customChains` (chainId, browserUrl, verification api Url). This config is used by `hardhat-etherscan` plugin to verify contracts.
+
+## Test Token Bridging
+
+To test your deployment, you can use the following command to send a bridge transaction -
+
+```bash
+yarn script:bridge --srcChain 421614 --dstChain 11155420 --token USDC --amount 1
+```
+
+the `PROJECT` env variable should be set in `.env` file. It is used to fetch relevant bridge addresses.
 
 ## Project Constants Help Guide
 
