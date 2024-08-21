@@ -11,17 +11,15 @@ export const getHookRelatedInfo = async (
   tokens: Tokens[],
   superTokenInfoMap: Record<string, SuperTokenInfo> = {}
 ) => {
-  let tokenLimitInfo: TokenRateLimits = {};
+  const tokenLimitInfo: TokenRateLimits = {};
   if (isLimitsRequired) {
-    for (let token of tokens) {
+    for (const token of tokens) {
       const initialValue = await getInitialLimitValue(
         projectType,
         token,
         superTokenInfoMap
       );
-      // console.log("initialValue", initialValue, tokens);
-      // console.log(initialValue.sendingLimit, initialValue.receivingLimit);
-      let limitInfo = await prompts([
+      const limitInfo = await prompts([
         {
           name: "sendingLimit",
           type: "text",

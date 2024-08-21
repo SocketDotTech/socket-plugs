@@ -41,11 +41,11 @@ export type ChainsInfo = {
   vaultChains: ChainSlug[];
   controllerChains: ChainSlug[];
 };
-export let tokenEnum = Tokens;
+export const tokenEnum = Tokens;
 
 export const addProject = async () => {
   const projectConfig = await getProjectInfo();
-  let {
+  const {
     projectName,
     projectType,
     hookType,
@@ -54,11 +54,11 @@ export const addProject = async () => {
     chainOptions,
   } = projectConfig;
 
-  let chainsInfo: ChainsInfo = await getChainsInfo(projectType, chainOptions);
-  let { vaultChains, controllerChains } = chainsInfo;
+  const chainsInfo: ChainsInfo = await getChainsInfo(projectType, chainOptions);
+  const { vaultChains, controllerChains } = chainsInfo;
   const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
 
-  let tokenInfo: TokenInfo = await getProjectTokenListInfo(
+  const tokenInfo: TokenInfo = await getProjectTokenListInfo(
     projectType,
     owner,
     vaultChains,
@@ -80,7 +80,7 @@ export const addProject = async () => {
     allChains
   );
 
-  let projectConstants = await buildProjectConstants(
+  const projectConstants = await buildProjectConstants(
     tokenInfo,
     chainsInfo,
     hookType,

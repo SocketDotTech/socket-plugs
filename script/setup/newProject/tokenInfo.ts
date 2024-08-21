@@ -15,7 +15,7 @@ export const getProjectTokenListInfo = async (
   vaultChains: ChainSlug[],
   controllerChains: ChainSlug[]
 ): Promise<TokenInfo> => {
-  let tokenChoices = Object.keys(tokenEnum).map((token) => ({
+  const tokenChoices = Object.keys(tokenEnum).map((token) => ({
     title: token,
     value: tokenEnum[token],
   }));
@@ -88,7 +88,7 @@ export const getSuperTokenInfo = async (
     currentAddresses: [],
   };
 
-  let info = await prompts([
+  const info = await prompts([
     {
       name: "name",
       type: "text",
@@ -119,7 +119,7 @@ export const getSuperTokenInfo = async (
   superTokenInfo = { ...superTokenInfo, ...info };
   superTokenInfo.symbol = superTokenInfo.symbol.toUpperCase();
   if (isFreshDeployment) {
-    let response = await prompts([
+    const response = await prompts([
       {
         name: "initialSupply",
         type: "text",
@@ -143,7 +143,7 @@ export const getSuperTokenInfo = async (
     superTokenInfo.initialChain = response.initialChain;
   } else {
     while (true) {
-      let response = await prompts([
+      const response = await prompts([
         {
           name: "chain",
           type: "select",
@@ -233,9 +233,9 @@ export const getSuperbridgeMissingTokenAddresses = async (
     };
   } = {};
 
-  for (let token of tokens) {
+  for (const token of tokens) {
     tokenAddresses[token] = {};
-    for (let chain of chainList) {
+    for (const chain of chainList) {
       const currentAddress = ExistingTokenAddresses[chain]?.[token];
       if (currentAddress) continue;
       const response = await prompts([

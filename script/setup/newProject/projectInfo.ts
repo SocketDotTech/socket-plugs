@@ -11,7 +11,7 @@ import { getMode, setMode } from "../../constants";
 
 export const getProjectInfo = async () => {
   const currentOwnerAddress = process.env.OWNER_ADDRESS;
-  let projectInfo: ProjectConfig = await prompts([
+  const projectInfo: ProjectConfig = await prompts([
     {
       name: "projectType",
       type: "select",
@@ -80,13 +80,13 @@ export const getProjectInfo = async () => {
     projectInfo.isMainnet
   );
   projectInfo.owner = projectInfo.owner.trim();
-  let isLimitsRequired =
+  const isLimitsRequired =
     projectInfo.hookType === Hooks.LIMIT_HOOK ||
     projectInfo.hookType === Hooks.LIMIT_EXECUTION_HOOK;
-  let possibleChains = projectInfo.isMainnet
+  const possibleChains = projectInfo.isMainnet
     ? getMainnetIds()
     : getTestnetIds();
-  let chainOptions = possibleChains.map((chain) => ({
+  const chainOptions = possibleChains.map((chain) => ({
     title: getChainName(chain),
     value: chain,
   }));
@@ -94,6 +94,9 @@ export const getProjectInfo = async () => {
 };
 
 export const getProjectName = (projectName: string, isMainnet: boolean) => {
-  let newProjectName = projectName.toLowerCase().trim().replace(/[\s-]/g, "_"); // convert to lowercase, replace all space and - with _
+  const newProjectName = projectName
+    .toLowerCase()
+    .trim()
+    .replace(/[\s-]/g, "_"); // convert to lowercase, replace all space and - with _
   return isMainnet ? newProjectName + "_mainnet" : newProjectName + "_testnet";
 };

@@ -19,7 +19,7 @@ export const buildProjectConstants = async (
   allChains: ChainSlug[]
 ) => {
   const deploymentMode = getMode();
-  let projectConstants: ProjectConstants = {
+  const projectConstants: ProjectConstants = {
     [deploymentMode]: {},
   };
 
@@ -70,7 +70,7 @@ export const getInitialLimitValue = async (
       }
     );
   } else if (projectType == ProjectType.SUPERTOKEN) {
-    let info = superTokenInfoMap[token.toUpperCase()];
+    const info = superTokenInfoMap[token.toUpperCase()];
     return {
       sendingLimit: info?.initialSupply
         ? parseInt(info?.initialSupply) / 100
