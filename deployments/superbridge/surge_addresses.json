@@ -1,0 +1,30 @@
+{
+  "polter_testnet": {
+    "398274": {
+      "USDC": {
+        "isAppChain": true,
+        "MintableToken": "0x15Bb97f748B341D1f464A7257d75da879D83fC9F",
+        "Controller": "0xb5B1e1Ba18d323a2a7313f970bF4310cF8d60B8D",
+        "LimitHook": "0x06F92b5D06D54802601CBAf862fe549e7EaedcF7",
+        "connectors": {
+          "421614": {
+            "FAST": "0xBec0d54fC3ba4b264e816328a5C60F2Ca48f9aEf"
+          }
+        }
+      }
+    },
+    "421614": {
+      "USDC": {
+        "isAppChain": false,
+        "NonMintableToken": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
+        "Vault": "0xa9d73443b11596D3D44BfafA052c07b7833fF736",
+        "LimitHook": "0x6d64dE68a6BBC57AfDf5ba9B32469c66238d1A07",
+        "connectors": {
+          "398274": {
+            "FAST": "0xC95e769b47eaDAf9057a9EDF735707B97b4CC9aA"
+          }
+        }
+      }
+    }
+  }
+}

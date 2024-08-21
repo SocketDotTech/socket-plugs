@@ -90,15 +90,19 @@ yarn script:deploy
 
 ## Verify the contracts on a block explorer
 
-Add API keys for the block explorers you want to verify the contracts in the `.env` file. You might also need to update the `hardhat.config.ts` file to add the API keys for the block explorers you want to verify the contracts on.
-
-**Note:** If you are verifying the contracts for SuperBridge on the destination chain and the verify command throws an error `H100: Network doesn't exist`,, you need to update the `hardhat.config.ts` file to add the network in customChains array (network, chainId, apiURL, and browserURL), `liveNetworks` array (use the same name for network that you used in customChains array), and add verification API key in `config.etherscan.apiKey` object.
-
 To verify the contracts on a block explorer, you can use the following command:
 
 ```bash
 yarn script:verify --network <your network>
 ```
+
+If you are verifying the contracts for SuperBridge on the destination chain and the verify command throws an error `H100: Network doesn't exist`, you need to update the `hardhat.config.ts` file to add the network -
+
+- add your network name in `CustomNetworks`
+- add your network's config in `CustomNetworksConfig` (chainId, rpc, accounts)
+- add your networks name in `liveNetworks` array
+- add verification api key in `config.etherscan.apiKey`
+- add your network's verification config in `config.etherscan.customChains` (chainId, browserUrl, verification api Url). This config is used by `hardhat-etherscan` plugin to verify contracts.
 
 ## Test Token Bridging
 

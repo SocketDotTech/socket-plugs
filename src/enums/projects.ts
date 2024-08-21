@@ -19,4 +19,5 @@ export enum Project {
   TIMESWAP_TEST_MAINNET = "timeswap_test_mainnet",
   TESTING_TESTNET = "testing_testnet",
   MAGIC_MAINNET = "magic_mainnet",
+  POLTER_TESTNET = "polter_testnet",
 }

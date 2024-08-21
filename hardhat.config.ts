@@ -34,20 +34,34 @@ const privateKey: HardhatNetworkAccountUserConfig = (process.env
   .OWNER_SIGNER_KEY ||
   constants.HashZero.slice(2)) as unknown as HardhatNetworkAccountUserConfig;
 
-function getChainConfig(chain: HardhatChainName): NetworkUserConfig {
-  return {
-    accounts: [`0x${privateKey}`],
-    chainId: ChainSlugToId[hardhatChainNameToSlug[chain]],
-    url: getJsonRpcUrl(hardhatChainNameToSlug[chain]),
-  };
-}
-
 function getRemappings() {
   return fs
     .readFileSync("remappings.txt", "utf8")
     .split("\n")
     .filter(Boolean) // remove empty lines
     .map((line) => line.trim().split("="));
+}
+
+export enum CustomNetworks {
+  POLTER_DEVNET = "polter_devnet",
+}
+
+export const CustomNetworksConfig = {
+  [CustomNetworks.POLTER_DEVNET]: {
+    chainId: 398274,
+    url: process.env.POLTER_DEVNET_RPC,
+    accounts: [`0x${privateKey}`],
+  },
+};
+
+function getChainConfig(chain: string): NetworkUserConfig {
+  return (
+    CustomNetworksConfig[chain] ?? {
+      accounts: [`0x${privateKey}`],
+      chainId: ChainSlugToId[hardhatChainNameToSlug[chain]],
+      url: getJsonRpcUrl(hardhatChainNameToSlug[chain]),
+    }
+  );
 }
 
 const liveNetworks = [
@@ -69,6 +83,7 @@ const liveNetworks = [
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
   HardhatChainName.SYNDR_SEPOLIA_L3,
+  CustomNetworks.POLTER_DEVNET,
 ];
 
 let hardhatNetworkDetails = {};
@@ -87,39 +102,26 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       arbitrumOne: process.env.ARBISCAN_API_KEY || "",
-      arbitrumTestnet: process.env.ARBISCAN_API_KEY || "",
-      arbitrumSepolia: process.env.ARBISCAN_API_KEY || "",
+      [HardhatChainName.ARBITRUM_SEPOLIA]: process.env.ARBISCAN_API_KEY || "",
       bsc: process.env.BSCSCAN_API_KEY || "",
       bscTestnet: process.env.BSCSCAN_API_KEY || "",
-      goerli: process.env.ETHERSCAN_API_KEY || "",
       mainnet: process.env.ETHERSCAN_API_KEY || "",
       sepolia: process.env.ETHERSCAN_API_KEY || "",
       optimisticEthereum: process.env.OPTIMISM_API_KEY || "",
-      optimisticTestnet: process.env.OPTIMISM_API_KEY || "",
-      optimisticSepolia: process.env.OPTIMISM_API_KEY || "",
+      [HardhatChainName.OPTIMISM_SEPOLIA]: process.env.OPTIMISM_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
-      base: process.env.BASESCAN_API_KEY || "",
-      polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
-      lyra: "none",
-      "lyra-testnet": "none",
-      reya_cronos: "none",
-      reya: "none",
-      aevo: "none",
+      [HardhatChainName.BASE]: process.env.BASESCAN_API_KEY || "",
+      [HardhatChainName.LYRA]: "none",
+      [HardhatChainName.LYRA_TESTNET]: "none",
+      [HardhatChainName.REYA_CRONOS]: "none",
+      [HardhatChainName.REYA]: "none",
+      [HardhatChainName.AEVO]: "none",
+      [CustomNetworks.POLTER_DEVNET]: "none",
     },
+    // Custom chains for verification. These are only for verification to work. The hardhat etherscan plugin does not support these chains.
     customChains: [
       {
-        network: "optimisticTestnet",
-        chainId:
-          ChainSlugToId[
-            hardhatChainNameToSlug[HardhatChainName.OPTIMISM_GOERLI]
-          ],
-        urls: {
-          apiURL: "https://api-goerli-optimistic.etherscan.io/api",
-          browserURL: "https://goerli-optimism.etherscan.io/",
-        },
-      },
-      {
-        network: "optimisticSepolia",
+        network: HardhatChainName.OPTIMISM_SEPOLIA,
         chainId:
           ChainSlugToId[
             hardhatChainNameToSlug[HardhatChainName.OPTIMISM_SEPOLIA]
@@ -130,18 +132,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "arbitrumTestnet",
-        chainId:
-          ChainSlugToId[
-            hardhatChainNameToSlug[HardhatChainName.ARBITRUM_GOERLI]
-          ],
-        urls: {
-          apiURL: "https://api-goerli.arbiscan.io/api",
-          browserURL: "https://goerli.arbiscan.io/",
-        },
-      },
-      {
-        network: "arbitrumSepolia",
+        network: HardhatChainName.ARBITRUM_SEPOLIA,
         chainId:
           ChainSlugToId[
             hardhatChainNameToSlug[HardhatChainName.ARBITRUM_SEPOLIA]
@@ -152,7 +143,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "base",
+        network: HardhatChainName.BASE,
         chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.BASE]],
         urls: {
           apiURL: "https://api.basescan.org/api",
@@ -160,7 +151,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "lyra",
+        network: HardhatChainName.LYRA,
         chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.LYRA]],
         urls: {
           apiURL: "https://explorer.lyra.finance/api",
@@ -168,7 +159,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "lyra-testnet",
+        network: HardhatChainName.LYRA_TESTNET,
         chainId:
           ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.LYRA_TESTNET]],
         urls: {
@@ -179,7 +170,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "reya_cronos",
+        network: HardhatChainName.REYA_CRONOS,
         chainId:
           ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.REYA_CRONOS]],
         urls: {
@@ -188,7 +179,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "reya",
+        network: HardhatChainName.REYA,
         chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.REYA]],
         urls: {
           apiURL: "https://explorer.reya.network/api",
@@ -196,11 +187,19 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "aevo",
+        network: HardhatChainName.AEVO,
         chainId: hardhatChainNameToSlug[HardhatChainName.AEVO],
         urls: {
           apiURL: "https://explorer.aevo.xyz/api",
           browserURL: "https://explorer.aevo.xyz/",
+        },
+      },
+      {
+        network: CustomNetworks.POLTER_DEVNET,
+        chainId: CustomNetworksConfig[CustomNetworks.POLTER_DEVNET].chainId,
+        urls: {
+          apiURL: "https://polter-sepolia-explorer-be.devnet.alchemy.com/api",
+          browserURL: "https://polter-sepolia-explorer.devnet.alchemy.com/",
         },
       },
     ],
