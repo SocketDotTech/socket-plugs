@@ -71,8 +71,6 @@ Follow the prompts to create a new project. This will create a new project in `s
   forge create --rpc-url <your_rpc_url> \
     --constructor-args "USDCoin" "USDC" 6 \
     --private-key <your_private_key> \
-    --etherscan-api-key <your_etherscan_api_key> \
-    --verify \
     contracts/token/DummyERC20.sol:DummyERC20
   ```
   update the constructor arguments according to your needs.
@@ -94,13 +92,23 @@ yarn script:deploy
 
 Add API keys for the block explorers you want to verify the contracts in the `.env` file. You might also need to update the `hardhat.config.ts` file to add the API keys for the block explorers you want to verify the contracts on.
 
-**Note:** If you are verifying the contracts for SuperBridge on the destination chain, you need to update the `hardhat.config.ts` file to add the network in `liveNetworks` and to add your chain in `customChains`.
+**Note:** If you are verifying the contracts for SuperBridge on the destination chain and the verify command throws an error `H100: Network doesn't exist`,, you need to update the `hardhat.config.ts` file to add the network in customChains array (network, chainId, apiURL, and browserURL), `liveNetworks` array (use the same name for network that you used in customChains array), and add verification API key in `config.etherscan.apiKey` object.
 
 To verify the contracts on a block explorer, you can use the following command:
 
 ```bash
 yarn script:verify --network <your network>
 ```
+
+## Test Token Bridging
+
+To test your deployment, you can use the following command to send a bridge transaction -
+
+```bash
+yarn script:bridge --srcChain 421614 --dstChain 11155420 --token USDC --amount 1
+```
+
+the `PROJECT` env variable should be set in `.env` file. It is used to fetch relevant bridge addresses.
 
 ## Project Constants Help Guide
 

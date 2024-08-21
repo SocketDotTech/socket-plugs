@@ -1,7 +1,13 @@
 import { BigNumber } from "ethers";
-import { ChainSlug, SBTokenAddresses, STTokenAddresses } from "../../src";
+import {
+  ChainSlug,
+  DeploymentMode,
+  SBTokenAddresses,
+  STTokenAddresses,
+} from "../../src";
 import { getHookContract } from "../helpers/common";
 import { Tokens } from "../../src/enums";
+import { getMode } from "../constants";
 
 export const checkSendingLimit = async (
   chain: ChainSlug,
@@ -33,4 +39,13 @@ export const checkReceivingLimit = async (
     connectorAddr
   );
   if (limit.lt(amountBN)) throw new Error("Exceeding max limit");
+};
+
+export const getDLAPIBaseUrl = () => {
+  const deploymentMode = getMode();
+  if (deploymentMode === DeploymentMode.PROD)
+    return "https://prod.dlapi.socket.tech";
+  else if (deploymentMode === DeploymentMode.SURGE) {
+    return "https://surge.dlapi.socket.tech";
+  }
 };

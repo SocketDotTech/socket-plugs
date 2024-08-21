@@ -75,10 +75,10 @@ export const getProjectInfo = async () => {
     setMode(DeploymentMode.SURGE);
   }
   await initDeploymentConfig();
-  projectInfo.projectName = projectInfo.isMainnet
-    ? projectInfo.projectName + "_mainnet"
-    : projectInfo.projectName + "_testnet";
-  projectInfo.projectName = projectInfo.projectName.toLowerCase().trim();
+  projectInfo.projectName = getProjectName(
+    projectInfo.projectName,
+    projectInfo.isMainnet
+  );
   projectInfo.owner = projectInfo.owner.trim();
   let isLimitsRequired =
     projectInfo.hookType === Hooks.LIMIT_HOOK ||
@@ -91,4 +91,9 @@ export const getProjectInfo = async () => {
     value: chain,
   }));
   return { ...projectInfo, isLimitsRequired, chainOptions };
+};
+
+export const getProjectName = (projectName: string, isMainnet: boolean) => {
+  let newProjectName = projectName.toLowerCase().trim().replace(/[\s-]/g, "_"); // convert to lowercase, replace all space and - with _
+  return isMainnet ? newProjectName + "_mainnet" : newProjectName + "_testnet";
 };

@@ -54,8 +54,6 @@ export const getAddresses = (chainSlug: number, mode: DeploymentMode) => {
 
 export const getChainName = (chainSlug: number) => {
   let chainName =
-    getMode() == DeploymentMode.PROD
-      ? chainSlugReverseMap.get(String(chainSlug))
-      : chains[chainSlug].chainName;
+    chainSlugReverseMap.get(String(chainSlug)) ?? chains[chainSlug].chainName;
   return chainName.toUpperCase().replace(/[\s-]/g, "_"); // convert to uppercase, replace space and - with _
 };
