@@ -292,6 +292,7 @@
     },
     "WETH": {
       "isAppChain": false,
+      "NonMintableToken": "0x4200000000000000000000000000000000000006",
       "Vault": "0xBd282333710B9C7e33E8a37d027885A7C079Ae23",
       "connectors": {
         "957": {
