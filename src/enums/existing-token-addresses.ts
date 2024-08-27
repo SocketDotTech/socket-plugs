@@ -87,4 +87,7 @@ export const ExistingTokenAddresses: {
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     [Tokens.WBTC]: "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7",
   },
+  [ChainSlug.REYA]: {
+    [Tokens.SUSDE]: "0x2339D41f410EA761F346a14c184385d15f7266c4",
+  },
 };

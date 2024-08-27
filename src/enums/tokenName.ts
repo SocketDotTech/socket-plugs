@@ -21,4 +21,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.STIME]: "SuperTimeToken",
   [Tokens.USDE]: "USDe",
   [Tokens.MAGIC]: "magic",
+  [Tokens.SUSDE]: "Staked USDe",
 };
