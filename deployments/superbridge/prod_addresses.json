@@ -1190,6 +1190,48 @@
         }
       }
     },
+    "10": {
+      "SUSDE": {
+        "isAppChain": false,
+        "NonMintableToken": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2",
+        "Vault": "0xe9f2Ed94dEe821bd23716ED90672d6e3dc9e0415",
+        "ExecutionHelper": "0xD7BBE2f6D1B52A27D2dAC28298DE3974a3d13047",
+        "LimitExecutionHook": "0x063cE19E9D682F38bE70644a5FDDAE3a2EC380b6",
+        "connectors": {
+          "1324967486": {
+            "FAST": "0x716206c6Ac501315f8b204e1E564b9e0cbC210d4"
+          }
+        }
+      }
+    },
+    "8453": {
+      "SUSDE": {
+        "isAppChain": false,
+        "NonMintableToken": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2",
+        "Vault": "0x3FC5c9C4860b51D92e3d84B3e450D1b8e81Df592",
+        "ExecutionHelper": "0x46bCC550354c07Fd2f70611D15453C12DC4f09f2",
+        "LimitExecutionHook": "0x4954DBC82bAc36D63f8ea795ae67da6a3539Ad7c",
+        "connectors": {
+          "1324967486": {
+            "FAST": "0x491817B73935Ae5E15EeD1031f0769eE0EB780b0"
+          }
+        }
+      }
+    },
+    "42161": {
+      "SUSDE": {
+        "isAppChain": false,
+        "NonMintableToken": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2",
+        "Vault": "0xed902143F4129BE7Be73Bc355e77B67D47Df7bc3",
+        "ExecutionHelper": "0x81B9553321a5B583bcD3D292595C348f2892C2c6",
+        "LimitExecutionHook": "0xD34308fB7138716b9A9519E13fb1e0196bfb9D3f",
+        "connectors": {
+          "1324967486": {
+            "FAST": "0xf9715b5518396378596cBc70Bea7f8Cf4c10D9b2"
+          }
+        }
+      }
+    },
     "1324967486": {
       "SUSDE": {
         "isAppChain": true,
@@ -1201,8 +1243,14 @@
           "1": {
             "FAST": "0x888f5426Bf4E387770A225d0097f0716aF98e7b5"
           },
+          "10": {
+            "FAST": "0x79C06E5BD8e7a4dc151D7591eba71C2a5D49e2B6"
+          },
           "8453": {
             "FAST": "0xE71b58F3324d06786cA70b3c9695df23EEaaF630"
+          },
+          "42161": {
+            "FAST": "0x4f471ff392733b722992F012e40728e36c5e9848"
           }
         }
       }

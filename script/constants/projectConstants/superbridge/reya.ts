@@ -361,7 +361,12 @@ export const pc: ProjectConstants = {
     },
     [Tokens.SUSDE]: {
       controllerChains: [ChainSlug.REYA],
-      vaultChains: [ChainSlug.MAINNET],
+      vaultChains: [
+        ChainSlug.MAINNET,
+        ChainSlug.BASE,
+        ChainSlug.OPTIMISM,
+        ChainSlug.ARBITRUM,
+      ],
       hook: {
         hookType: Hooks.LIMIT_EXECUTION_HOOK,
         limitsAndPoolId: {
@@ -372,6 +377,18 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.OPTIMISM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.ARBITRUM]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
