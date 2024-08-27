@@ -14,6 +14,7 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     [Tokens.USDE]: "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
+    [Tokens.SUSDE]: "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497",
   },
   [ChainSlug.OPTIMISM]: {
     [Tokens.USDC]: "0x0b2c639c533813f4aa9d7837caf62653d097ff85",

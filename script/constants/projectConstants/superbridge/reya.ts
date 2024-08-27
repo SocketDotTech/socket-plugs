@@ -361,7 +361,7 @@ export const pc: ProjectConstants = {
     },
     [Tokens.SUSDE]: {
       controllerChains: [ChainSlug.REYA],
-      vaultChains: [ChainSlug.MAINNET, ChainSlug.BASE],
+      vaultChains: [ChainSlug.MAINNET],
       hook: {
         hookType: Hooks.LIMIT_EXECUTION_HOOK,
         limitsAndPoolId: {
