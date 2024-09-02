@@ -55,6 +55,7 @@
     "project:new": "npx ts-node script/script.ts new",
     "project:edit": "npx ts-node script/script.ts edit",
     "project:addToken": "npx ts-node script/script.ts addToken",
+    "project:addNFT": "npx ts-node script/script.ts addNFT",
     "bridge": "npx hardhat run script/bridge/bridge.ts"
   },
   "pre-commit": [

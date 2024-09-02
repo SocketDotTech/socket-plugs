@@ -2,7 +2,7 @@ import path from "path";
 import fs, { appendFile, appendFileSync, writeFileSync } from "fs";
 import { writeFile } from "fs/promises";
 import { ChainSlug } from "@socket.tech/dl-core";
-import { Tokens } from "../../src/enums";
+import { NFTs, Tokens } from "../../src/enums";
 import {
   chainSlugReverseMap,
   getEnumMaps,
@@ -154,6 +154,28 @@ export const updateTokenEnums = async (newTokenInfo: {
   console.log(`✔  Updated Enums : Tokens, Symbols, Decimals, Token Names`);
 };
 
+export const updateNFTEnums = async (newNFTInfo: {
+  name: string;
+  symbol: string;
+}) => {
+  if (!newNFTInfo.name) return;
+
+  let { name, symbol } = newNFTInfo;
+  await updateFile(
+    "nfts.ts",
+    `,\n  ${symbol.toUpperCase()} = "${symbol.toUpperCase()}",\n}\n`,
+    ",\n}"
+  );
+
+  await updateFile(
+    "nftName.ts",
+    `,\n  [NFTs.${symbol.toUpperCase()}]: "${name}",\n};\n`,
+    ",\n};"
+  );
+
+  console.log(`✔  Updated Enums : NFTs`);
+};
+
 const updateFile = async (fileName, newChainDetails, replaceWith) => {
   const filePath = enumFolderPath + fileName;
   const outputExists = fs.existsSync(filePath);
@@ -169,18 +191,25 @@ const updateFile = async (fileName, newChainDetails, replaceWith) => {
   fs.writeFileSync(filePath, newDataString);
 };
 
-const checkValueIfEnum = (value: any, tokensEnum: object = Tokens) => {
+const checkValueIfEnum = (
+  value: any,
+  tokensEnum: object = Tokens,
+  nftsEnum: object = NFTs
+) => {
   const {
     chainSlugMap,
     tokensMap,
+    nftsMap,
     integrationTypesMap,
     deploymentModeMap,
     hookMap,
-  } = getEnumMaps(tokensEnum);
+  } = getEnumMaps(tokensEnum, nftsEnum);
   if (chainSlugMap.has(value)) {
     return "ChainSlug." + chainSlugMap.get(value);
   } else if (tokensMap.has(value)) {
     return "Tokens." + tokensMap.get(value);
+  } else if (nftsMap.has(value)) {
+    return "NFTs." + nftsMap.get(value);
   } else if (integrationTypesMap.has(value)) {
     return "IntegrationTypes." + integrationTypesMap.get(value);
   } else if (deploymentModeMap.has(value)) {
@@ -194,30 +223,32 @@ const checkValueIfEnum = (value: any, tokensEnum: object = Tokens) => {
 export const serializeConstants = (
   constants: any,
   depth: number = 0,
-  tokensEnum: object = Tokens
+  tokensEnum: object = Tokens,
+  nftsEnum: object = NFTs
 ): string => {
   const indent = " ".repeat(depth * 2); // Increase indent by 2 spaces per depth level
   const entries = Object.entries(constants);
 
   const serializedEntries = entries.map(([key, value]) => {
-    const enumKey = checkValueIfEnum(key, tokensEnum);
+    const enumKey = checkValueIfEnum(key, tokensEnum, nftsEnum);
     const newKey = enumKey ? `[${enumKey}]` : String(key);
 
     if (typeof value === "object" && !Array.isArray(value) && value !== null) {
       return `${indent}${newKey}: {\n${serializeConstants(
         value,
         depth + 1,
-        tokensEnum
+        tokensEnum,
+        nftsEnum
       )}\n${indent}}`;
     } else if (Array.isArray(value)) {
       return `${indent}${newKey}: [${value
         .map((v) => {
-          const enumValue = checkValueIfEnum(String(v), tokensEnum);
+          const enumValue = checkValueIfEnum(String(v), tokensEnum, nftsEnum);
           return enumValue ? `${enumValue}` : JSON.stringify(v);
         })
         .join(", ")}]`;
     } else {
-      let valueEnum = checkValueIfEnum(String(value), tokensEnum);
+      let valueEnum = checkValueIfEnum(String(value), tokensEnum, nftsEnum);
       let newValue = valueEnum ? valueEnum : JSON.stringify(value);
       // Currently we don't have chain slugs as values, so can avoid them for now. This is a fix
       // for the case when we have chain slugs as values, for example sendingLimit = 1.

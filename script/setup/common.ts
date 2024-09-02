@@ -26,6 +26,19 @@ export type NewTokenInfo = {
   address: string;
 };
 
+export enum NFTType {
+  ERC721 = "erc721",
+  ERC1155 = "erc1155",
+}
+
+export type NewNFTInfo = {
+  name: string;
+  type: NFTType;
+  symbol: string;
+  chainSlug: ChainSlug;
+  address: string;
+};
+
 type TokenRateLimits = Record<
   string,
   { sendingLimit: number; receivingLimit: number }
