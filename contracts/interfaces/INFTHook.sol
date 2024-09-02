@@ -15,7 +15,10 @@ interface INFTHook {
         SrcPreHookNFTCallParams calldata params_
     )
         external
-        returns (NFTTransferInfo memory transferInfo, bytes memory postHookData);
+        returns (
+            NFTTransferInfo memory transferInfo,
+            bytes memory postHookData
+        );
 
     function srcPostHookCall(
         SrcPostHookNFTCallParams calldata params_
@@ -30,7 +33,10 @@ interface INFTHook {
         DstPreHookNFTCallParams calldata params_
     )
         external
-        returns (bytes memory postHookData, NFTTransferInfo memory transferInfo);
+        returns (
+            bytes memory postHookData,
+            NFTTransferInfo memory transferInfo
+        );
 
     /**
      * @notice Executes post-hook call for destination underlyingAsset.
@@ -53,7 +59,10 @@ interface INFTHook {
         PreRetryHookCallParams calldata params_
     )
         external
-        returns (bytes memory postHookData, NFTTransferInfo memory transferInfo);
+        returns (
+            bytes memory postHookData,
+            NFTTransferInfo memory transferInfo
+        );
 
     /**
      * @notice Executes a post-retry hook for a failed transaction.

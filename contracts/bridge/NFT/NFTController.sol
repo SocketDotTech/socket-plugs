@@ -109,7 +109,11 @@ contract NFTController is NFTBase {
         _afterRetry(connector_, messageId_, postHookData);
     }
 
-    function _burn(address user_, uint256 burnTokenId_, uint256 burnAmount_) internal virtual {
+    function _burn(
+        address user_,
+        uint256 burnTokenId_,
+        uint256 burnAmount_
+    ) internal virtual {
         if (interfaceId == ID_ERC721) {
             IMintableERC721(token).burn(user_, burnTokenId_);
         } else {
@@ -117,7 +121,11 @@ contract NFTController is NFTBase {
         }
     }
 
-    function _mint(address user_, uint256 mintTokenId_, uint256 mintAmount_) internal virtual {
+    function _mint(
+        address user_,
+        uint256 mintTokenId_,
+        uint256 mintAmount_
+    ) internal virtual {
         if (mintAmount_ == 0) return;
         if (interfaceId == ID_ERC721) {
             IMintableERC721(token).mint(user_, mintTokenId_);

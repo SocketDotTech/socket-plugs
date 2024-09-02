@@ -12,11 +12,11 @@ import "solmate/tokens/ERC1155.sol";
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
 contract NFTVault is NFTBase {
-     /**
-      * @notice constructor for creating a new SuperTokenVault.
-      * @param token_ token contract address which is to be bridged.
-      * @param interfaceId_ EIP-165 interface id of token contract which is to be bridged.
-      */
+    /**
+     * @notice constructor for creating a new SuperTokenVault.
+     * @param token_ token contract address which is to be bridged.
+     * @param interfaceId_ EIP-165 interface id of token contract which is to be bridged.
+     */
 
     constructor(address token_, bytes4 interfaceId_) NFTBase(token_) {
         if (interfaceId_ != ID_ERC721 && interfaceId_ != ID_ERC1155)
@@ -94,7 +94,11 @@ contract NFTVault is NFTBase {
             transferInfo
         );
 
-        _transferTokens(transferInfo.receiver, transferInfo.tokenId, transferInfo.amount);
+        _transferTokens(
+            transferInfo.receiver,
+            transferInfo.tokenId,
+            transferInfo.amount
+        );
 
         _afterMint(unlockAmount, messageId, postHookData, transferInfo);
     }
@@ -113,17 +117,31 @@ contract NFTVault is NFTBase {
             bytes memory postHookData,
             NFTTransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
-        _transferTokens(transferInfo.receiver, transferInfo.tokenId, transferInfo.amount);
+        _transferTokens(
+            transferInfo.receiver,
+            transferInfo.tokenId,
+            transferInfo.amount
+        );
 
         _afterRetry(connector_, messageId_, postHookData);
     }
 
-    function _transferTokens(address receiver_, uint256 tokenId_, uint256 amount_) internal {
+    function _transferTokens(
+        address receiver_,
+        uint256 tokenId_,
+        uint256 amount_
+    ) internal {
         if (amount_ == 0) return;
         if (bridgeType == ERC721_VAULT) {
             ERC721(token).safeTransferFrom(address(this), receiver_, tokenId_);
         } else {
-            ERC1155(token).safeTransferFrom(address(this), receiver_, tokenId_, amount_, new bytes(0));
+            ERC1155(token).safeTransferFrom(
+                address(this),
+                receiver_,
+                tokenId_,
+                amount_,
+                new bytes(0)
+            );
         }
     }
 
@@ -132,7 +150,13 @@ contract NFTVault is NFTBase {
         if (bridgeType == ERC721_VAULT) {
             ERC721(token).safeTransferFrom(msg.sender, address(this), tokenId_);
         } else {
-            ERC1155(token).safeTransferFrom(msg.sender, address(this), tokenId_, amount_, new bytes(0));
+            ERC1155(token).safeTransferFrom(
+                msg.sender,
+                address(this),
+                tokenId_,
+                amount_,
+                new bytes(0)
+            );
         }
     }
 }

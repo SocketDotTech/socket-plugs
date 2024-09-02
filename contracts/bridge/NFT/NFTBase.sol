@@ -61,14 +61,18 @@ abstract contract NFTBase is ReentrancyGuard, INFTBridge, AccessControl {
     ) external virtual onlyOwner {
         // remove the approval from the old hook
         if (bridgeType == ERC721_VAULT) {
-            if (ERC721(token).isApprovedForAll(address(this), address(hook__))) {
+            if (
+                ERC721(token).isApprovedForAll(address(this), address(hook__))
+            ) {
                 ERC721(token).setApprovalForAll(address(hook__), false);
             }
             if (approve_) {
                 ERC721(token).setApprovalForAll(hook_, approve_);
             }
         } else {
-            if (ERC1155(token).isApprovedForAll(address(this), address(hook__))) {
+            if (
+                ERC1155(token).isApprovedForAll(address(this), address(hook__))
+            ) {
                 ERC1155(token).setApprovalForAll(address(hook__), false);
             }
             if (approve_) {
