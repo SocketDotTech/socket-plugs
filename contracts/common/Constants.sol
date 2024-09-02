@@ -19,3 +19,8 @@ bytes32 constant LIMIT_EXECUTION_YIELD_TOKEN_HOOK = keccak256(
 
 bytes32 constant ERC20_VAULT = keccak256("ERC20_VAULT");
 bytes32 constant NATIVE_VAULT = keccak256("NATIVE_VAULT");
+bytes32 constant ERC721_VAULT = keccak256("ERC721_VAULT");
+bytes32 constant ERC1155_VAULT = keccak256("ERC1155_VAULT");
+
+bytes4 constant ID_ERC721 = 0x80ac58cd; // EIP-165 interface id
+bytes4 constant ID_ERC1155 = 0xd9b67a26; // EIP-165 interface id
