@@ -3,10 +3,11 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Hooks, ProjectConstants, ProjectType, Tokens } from "../../../../src";
-import { getSocketOwner } from "../../config";
+import { Hooks, ProjectConstants } from "../../../../src";
+import { getOwner } from "../../config";
+import { Tokens } from "../../../../src/enums";
 
-const pc: ProjectConstants = {
+export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       vaultChains: [ChainSlug.OPTIMISM_SEPOLIA],
@@ -19,8 +20,8 @@ const pc: ProjectConstants = {
         name: "Mist",
         symbol: "MIST",
         decimals: 6,
-        initialSupplyOwner: getSocketOwner(),
-        owner: getSocketOwner(),
+        initialSupplyOwner: getOwner(),
+        owner: getOwner(),
         initialSupply: 1000000000,
       },
       hook: {
@@ -56,5 +57,3 @@ const pc: ProjectConstants = {
     },
   },
 };
-
-export = pc;

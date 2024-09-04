@@ -4,12 +4,11 @@ import {
   CommonContracts,
   HookContracts,
   Hooks,
-  Project,
   ProjectType,
   SuperBridgeContracts,
   SuperTokenContracts,
-  Tokens,
 } from "./enum";
+import { Project, Tokens } from "./enums";
 
 export type ProjectConstantsMap = {
   [key in Project]: ProjectConstants;
@@ -48,7 +47,9 @@ export type TokenConstants = {
       [key in ChainSlug]?: {
         [key in IntegrationTypes]?: {
           sendingLimit: string;
+          sendingRatePerSecond?: string;
           receivingLimit: string;
+          receivingRatePerSecond?: string;
           // for superbridge project, vault chains
           poolCount?: number;
         };
@@ -139,4 +140,16 @@ export type UpdateLimitParams = [
 export interface ReturnObj {
   allDeployed: boolean;
   deployedAddresses: SBTokenAddresses;
+}
+
+export type AllAddresses = Record<string, STAddresses | SBAddresses>;
+
+export interface SocketPlugsConfig {
+  tokenDecimals: { [key in Tokens]: number };
+  tokenSymbols: { [key in Tokens]: string };
+  tokenAddresses: {
+    [key in ChainSlug]?: { [key in Tokens]?: string };
+  };
+  projects: string[];
+  tokens: string[];
 }

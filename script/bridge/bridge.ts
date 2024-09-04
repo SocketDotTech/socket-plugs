@@ -2,9 +2,8 @@ import { BigNumber, utils } from "ethers";
 
 import { getSignerFromChainSlug, overrides } from "../helpers/networks";
 import { getSuperBridgeAddresses, getSuperTokenAddresses } from "../helpers";
-import { ChainSlug } from "@socket.tech/dl-core";
+import { ChainSlug, ChainSlugToKey } from "@socket.tech/dl-core";
 import {
-  tokenDecimals,
   SBAddresses,
   STAddresses,
   STTokenAddresses,
@@ -13,19 +12,40 @@ import {
 import { getTokens, isSuperBridge, isSuperToken } from "../constants/config";
 import { checkSendingLimit } from "./utils";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
+import { tokenDecimals } from "../../src/enums";
+import { handleOps, isKinto } from "@kinto-utils/dist/kinto";
+import { TREZOR, LEDGER } from "@kinto-utils/dist/utils/constants";
 
-const srcChain = ChainSlug.OPTIMISM_SEPOLIA;
-const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
-const amount = "0";
-// const amount = "1";
-
+const srcChain = ChainSlug.KINTO;
+const dstChain = ChainSlug.ARBITRUM;
+const amount = "0.1";
+const MESSAGE_ID: string = ""; // use if you want to retry a message
 const gasLimit = 500_000;
 
 export const main = async () => {
+  // retrying message
+  if (MESSAGE_ID && MESSAGE_ID.length > 0) {
+    await retry();
+    return;
+  }
+
   try {
+    let senderSigner = getSignerFromChainSlug(srcChain);
+
+    const sender = isKinto(srcChain)
+      ? process.env.KINTO_OWNER_ADDRESS
+      : senderSigner.address;
+    const receiver = isKinto(dstChain)
+      ? process.env.KINTO_OWNER_ADDRESS
+      : senderSigner.address;
+
     const tokens = getTokens();
     if (tokens.length > 1) throw Error("single token bridge allowed");
     const token = tokens[0];
+
+    console.log(
+      `Bridging ${amount} ${token} from ${ChainSlugToKey[srcChain]} to ${ChainSlugToKey[dstChain]}, from ${sender} to ${receiver}...`
+    );
 
     const amountBN = utils.parseUnits(amount, tokenDecimals[token]);
 
@@ -46,39 +66,64 @@ export const main = async () => {
     const bridgeContract = await getBridgeContract(
       srcChain,
       token,
-      srcAddresses
+      srcAddresses,
+      senderSigner
     );
-    const tokenContract = await getTokenContract(srcChain, token, srcAddresses);
+    const tokenContract = await getTokenContract(
+      srcChain,
+      token,
+      srcAddresses,
+      senderSigner
+    );
     const connectorAddr = srcAddresses.connectors?.[dstChain]?.FAST;
 
     if (!connectorAddr) throw new Error("connector contract addresses missing");
 
-    const socketSigner = getSignerFromChainSlug(srcChain);
+    console.log(
+      `Checking ${sender}'s ${token} balance on chain ${srcChain} and approval...`
+    );
 
-    console.log("checking balance and approval...");
-    // approve
-    const balance: BigNumber = await tokenContract.balanceOf(
-      socketSigner.address
+    const balance: BigNumber = await tokenContract.balanceOf(sender);
+    console.log(
+      `${token} balance: ${utils.formatUnits(
+        balance,
+        await tokenContract.decimals()
+      )}`
     );
     if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
+    // approve
     const currentApproval: BigNumber = await tokenContract.allowance(
-      socketSigner.address,
+      senderSigner.address,
       bridgeContract.address
     );
     if (currentApproval.lt(amountBN)) {
-      const approveTx = await tokenContract.approve(
-        bridgeContract.address,
-        amountBN,
+      console.log(`Approving contract to spend ${amount} ${token} ...`);
+      let tx;
+      const args = [bridgeContract.address, amountBN];
+      let txRequest = await tokenContract.populateTransaction["approve"](
+        ...args,
         {
           ...overrides[srcChain],
         }
       );
-      console.log("Tokens approved: ", approveTx.hash);
-      await approveTx.wait();
+
+      if (isKinto(srcChain)) {
+        tx = await handleOps({
+          kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+          userOps: [txRequest],
+          privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`],
+        });
+      } else {
+        tx = await (
+          await tokenContract.signer.sendTransaction(txRequest)
+        ).wait();
+      }
+
+      console.log("Tokens approved: ", tx.transactionHash);
     }
 
-    console.log("checking sending limit...");
+    console.log("Checking sending limit...");
     await checkSendingLimit(
       srcChain,
       token,
@@ -88,27 +133,84 @@ export const main = async () => {
     );
 
     // deposit
-    console.log(`depositing ${amountBN} to ${dstChain} from ${srcChain}`);
+    let fees = await bridgeContract.getMinFees(connectorAddr, gasLimit, 0);
+    console.log(`Fees: ${utils.formatUnits(fees, 18)} ETH`);
 
-    const fees = await bridgeContract.getMinFees(connectorAddr, gasLimit, 0);
-
-    const depositTx = await bridgeContract.bridge(
-      socketSigner.address,
-      amountBN,
-      gasLimit,
-      connectorAddr,
-      "0x",
-      "0x",
-      { ...overrides[srcChain], value: fees }
-    );
-    console.log("Tokens deposited: ", depositTx.hash);
     console.log(
-      `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${depositTx.hash}`
+      `Bridging ${amount} ${token} from ${ChainSlugToKey[srcChain]} to ${ChainSlugToKey[dstChain]}`
     );
-    await depositTx.wait();
+
+    let tx;
+    const args = [receiver, amountBN, gasLimit, connectorAddr, "0x", "0x"];
+    let txRequest = await bridgeContract.populateTransaction["bridge"](
+      ...args,
+      {
+        ...overrides[srcChain],
+        value: fees,
+      }
+    );
+
+    if (isKinto(srcChain)) {
+      tx = await handleOps({
+        kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+        userOps: [txRequest],
+        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`],
+        values: [fees],
+      });
+    } else {
+      tx = await (await tokenContract.signer.sendTransaction(txRequest)).wait();
+    }
+
+    console.log("Tokens deposited: ", tx.transactionHash);
+    console.log(
+      `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${tx.transactionHash}`
+    );
   } catch (error) {
     console.log("Error while sending transaction", error);
   }
+};
+
+export const retry = async () => {
+  const signer = getSignerFromChainSlug(ChainSlug.KINTO);
+  const srcChain = ChainSlug.KINTO;
+  const dstChain = ChainSlug.ARBITRUM_SEPOLIA;
+
+  console.log(
+    `Retrying message ${MESSAGE_ID} on ${ChainSlugToKey[srcChain]}...`
+  );
+
+  const tokens = getTokens();
+  if (tokens.length > 1) throw Error("single token bridge allowed");
+  const token = tokens[0];
+
+  const addresses = getSuperBridgeAddresses() as SBAddresses;
+  const srcAddresses: SBTokenAddresses | STTokenAddresses | undefined =
+    addresses[srcChain]?.[token];
+  if (!srcAddresses) throw new Error("chain addresses not found");
+
+  const connectorAddr = srcAddresses.connectors?.[dstChain]?.FAST;
+  const bridgeContract = await getBridgeContract(
+    srcChain,
+    token,
+    srcAddresses,
+    signer
+  );
+
+  const args = [connectorAddr, MESSAGE_ID];
+  let txRequest = await bridgeContract.populateTransaction["retry"](...args, {
+    ...overrides[srcChain],
+  });
+
+  const tx = await handleOps({
+    kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+    userOps: [txRequest],
+    privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
+  });
+
+  console.log("Retrial hash: ", tx.transactionHash);
+  console.log(
+    `Track message here: https://prod.dlapi.socket.tech/messages-from-tx?srcChainSlug=${srcChain}&srcTxHash=${tx.transactionHash}`
+  );
 };
 
 main()

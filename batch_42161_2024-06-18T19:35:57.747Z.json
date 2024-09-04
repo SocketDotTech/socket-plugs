@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "chainId": "42161",
+  "createdAt": "2024-06-18T19:35:57.747Z",
+  "meta": {
+    "name": "batch_42161_2024-06-18T19:35:57.747Z",
+    "description": "",
+    "txBuilderVersion": "1.16.3",
+    "createdFromSafeAddress": "0x8bFe32Ac9C21609F45eE6AE44d4E326973700614",
+    "createdFromOwnerAddress": "",
+    "checksum": "0xeee18b0193f54272ce0f2864cde2c5c0ab0eb55026d95f9ba1eecd8fd8bea5b0"
+  },
+  "transactions": [
+    {
+      "to": "0x7C852c2a3e367453Ce3a68A4D12c313BaD0565e3",
+      "value": "0",
+      "data": "0xaad48d80000000000000000000000000c3293652d1065ec006ae5dedbd10d4be4afa4a0b0000000000000000000000000000000000000000000000000000000000000000",
+      "operation": "1",
+      "contractMethod": null,
+      "contractInputsValues": null
+    }
+  ]
+}

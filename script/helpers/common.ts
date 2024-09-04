@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, Wallet, utils } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { getSignerFromChainSlug } from "./networks";
@@ -15,7 +15,6 @@ import {
   STTokenAddresses,
   STVaultChainAddresses,
   SuperBridgeContracts,
-  Tokens,
   UpdateLimitParams,
 } from "../../src";
 import { execute, getPoolIdHex } from "./utils";
@@ -31,6 +30,7 @@ import {
   isSBAppChain,
   isSTVaultChain,
 } from "./projectConstants";
+import { Tokens } from "../../src/enums";
 
 export const updateConnectorStatus = async (
   chain: ChainSlug,
@@ -79,9 +79,10 @@ export const updateConnectorStatus = async (
 export const getBridgeContract = async (
   chain: ChainSlug,
   token: Tokens,
-  addr: SBTokenAddresses | STTokenAddresses
+  addr: SBTokenAddresses | STTokenAddresses,
+  wallet: Wallet | undefined = undefined
 ) => {
-  const socketSigner = getSignerFromChainSlug(chain);
+  const signer = wallet ? wallet : getSignerFromChainSlug(chain);
   let bridgeContract: Contract,
     bridgeAddress: string = "",
     bridgeContractName: string = "";
@@ -114,19 +115,20 @@ export const getBridgeContract = async (
 
   bridgeContract = await getInstance(bridgeContractName, bridgeAddress);
 
-  bridgeContract = bridgeContract.connect(socketSigner);
+  bridgeContract = bridgeContract.connect(signer);
   return bridgeContract;
 };
 
 export const getTokenContract = async (
   chain: ChainSlug,
   token: Tokens,
-  addr: SBTokenAddresses | STTokenAddresses
+  addr: SBTokenAddresses | STTokenAddresses,
+  wallet: Wallet | undefined = undefined
 ) => {
-  const socketSigner = getSignerFromChainSlug(chain);
+  const signer = wallet ? wallet : getSignerFromChainSlug(chain);
   let tokenContract: Contract,
     tokenAddress: string = "",
-    tokenContractName: string = "ERC20";
+    tokenContractName: string = "lib/solmate/src/tokens/ERC20.sol:ERC20";
   if (isSuperBridge()) {
     if (isSBAppChain(chain, token)) {
       const a = addr as AppChainAddresses;
@@ -152,7 +154,7 @@ export const getTokenContract = async (
 
   tokenContract = await getInstance(tokenContractName, tokenAddress);
 
-  tokenContract = tokenContract.connect(socketSigner);
+  tokenContract = tokenContract.connect(signer);
   return tokenContract;
 };
 
@@ -175,9 +177,17 @@ export const getHookContract = async (
     address = addr[HookContracts.LimitExecutionHook];
     contractName = HookContracts.LimitExecutionHook;
   }
+  if (addr[HookContracts.KintoHook]) {
+    address = addr[HookContracts.KintoHook];
+    contractName = HookContracts.KintoHook;
+  }
+  if (addr[HookContracts.SenderHook]) {
+    address = addr[HookContracts.SenderHook];
+    contractName = HookContracts.SenderHook;
+  }
 
-  if (!address) {
-    throw new Error("Hook address not found");
+  if (!address || !contractName) {
+    return { hookContract: contract, hookContractName: contractName };
   }
 
   contract = await getInstance(contractName, address);
@@ -213,17 +223,43 @@ export const checkAndGrantRole = async (
   let hasRole = await contract.hasRole(roleHash, userAddress);
   if (!hasRole) {
     console.log(
-      `Adding ${roleName} role to signer`,
+      `-   Adding ${roleName} role to`,
       userAddress,
-      " for contract: ",
+      "for contract:",
       contract.address,
-      " on chain : ",
+      "on chain: ",
       chain
     );
     await execute(contract, "grantRole", [roleHash, userAddress], chain);
   } else {
     console.log(
-      `✔ ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
+      `✔   ${roleName} role already set on ${contract.address} for ${userAddress} on chain `,
+      chain
+    );
+  }
+};
+
+export const checkAndRevokeRole = async (
+  chain: ChainSlug,
+  contract: Contract,
+  roleName: string = "",
+  roleHash: string = "",
+  userAddress: string
+) => {
+  let hasRole = await contract.hasRole(roleHash, userAddress);
+  if (hasRole) {
+    console.log(
+      `-   Revoking ${roleName} role to`,
+      userAddress,
+      "for contract:",
+      contract.address,
+      "on chain: ",
+      chain
+    );
+    await execute(contract, "revokeRole", [roleHash, userAddress], chain);
+  } else {
+    console.log(
+      `✔   ${roleName} role already revoked on ${contract.address} for ${userAddress} on chain `,
       chain
     );
   }
@@ -257,11 +293,12 @@ export const updateLimitsAndPoolId = async (
       let sendingParams = await hookContract.getSendingLimitParams(
         itConnectorAddress
       );
-
       // console.log({ sendingParams });
+
       let receivingParams = await hookContract.getReceivingLimitParams(
         itConnectorAddress
       );
+      // console.log({ receivingParams })
 
       // mint/lock/deposit limits
       const sendingLimit = getLimitBN(it, chain, token, true);
@@ -271,7 +308,7 @@ export const updateLimitsAndPoolId = async (
         !sendingRate.eq(sendingParams["ratePerSecond"])
       ) {
         updateLimitParams.push([
-          true,
+          false,
           itConnectorAddress,
           sendingLimit,
           sendingRate,
@@ -290,7 +327,7 @@ export const updateLimitsAndPoolId = async (
         !receivingRate.eq(receivingParams["ratePerSecond"])
       ) {
         updateLimitParams.push([
-          false,
+          true,
           itConnectorAddress,
           receivingLimit,
           receivingRate,

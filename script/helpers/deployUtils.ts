@@ -1,6 +1,12 @@
 import { Wallet } from "ethers";
-import { network, ethers, run } from "hardhat";
+import { network, ethers, run, artifacts } from "hardhat";
 import { ContractFactory, Contract } from "ethers";
+import {
+  deployOnKinto,
+  isKinto,
+  extractArgTypes,
+} from "@kinto-utils/dist/kinto";
+import { LEDGER, TREZOR } from "@kinto-utils/dist/utils/constants";
 
 import fs from "fs";
 import { Address } from "hardhat-deploy/dist/types";
@@ -9,25 +15,38 @@ import {
   IntegrationTypes,
   getAddresses,
 } from "@socket.tech/dl-core";
-import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
 import { overrides } from "./networks";
-import { getMode, getProjectName, isSuperBridge } from "../constants/config";
+import {
+  getMode,
+  getProjectName,
+  getProjectType,
+  isSuperBridge,
+} from "../constants/config";
 import {
   SuperBridgeContracts,
-  Hooks,
-  Tokens,
-  STTokenAddresses,
   SBTokenAddresses,
   SBAddresses,
   STAddresses,
   DeployParams,
+  AllAddresses,
+  SocketPlugsConfig,
 } from "../../src";
 import {
   deploymentPath,
+  getAllDeploymentPath,
   getDeploymentPath,
   getVerificationPath,
   readJSONFile,
 } from "./utils";
+import {
+  ExistingTokenAddresses,
+  Project,
+  Tokens,
+  tokenDecimals,
+  tokenSymbol,
+} from "../../src/enums";
+import path from "path";
+import { ProjectTypeMap } from "../../src/enums/projectType";
 
 export const getOrDeploy = async (
   contractName: string,
@@ -44,6 +63,7 @@ export const getOrDeploy = async (
     storedContactAddress =
       deployUtils.addresses[SuperBridgeContracts.Controller];
   }
+
   if (!storedContactAddress) {
     contract = await deployContractWithArgs(
       contractName,
@@ -131,12 +151,28 @@ export async function deployContractWithArgs(
     const Contract: ContractFactory = await ethers.getContractFactory(
       contractName
     );
-    // gasLimit is set to undefined to not use the value set in overrides
-    const contract: Contract = await Contract.connect(signer).deploy(...args, {
-      ...overrides[await signer.getChainId()],
-      // gasLimit: undefined,
-    });
-    await contract.deployed();
+    let contract: Contract;
+    if (isKinto(await signer.getChainId())) {
+      const abi = JSON.parse(
+        Contract.interface.format(ethers.utils.FormatTypes.json) as string
+      );
+      const contractAddr = await deployOnKinto({
+        kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
+        bytecode: Contract.bytecode,
+        abi,
+        args,
+        argTypes: await extractArgTypes(abi),
+        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
+      });
+      contract = await getInstance(contractName, contractAddr);
+    } else {
+      // gasLimit is set to undefined to not use the value set in overrides
+      contract = await Contract.connect(signer).deploy(...args, {
+        ...overrides[await signer.getChainId()],
+        // gasLimit: undefined,
+      });
+      contract = await contract.deployed();
+    }
     return contract;
   } catch (error) {
     throw error;
@@ -166,10 +202,15 @@ export const verify = async (
 export const sleep = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay * 1000));
 
-export const getInstance = async (
-  contractName: string,
-  address: Address
-): Promise<Contract> => ethers.getContractAt(contractName, address);
+// export const getInstance = async (
+//   contractName: string,
+//   address: Address
+// ): Promise<Contract> => ethers.getContractAt(contractName, address);
+
+export const getInstance = async (contractName: string, address: Address) => {
+  const artifact = await artifacts.readArtifact(contractName);
+  return new ethers.Contract(address, artifact.abi);
+};
 
 export const getChainSlug = async (): Promise<number> => {
   if (network.config.chainId === undefined)
@@ -177,8 +218,16 @@ export const getChainSlug = async (): Promise<number> => {
   return Number(network.config.chainId);
 };
 
-export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
-  return new Contract(getAddresses(chain, getMode()).Socket, socketABI, signer);
+export const getSocket = async (
+  chain: ChainSlug,
+  signer: Wallet
+): Promise<Contract> => {
+  const artifact = await artifacts.readArtifact("Socket");
+  return new Contract(
+    getAddresses(chain, getMode()).Socket,
+    artifact.abi,
+    signer
+  );
 };
 
 export const storeTokenAddresses = async (
@@ -201,22 +250,33 @@ export const storeTokenAddresses = async (
   );
 };
 
-export const storeAllAddresses = async (addresses: SBAddresses) => {
+export const storeAllAddresses = async (
+  projectName: Project,
+  projectAddresses: SBAddresses | STAddresses
+) => {
+  let filePath = getAllDeploymentPath();
+  let allAddresses: AllAddresses = readJSONFile(filePath);
+
+  allAddresses = createObj(allAddresses, [projectName], projectAddresses);
+  fs.writeFileSync(filePath, JSON.stringify(allAddresses, null, 2));
+};
+
+export const storeProjectAddresses = async (addresses: SBAddresses) => {
   fs.writeFileSync(getDeploymentPath(), JSON.stringify(addresses, null, 2));
 };
 
 let addresses: SBAddresses | STAddresses;
-export const getAllAddresses = (): SBAddresses | STAddresses => {
+export const getProjectAddresses = (): SBAddresses | STAddresses => {
   if (addresses) return addresses;
   addresses = readJSONFile(getDeploymentPath());
   return addresses;
 };
 
 export const getSuperBridgeAddresses = (): SBAddresses => {
-  return getAllAddresses() as SBAddresses;
+  return getProjectAddresses() as SBAddresses;
 };
 export const getSuperTokenAddresses = (): STAddresses => {
-  return getAllAddresses() as STAddresses;
+  return getProjectAddresses() as STAddresses;
 };
 
 export const storeVerificationParams = async (
@@ -250,4 +310,36 @@ export const createObj = function (obj: any, keys: string[], value: any): any {
     );
   }
   return obj;
+};
+
+export const updateAllAddressesFile = async () => {
+  let projects = Object.values(Project);
+
+  for (let project of projects) {
+    const projectDeploymentPath = path.join(
+      __dirname,
+      `/../../deployments/${
+        ProjectTypeMap[project]
+      }/${getMode()}_${project}_addresses.json`
+    );
+    let projectAddresses = readJSONFile(projectDeploymentPath);
+    if (Object.keys(projectAddresses).length === 0) continue;
+    storeAllAddresses(project, projectAddresses);
+  }
+};
+
+export const updateDetailsFile = async () => {
+  let details: SocketPlugsConfig = {
+    tokenDecimals: tokenDecimals,
+    tokenAddresses: ExistingTokenAddresses,
+    tokenSymbols: tokenSymbol,
+    projects: Object.values(Project),
+    tokens: Object.values(Tokens),
+  };
+
+  const detailsFilePath = path.join(
+    __dirname,
+    `/../../socket-plugs-details.json`
+  );
+  fs.writeFileSync(detailsFilePath, JSON.stringify(details, null, 2));
 };

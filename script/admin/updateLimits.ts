@@ -1,16 +1,12 @@
-import { Contract } from "ethers";
 import { ChainSlug } from "@socket.tech/dl-core";
 import {
   printExecSummary,
-  getAllAddresses,
-  getInstance,
-  getSignerFromChainSlug,
+  getProjectAddresses,
+  createBatchFiles,
 } from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
   Connectors,
-  Tokens,
-  ProjectType,
   TokenConstants,
   SBAddresses,
   STAddresses,
@@ -19,13 +15,10 @@ import {
   HookContracts,
 } from "../../src";
 import { getTokens } from "../constants/config";
-import { connectorStatus, filterChains, siblingFilterChains } from "./utils";
+import { filterChains, siblingFilterChains } from "./utils";
 import { verifyConstants } from "../helpers/verifyConstants";
-import {
-  getBridgeContract,
-  getHookContract,
-  updateLimitsAndPoolId,
-} from "../helpers/common";
+import { getHookContract, updateLimitsAndPoolId } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 let pc: { [token: string]: TokenConstants } = {};
 let tokens: Tokens[];
@@ -39,7 +32,7 @@ export const main = async () => {
       pc[token] = getTokenConstants(token);
       let addresses: SBAddresses | STAddresses;
       try {
-        addresses = getAllAddresses();
+        addresses = getProjectAddresses();
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
       }
@@ -77,6 +70,8 @@ export const main = async () => {
             [
               HookContracts.LimitHook,
               HookContracts.LimitExecutionHook,
+              HookContracts.KintoHook,
+              HookContracts.SenderHook,
             ].includes(hookContractName as HookContracts)
           ) {
             await updateLimitsAndPoolId(
@@ -93,6 +88,7 @@ export const main = async () => {
     }
 
     printExecSummary();
+    createBatchFiles();
   } catch (error) {
     console.error("Error while sending transaction", error);
   }

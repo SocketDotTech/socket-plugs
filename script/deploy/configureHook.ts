@@ -5,11 +5,11 @@ import { getInstance, execute } from "../helpers";
 import {
   Connectors,
   HookContracts,
-  Tokens,
   SBTokenAddresses,
   STTokenAddresses,
 } from "../../src";
 import { getHookContract, updateLimitsAndPoolId } from "../helpers/common";
+import { Tokens } from "../../src/enums";
 
 export const configureHooks = async (
   chain: ChainSlug,
@@ -25,15 +25,22 @@ export const configureHooks = async (
     token,
     addr
   );
+  if (!hookContract || !hookContractName) {
+    return; // No hook to configure
+  }
+
   if (hookContractName === HookContracts.LimitExecutionHook) {
     await setHookInExecutionHelper(chain, socketSigner, hookContract, addr);
   }
   await setHookInBridge(chain, bridgeContract, hookContract);
 
   if (
-    [HookContracts.LimitHook, HookContracts.LimitExecutionHook].includes(
-      hookContractName as HookContracts
-    )
+    [
+      HookContracts.LimitHook,
+      HookContracts.LimitExecutionHook,
+      HookContracts.SenderHook,
+      HookContracts.KintoHook,
+    ].includes(hookContractName as HookContracts)
   ) {
     await updateLimitsAndPoolId(
       chain,
@@ -55,7 +62,7 @@ export const configureHooks = async (
 //     hookContract,
 //     "limit updater",
 //     LIMIT_UPDATER_ROLE,
-//     getSocketOwner()
+//     getOwner()
 //   );
 // };
 

@@ -5,6 +5,7 @@ import "hardhat-preprocessor";
 import "hardhat-deploy";
 import "hardhat-abi-exporter";
 import "hardhat-change-network";
+import "hardhat-dependency-compiler";
 
 import { config as dotenvConfig } from "dotenv";
 import type { HardhatUserConfig } from "hardhat/config";
@@ -21,14 +22,16 @@ import {
   hardhatChainNameToSlug,
 } from "@socket.tech/dl-core";
 import { getJsonRpcUrl } from "./script/helpers/networks";
+import { constants } from "ethers";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
 
 // Ensure that we have all the environment variables we need.
-if (!process.env.SOCKET_SIGNER_KEY) throw new Error("No private key found");
-const privateKey: HardhatNetworkAccountUserConfig = process.env
-  .SOCKET_SIGNER_KEY as unknown as HardhatNetworkAccountUserConfig;
+// if (!process.env.OWNER_SIGNER_KEY) throw new Error("No private key found");
+const privateKey: HardhatNetworkAccountUserConfig = (process.env
+  .OWNER_SIGNER_KEY ||
+  constants.HashZero.slice(2)) as unknown as HardhatNetworkAccountUserConfig;
 
 function getChainConfig(chain: HardhatChainName): NetworkUserConfig {
   return {
@@ -47,31 +50,24 @@ function getRemappings() {
 }
 
 const liveNetworks = [
-  HardhatChainName.ARBITRUM_GOERLI,
   HardhatChainName.ARBITRUM_SEPOLIA,
-  HardhatChainName.OPTIMISM_GOERLI,
   HardhatChainName.OPTIMISM_SEPOLIA,
   HardhatChainName.POLYGON_MAINNET,
   HardhatChainName.ARBITRUM,
   HardhatChainName.BSC,
   HardhatChainName.AEVO,
-  HardhatChainName.GOERLI,
   HardhatChainName.MAINNET,
   HardhatChainName.OPTIMISM,
-  HardhatChainName.POLYGON_MUMBAI,
   HardhatChainName.BSC_TESTNET,
   HardhatChainName.SEPOLIA,
   HardhatChainName.AEVO_TESTNET,
   HardhatChainName.LYRA_TESTNET,
   HardhatChainName.LYRA,
   HardhatChainName.SX_NETWORK_TESTNET,
-  HardhatChainName.MODE_TESTNET,
-  HardhatChainName.VICTION_TESTNET,
   HardhatChainName.BASE,
-  HardhatChainName.MODE,
-  HardhatChainName.ANCIENT8_TESTNET2,
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
+  HardhatChainName.KINTO,
   HardhatChainName.SYNDR_SEPOLIA_L3,
 ];
 
@@ -108,6 +104,7 @@ const config: HardhatUserConfig = {
       "lyra-testnet": "none",
       reya_cronos: "none",
       reya: "none",
+      kinto: "none",
     },
     customChains: [
       {
@@ -198,6 +195,14 @@ const config: HardhatUserConfig = {
           browserURL: "https://explorer.reya.network/",
         },
       },
+      {
+        network: "kinto",
+        chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.KINTO]],
+        urls: {
+          apiURL: "https://explorer.kinto.xyz/api",
+          browserURL: "https://explorer.kinto.xyz",
+        },
+      },
     ],
   },
   networks: {
@@ -228,13 +233,23 @@ const config: HardhatUserConfig = {
     }),
   },
   solidity: {
-    version: "0.8.13",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 999999,
+    compilers: [
+      {
+        version: "0.8.13",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 999999,
+          },
+        },
       },
-    },
+      {
+        version: "0.8.19", // for Socket.sol
+      },
+    ],
+  },
+  dependencyCompiler: {
+    paths: ["@socket.tech/dl-core/contracts/socket/Socket.sol"],
   },
 };
 

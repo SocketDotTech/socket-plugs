@@ -1,5 +1,5 @@
-import { configure } from "./configure";
-import { deploy } from "./deploy";
+import { configure } from "./deploy/configure";
+import { deploy } from "./deploy/deploy";
 
 export const main = async () => {
   try {

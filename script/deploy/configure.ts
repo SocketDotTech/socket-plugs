@@ -1,4 +1,5 @@
 import { Contract, Wallet } from "ethers";
+import * as fs from "fs";
 
 import {
   ChainSlug,
@@ -9,10 +10,11 @@ import {
 import { getSignerFromChainSlug } from "../helpers/networks";
 import {
   getInstance,
-  getAllAddresses,
+  getProjectAddresses,
   getSocket,
   execute,
   printExecSummary,
+  createBatchFiles,
 } from "../helpers";
 import { getTokenConstants } from "../helpers/projectConstants";
 import {
@@ -22,11 +24,11 @@ import {
   ProjectType,
   TokenContracts,
   TokenConstants,
-  Tokens,
   SBAddresses,
   STAddresses,
   SBTokenAddresses,
   STTokenAddresses,
+  AppChainAddresses,
 } from "../../src";
 import {
   getConfigs,
@@ -34,14 +36,23 @@ import {
   isSuperBridge,
   isSuperToken,
 } from "../constants/config";
-import { CONTROLLER_ROLE } from "../constants/roles";
+import {
+  CONTROLLER_ROLE,
+  MINTER_ROLE,
+  SOCKET_RELAYER_ROLE,
+} from "../constants/roles";
 import { verifyConstants } from "../helpers/verifyConstants";
 import {
   checkAndGrantRole,
   getBridgeContract,
+  getHookContract,
   updateConnectorStatus,
 } from "../helpers/common";
 import { configureHooks } from "./configureHook";
+import { Tokens } from "../../src/enums";
+import { ethers } from "hardhat";
+import { whitelistApp } from "@kinto-utils/dist/kinto";
+import { LEDGER } from "@kinto-utils/dist/utils/constants";
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
@@ -61,7 +72,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
       // console.log(pc[token]);
       let addresses: SBAddresses | STAddresses;
       try {
-        addresses = allAddresses ?? getAllAddresses();
+        addresses = allAddresses ?? getProjectAddresses();
         // console.log(addresses);
       } catch (error) {
         addresses = {} as SBAddresses | STAddresses;
@@ -70,7 +81,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
         ...pc[token].controllerChains,
         ...pc[token].vaultChains,
       ];
-      // console.log(allChains);
+
       await Promise.all(
         allChains.map(async (chain) => {
           let addr: SBTokenAddresses | STTokenAddresses = (addresses[chain]?.[
@@ -126,6 +137,76 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             );
           }
 
+          // grant minter role to controller for mintable token
+          if (isSuperBridge() && chain === ChainSlug.KINTO) {
+            const a = addr as AppChainAddresses;
+            const mintableToken = a[TokenContracts.MintableToken];
+
+            const tokenInstance = new ethers.Contract(
+              mintableToken,
+              [
+                "function grantRole(bytes32 role, address account)",
+                "function hasRole(bytes32 role, address account) view returns (bool)",
+              ],
+              socketSigner
+            );
+
+            // whitelist token on kinto wallet
+            const kintoWalletAddr = process.env.KINTO_OWNER_ADDRESS;
+            const privateKeys = [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER];
+            await whitelistApp(
+              kintoWalletAddr,
+              tokenInstance.address,
+              privateKeys
+            );
+
+            await checkAndGrantRole(
+              chain,
+              tokenInstance,
+              "Minter",
+              MINTER_ROLE,
+              a.Controller
+            );
+
+            // for each connector, grant socket relayer role to each one of the socket relayer role contracts
+            const contracts = getAddresses(chain, getMode());
+            const socketRelayerRoleContracts = [
+              contracts.Socket,
+              contracts.ExecutionManager,
+              contracts.TransmitManager,
+              // contracts.FastSwitchboard, // No need
+              contracts.OptimisticSwitchboard,
+              contracts.SocketBatcher,
+              contracts.SocketSimulator,
+              contracts.SimulatorUtils,
+              contracts.SwitchboardSimulator,
+              contracts.CapacitorSimulator,
+            ];
+            const connectorsAddresses = Object.values(connectors)
+              .map((connector) => Object.values(connector))
+              .flat();
+            for (const contract of socketRelayerRoleContracts) {
+              const contractInstance = new ethers.Contract(
+                contract,
+                [
+                  "function grantRole(bytes32 role, address account)",
+                  "function hasRole(bytes32 role, address account) view returns (bool)",
+                ],
+                socketSigner
+              );
+
+              for (const connector of connectorsAddresses) {
+                await checkAndGrantRole(
+                  chain,
+                  contractInstance,
+                  "Socket Relayer",
+                  SOCKET_RELAYER_ROLE,
+                  connector
+                );
+              }
+            }
+          }
+
           await configureHooks(
             chain,
             token,
@@ -141,7 +222,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
 
     allConfigured = true;
   }
-
+  createBatchFiles();
   printExecSummary();
 };
 
@@ -179,7 +260,7 @@ const connect = async (
         addresses?.[sibling]?.[token]?.connectors?.[chain];
       if (!localConnectorAddresses || !siblingConnectorAddresses) {
         throw new Error(
-          `connector addresses not found for ${chain}, ${sibling}`
+          `connector addresses not found for chain: ${chain},sibling: ${sibling}`
         );
       }
 
@@ -187,7 +268,7 @@ const connect = async (
         localConnectorAddresses
       ) as unknown as IntegrationTypes[];
 
-      const socketContract: Contract = getSocket(chain, socketSigner);
+      const socketContract: Contract = await getSocket(chain, socketSigner);
       for (let integration of integrationTypes) {
         const siblingConnectorPlug = siblingConnectorAddresses[integration];
         const localConnectorPlug = localConnectorAddresses[integration];
@@ -202,6 +283,10 @@ const connect = async (
         if (!switchboard) {
           console.log(
             `switchboard not found for ${chain}, ${sibling}, ${integration}`
+          );
+        } else {
+          console.log(
+            `✔   Switchboard found for ${chain}, ${sibling}, ${integration}`
           );
         }
         // console.log(

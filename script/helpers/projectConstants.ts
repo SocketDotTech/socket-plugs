@@ -1,8 +1,10 @@
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import { BigNumber, utils } from "ethers";
-import { TokenConstants, tokenDecimals } from "../../src";
+import { ProjectConstants, TokenConstants } from "../../src";
 import { getMode, getProjectName } from "../constants/config";
 import { getConstantPath } from "./utils";
+import { tokenDecimals } from "../../src/enums/tokenDecimals";
+import { ethers } from "hardhat";
 
 export const isSBAppChain = (chain: ChainSlug, token: string) =>
   getTokenConstants(token).controllerChains.includes(chain);
@@ -10,19 +12,22 @@ export const isSBAppChain = (chain: ChainSlug, token: string) =>
 export const isSTVaultChain = (chain: ChainSlug, token: string) =>
   getTokenConstants(token).vaultChains.includes(chain);
 
-let tc: TokenConstants;
+let pc: ProjectConstants;
 
 export const getTokenConstants = (tokenName: string): TokenConstants => {
-  if (tc) return tc;
-  console.log(getConstantPath());
-  const _tc = require(getConstantPath());
-  console.log(_tc);
-  tc = _tc?.[getMode()]?.[tokenName];
+  let pc_ = getProjectConstants();
+  const tc = pc_?.[getMode()]?.[tokenName];
   if (!tc)
     throw new Error(
       `config not found for ${getProjectName()}, ${getMode()}, ${tokenName}`
     );
   return tc;
+};
+
+export const getProjectConstants = (): ProjectConstants => {
+  if (pc) return pc;
+  pc = require(getConstantPath()).pc;
+  return pc;
 };
 
 export const getIntegrationTypeConsts = (
@@ -42,15 +47,19 @@ export const getLimitBN = (
   isSending: boolean
 ): BigNumber => {
   if (isSending) {
-    return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain, token).sendingLimit,
-      tokenDecimals[token]
-    );
+    const sendingLimit = getIntegrationTypeConsts(
+      it,
+      chain,
+      token
+    ).sendingLimit;
+    return utils.parseUnits(sendingLimit, tokenDecimals[token]);
   } else {
-    return utils.parseUnits(
-      getIntegrationTypeConsts(it, chain, token).receivingLimit,
-      tokenDecimals[token]
-    );
+    const receivingLimit = getIntegrationTypeConsts(
+      it,
+      chain,
+      token
+    ).receivingLimit;
+    return utils.parseUnits(receivingLimit, tokenDecimals[token]);
   }
 };
 
@@ -60,6 +69,13 @@ export const getRateBN = (
   token: string,
   isSending: boolean
 ): BigNumber => {
-  let limitBN = getLimitBN(it, chain, token, isSending);
-  return limitBN.div(86400);
+  const limitBN = getLimitBN(it, chain, token, isSending);
+  const rate: string | number = getIntegrationTypeConsts(it, chain, token)[
+    isSending ? "sendingRatePerSecond" : "receivingRatePerSecond"
+  ];
+  if (!rate || rate == "") {
+    return limitBN.div(86400); // default to daily
+  } else {
+    return utils.parseUnits(rate, tokenDecimals[token]);
+  }
 };

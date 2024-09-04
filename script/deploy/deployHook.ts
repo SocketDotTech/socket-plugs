@@ -1,15 +1,12 @@
 import { Contract } from "ethers";
-import {
-  getSocketOwner,
-  isSuperBridge,
-  isSuperToken,
-} from "../constants/config";
+import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import { Hooks, HookContracts, DeployParams } from "../../src";
 import { getBridgeContract } from "../helpers/common";
+import { kintoConfig } from "@kinto-utils/dist/utils/constants";
+import { isKinto } from "@kinto-utils/dist/kinto";
 
 export const deployHookContracts = async (
-  isVaultChain: boolean,
   useConnnectorPools: boolean,
   deployParams: DeployParams
 ) => {
@@ -35,7 +32,9 @@ export const deployHookContracts = async (
   if (hookType == Hooks.LIMIT_HOOK) {
     contractName = HookContracts.LimitHook;
     args = [
-      getSocketOwner(),
+      isKinto(deployParams.currentChainSlug)
+        ? process.env.KINTO_OWNER_ADDRESS
+        : getOwner(),
       bridgeAddress,
       useConnnectorPools, // useControllerPools
     ];
@@ -43,11 +42,28 @@ export const deployHookContracts = async (
     contractName = HookContracts.LimitExecutionHook;
     deployParams = await deployExecutionHelper(deployParams);
     args = [
-      getSocketOwner(),
+      isKinto(deployParams.currentChainSlug)
+        ? process.env.KINTO_OWNER_ADDRESS
+        : getOwner(),
       bridgeAddress,
       deployParams.addresses[HookContracts.ExecutionHelper],
       useConnnectorPools, // useControllerPools
     ];
+  } else if (hookType == Hooks.KINTO_HOOK) {
+    // if chain is Kinto (Controller), we deploy the KintoHook, otherwise, we deploy the SenderHook (for Vaults)
+    if (isKinto(deployParams.currentChainSlug)) {
+      contractName = HookContracts.KintoHook;
+      args = [
+        process.env.KINTO_OWNER_ADDRESS,
+        bridgeAddress,
+        useConnnectorPools, // useControllerPools
+        kintoConfig[deployParams.currentChainSlug].contracts.kintoID.address,
+        kintoConfig[deployParams.currentChainSlug].contracts.factory.address,
+      ];
+    } else {
+      contractName = HookContracts.SenderHook;
+      args = [getOwner(), bridgeAddress, useConnnectorPools];
+    }
   }
 
   if (!contractName) return deployParams;
@@ -75,7 +91,7 @@ const deployExecutionHelper = async (deployParams: DeployParams) => {
   const executionHelperContract: Contract = await getOrDeploy(
     contractName,
     path,
-    [getSocketOwner()],
+    [getOwner()],
     deployParams
   );
   deployParams.addresses[contractName] = executionHelperContract.address;
