@@ -18,7 +18,7 @@ import path from "path";
 import { getIntegrationTypeConsts } from "./projectConstants";
 import { ProjectType } from "../../src";
 import { handleOps, isKinto } from "@kinto-utils/dist/kinto";
-import { LEDGER } from "@kinto-utils/dist/utils/constants";
+import { LEDGER, TREZOR } from "@kinto-utils/dist/utils/constants";
 import { ethers } from "hardhat";
 
 export let allDeploymentPath: string;
@@ -201,7 +201,7 @@ export async function execute(
       tx = await handleOps({
         kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
         userOps: [txRequest],
-        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
+        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
       });
       console.log(
         `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.transactionHash}`
