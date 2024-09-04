@@ -19,7 +19,7 @@ export const buildEnvFile = async (
   projectName: string,
   projectType: ProjectType,
   ownerAddress: string,
-  tokens: Tokens[],
+  tokens: Tokens[] | NFTs[],
   chains: ChainSlug[]
 ) => {
   let { publicEnvData, privateEnvData } = getProjectEnvData(
@@ -60,7 +60,7 @@ export const getProjectEnvData = (
   projectName: string,
   projectType: ProjectType,
   ownerAddress: string,
-  tokens: Tokens[],
+  tokens: Tokens[] | NFTs[],
   chains: ChainSlug[]
 ) => {
   let publicEnvData: Record<string, string> = {

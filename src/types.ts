@@ -8,7 +8,7 @@ import {
   SuperBridgeContracts,
   SuperTokenContracts,
 } from "./enum";
-import { Project, Tokens } from "./enums";
+import { NFTs, Project, Tokens } from "./enums";
 
 export type ProjectConstantsMap = {
   [key in Project]: ProjectConstants;
@@ -16,7 +16,7 @@ export type ProjectConstantsMap = {
 
 export type ProjectConstants = {
   [key in DeploymentMode]?: {
-    [key in Tokens]?: TokenConstants;
+    [key in Tokens | NFTs]?: TokenConstants;
   };
 };
 
