@@ -7,6 +7,7 @@ import {
   ProjectType,
   SuperBridgeContracts,
   SuperTokenContracts,
+  TokenType,
 } from "./enum";
 import { NFTs, Project, Tokens } from "./enums";
 
@@ -130,6 +131,7 @@ export interface DeployParams {
   signer: Wallet;
   currentChainSlug: number;
   currentToken: Tokens | NFTs;
+  currentTokenType: TokenType;
   hookType?: Hooks;
   mergeInboundWithTokens: Tokens[];
   tc: TokenConstants;

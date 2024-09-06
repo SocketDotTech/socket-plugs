@@ -32,6 +32,8 @@ export enum SuperBridgeContracts {
   FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
   ExchangeRate = "ExchangeRate",
   ConnectorPlug = "ConnectorPlug",
+  NFTVault = "NFTVault",
+  NFTController = "NFTController",
 }
 
 export enum HookContracts {
