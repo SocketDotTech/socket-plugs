@@ -8,7 +8,7 @@ import {
   getEnumMaps,
   projectReverseMap,
 } from "./enumMaps";
-import { ProjectType } from "../../src";
+import { ProjectType, TokenType } from "../../src";
 import { NewTokenInfo } from "./common";
 import { getChainName } from "../constants";
 
@@ -20,6 +20,7 @@ export const buildEnvFile = async (
   projectType: ProjectType,
   ownerAddress: string,
   tokens: Tokens[] | NFTs[],
+  tokenTypes: TokenType[],
   chains: ChainSlug[]
 ) => {
   let { publicEnvData, privateEnvData } = getProjectEnvData(
@@ -27,6 +28,7 @@ export const buildEnvFile = async (
     projectType,
     ownerAddress,
     tokens,
+    tokenTypes,
     chains
   );
   let finalEnvData: Record<string, string>;
@@ -61,11 +63,13 @@ export const getProjectEnvData = (
   projectType: ProjectType,
   ownerAddress: string,
   tokens: Tokens[] | NFTs[],
+  tokenTypes: TokenType[],
   chains: ChainSlug[]
 ) => {
   let publicEnvData: Record<string, string> = {
     PROJECT: projectName,
     TOKENS: tokens.join(","),
+    TOKEN_TYPES: tokenTypes.join(","),
     OWNER_ADDRESS: ownerAddress,
     DRY_RUN: "false",
   };

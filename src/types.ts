@@ -101,7 +101,7 @@ export type SBTokenAddresses = AppChainAddresses | NonAppChainAddresses;
 
 export type SBAddresses = {
   [chainSlug in ChainSlug]?: {
-    [token in Tokens]?: SBTokenAddresses;
+    [token in Tokens | NFTs]?: SBTokenAddresses;
   };
 };
 
@@ -121,7 +121,7 @@ export type STTokenAddresses =
 
 export type STAddresses = {
   [chainSlug in ChainSlug]?: {
-    [token in Tokens]?: STTokenAddresses;
+    [token in Tokens | NFTs]?: STTokenAddresses;
   };
 };
 
@@ -129,7 +129,7 @@ export interface DeployParams {
   addresses: SBTokenAddresses | STTokenAddresses;
   signer: Wallet;
   currentChainSlug: number;
-  currentToken: Tokens;
+  currentToken: Tokens | NFTs;
   hookType?: Hooks;
   mergeInboundWithTokens: Tokens[];
   tc: TokenConstants;

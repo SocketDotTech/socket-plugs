@@ -84,13 +84,14 @@ export const addProject = async () => {
       tokenInfo.tokens,
       tokenInfo.superTokenInfoMap
     );
-    await updateProjectEnums(projectConfig.projectName, projectType);
+    await updateProjectEnums(projectName, projectType);
     console.log(`✔  Updated Enums :Project`);
     await buildEnvFile(
-      projectConfig.projectName,
-      projectConfig.projectType,
-      projectConfig.owner,
+      projectName,
+      projectType,
+      owner,
       tokenInfo.tokens,
+      new Array(tokenInfo.tokens.length).fill(tokenType),
       allChains
     );
 
@@ -110,13 +111,14 @@ export const addProject = async () => {
       vaultChains,
       controllerChains
     );
-    await updateProjectEnums(projectConfig.projectName, projectType);
+    await updateProjectEnums(projectName, projectType);
     console.log(`✔  Updated Enums :Project`);
     await buildEnvFile(
-      projectConfig.projectName,
-      projectConfig.projectType,
-      projectConfig.owner,
+      projectName,
+      projectType,
+      owner,
       [nftInfo.nft],
+      [tokenType],
       allChains
     );
 
