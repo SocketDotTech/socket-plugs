@@ -186,6 +186,17 @@
           "FAST": "0x4a43eD818411585fEAaf667a2D3E2605962084e0"
         }
       }
+    },
+    "SOL": {
+      "isAppChain": false,
+      "NonMintableToken": "0xd31a59c85ae9d8edefec411d448f90841571b89c",
+      "Vault": "0xA2bc0DaA9BF98820632bCa0663a9616f6bC180f8",
+      "SenderHook": "0x00eE1cD9f07ec5c1eF9b4Ae40775e918Ffac0962",
+      "connectors": {
+        "7887": {
+          "FAST": "0xd48A35a853858e344aFCbEcCDBf8FCbFaF8e1501"
+        }
+      }
     }
   },
   "7887": {
@@ -611,6 +622,17 @@
       "connectors": {
         "7887": {
           "FAST": "0xf03E3CCcA51980E7FfF022CDF27B7F8130fB4287"
+        }
+      }
+    },
+    "SOL": {
+      "isAppChain": false,
+      "NonMintableToken": "0xb74da9fe2f96b9e0a5f4a3cf0b92dd2bec617124",
+      "Vault": "0x830dE29a70D4665329919D5f7E63BD44CBB22dc7",
+      "SenderHook": "0x01132715A4457e15FB938c1BA323B80e6443Fc00",
+      "connectors": {
+        "7887": {
+          "FAST": "0xcc1605E68B71c82906A08f9de12f39A9c68f7441"
         }
       }
     }

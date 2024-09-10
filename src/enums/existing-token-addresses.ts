@@ -26,6 +26,7 @@ export const ExistingTokenAddresses: {
     [Tokens.MKR]: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
     [Tokens.PAXG]: "0x45804880De22913dAFE09f4980848ECE6EcbAf78",
     [Tokens.XAUT]: "0x68749665FF8D2d112Fa859AA293F07A622782F38",
+    [Tokens.SOL]: "0xd31a59c85ae9d8edefec411d448f90841571b89c",
   },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDCE]: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
@@ -48,6 +49,7 @@ export const ExistingTokenAddresses: {
     [Tokens.SolvBTC]: "0x3647c54c4c2c65bc7a2d63c0da2809b399dbbdc0",
     [Tokens.stUSD]: "0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776",
     [Tokens.stEUR]: "0x004626A008B1aCdC4c74ab51644093b155e59A23",
+    [Tokens.SOL]: "0xb74da9fe2f96b9e0a5f4a3cf0b92dd2bec617124",
   },
   [ChainSlug.BASE]: {
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
@@ -104,6 +106,7 @@ export const ExistingTokenAddresses: {
     [Tokens.XAUT]: "0x0a070085e529c98036b1779dbA6D3896e10197D1",
     [Tokens.stUSD]: "0x5705d0c6956bCcC6CF91B122EC36Ef0F741659b3",
     [Tokens.stEUR]: "0x57E090cE57D03152fa6dc4b45FA0382c19C2409D",
+    [Tokens.SOL]: "0x736F6c64C8e25dB3560db6cdB9CCaa35fCBE8a39"
   },
   [ChainSlug.POLYGON_MAINNET]: {
     [Tokens.USDCE]: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",

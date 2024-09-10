@@ -28,4 +28,5 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.XAUT]: "XAUT",
   [Tokens.stUSD]: "stUSD",
   [Tokens.stEUR]: "stEUR",
+  [Tokens.SOL]: "SOL",
 };

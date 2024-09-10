@@ -503,6 +503,33 @@ export const pc: ProjectConstants = {
           }
         }
       }
+    },
+    [Tokens.SOL]: {
+      vaultChains: [ChainSlug.MAINNET, ChainSlug.ARBITRUM],
+      controllerChains: [ChainSlug.KINTO],
+      hook: {
+        hookType: Hooks.KINTO_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "10000",
+              receivingLimit: "10000"
+            }
+          },
+          [ChainSlug.KINTO]: {
+            [IntegrationTypes.fast]: {
+              receivingLimit: "10000",
+              sendingLimit: "10000"
+            }
+          },
+          [ChainSlug.ARBITRUM]: {
+            [IntegrationTypes.fast]: {
+              receivingLimit: "10000",
+              sendingLimit: "10000"
+            }
+          }
+        }
+      }
     }
   },
 };

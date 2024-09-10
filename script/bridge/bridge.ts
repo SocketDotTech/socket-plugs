@@ -204,7 +204,7 @@ export const retry = async () => {
   const tx = await handleOps({
     kintoWalletAddr: process.env.KINTO_OWNER_ADDRESS,
     userOps: [txRequest],
-    privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
+    privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
   });
 
   console.log("Retrial hash: ", tx.transactionHash);

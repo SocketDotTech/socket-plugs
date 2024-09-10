@@ -28,4 +28,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.XAUT]: "Tether Gold",
   [Tokens.stUSD]: "Staked USDA",
   [Tokens.stEUR]: "Staked EURA",
+  [Tokens.SOL]: "Wrapped SOL",
 };

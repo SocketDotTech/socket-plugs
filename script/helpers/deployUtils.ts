@@ -162,7 +162,7 @@ export async function deployContractWithArgs(
         abi,
         args,
         argTypes: await extractArgTypes(abi),
-        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, TREZOR],
+        privateKeys: [`0x${process.env.OWNER_SIGNER_KEY}`, LEDGER],
       });
       contract = await getInstance(contractName, contractAddr);
     } else {
