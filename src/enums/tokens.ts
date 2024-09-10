@@ -26,4 +26,5 @@ export enum Tokens {
   XAUT = "XAUT",
   stUSD = "stUSD",
   stEUR = "stEUR",
+  SOL = "SOL"
 }
