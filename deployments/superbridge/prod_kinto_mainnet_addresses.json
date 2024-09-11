@@ -455,6 +455,20 @@
           "FAST": "0xA21a73cDC42cD34Ad665C609A6Ff6FC7A557495d"
         }
       }
+    },
+    "SOL": {
+      "isAppChain": true,
+      "MintableToken": "0x736F6c64C8e25dB3560db6cdB9CCaa35fCBE8a39",
+      "Controller": "0xa968C2771d5E984979589ef8f6fA59D5818a208F",
+      "KintoHook": "0xA017A1fd16774A9E79286f7F0bfe1EA27c838604",
+      "connectors": {
+        "1": {
+          "FAST": "0x8C54D958199339ABD2CB0f9EE37aD1dcbFCD9078"
+        },
+        "42161": {
+          "FAST": "0xD61Ec203867b56fD0714A44AB0E5C91B5a8a9516"
+        }
+      }
     }
   },
   "8453": {
