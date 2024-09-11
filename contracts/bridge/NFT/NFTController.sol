@@ -6,6 +6,7 @@ import {IMintableERC721} from "../../interfaces/IMintableERC721.sol";
 import {IMintableERC1155} from "../../interfaces/IMintableERC1155.sol";
 
 contract NFTController is NFTBase {
+    mapping(uint256 => uint256) public totalMinted;
     bytes4 private interfaceId;
 
     constructor(address token_, bytes4 interfaceId_) NFTBase(token_) {
@@ -44,6 +45,7 @@ contract NFTController is NFTBase {
             );
 
         // to maintain socket dl specific accounting for super token
+        totalMinted[transferInfo.tokenId] -= transferInfo.amount;
         _burn(msg.sender, transferInfo.tokenId, transferInfo.amount);
         _afterBridge(
             msgGasLimit_,
@@ -86,6 +88,7 @@ contract NFTController is NFTBase {
         );
 
         _mint(transferInfo.receiver, transferInfo.tokenId, transferInfo.amount);
+        totalMinted[transferInfo.tokenId] += transferInfo.amount;
 
         _afterMint(lockAmount, messageId, postHookData, transferInfo);
     }
@@ -105,6 +108,7 @@ contract NFTController is NFTBase {
             NFTTransferInfo memory transferInfo
         ) = _beforeRetry(connector_, messageId_);
         _mint(transferInfo.receiver, transferInfo.tokenId, transferInfo.amount);
+        totalMinted[transferInfo.tokenId] += transferInfo.amount;
 
         _afterRetry(connector_, messageId_, postHookData);
     }
