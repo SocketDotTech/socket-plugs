@@ -49,7 +49,7 @@ export enum CustomNetworks {
 export const CustomNetworksConfig = {
   [CustomNetworks.POLTER_DEVNET]: {
     chainId: 398274,
-    url: process.env.POLTER_DEVNET_RPC,
+    url: process.env.POLTER_DEVNET_RPC || "none",
     accounts: [`0x${privateKey}`],
   },
 };
