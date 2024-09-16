@@ -16,7 +16,7 @@ contract ExecutionHelper is RescueBase {
     bytes32 public messageId;
     uint256 public bridgeAmount;
 
-    event ExecutionFailed(string reason);
+    event ExecutionFailed(bytes reason);
 
     constructor(address owner_) AccessControl(owner_) {
         _grantRole(RESCUE_ROLE, owner_);
@@ -63,14 +63,9 @@ contract ExecutionHelper is RescueBase {
 
     function _getRevertMsg(
         bytes memory _returnData
-    ) internal pure returns (string memory) {
+    ) internal pure returns (bytes memory) {
         // If the _res length is less than 68, then the transaction failed silently (without a revert message)
         if (_returnData.length < 68) return "Transaction reverted silently";
-
-        assembly {
-            // Slice the sighash.
-            _returnData := add(_returnData, 0x04)
-        }
-        return abi.decode(_returnData, (string)); // All that remains is the revert string
+        return _returnData;
     }
 }
