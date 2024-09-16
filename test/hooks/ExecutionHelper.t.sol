@@ -7,6 +7,11 @@ import {ExecutionHelper} from "../../contracts/hooks/plugins/ExecutionHelper.sol
 contract MockContractWithCustomError is ExecutionHelper(msg.sender) {
     error CustomError(uint256 a, uint256 b, address c);
 
+    function throwPanicError() external pure {
+        uint256[] memory emptyArray = new uint256[](0);
+        emptyArray[0] = 1; // This will cause a panic due to out-of-bounds array access
+    }
+
     function throwCustomError() external view {
         revert CustomError(1, 2, address(this));
     }
@@ -71,5 +76,30 @@ contract ExecutionHelperTest is Test {
 
         // Check if the error message matches the expected custom error message
         assertEq(errorMessage, expectedError);
+    }
+
+    function testGetRevertMsgWithPanicError() public {
+        // Attempt to call the function that throws a panic error
+        (bool success, bytes memory returnData) = address(mockContract).call(
+            abi.encodeWithSignature("throwPanicError()")
+        );
+
+        // Ensure the call failed
+        assertFalse(success);
+
+        // Use the _getRevertMsg function to decode the error
+        bytes memory errorMessage = mockContract.getRevertMsg(returnData);
+
+        // The panic error code for out-of-bounds array access is 0x32
+        bytes memory expectedError = abi.encodeWithSignature(
+            "Panic(uint256)",
+            0x32
+        );
+
+        // Check if the error message length is less than 68
+        assertLt(expectedError.length, 68);
+
+        // Check if the error message matches the expected empty bytes
+        assertEq(errorMessage, bytes(""));
     }
 }
