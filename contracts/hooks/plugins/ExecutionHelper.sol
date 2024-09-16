@@ -16,6 +16,8 @@ contract ExecutionHelper is RescueBase {
     bytes32 public messageId;
     uint256 public bridgeAmount;
 
+    event ExecutionFailed(string reason);
+
     constructor(address owner_) AccessControl(owner_) {
         _grantRole(RESCUE_ROLE, owner_);
     }
@@ -46,13 +48,29 @@ contract ExecutionHelper is RescueBase {
         messageId = messageId_;
         bridgeAmount = bridgeAmount_;
 
-        (success, ) = target_.excessivelySafeCall(
+        bytes memory returnData;
+        (success, returnData) = target_.excessivelySafeCall(
             gasleft(),
             MAX_COPY_BYTES,
             payload_
         );
 
+        if (!success) emit ExecutionFailed(_getRevertMsg(returnData));
+
         messageId = bytes32(0);
         bridgeAmount = 0;
+    }
+
+    function _getRevertMsg(
+        bytes memory _returnData
+    ) internal pure returns (string memory) {
+        // If the _res length is less than 68, then the transaction failed silently (without a revert message)
+        if (_returnData.length < 68) return "Transaction reverted silently";
+
+        assembly {
+            // Slice the sighash.
+            _returnData := add(_returnData, 0x04)
+        }
+        return abi.decode(_returnData, (string)); // All that remains is the revert string
     }
 }
