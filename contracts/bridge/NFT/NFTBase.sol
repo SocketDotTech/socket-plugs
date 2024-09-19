@@ -7,6 +7,7 @@ import "solmate/tokens/ERC1155.sol";
 import {IConnector} from "../../interfaces/IConnector.sol";
 import "../../interfaces/INFTHook.sol";
 import "../../interfaces/INFTBridge.sol";
+import "../../interfaces/INFTMetadata.sol";
 import "../../common/Errors.sol";
 import "../../common/Constants.sol";
 import "../../utils/AccessControl.sol";
@@ -252,6 +253,13 @@ abstract contract NFTBase is ReentrancyGuard, INFTBridge, AccessControl {
 
             identifierCache[messageId_] = cacheData.identifierCache;
             connectorCache[msg.sender] = cacheData.connectorCache;
+        }
+
+        if (transferInfo_.extraData.length > 0) {
+            INFTMetadata(token).setMetadata(
+                transferInfo_.tokenId,
+                transferInfo_.extraData
+            );
         }
 
         emit TokensBridged(
