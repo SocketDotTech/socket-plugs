@@ -20,6 +20,7 @@ contract NFTController is NFTBase {
      * @notice Bridges tokens between chains.
      * @dev This function allows bridging tokens between different chains.
      * @param receiver_ The address to receive the bridged tokens.
+     * @param tokenOwner_ The owner address of tokens to bridge.
      * @param tokenId_ The id of token to bridge.
      * @param amount_ The amount of tokens to bridge.
      * @param msgGasLimit_ The gas limit for the execution of the bridging process.
@@ -29,6 +30,7 @@ contract NFTController is NFTBase {
      */
     function bridge(
         address receiver_,
+        address tokenOwner_,
         uint256 tokenId_,
         uint256 amount_,
         uint256 msgGasLimit_,
@@ -46,7 +48,7 @@ contract NFTController is NFTBase {
 
         // to maintain socket dl specific accounting for super token
         totalMinted[transferInfo.tokenId] -= transferInfo.amount;
-        _burn(msg.sender, transferInfo.tokenId, transferInfo.amount);
+        _burn(tokenOwner_, transferInfo.tokenId, transferInfo.amount);
         _afterBridge(
             msgGasLimit_,
             connector_,

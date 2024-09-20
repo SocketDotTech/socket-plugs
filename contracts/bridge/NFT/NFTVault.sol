@@ -28,6 +28,7 @@ contract NFTVault is NFTBase {
      * @notice Bridges tokens between chains.
      * @dev This function allows bridging tokens between different chains.
      * @param receiver_ The address to receive the bridged tokens.
+     * @param tokenOwner_ The owner address of tokens to bridge.
      * @param tokenId_ The id of token to bridge.
      * @param amount_ The amount of tokens to bridge.
      * @param msgGasLimit_ The gas limit for the execution of the bridging process.
@@ -37,6 +38,7 @@ contract NFTVault is NFTBase {
      */
     function bridge(
         address receiver_,
+        address tokenOwner_,
         uint256 tokenId_,
         uint256 amount_,
         uint256 msgGasLimit_,
@@ -52,7 +54,7 @@ contract NFTVault is NFTBase {
                 NFTTransferInfo(receiver_, tokenId_, amount_, extraData_)
             );
 
-        _receiveTokens(transferInfo.tokenId, transferInfo.amount);
+        _receiveTokens(tokenOwner_, transferInfo.tokenId, transferInfo.amount);
 
         _afterBridge(
             msgGasLimit_,
@@ -145,13 +147,21 @@ contract NFTVault is NFTBase {
         }
     }
 
-    function _receiveTokens(uint256 tokenId_, uint256 amount_) internal {
+    function _receiveTokens(
+        address tokenOwner_,
+        uint256 tokenId_,
+        uint256 amount_
+    ) internal {
         if (amount_ == 0) return;
         if (bridgeType == ERC721_VAULT) {
-            ERC721(token).safeTransferFrom(msg.sender, address(this), tokenId_);
+            ERC721(token).safeTransferFrom(
+                tokenOwner_,
+                address(this),
+                tokenId_
+            );
         } else {
             ERC1155(token).safeTransferFrom(
-                msg.sender,
+                tokenOwner_,
                 address(this),
                 tokenId_,
                 amount_,

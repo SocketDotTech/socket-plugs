@@ -4,6 +4,7 @@ pragma solidity ^0.8.3;
 interface INFTBridge {
     function bridge(
         address receiver_,
+        address tokenOwner_,
         uint256 tokenId_,
         uint256 amount_,
         uint256 msgGasLimit_,
