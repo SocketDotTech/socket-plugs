@@ -8,10 +8,10 @@ import {
   STAddresses,
   STTokenAddresses,
 } from "../../src";
-import { tokenDecimals, Tokens } from "../../src/enums";
+import { Tokens, tokenDecimals } from "../../src/enums";
 import { getProjectAddresses } from "../helpers";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
-import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { getOverrides, getSignerFromChainSlug } from "../helpers/networks";
 import { checkSendingLimit, getDLAPIBaseUrl } from "./utils";
 
 const gasLimit = 500_000;
@@ -96,7 +96,7 @@ export const main = async () => {
         bridgeContract.address,
         amountBN,
         {
-          ...overrides[srcChain],
+          ...getOverrides(srcChain),
         }
       );
       console.log("Tokens approved: ", approveTx.hash);
@@ -123,7 +123,7 @@ export const main = async () => {
       connectorAddr,
       "0x",
       "0x",
-      { ...overrides[srcChain], value: fees }
+      { ...getOverrides(srcChain), value: fees }
     );
     console.log("Tokens deposited: ", depositTx.hash);
     console.log(
