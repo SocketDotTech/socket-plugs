@@ -19,7 +19,8 @@
     "GLTR": 18,
     "STIME": 18,
     "USDe": 6,
-    "MAGIC": 18
+    "MAGIC": 18,
+    "SUSDE": 18
   },
   "tokenAddresses": {
     "1": {
@@ -31,7 +32,8 @@
       "wstETH": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
       "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-      "USDe": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3"
+      "USDe": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
+      "SUSDE": "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497"
     },
     "10": {
       "USDC": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
@@ -42,7 +44,8 @@
       "SNX": "0x8700daec35af8ff88c16bdf0418774cb3d7599b4",
       "wstETH": "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb",
       "DAI": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
-      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "SUSDE": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2"
     },
     "137": {
       "USDC": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
@@ -62,7 +65,8 @@
       "WETH": "0x4200000000000000000000000000000000000006",
       "wstETH": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
       "DAI": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
-      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+      "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "SUSDE": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2"
     },
     "42161": {
       "USDC": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
@@ -75,7 +79,8 @@
       "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
       "MTK": "0x094553F42B44Ea1492b0dcA5f4134F23f45db742",
       "STIME": "0x17AfF554423D2C40A1BBF51b443E9d43dd8AE1eb",
-      "MAGIC": "0x539bde0d7dbd336b79148aa742883198bbf60342"
+      "MAGIC": "0x539bde0d7dbd336b79148aa742883198bbf60342",
+      "SUSDE": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2"
     },
     "421614": {
       "USDC": "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
@@ -104,6 +109,9 @@
       "WETH": "0x2b42AFFD4b7C14d9B7C2579229495c052672Ccd3",
       "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
       "WBTC": "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7"
+    },
+    "1324967486": {
+      "SUSDE": "0x2339D41f410EA761F346a14c184385d15f7266c4"
     }
   },
   "tokenSymbols": {
@@ -126,7 +134,8 @@
     "GLTR": "GLTR",
     "STIME": "STIME",
     "USDe": "USDe",
-    "MAGIC": "MAGIC"
+    "MAGIC": "MAGIC",
+    "SUSDE": "SUSDE"
   },
   "projects": [
     "aevo",
@@ -148,7 +157,8 @@
     "aavegotchi_mainnet",
     "timeswap_test_mainnet",
     "testing_testnet",
-    "magic_mainnet"
+    "magic_mainnet",
+    "polter_testnet"
   ],
   "tokens": [
     "USDC.e",
@@ -170,6 +180,7 @@
     "STIME",
     "MOON",
     "USDe",
-    "MAGIC"
+    "MAGIC",
+    "SUSDE"
   ]
 }
