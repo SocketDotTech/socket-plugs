@@ -138,7 +138,7 @@ const deployChainContracts = async (
   isVaultChain: boolean,
   socketSigner: Wallet,
   chainSlug: number,
-  token: Tokens | NFTs,
+  token: string,
   tokenType: TokenType,
   siblings: number[],
   hookType: Hooks,

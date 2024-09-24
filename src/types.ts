@@ -130,7 +130,7 @@ export interface DeployParams {
   addresses: SBTokenAddresses | STTokenAddresses;
   signer: Wallet;
   currentChainSlug: number;
-  currentToken: Tokens | NFTs;
+  currentToken: string;
   currentTokenType: TokenType;
   hookType?: Hooks;
   mergeInboundWithTokens: Tokens[];

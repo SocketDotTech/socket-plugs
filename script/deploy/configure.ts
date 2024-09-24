@@ -43,7 +43,7 @@ import { getAddresses } from "../constants";
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
 let projectName: string;
-let tokens: Tokens[];
+let tokens: string[];
 
 let socketSignerAddress: string;
 
@@ -126,7 +126,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
 
           await configureHooks(
             chain,
-            token,
+            token as Tokens,
             bridgeContract,
             socketSigner,
             siblingSlugs,
@@ -161,7 +161,7 @@ const connect = async (
   addr: SBTokenAddresses | STTokenAddresses,
   addresses: SBAddresses | STAddresses,
   chain: ChainSlug,
-  token: Tokens,
+  token: string,
   siblingSlugs: ChainSlug[],
   socketSigner: Wallet
 ) => {
