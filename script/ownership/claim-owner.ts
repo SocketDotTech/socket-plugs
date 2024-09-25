@@ -1,8 +1,5 @@
 import { config as dotenvConfig } from "dotenv";
-import { getProjectAddresses } from "../helpers";
 import { Signer, Wallet, ethers } from "ethers";
-import { Ownable, Ownable__factory } from "../../typechain-types";
-import { getProviderFromChainSlug, overrides } from "../helpers/networks";
 import {
   ChainSlug,
   SBAddresses,
@@ -10,6 +7,9 @@ import {
   STAddresses,
   STTokenAddresses,
 } from "../../src";
+import { Ownable, Ownable__factory } from "../../typechain-types";
+import { getProjectAddresses } from "../helpers";
+import { getOverrides, getProviderFromChainSlug } from "../helpers/networks";
 import { ContractList, getContractList } from "./util";
 
 dotenvConfig();
@@ -108,7 +108,7 @@ const checkAndClaim = async (
     if (sendTx) {
       console.log(`✨ ${label}: Claiming`);
       const tx = await contract.claimOwner({
-        ...overrides[parseInt(chainSlug)],
+        ...getOverrides(parseInt(chainSlug)),
       });
       const receipt = await tx.wait();
       console.log(`🚀 ${label}: Done: ${receipt.transactionHash}`);

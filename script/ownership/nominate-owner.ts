@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import { getProjectAddresses } from "../helpers";
 import { Signer, Wallet, ethers } from "ethers";
 import { Ownable, Ownable__factory } from "../../typechain-types";
-import { getProviderFromChainSlug, overrides } from "../helpers/networks";
+import { getProviderFromChainSlug, getOverrides } from "../helpers/networks";
 import {
   ChainSlug,
   SBAddresses,
@@ -124,7 +124,7 @@ const checkAndNominate = async (
     if (sendTx) {
       console.log(`✨ ${label}: Nominating`);
       const tx = await contract.nominateOwner(newOwner, {
-        ...overrides[parseInt(chainSlug)],
+        ...getOverrides(parseInt(chainSlug)),
       });
       const receipt = await tx.wait();
       console.log(`🚀 ${label}: Done: ${receipt.transactionHash}`);

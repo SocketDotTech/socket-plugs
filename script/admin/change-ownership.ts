@@ -1,6 +1,6 @@
 import { getSuperBridgeAddresses, ZERO_ADDRESS } from "../helpers";
 import { ethers } from "ethers";
-import { getSignerFromChainSlug, overrides } from "../helpers/networks";
+import { getSignerFromChainSlug, getOverrides } from "../helpers/networks";
 import { isSBAppChain } from "../helpers/projectConstants";
 import { getOwner } from "../constants/config";
 import { OWNABLE_ABI } from "../constants/abis/ownable";
@@ -62,14 +62,14 @@ export const main = async () => {
             if (exchangeRateType === 0) {
               const tx = await exchangeRateContract.nominateOwner(
                 chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
+                { ...getOverrides(+chain) }
               );
               console.log("Nominating, tx hash: ", tx.hash);
               await tx.wait();
             } else {
               const tx = await exchangeRateContract.transferOwnership(
                 chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
+                { ...getOverrides(+chain) }
               );
               console.log("Nominating, tx hash: ", tx.hash);
               await tx.wait();
@@ -99,14 +99,14 @@ export const main = async () => {
             if (controllerType === 0) {
               const tx = await controllerContract.nominateOwner(
                 chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
+                { ...getOverrides(+chain) }
               );
               console.log("Nominating, tx hash: ", tx.hash);
               await tx.wait();
             } else {
               const tx = await controllerContract.transferOwnership(
                 chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
+                { ...getOverrides(+chain) }
               );
               console.log("Nominating, tx hash: ", tx.hash);
               await tx.wait();
@@ -132,14 +132,14 @@ export const main = async () => {
             if (vaultType === 0) {
               const tx = await vaultContract.nominateOwner(
                 chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
+                { ...getOverrides(+chain) }
               );
               console.log("Nominating, tx hash: ", tx.hash);
               await tx.wait();
             } else {
               const tx = await vaultContract.transferOwnership(
                 chainToExpectedOwner[+chain],
-                { ...overrides[+chain] }
+                { ...getOverrides(+chain) }
               );
               console.log("Nominating, tx hash: ", tx.hash);
               await tx.wait();
@@ -171,14 +171,14 @@ export const main = async () => {
               if (type === 0) {
                 const tx = await contract.nominateOwner(
                   chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
+                  { ...getOverrides(+chain) }
                 );
                 console.log("Nominating, tx hash: ", tx.hash);
                 await tx.wait();
               } else {
                 const tx = await contract.transferOwnership(
                   chainToExpectedOwner[+chain],
-                  { ...overrides[+chain] }
+                  { ...getOverrides(+chain) }
                 );
                 console.log("Nominating, tx hash: ", tx.hash);
                 await tx.wait();
