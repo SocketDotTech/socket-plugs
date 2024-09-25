@@ -1,18 +1,18 @@
 import { Contract } from "ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
-import { getProviderFromChainSlug, overrides } from "./networks";
+import * as fs from "fs";
+import path from "path";
 import {
   getDryRun,
   getMode,
   getProjectName,
   getProjectType,
 } from "../constants/config";
-import * as fs from "fs";
-import path from "path";
+import { getOverrides } from "./networks";
 
-import { getIntegrationTypeConsts } from "./projectConstants";
 import { StaticJsonRpcProvider } from "@ethersproject/providers";
+import { getIntegrationTypeConsts } from "./projectConstants";
 
 import { ProjectType } from "../../src";
 
@@ -117,7 +117,7 @@ export async function execute(
     execSummary.push("");
   } else {
     let tx = await contract.functions[method](...args, {
-      ...overrides[chain],
+      ...getOverrides(chain),
     });
     console.log(
       `o   Sent on chain: ${chain} function: ${method} txHash: ${tx.hash}`

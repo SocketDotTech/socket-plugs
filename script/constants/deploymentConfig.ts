@@ -10,6 +10,7 @@ import {
 } from "@socket.tech/dl-core";
 import { getMode } from "./config";
 import { chainSlugReverseMap } from "../setup/enumMaps";
+import { ExtendedS3ChainConfig } from "../../src";
 
 export const DEPLOYMENT_CONFIG_URL =
   "https://surge-deploy.socket.tech/v1/getS3Config";
@@ -17,7 +18,7 @@ export let testnetIds: ChainSlug[] = [];
 export let mainnetIds: ChainSlug[] = [];
 export let addresses: DeploymentAddresses = {};
 export let chains: {
-  [chainSlug in ChainSlug]?: S3ChainConfig;
+  [chainSlug in ChainSlug]?: ExtendedS3ChainConfig;
 } = {};
 
 export const fetchDeploymentConfig = async (): Promise<S3Config> => {

@@ -1,36 +1,20 @@
-import { Wallet } from "ethers";
-import { network, ethers, run } from "hardhat";
-import { ContractFactory, Contract } from "ethers";
+import { Contract, ContractFactory, Wallet } from "ethers";
+import { ethers, network, run } from "hardhat";
 
-import fs from "fs";
-import { Address } from "hardhat-deploy/dist/types";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
-import { overrides } from "./networks";
+import fs from "fs";
+import { Address } from "hardhat-deploy/dist/types";
+import path from "path";
 import {
-  getDryRun,
-  getMode,
-  getProjectName,
-  getProjectType,
-  isSuperBridge,
-} from "../constants/config";
-import {
-  SuperBridgeContracts,
-  SBTokenAddresses,
-  SBAddresses,
-  STAddresses,
-  DeployParams,
   AllAddresses,
+  DeployParams,
+  SBAddresses,
+  SBTokenAddresses,
+  STAddresses,
   SocketPlugsConfig,
+  SuperBridgeContracts,
 } from "../../src";
-import {
-  deploymentPath,
-  execSummary,
-  getAllDeploymentPath,
-  getDeploymentPath,
-  getVerificationPath,
-  readJSONFile,
-} from "./utils";
 import {
   ExistingTokenAddresses,
   Project,
@@ -38,10 +22,17 @@ import {
   tokenDecimals,
   tokenSymbol,
 } from "../../src/enums";
-import path from "path";
 import { ProjectTypeMap } from "../../src/enums/projectType";
-import { chainIdReverseMap } from "../setup/enumMaps";
 import { getAddresses } from "../constants";
+import { getDryRun, getMode, getProjectName } from "../constants/config";
+import { getOverrides } from "./networks";
+import {
+  execSummary,
+  getAllDeploymentPath,
+  getDeploymentPath,
+  getVerificationPath,
+  readJSONFile,
+} from "./utils";
 
 export const getOrDeploy = async (
   contractName: string,
@@ -60,6 +51,7 @@ export const getOrDeploy = async (
   }
   if (!storedContactAddress) {
     contract = await deployContractWithArgs(
+      deployUtils.currentChainSlug,
       contractName,
       args,
       deployUtils.signer
@@ -105,6 +97,7 @@ export const getOrDeployConnector = async (
 
   if (!storedContactAddress) {
     contract = await deployContractWithArgs(
+      deployUtils.currentChainSlug,
       SuperBridgeContracts.ConnectorPlug,
       args,
       deployUtils.signer
@@ -145,6 +138,7 @@ export const getOrDeployConnector = async (
 };
 
 export async function deployContractWithArgs(
+  chainSlug: ChainSlug,
   contractName: string,
   args: Array<any>,
   signer: Wallet
@@ -159,15 +153,10 @@ export async function deployContractWithArgs(
       const Contract: ContractFactory = await ethers.getContractFactory(
         contractName
       );
-
-      const chainId = await signer.getChainId();
-      const chainName = chainIdReverseMap.get(chainId.toString());
-      const chainSlug = ChainSlug[chainName];
-
       const contract: Contract = await Contract.connect(signer).deploy(
         ...args,
         {
-          ...overrides[chainSlug],
+          ...getOverrides(chainSlug),
         }
       );
       await contract.deployed();

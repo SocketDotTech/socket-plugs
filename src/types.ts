@@ -1,4 +1,4 @@
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber, BigNumberish, Wallet } from "ethers";
 import { ChainSlug, DeploymentMode, IntegrationTypes } from "./core";
 import {
   CommonContracts,
@@ -10,6 +10,7 @@ import {
   TokenType,
 } from "./enum";
 import { NFTs, Project, Tokens } from "./enums";
+import { S3ChainConfig } from "@socket.tech/dl-core";
 
 export type ProjectConstantsMap = {
   [key in Project]: ProjectConstants;
@@ -160,3 +161,13 @@ export interface SocketPlugsConfig {
   projects: string[];
   tokens: string[];
 }
+
+export type ExtendedS3ChainConfig = S3ChainConfig & {
+  overrides?: Overrides;
+};
+
+export type Overrides = {
+  type?: number | undefined;
+  gasLimit?: BigNumberish | undefined;
+  gasPrice?: BigNumberish | undefined;
+};
