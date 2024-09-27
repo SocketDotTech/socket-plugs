@@ -329,9 +329,9 @@ export const deployControllerChainContracts = async (
           : "contracts/bridge/NFT/NFTController.sol";
       contractArgs =
         deployParams.currentTokenType === TokenType.ERC721
-          ? [mintableToken, "0x73ad2146"]
+          ? [mintableToken, "0x80ac58cd"]
           : deployParams.currentTokenType === TokenType.ERC1155
-          ? [mintableToken, "0x973bb640"]
+          ? [mintableToken, "0xd9b67a26"]
           : [mintableToken];
     }
     if (!contractArgs) contractArgs = [mintableToken];
@@ -419,9 +419,9 @@ export const deployVaultChainContracts = async (
         : "contracts/bridge/NFT/NFTVault.sol";
     const contractArgs =
       deployParams.currentTokenType === TokenType.ERC721
-        ? [nonMintableToken, "0x73ad2146"]
+        ? [nonMintableToken, "0x80ac58cd"]
         : deployParams.currentTokenType === TokenType.ERC1155
-        ? [nonMintableToken, "0x973bb640"]
+        ? [nonMintableToken, "0xd9b67a26"]
         : [nonMintableToken];
     const vault: Contract = await getOrDeploy(
       contractName,
