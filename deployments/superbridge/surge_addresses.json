@@ -32,10 +32,10 @@
       "GOTCHI": {
         "isAppChain": false,
         "NonMintableToken": "0xC80DB01aeDAD5F6E3088c75F60E52f579Cf1D3Cb",
-        "Vault": "0xe07bCa11D493c6f151AE35DdC31EA0Ce1B54Fe9E",
+        "Vault": "0x09011fcA980Df5d22E5ff2262051Bc28C430E11c",
         "connectors": {
           "398274": {
-            "FAST": "0x04e77F231c933df16B4cd24fC8B4F33713E8e79c"
+            "FAST": "0x6f1978CF0D213eFBF4A173d499219AbeEa01e597"
           }
         }
       }
@@ -44,10 +44,10 @@
       "GOTCHI": {
         "isAppChain": true,
         "MintableToken": "0x6b54b36A54b068152f0f39FdA0Bf96e02176D95B",
-        "Controller": "0x9C7e1dc50c944272a69Ff900E3cB9A59b33E9042",
+        "Controller": "0x38161F1a033D86aea6D222AEdE57702046414CA5",
         "connectors": {
           "80002": {
-            "FAST": "0x672ebFd9dC326211cAC7f91465a576cf0B0aB609"
+            "FAST": "0xCfDA1E919F0b9B9fAbb6863dBF662B7fa688D2fD"
           }
         }
       }
