@@ -12,7 +12,13 @@ import "../../common/Errors.sol";
 import "../../common/Constants.sol";
 import "../../utils/AccessControl.sol";
 
-abstract contract NFTBase is ReentrancyGuard, INFTBridge, AccessControl {
+abstract contract NFTBase is
+    ReentrancyGuard,
+    INFTBridge,
+    ERC721TokenReceiver,
+    ERC1155TokenReceiver,
+    AccessControl
+{
     address public immutable token;
     bytes32 public bridgeType;
     INFTHook public hook__;
