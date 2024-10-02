@@ -1,19 +1,15 @@
 import { config as dotenvConfig } from "dotenv";
-dotenvConfig();
-
 import { EventEmitter } from "events";
-EventEmitter.defaultMaxListeners = 20;
-
-import { Contract, Wallet } from "ethers";
+import { constants, Contract, Wallet } from "ethers";
 import { getSignerFromChainSlug } from "../helpers/networks";
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import {
+  getConfigs,
+  getDryRun,
   getMode,
   isSuperBridge,
   isSuperToken,
-  getConfigs,
   printConfigs,
-  getDryRun,
 } from "../constants/config";
 import {
   createObj,
@@ -24,47 +20,54 @@ import {
   storeTokenAddresses,
 } from "../helpers";
 import {
-  SuperBridgeContracts,
+  CommonContracts,
+  DeployParams,
   Hooks,
   ProjectType,
-  TokenContracts,
-  CommonContracts,
+  ReturnObj,
+  SBAddresses,
+  SBTokenAddresses,
+  STAddresses,
+  STTokenAddresses,
+  SuperBridgeContracts,
   SuperTokenContracts,
   TokenConstants,
-  STTokenAddresses,
-  SBTokenAddresses,
-  SBAddresses,
-  STAddresses,
-  DeployParams,
-  ReturnObj,
+  TokenContracts,
+  TokenType,
 } from "../../src";
-import { isSBAppChain, getTokenConstants } from "../helpers/projectConstants";
+import { getTokenConstants, isSBAppChain } from "../helpers/projectConstants";
 import { ExistingTokenAddresses } from "../../src/enums/existing-token-addresses";
 import { deployHookContracts } from "./deployHook";
 import { verifyConstants } from "../helpers/verifyConstants";
 import { getBridgeContract } from "../helpers/common";
-import { Project, Tokens } from "../../src/enums";
+import { NFTs, Project, Tokens } from "../../src/enums";
 import { parseUnits } from "ethers/lib/utils";
-
-import { constants } from "ethers";
 import { getAddresses } from "../constants";
+
+dotenvConfig();
+
+EventEmitter.defaultMaxListeners = 20;
+
 const { AddressZero } = constants;
 
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
 let projectName: string;
-let tokens: Tokens[];
+let tokens: string[];
+let tokenTypes: TokenType[];
 /**
  * Deploys contracts for all networks
  */
 
 export const deploy = async () => {
   await verifyConstants();
-  ({ projectName, projectType, tokens } = getConfigs());
+  ({ projectName, projectType, tokens, tokenTypes } = getConfigs());
   printConfigs();
   let allAddresses: SBAddresses | STAddresses = {};
 
-  for (let token of tokens) {
+  for (let index = 0; index < tokens.length; index++) {
+    const token = tokens[index];
+    const tokenType = tokenTypes[index];
     console.log(`Deploying contracts for ${token}...`);
 
     pc[token] = getTokenConstants(token);
@@ -109,6 +112,7 @@ export const deploy = async () => {
           signer,
           chain,
           token,
+          tokenType,
           siblings,
           hookType,
           tokenAddresses,
@@ -134,7 +138,8 @@ const deployChainContracts = async (
   isVaultChain: boolean,
   socketSigner: Wallet,
   chainSlug: number,
-  token: Tokens,
+  token: string,
+  tokenType: TokenType,
   siblings: number[],
   hookType: Hooks,
   deployedAddresses: SBTokenAddresses | STTokenAddresses,
@@ -148,6 +153,7 @@ const deployChainContracts = async (
     signer: socketSigner,
     currentChainSlug: chainSlug,
     currentToken: token,
+    currentTokenType: tokenType,
     hookType,
     mergeInboundWithTokens: tc.mergeInboundWithTokens ?? [],
     tc,
@@ -281,7 +287,8 @@ export const deployControllerChainContracts = async (
       controller: Contract,
       contractName: string = "",
       controllerAddress: string = "",
-      contractPath: string = "";
+      contractPath: string = "",
+      contractArgs: any[];
 
     if (isSuperToken()) {
       deployParams = await deploySuperToken(deployParams);
@@ -308,13 +315,26 @@ export const deployControllerChainContracts = async (
         deployParams.addresses[SuperBridgeContracts.MintableToken] =
           mintableToken;
 
-      contractName = deployParams.tc.isFiatTokenV2_1
-        ? SuperBridgeContracts.FiatTokenV2_1_Controller
-        : SuperBridgeContracts.Controller;
-      contractPath = deployParams.tc.isFiatTokenV2_1
-        ? "contracts/bridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
-        : "contracts/bridge/Controller.sol";
+      contractName =
+        deployParams.currentTokenType === TokenType.ERC20
+          ? deployParams.tc.isFiatTokenV2_1
+            ? SuperBridgeContracts.FiatTokenV2_1_Controller
+            : SuperBridgeContracts.Controller
+          : SuperBridgeContracts.NFTController;
+      contractPath =
+        deployParams.currentTokenType === TokenType.ERC20
+          ? deployParams.tc.isFiatTokenV2_1
+            ? "contracts/bridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol"
+            : "contracts/bridge/Controller.sol"
+          : "contracts/bridge/NFT/NFTController.sol";
+      contractArgs =
+        deployParams.currentTokenType === TokenType.ERC721
+          ? [mintableToken, "0x80ac58cd"]
+          : deployParams.currentTokenType === TokenType.ERC1155
+          ? [mintableToken, "0xd9b67a26"]
+          : [mintableToken];
     }
+    if (!contractArgs) contractArgs = [mintableToken];
 
     // If controller address is already in addresses object, skip
     // If mergeInboundWithTokens is provided, pick the first token's controller address which is present.
@@ -345,7 +365,7 @@ export const deployControllerChainContracts = async (
       controller = await getOrDeploy(
         contractName,
         contractPath,
-        [mintableToken],
+        contractArgs,
         deployParams
       );
 
@@ -389,10 +409,24 @@ export const deployVaultChainContracts = async (
       deployParams.addresses[SuperBridgeContracts.NonMintableToken] =
         nonMintableToken;
 
+    const contractName =
+      deployParams.currentTokenType === TokenType.ERC20
+        ? SuperBridgeContracts.Vault
+        : SuperBridgeContracts.NFTVault;
+    const contractPath =
+      deployParams.currentTokenType === TokenType.ERC20
+        ? "contracts/bridge/Vault.sol"
+        : "contracts/bridge/NFT/NFTVault.sol";
+    const contractArgs =
+      deployParams.currentTokenType === TokenType.ERC721
+        ? [nonMintableToken, "0x80ac58cd"]
+        : deployParams.currentTokenType === TokenType.ERC1155
+        ? [nonMintableToken, "0xd9b67a26"]
+        : [nonMintableToken];
     const vault: Contract = await getOrDeploy(
-      SuperBridgeContracts.Vault,
-      "contracts/bridge/Vault.sol",
-      [nonMintableToken],
+      contractName,
+      contractPath,
+      contractArgs,
       deployParams
     );
 
