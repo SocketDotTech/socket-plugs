@@ -1733,117 +1733,71 @@
   },
   "kinto_mainnet": {
     "1": {
-      "MKR": {
+      "eUSD": {
         "isAppChain": false,
-        "NonMintableToken": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
-        "Vault": "0x0fC783f611A888A2cAbC3dA482Add3215334dCc2",
-        "SenderHook": "0x612CfdD43815cfAaEF7CE7DD278885C294621454",
+        "NonMintableToken": "0x939778D83b46B456224A33Fb59630B11DEC56663",
+        "Vault": "0xDB0e855F55ff35dA8754e5297925bd6c4Cb1Fa48",
+        "SenderHook": "0xb3fBd5f6C0aCCFccDdDdD5BD2f3360Ec94728A5E",
         "connectors": {
           "7887": {
-            "FAST": "0x54bd887d31A5119Bbc91426eD6289b8ACD2b7349"
+            "FAST": "0x895b6c1413243562128a9281a7f8891640Ca073f"
           }
         }
       },
-      "PAXG": {
+      "rsENA": {
         "isAppChain": false,
-        "NonMintableToken": "0x45804880De22913dAFE09f4980848ECE6EcbAf78",
-        "Vault": "0x25f0D71Da51A77Ca231484eBbAD1f588A0230ef2",
-        "SenderHook": "0xe644b7045529344bDC57961De447b7308Ac9be3d",
+        "NonMintableToken": "0x7e0209ab6fa3c7730603b68799bbe9327dab7e88",
+        "Vault": "0x210189fb61cE8776990403E8010B6aE300ad37AB",
+        "SenderHook": "0x7408620EFeaA4bd4B231D82C6537744c9205D7eA",
         "connectors": {
           "7887": {
-            "FAST": "0x6B3614474eE19FA9A2d6D2079a2D73c04E567310"
+            "FAST": "0x88A05556Af1a8a5BB5964c46Be9D56C379a5E155"
           }
         }
       },
-      "XAUT": {
+      "rsUSDe": {
         "isAppChain": false,
-        "NonMintableToken": "0x68749665FF8D2d112Fa859AA293F07A622782F38",
-        "Vault": "0xd04Bc056BE36a6127267E4F71d3b43D1BEEfE8bF",
-        "SenderHook": "0x4A48C0643CFc841A968d81cA66514702395F843b",
+        "NonMintableToken": "0x890b6afc834c2a2cc6cb9b6627272ab4ecfd8271",
+        "Vault": "0x329AF0B874BD2A926935D6e5435B97ab787aD5e0",
+        "SenderHook": "0xDDc708D28aC4A0d232029CD00B5a0553ddE6877d",
         "connectors": {
           "7887": {
-            "FAST": "0x4a43eD818411585fEAaf667a2D3E2605962084e0"
+            "FAST": "0x76ddfc271089e58Af68D8597D41aEF52Fb53EC3D"
           }
         }
       }
     },
     "7887": {
-      "MKR": {
+      "eUSD": {
         "isAppChain": true,
-        "MintableToken": "0x11A1e3777010fcbc31Bd1b9B095b2009ca04b1Ed",
-        "Controller": "0x90128652cF49A44F0374d0EE7d3782df59e72A8C",
-        "KintoHook": "0x008D87C626474556C00f09255dAaCF0b684c5267",
+        "MintableToken": "0xe05d00c92C7F3F760221A79eC912b67a792E1052",
+        "Controller": "0xbBA40ecf76e13219D3b17B730a4be2136918E91E",
+        "KintoHook": "0x35Dc00D1d95267Fe570270489175C5496Cb1dFF6",
         "connectors": {
           "1": {
-            "FAST": "0xd5Abd2eEc1443A1D53b37a6c2cc16C8A4f81f321"
+            "FAST": "0xF061935968E231777bCe376aEA264a0bd3d26BcF"
           }
         }
       },
-      "PAXG": {
+      "rsENA": {
         "isAppChain": true,
-        "MintableToken": "0x17A060E324A8629fbd096A295cC88EE4939d3646",
-        "Controller": "0xd17b43d94f0BF2960d285E89de5b9a8369e3eD5b",
-        "KintoHook": "0xdb4F2A06eEaD24e6a87dC50Af9fD9232b473D1ab",
+        "MintableToken": "0x25E0a03B871D71265fE17A600823ff0fF0076Bd4",
+        "Controller": "0x9119d9D07FF1fEB8cd902A05603f6596D4A0d754",
+        "KintoHook": "0xd779Fac1dE6e6d154808D5F1861300A933afba38",
         "connectors": {
           "1": {
-            "FAST": "0xc3D118CD6eDA0de07dDA9235C76bacB2124fD37C"
+            "FAST": "0xb88e2cC668d9332c4614A9E925601015B1dA7b9c"
           }
         }
       },
-      "XAUT": {
+      "rsUSDe": {
         "isAppChain": true,
-        "MintableToken": "0x0a070085e529c98036b1779dbA6D3896e10197D1",
-        "Controller": "0xf5d3d976872E01b7B7aF7964Ca9cf4D992584726",
-        "KintoHook": "0x11FcbCa5Ea6dc29E7314B93899601eB2c1B6beD5",
+        "MintableToken": "0x2505De87C816ad0969F6B7f3ee2A39E336f802a2",
+        "Controller": "0x50291565834df33346103e1Ff1dd5e0B19402443",
+        "KintoHook": "0x04770aEDc3D4f0bDB8A9048c999BAA00735236C3",
         "connectors": {
           "1": {
-            "FAST": "0x459d21d3aB6a55e4b764b52d7a2d110f0993E22a"
-          }
-        }
-      },
-      "stUSD": {
-        "isAppChain": true,
-        "MintableToken": "0x5705d0c6956bCcC6CF91B122EC36Ef0F741659b3",
-        "Controller": "0x7DA5691fB59740cF02CC7dc16743Be9dCBf685b5",
-        "KintoHook": "0x73A2Eb3DDf82784D951e25C11A4055d71c73104b",
-        "connectors": {
-          "42161": {
-            "FAST": "0x838183baD082Bf937EcF6ED4B3e2ce91d258D23e"
-          }
-        }
-      },
-      "stEUR": {
-        "isAppChain": true,
-        "MintableToken": "0x57E090cE57D03152fa6dc4b45FA0382c19C2409D",
-        "Controller": "0xe5b6205CfC03786Fc554c40767A591b8dCBC1E76",
-        "KintoHook": "0xc0b9913B2F831F5871dc1b359DfA593ec5dC2e5D",
-        "connectors": {
-          "42161": {
-            "FAST": "0xA21a73cDC42cD34Ad665C609A6Ff6FC7A557495d"
-          }
-        }
-      }
-    },
-    "42161": {
-      "stUSD": {
-        "isAppChain": false,
-        "NonMintableToken": "0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776",
-        "Vault": "0x97bf1f0F7A929bE866F7Fbeb35545f5429Addf26",
-        "SenderHook": "0xD07a5E27e72b37386cC0518c12D0201d93769eE8",
-        "connectors": {
-          "7887": {
-            "FAST": "0xE16Cc29f4d28BB93D1B882035D87dE9AC0306bAd"
-          }
-        }
-      },
-      "stEUR": {
-        "isAppChain": false,
-        "NonMintableToken": "0x004626A008B1aCdC4c74ab51644093b155e59A23",
-        "Vault": "0x8446981bC2168395497e6D0709169BdF81682E5c",
-        "SenderHook": "0xa2B7BA8B0c7855217127aE1b24a9d3849c5faCAB",
-        "connectors": {
-          "7887": {
-            "FAST": "0xf03E3CCcA51980E7FfF022CDF27B7F8130fB4287"
+            "FAST": "0x378Edfee07599207559BaeBAfE8aD963f32F019f"
           }
         }
       }
