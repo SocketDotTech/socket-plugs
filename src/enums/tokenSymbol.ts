@@ -26,6 +26,7 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.MKR]: "MKR",
   [Tokens.PAXG]: "PAXG",
   [Tokens.XAUT]: "XAUT",
+  [Tokens.eUSD]: "eUSD",
   [Tokens.stUSD]: "stUSD",
   [Tokens.stEUR]: "stEUR",
   [Tokens.SOL]: "SOL",

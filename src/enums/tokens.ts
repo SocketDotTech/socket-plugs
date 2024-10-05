@@ -24,6 +24,7 @@ export enum Tokens {
   MKR = "MKR",
   PAXG = "PAXG",
   XAUT = "XAUT",
+  eUSD = "eUSD",
   stUSD = "stUSD",
   stEUR = "stEUR",
   SOL = "SOL"
