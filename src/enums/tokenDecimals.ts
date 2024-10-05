@@ -27,6 +27,8 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.PAXG]: 18,
   [Tokens.XAUT]: 6,
   [Tokens.eUSD]: 18,
+  [Tokens.rsENA]: 18,
+  [Tokens.rsUSDe]: 18,
   [Tokens.stUSD]: 18,
   [Tokens.stEUR]: 18,
   [Tokens.SOL]: 9,

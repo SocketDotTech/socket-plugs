@@ -27,6 +27,8 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.PAXG]: "Paxos Gold",
   [Tokens.XAUT]: "Tether Gold",
   [Tokens.eUSD]: "ether.fi USD",
+  [Tokens.rsENA]: "Pendle rsENA",
+  [Tokens.rsUSDe]: "Pendle rsUSDe",
   [Tokens.stUSD]: "Staked USDA",
   [Tokens.stEUR]: "Staked EURA",
   [Tokens.SOL]: "Wrapped SOL",
