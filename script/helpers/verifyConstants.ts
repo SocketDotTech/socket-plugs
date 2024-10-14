@@ -11,7 +11,7 @@ import { Tokens } from "../../src/enums";
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
 let projectName: string;
-let tokens: Tokens[];
+let tokens: string[];
 
 export const verifyConstants = async () => {
   ({ projectName, projectType, tokens } = getConfigs());

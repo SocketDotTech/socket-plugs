@@ -5,7 +5,7 @@ import {
   isContractAtAddress,
   rpcKeys,
 } from "../helpers";
-import { Hooks, ProjectType } from "../../src";
+import { Hooks, ProjectType, TokenType } from "../../src";
 import { StaticJsonRpcProvider } from "@ethersproject/providers";
 import { Tokens } from "../../src/enums";
 
@@ -14,6 +14,7 @@ export type ProjectConfig = {
   projectName: string;
   hookType: Hooks;
   owner: string;
+  tokenType: TokenType;
   isMainnet: boolean;
   newToken?: boolean;
 };
@@ -22,6 +23,19 @@ export type NewTokenInfo = {
   name: string;
   symbol: string;
   decimals: number;
+  chainSlug: ChainSlug;
+  address: string;
+};
+
+export enum NFTType {
+  ERC721 = "erc721",
+  ERC1155 = "erc1155",
+}
+
+export type NewNFTInfo = {
+  name: string;
+  type: NFTType;
+  symbol: string;
   chainSlug: ChainSlug;
   address: string;
 };
