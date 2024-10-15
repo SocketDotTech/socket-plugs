@@ -35,6 +35,18 @@
           "FAST": "0xEd0952283fdA768aA9d69eB7e895d49afcC3c0fe"
         }
       }
+    },
+    "USDZEROPP": {
+      "isAppChain": false,
+      "NonMintableToken": "0x35D8949372D46B7a3D5A56006AE77B215fc69bC0",
+      "Vault": "0xDf9Fa2b420689384E8DD55a706262DC0ED37020F",
+      "ExecutionHelper": "0xEc017A04a6FA6D309A48238266dCe0c1fafB06B6",
+      "LimitExecutionHook": "0x76a6EA327E73E1548F9C4d6453A497a679E99aCE",
+      "connectors": {
+        "8008": {
+          "FAST": "0x80f5143AF6BF51B38C038BaFF71465Be9b48cAEe"
+        }
+      }
     }
   },
   "10": {
@@ -94,6 +106,18 @@
       "connectors": {
         "1": {
           "FAST": "0xce70303Df18E2E10A5059da96f41Cfd95Bf9D5cE"
+        }
+      }
+    },
+    "USDZEROPP": {
+      "isAppChain": true,
+      "MintableToken": "0x6224dC817dC4D5c53fcF3eb08A4f84C456F9f38f",
+      "Controller": "0xadf7D3A2c6D3396164396069e0607dea54a93aEe",
+      "ExecutionHelper": "0x8E055Ff010DDB0387C3d819Abb8aeFAa9fee6061",
+      "LimitExecutionHook": "0x1FC707CCBD82D5CCe6a426f5C4eCaA2c7ab37d6f",
+      "connectors": {
+        "1": {
+          "FAST": "0x5ab9aCb348b61ec02dD2b43eBF5eD1a56713E19F"
         }
       }
     }
