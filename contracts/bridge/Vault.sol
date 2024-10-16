@@ -146,6 +146,19 @@ contract Vault is Base {
         _afterRetry(connector_, messageId_, postHookData);
     }
 
+    /**
+     * @notice Disperse rewards, will be used for dispersing rewards in the future.
+     * @dev reward token can not be locked token.
+     * @param receiver_ The address to receive the rewards.
+     * @param amount_ The amount of rewards to disperse.
+     * @param rewardToken_ The address of the reward token.
+     */
+    function disperseRewards(address receiver_, uint256 amount_, address rewardToken_) external onlyOwner {
+        if (rewardToken_ == token) revert("Vault: reward token is same as token");
+        ERC20(rewardToken_).safeTransfer(receiver_, amount_);
+    }
+
+
     function _transferTokens(address receiver_, uint256 amount_) internal {
         if (amount_ == 0) return;
         if (address(token) == ETH_ADDRESS) {
