@@ -92,7 +92,7 @@ contract NFTController is NFTBase {
         _mint(transferInfo.receiver, transferInfo.tokenId, transferInfo.amount);
         totalMinted[transferInfo.tokenId] += transferInfo.amount;
 
-        _afterMint(lockAmount, messageId, postHookData, transferInfo);
+        _afterMint(lockAmount, messageId, postHookData, transferInfo, true);
     }
 
     /**

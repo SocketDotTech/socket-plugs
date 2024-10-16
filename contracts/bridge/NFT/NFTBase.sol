@@ -239,12 +239,14 @@ abstract contract NFTBase is
      * @param messageId_ The unique identifier for the mint transaction.
      * @param postHookData_ Data returned from the destination pre-hook call.
      * @param transferInfo_ Information about the mint transaction.
+     * @param isMint_ mint or transfer
      */
     function _afterMint(
         uint256,
         bytes32 messageId_,
         bytes memory postHookData_,
-        NFTTransferInfo memory transferInfo_
+        NFTTransferInfo memory transferInfo_,
+        bool isMint_
     ) internal {
         if (address(hook__) != address(0)) {
             CacheData memory cacheData = hook__.dstPostHookCall(
@@ -264,7 +266,8 @@ abstract contract NFTBase is
         if (transferInfo_.extraData.length > 0) {
             INFTMetadata(token).setMetadata(
                 transferInfo_.tokenId,
-                transferInfo_.extraData
+                transferInfo_.extraData,
+                isMint_
             );
         }
 

@@ -102,7 +102,7 @@ contract NFTVault is NFTBase {
             transferInfo.amount
         );
 
-        _afterMint(unlockAmount, messageId, postHookData, transferInfo);
+        _afterMint(unlockAmount, messageId, postHookData, transferInfo, false);
     }
 
     /**
