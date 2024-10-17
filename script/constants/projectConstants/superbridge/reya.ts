@@ -403,5 +403,47 @@ export const pc: ProjectConstants = {
         },
       },
     },
+    [Tokens.DEUSD]: {
+      controllerChains: [ChainSlug.REYA],
+      hook: {
+        hookType: Hooks.LIMIT_EXECUTION_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.REYA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+        },
+      },
+      vaultChains: [ChainSlug.MAINNET],
+    },
+    [Tokens.SDEUSD]: {
+      controllerChains: [ChainSlug.REYA],
+      hook: {
+        hookType: Hooks.LIMIT_EXECUTION_HOOK,
+        limitsAndPoolId: {
+          [ChainSlug.MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.REYA]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+        },
+      },
+      vaultChains: [ChainSlug.MAINNET],
+    },
   },
 };
