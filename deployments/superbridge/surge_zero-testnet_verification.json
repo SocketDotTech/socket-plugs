@@ -1,0 +1,16 @@
+{
+  "4457845": [
+    [
+      "0xfeD826A38A4Caa3f7946e313689d3EEB71663e31",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      ["0x90B667E7B071a611935C038f14cf57fdF2c9B313"]
+    ],
+    [
+      null,
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      ["0x90B667E7B071a611935C038f14cf57fdF2c9B313"]
+    ]
+  ]
+}

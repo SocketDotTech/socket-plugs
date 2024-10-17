@@ -20,4 +20,5 @@ export enum Project {
   TESTING_TESTNET = "testing_testnet",
   MAGIC_MAINNET = "magic_mainnet",
   POLTER_TESTNET = "polter_testnet",
+  ZERO_TESTNET = "zero-testnet",
 }
