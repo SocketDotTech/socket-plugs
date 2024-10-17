@@ -16,6 +16,7 @@
   "repository": "git@github.com:SocketDotTech/socketDL-examples.git",
   "devDependencies": {
     "@ethersproject/bytes": "^5.7.0",
+    "@matterlabs/hardhat-zksync": "^1.2.0",
     "@nomicfoundation/hardhat-foundry": "^1.1.2",
     "@nomiclabs/hardhat-ethers": "^2.1.1",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
@@ -27,7 +28,7 @@
     "@types/yargs": "^17.0.22",
     "dotenv": "^16.0.3",
     "ethers": "^5.6.6",
-    "hardhat": "^2.17.2",
+    "hardhat": "^2.22.7",
     "hardhat-abi-exporter": "^2.10.1",
     "hardhat-change-network": "^0.0.7",
     "hardhat-deploy": "^0.11.20",
@@ -66,6 +67,7 @@
     "@eth-optimism/sdk": "^3.3.2",
     "@socket.tech/dl-core": "^2.28.0",
     "lodash": "^4.17.21",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "zksync-ethers": "5"
   }
 }

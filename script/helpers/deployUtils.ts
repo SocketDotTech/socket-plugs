@@ -1,5 +1,12 @@
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { ethers, network, run } from "hardhat";
+import * as hre from "hardhat";
+import { Deployer } from "@matterlabs/hardhat-zksync";
+import "@matterlabs/hardhat-zksync-node/dist/type-extensions";
+import {
+  Wallet as zkWallet,
+  Provider,
+} from "@matterlabs/hardhat-zksync/node_modules/zksync-ethers";
 
 import { ChainSlug, IntegrationTypes } from "@socket.tech/dl-core";
 import socketABI from "@socket.tech/dl-core/artifacts/abi/Socket.json";
@@ -150,17 +157,45 @@ export async function deployContractWithArgs(
     );
   } else {
     try {
-      const Contract: ContractFactory = await ethers.getContractFactory(
-        contractName
-      );
-      const contract: Contract = await Contract.connect(signer).deploy(
-        ...args,
-        {
-          ...getOverrides(chainSlug),
-        }
-      );
-      await contract.deployed();
-      return contract;
+      if (chainSlug === (4457845 as ChainSlug)) {
+        console.log(process.env.ZKSYNC_RPC_URL);
+        const provider = new Provider(process.env.ZKSYNC_RPC_URL!);
+        console.log(provider, process.env.OWNER_SIGNER_KEY);
+        let wallet = new zkWallet(process.env.OWNER_SIGNER_KEY, provider);
+        const deployer = new Deployer(hre, wallet);
+        const artifact = await deployer
+          .loadArtifact(contractName)
+          .catch((error) => {
+            if (
+              error?.message?.includes(
+                `Artifact for contract "${contractName}" not found.`
+              )
+            ) {
+              console.error(error.message);
+              throw `⛔️ Please make sure you have compiled your contracts or specified the correct contract name!`;
+            } else {
+              throw error;
+            }
+          });
+        const contract = await deployer.deploy(artifact, args);
+        const address = await contract.getAddress();
+
+        console.log(contract);
+        // contract.address = address;
+        return { address };
+      } else {
+        const Contract: ContractFactory = await ethers.getContractFactory(
+          contractName
+        );
+        const contract: Contract = await Contract.connect(signer).deploy(
+          ...args,
+          {
+            ...getOverrides(chainSlug),
+          }
+        );
+        await contract.deployed();
+        return contract;
+      }
     } catch (error) {
       throw error;
     }

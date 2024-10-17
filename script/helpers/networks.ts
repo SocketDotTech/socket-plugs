@@ -149,6 +149,10 @@ export function getJsonRpcUrl(chain: ChainSlug): string {
 export const getProviderFromChainSlug = (
   chainSlug: ChainSlug
 ): ethers.providers.StaticJsonRpcProvider => {
+  if (chainSlug == (4457845 as ChainSlug))
+    return new ethers.providers.JsonRpcProvider(
+      "https://rpc.zerion.io/v1/zero-sepolia"
+    );
   const jsonRpcUrl = getJsonRpcUrl(chainSlug);
   return new ethers.providers.StaticJsonRpcProvider(jsonRpcUrl);
 };
