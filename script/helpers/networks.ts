@@ -21,7 +21,7 @@ export const gasPrice = undefined;
 export const type = 2;
 
 export const overrides: {
-  [chain in ChainSlug]?: Overrides;
+  [chain: number]: Overrides;
 } = {
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     type,

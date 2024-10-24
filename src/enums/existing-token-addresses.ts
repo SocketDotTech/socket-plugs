@@ -15,6 +15,8 @@ export const ExistingTokenAddresses: {
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     [Tokens.USDE]: "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
     [Tokens.SUSDE]: "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497",
+    [Tokens.SDEUSD]: "0x5c5b196abe0d54485975d1ec29617d42d9198326",
+    [Tokens.DEUSD]: "0x15700b564ca08d9439c58ca5053166e8317aa138",
   },
   [ChainSlug.OPTIMISM]: {
     [Tokens.USDC]: "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
@@ -93,5 +95,7 @@ export const ExistingTokenAddresses: {
   },
   [ChainSlug.REYA]: {
     [Tokens.SUSDE]: "0x2339D41f410EA761F346a14c184385d15f7266c4",
+    [Tokens.DEUSD]: "0x809B99df4DDd6fA90F2CF305E2cDC310C6AD3C2c",
+    [Tokens.SDEUSD]: "0x4D3fEB76ab1C7eF40388Cd7a2066edacE1a2237D",
   },
 };

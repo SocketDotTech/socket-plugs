@@ -1,6 +1,39 @@
 {
   "1": [
     [
+      "0x80f5143AF6BF51B38C038BaFF71465Be9b48cAEe",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xDf9Fa2b420689384E8DD55a706262DC0ED37020F",
+        "0x943AC2775928318653e91d350574436A1b9b16f9",
+        8008
+      ]
+    ],
+    [
+      "0x76a6EA327E73E1548F9C4d6453A497a679E99aCE",
+      "LimitExecutionHook",
+      "contracts/hooks/LimitExecutionHook.sol",
+      [
+        "0xAeBF1Bc19Ed4Fdf509c456ab6c28D25C9Ca3B332",
+        "0xDf9Fa2b420689384E8DD55a706262DC0ED37020F",
+        "0xEc017A04a6FA6D309A48238266dCe0c1fafB06B6",
+        false
+      ]
+    ],
+    [
+      "0xEc017A04a6FA6D309A48238266dCe0c1fafB06B6",
+      "ExecutionHelper",
+      "contracts/hooks/plugins/ExecutionHelper.sol",
+      ["0xAeBF1Bc19Ed4Fdf509c456ab6c28D25C9Ca3B332"]
+    ],
+    [
+      "0xDf9Fa2b420689384E8DD55a706262DC0ED37020F",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      ["0x35D8949372D46B7a3D5A56006AE77B215fc69bC0"]
+    ],
+    [
       "0xEd0952283fdA768aA9d69eB7e895d49afcC3c0fe",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -154,6 +187,39 @@
     ]
   ],
   "8008": [
+    [
+      "0x5ab9aCb348b61ec02dD2b43eBF5eD1a56713E19F",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xadf7D3A2c6D3396164396069e0607dea54a93aEe",
+        "0xbe7241e9D11EC2D1Ac86CE217c4A37b7aD1701cE",
+        1
+      ]
+    ],
+    [
+      "0x1FC707CCBD82D5CCe6a426f5C4eCaA2c7ab37d6f",
+      "LimitExecutionHook",
+      "contracts/hooks/LimitExecutionHook.sol",
+      [
+        "0xAeBF1Bc19Ed4Fdf509c456ab6c28D25C9Ca3B332",
+        "0xadf7D3A2c6D3396164396069e0607dea54a93aEe",
+        "0x8E055Ff010DDB0387C3d819Abb8aeFAa9fee6061",
+        true
+      ]
+    ],
+    [
+      "0x8E055Ff010DDB0387C3d819Abb8aeFAa9fee6061",
+      "ExecutionHelper",
+      "contracts/hooks/plugins/ExecutionHelper.sol",
+      ["0xAeBF1Bc19Ed4Fdf509c456ab6c28D25C9Ca3B332"]
+    ],
+    [
+      "0xadf7D3A2c6D3396164396069e0607dea54a93aEe",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      ["0x6224dC817dC4D5c53fcF3eb08A4f84C456F9f38f"]
+    ],
     [
       "0xce70303Df18E2E10A5059da96f41Cfd95Bf9D5cE",
       "ConnectorPlug",
