@@ -13,7 +13,7 @@ export const pc: ProjectConstants = {
       vaultChains: [80002],
       controllerChains: [631571],
       hook: {
-        hookType: Hooks.LIMIT_HOOK,
+        hookType: Hooks.UNWRAP_HOOK,
         limitsAndPoolId: {
           80002: {
             [IntegrationTypes.fast]: {

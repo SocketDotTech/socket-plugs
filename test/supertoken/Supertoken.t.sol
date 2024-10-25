@@ -2,10 +2,10 @@
 pragma solidity 0.8.13;
 
 import "forge-std/Test.sol";
-import "../../contracts/token/SuperToken.sol";
+import "../../contracts/token/UnwrapSuperToken.sol";
 
 contract SuperTokenTest is Test {
-    SuperToken public superToken;
+    UnwrapSuperToken public superToken;
     address public owner;
     address public initialSupplyHolder;
     address public user;
@@ -19,7 +19,7 @@ contract SuperTokenTest is Test {
         user = address(0x2);
         controller = address(0x3);
 
-        superToken = new SuperToken(
+        superToken = new UnwrapSuperToken(
             "Aavegotchi Socket GHST",
             "sGHST",
             18,

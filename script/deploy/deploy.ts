@@ -452,6 +452,9 @@ export const deployVaultChainContracts = async (
 
 const deploySuperToken = async (deployParams: DeployParams) => {
   let contractName = SuperTokenContracts.SuperToken;
+  if (deployParams.hookType === Hooks.UNWRAP_HOOK) {
+    contractName = SuperTokenContracts.UnwrapSuperToken;
+  }
 
   if (
     ExistingTokenAddresses[deployParams.currentChainSlug]?.[

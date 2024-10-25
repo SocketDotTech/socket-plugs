@@ -11,6 +11,7 @@ export enum Hooks {
 export enum ProjectType {
   SUPERBRIDGE = "superbridge",
   SUPERTOKEN = "supertoken",
+  UNWRAP_SUPERTOKEN = "unwrap_supertoken",
 }
 
 export enum CommonContracts {
@@ -48,6 +49,7 @@ export enum HookContracts {
 export enum SuperTokenContracts {
   NonSuperToken = "NonSuperToken",
   SuperToken = "SuperToken",
+  UnwrapSuperToken = "UnwrapSuperToken",
 }
 
 export enum TokenType {

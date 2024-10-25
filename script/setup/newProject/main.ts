@@ -78,6 +78,7 @@ export const addProject = async () => {
       vaultChains,
       controllerChains
     );
+
     const { tokenLimitInfo } = await getHookRelatedInfo(
       projectType,
       isLimitsRequired,
