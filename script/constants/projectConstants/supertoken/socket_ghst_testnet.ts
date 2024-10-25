@@ -1,4 +1,3 @@
-
 import {
   ChainSlug,
   DeploymentMode,
@@ -19,16 +18,16 @@ export const pc: ProjectConstants = {
           80002: {
             [IntegrationTypes.fast]: {
               sendingLimit: "1000000.0",
-              receivingLimit: "1000000.0"
-            }
+              receivingLimit: "1000000.0",
+            },
           },
           631571: {
             [IntegrationTypes.fast]: {
               sendingLimit: "1000000.0",
-              receivingLimit: "1000000.0"
-            }
-          }
-        }
+              receivingLimit: "1000000.0",
+            },
+          },
+        },
       },
       superTokenInfo: {
         name: "Socket GHST",
@@ -36,8 +35,8 @@ export const pc: ProjectConstants = {
         decimals: 18,
         owner: "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
         initialSupplyOwner: "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
-        initialSupply: "0"
-      }
-    }
-  }
+        initialSupply: "0",
+      },
+    },
+  },
 };
