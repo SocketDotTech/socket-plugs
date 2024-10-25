@@ -12,7 +12,7 @@ import "../interfaces/IHook.sol";
  */
 contract SuperToken is ERC20, RescueBase {
     // for all controller access (mint, burn)
-    bytes32 public constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
+    bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
 
     /**
      * @notice constructor for creating a new SuperToken.
