@@ -54,6 +54,10 @@ export const getProjectInfo = async () => {
           value: Hooks.LIMIT_EXECUTION_HOOK,
         },
         {
+          title: "Unwrap Hook",
+          value: Hooks.UNWRAP_HOOK,
+        },
+        {
           title: "No Hook",
           value: Hooks.NO_HOOK,
         },

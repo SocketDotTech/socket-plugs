@@ -5,6 +5,7 @@ export enum Hooks {
   YIELD_LIMIT_EXECUTION_HOOK = "YIELD_LIMIT_EXECUTION_HOOK",
   // CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK = "CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK",
   // VAULT_YIELD_LIMIT_EXECUTION_HOOK = "VAULT_YIELD_LIMIT_EXECUTION_HOOK",
+  UNWRAP_HOOK = "UNWRAP_HOOK",
 }
 
 export enum ProjectType {
@@ -42,6 +43,7 @@ export enum HookContracts {
   ControllerYieldLimitExecutionHook = "Controller_YieldLimitExecHook",
   VaultYieldLimitExecutionHook = "Vault_YieldLimitExecHook",
   ExecutionHelper = "ExecutionHelper",
+  UnwrapHook = "UnwrapHook",
 }
 export enum SuperTokenContracts {
   NonSuperToken = "NonSuperToken",

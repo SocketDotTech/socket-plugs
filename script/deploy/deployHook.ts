@@ -107,6 +107,13 @@ export const deployHookContracts = async (
       deployParams.addresses[HookContracts.ExecutionHelper],
       useConnnectorPools, // useControllerPools
     ];
+  } else if (hookType == Hooks.UNWRAP_HOOK) {
+    contractName = HookContracts.UnwrapHook;
+    args = [
+      getOwner(),
+      bridgeAddress,
+      deployParams.addresses[HookContracts.ExecutionHelper],
+    ];
   }
 
   if (!contractName) return deployParams;
