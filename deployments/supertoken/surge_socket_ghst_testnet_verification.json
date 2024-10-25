@@ -1,0 +1,80 @@
+{
+  "80002": [
+    [
+      "0xA32137bfb57d2b6A9Fd2956Ba4B54741a6D54b58",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x596A75D94d1Bf0b63af9F4a67Ce5Eeb427EeDdcE",
+        "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
+        631571,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x2a9e7A2A9FeD4A83F59125cFf72761E467cEa419",
+      "LimitHook",
+      "contracts/hooks/LimitHook.sol",
+      [
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x596A75D94d1Bf0b63af9F4a67Ce5Eeb427EeDdcE",
+        false
+      ]
+    ],
+    [
+      "0x596A75D94d1Bf0b63af9F4a67Ce5Eeb427EeDdcE",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0xF679b8D109b2d23931237Ce948a7D784727c0897"
+      ]
+    ]
+  ],
+  "631571": [
+    [
+      "0x19d62CFdB02Db59758E477264c218CCa0F10c6B5",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xA421Ed8a4E3cfbFbFd2F621b27bd3C27D71C8b97",
+        "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
+        80002,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x1A9E2D17122B747871a1088FC38952c7dc5d8334",
+      "LimitHook",
+      "contracts/hooks/LimitHook.sol",
+      [
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0xA421Ed8a4E3cfbFbFd2F621b27bd3C27D71C8b97",
+        false
+      ]
+    ],
+    [
+      "0xA421Ed8a4E3cfbFbFd2F621b27bd3C27D71C8b97",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      [
+        "0x0B08aCd19d96B5fAfb9dbDc4b935B58B7A50F16A"
+      ]
+    ],
+    [
+      "0x0B08aCd19d96B5fAfb9dbDc4b935B58B7A50F16A",
+      "SuperToken",
+      "contracts/token/SuperToken.sol",
+      [
+        "Socket GHST",
+        "SGHST",
+        18,
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        }
+      ]
+    ]
+  ]
+}

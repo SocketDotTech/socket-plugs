@@ -111,6 +111,14 @@ export const overrides: {
 };
 
 export const getOverrides = (chainSlug: ChainSlug): Overrides => {
+  if ((chainSlug as number) == 80002) {
+    return {
+      type: 1,
+      gasLimit,
+      gasPrice: 25000000000,
+    };
+  }
+
   // First check from the overrides object. Prod chains config should be here.
   if (overrides[chainSlug]) return overrides[chainSlug];
 

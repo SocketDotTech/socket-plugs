@@ -10,7 +10,7 @@ import {AccessControl} from "./AccessControl.sol";
  * to support any type of message bridge.
  */
 abstract contract RescueBase is AccessControl {
-    bytes32 constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
+    bytes32 public constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
     /**
      * @notice Rescues funds from the contract if they are locked by mistake.
