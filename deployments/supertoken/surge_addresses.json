@@ -4,7 +4,6 @@
       "SGHST": {
         "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
         "Vault": "0x596A75D94d1Bf0b63af9F4a67Ce5Eeb427EeDdcE",
-        "LimitHook": "0x2a9e7A2A9FeD4A83F59125cFf72761E467cEa419",
         "connectors": {
           "631571": {
             "FAST": "0xA32137bfb57d2b6A9Fd2956Ba4B54741a6D54b58"
@@ -16,38 +15,12 @@
       "SGHST": {
         "SuperToken": "0x0B08aCd19d96B5fAfb9dbDc4b935B58B7A50F16A",
         "Controller": "0xA421Ed8a4E3cfbFbFd2F621b27bd3C27D71C8b97",
-        "LimitHook": "0x1A9E2D17122B747871a1088FC38952c7dc5d8334",
         "connectors": {
           "80002": {
             "FAST": "0x19d62CFdB02Db59758E477264c218CCa0F10c6B5"
           }
-        }
-      }
-    }
-  },
-  "socket_ghst2_testnet": {
-    "80002": {
-      "SGHST": {
-        "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0xbDa22cf921957bd60eaE848Ed3f97B58ce8d9a8F",
-        "LimitHook": "0xCE7694da010Fae787D1c861Ef38302aDD1C902Df",
-        "connectors": {
-          "631571": {
-            "FAST": "0xc5AE64A2784FBCEA8BB2c1e4287687cF5B2470eB"
-          }
-        }
-      }
-    },
-    "631571": {
-      "SGHST": {
-        "SuperToken": "0x9d24ffB8986F08519D0338fe90534834147F90f2",
-        "Controller": "0xb9b0BBA662B71f938Ce897A8886600464589C0C4",
-        "LimitHook": "0x889c09E4F325C0d210720428E4a8105dbFf8fD6C",
-        "connectors": {
-          "80002": {
-            "FAST": "0x23f16d0F08Ad23d3Cc101695c329D8207e99Dd79"
-          }
-        }
+        },
+        "UnwrapHook": "0x7F8fB0743d4f9A82ea2541a2A4ee538ae863b218"
       }
     }
   }

@@ -25,5 +25,4 @@ export const ProjectTypeMap: Record<Project, ProjectType> = {
   [Project.POLTER_TESTNET]: ProjectType.SUPERBRIDGE,
   [Project.AAVEGOTCHI_BRIDGE_TESTNET]: ProjectType.SUPERBRIDGE,
   [Project.SOCKET_GHST_TESTNET]: ProjectType.SUPERTOKEN,
-  [Project.SOCKET_GHST2_TESTNET]: ProjectType.SUPERTOKEN,
 };

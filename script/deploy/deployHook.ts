@@ -110,8 +110,10 @@ export const deployHookContracts = async (
       useConnnectorPools, // useControllerPools
     ];
   } else if (hookType == Hooks.UNWRAP_HOOK) {
+    console.log("addresses:", deployParams.addresses);
+
     contractName = HookContracts.UnwrapHook;
-    deployParams = await deployExecutionHelper(deployParams);
+    // deployParams = await deployExecutionHelper(deployParams);
     args = [
       getOwner(),
       bridgeAddress,
