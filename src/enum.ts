@@ -24,6 +24,7 @@ export enum TokenContracts {
   NonMintableToken = "NonMintableToken",
   MintableToken = "MintableToken",
   SuperToken = "SuperToken",
+  UnwrapSuperToken = "UnwrapSuperToken",
 }
 
 export enum SuperBridgeContracts {

@@ -242,14 +242,15 @@ const deployConnectors = async (
 
     // Currently we only support fast integration type via setup script. For other types, can edit the project constants file.
     // Will need to add here if we want to support other types in the future for No Hook case.
-    integrationTypes =
-      deployParams.hookType == Hooks.NO_HOOK
-        ? [IntegrationTypes.fast]
-        : (Object.keys(
-            pc[deployParams.currentToken].hook.limitsAndPoolId?.[
-              deployParams.currentChainSlug
-            ]
-          ) as IntegrationTypes[]);
+    integrationTypes = [Hooks.NO_HOOK, Hooks.UNWRAP_HOOK].includes(
+      deployParams.hookType
+    )
+      ? [IntegrationTypes.fast]
+      : (Object.keys(
+          pc[deployParams.currentToken].hook.limitsAndPoolId?.[
+            deployParams.currentChainSlug
+          ]
+        ) as IntegrationTypes[]);
 
     for (let intType of integrationTypes) {
       const connector: Contract = await getOrDeployConnector(
@@ -293,7 +294,16 @@ export const deployControllerChainContracts = async (
     if (isSuperToken()) {
       deployParams = await deploySuperToken(deployParams);
 
+      console.log("deploy params:", deployParams);
+
       let token = deployParams.addresses[TokenContracts.SuperToken];
+
+      // if (deployParams.hookType == Hooks.UNWRAP_HOOK) {
+      //   token = deployParams.addresses[SuperTokenContracts.UnwrapSuperToken];
+      // } else {
+
+      // }
+
       if (token) mintableToken = token;
       else throw new Error("SuperToken not found on chain");
 
@@ -373,6 +383,7 @@ export const deployControllerChainContracts = async (
         ? AddressZero
         : controller.address;
     }
+
     deployParams = await deployHookContracts(deployParams, allAddresses, true);
     console.log(
       deployParams.currentChainSlug,
@@ -430,6 +441,8 @@ export const deployVaultChainContracts = async (
       deployParams
     );
 
+    console.log("vault address:", vault.address);
+
     deployParams.addresses[SuperBridgeContracts.Vault] = getDryRun()
       ? AddressZero
       : vault.address;
@@ -452,8 +465,10 @@ export const deployVaultChainContracts = async (
 
 const deploySuperToken = async (deployParams: DeployParams) => {
   let contractName = SuperTokenContracts.SuperToken;
+
+  //todo: change this to UnwrapSuperToken later
   if (deployParams.hookType === Hooks.UNWRAP_HOOK) {
-    contractName = SuperTokenContracts.UnwrapSuperToken;
+    contractName = SuperTokenContracts.SuperToken;
   }
 
   if (

@@ -24,5 +24,31 @@
         }
       }
     }
+  },
+  "socket_ghst2_testnet": {
+    "80002": {
+      "SGHST": {
+        "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
+        "Vault": "0xbDa22cf921957bd60eaE848Ed3f97B58ce8d9a8F",
+        "LimitHook": "0xCE7694da010Fae787D1c861Ef38302aDD1C902Df",
+        "connectors": {
+          "631571": {
+            "FAST": "0xc5AE64A2784FBCEA8BB2c1e4287687cF5B2470eB"
+          }
+        }
+      }
+    },
+    "631571": {
+      "SGHST": {
+        "SuperToken": "0x9d24ffB8986F08519D0338fe90534834147F90f2",
+        "Controller": "0xb9b0BBA662B71f938Ce897A8886600464589C0C4",
+        "LimitHook": "0x889c09E4F325C0d210720428E4a8105dbFf8fD6C",
+        "connectors": {
+          "80002": {
+            "FAST": "0x23f16d0F08Ad23d3Cc101695c329D8207e99Dd79"
+          }
+        }
+      }
+    }
   }
 }

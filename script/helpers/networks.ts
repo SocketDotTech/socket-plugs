@@ -115,7 +115,7 @@ export const getOverrides = (chainSlug: ChainSlug): Overrides => {
     return {
       type: 1,
       gasLimit,
-      gasPrice: 25000000000,
+      gasPrice: 50000000000,
     };
   }
 

@@ -14,7 +14,7 @@ import {IWrapERC20} from "../interfaces/IWrapERC20.sol";
  * @dev This contract implements Socket's IPlug to enable message bridging and IMessageBridge
  * to support any type of message bridge.
  */
-abstract contract HookBase is ReentrancyGuard, IHook, RescueBase {
+contract UnwrapHook is ReentrancyGuard, RescueBase {
     address public immutable vaultOrController;
     bytes32 public hookType;
     address public socketGhstAddress;

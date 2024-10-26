@@ -102,6 +102,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             siblingSlugs,
             socketSigner
           );
+
           await updateConnectorStatus(
             chain,
             siblingSlugs,
@@ -114,6 +115,20 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             let superTokenContract = await getInstance(
               TokenContracts.SuperToken,
               addr[TokenContracts.SuperToken]
+            );
+            superTokenContract = superTokenContract.connect(socketSigner);
+
+            await setControllerRole(
+              chain,
+              superTokenContract,
+              bridgeContract.address
+            );
+          }
+
+          if (isSuperToken() && addr[TokenContracts.UnwrapSuperToken]) {
+            let superTokenContract = await getInstance(
+              TokenContracts.UnwrapSuperToken,
+              addr[TokenContracts.UnwrapSuperToken]
             );
             superTokenContract = superTokenContract.connect(socketSigner);
 
@@ -227,6 +242,10 @@ const connect = async (
             localConnectorPlug
           )
         ).connect(socketSigner);
+
+        console.log("CONNECTOR CONTRACT", connectorContract.address);
+
+        console.log("siblingConnectorPlug", siblingConnectorPlug, switchboard);
 
         await execute(
           connectorContract,

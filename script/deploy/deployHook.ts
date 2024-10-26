@@ -10,6 +10,7 @@ import {
   STTokenAddresses,
   SBTokenAddresses,
   AppChainAddresses,
+  TokenContracts,
 } from "../../src";
 import { getBridgeContract } from "../helpers/common";
 import { getDryRun } from "../constants/config";
@@ -22,6 +23,7 @@ export const deployHookContracts = async (
   isControllerChain: boolean
 ) => {
   const hookType = deployParams.hookType;
+
   if (!hookType) return deployParams;
 
   let contractName: string = "";
@@ -109,10 +111,13 @@ export const deployHookContracts = async (
     ];
   } else if (hookType == Hooks.UNWRAP_HOOK) {
     contractName = HookContracts.UnwrapHook;
+    deployParams = await deployExecutionHelper(deployParams);
     args = [
       getOwner(),
       bridgeAddress,
-      deployParams.addresses[HookContracts.ExecutionHelper],
+
+      //todo: change to UnwrapSuperToken later
+      deployParams.addresses[TokenContracts.SuperToken],
     ];
   }
 
