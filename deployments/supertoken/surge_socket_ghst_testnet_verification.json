@@ -1,0 +1,70 @@
+{
+  "80002": [
+    [
+      "0x48b7c506B67203bC42CB814D2b5dF1a62F5A7B6A",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x939FE77D4aF6108d2BDFf72cc4189C3C29252Ea2",
+        "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
+        631571,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x939FE77D4aF6108d2BDFf72cc4189C3C29252Ea2",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      [
+        "0xF679b8D109b2d23931237Ce948a7D784727c0897"
+      ]
+    ]
+  ],
+  "631571": [
+    [
+      "0xce6Ca0303134958fEd7C5e2170360F9d000AF3c3",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xa325DF55D165F77d727798B974Fee596dECd5064",
+        "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
+        80002,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x173692C693ea88910ce2d0eA39F0a3c28ED9Ab74",
+      "UnwrapHook",
+      "contracts/hooks/UnwrapHook.sol",
+      [
+        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
+        "0xa325DF55D165F77d727798B974Fee596dECd5064",
+        "0x7dBE412Cf3FD3AB63A3576896A29aF35097415d0"
+      ]
+    ],
+    [
+      "0xa325DF55D165F77d727798B974Fee596dECd5064",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      [
+        "0x7dBE412Cf3FD3AB63A3576896A29aF35097415d0"
+      ]
+    ],
+    [
+      "0x7dBE412Cf3FD3AB63A3576896A29aF35097415d0",
+      "SuperToken",
+      "contracts/token/SuperToken.sol",
+      [
+        "Socket GHST",
+        "SGHST",
+        18,
+        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
+        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        }
+      ]
+    ]
+  ]
+}

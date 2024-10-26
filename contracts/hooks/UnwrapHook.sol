@@ -1,21 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "solmate/utils/ReentrancyGuard.sol";
 import "../common/Errors.sol";
 import "../common/Constants.sol";
-import "../interfaces/IHook.sol";
-import "../utils/RescueBase.sol";
 import "./HookBase.sol";
 import {IWrapERC20} from "../interfaces/IWrapERC20.sol";
 
 /**
- * @title Base contract for super token and vault
+ * @title Contract for super token and vault
  * @notice It contains relevant execution payload storages.
  * @dev This contract implements Socket's IPlug to enable message bridging and IMessageBridge
  * to support any type of message bridge.
  */
-contract UnwrapHook is ReentrancyGuard, RescueBase, HookBase {
+contract UnwrapHook is HookBase {
     address public socketGhstAddress;
 
     /**
@@ -27,7 +24,6 @@ contract UnwrapHook is ReentrancyGuard, RescueBase, HookBase {
         address socketGhstAddress_
     ) HookBase(owner_, controller_) {
         socketGhstAddress = socketGhstAddress_;
-        _grantRole(RESCUE_ROLE, owner_);
     }
 
     // this should be run in Geist/Polter
