@@ -1,3 +1,4 @@
+
 import {
   ChainSlug,
   DeploymentMode,
@@ -13,7 +14,7 @@ export const pc: ProjectConstants = {
       vaultChains: [80002],
       controllerChains: [631571],
       hook: {
-        hookType: Hooks.UNWRAP_HOOK,
+        hookType: Hooks.UNWRAP_HOOK
       },
       superTokenInfo: {
         name: "Aavegotchi Socket GHST",
@@ -21,8 +22,8 @@ export const pc: ProjectConstants = {
         decimals: 18,
         owner: "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
         initialSupplyOwner: "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
-        initialSupply: "0",
-      },
-    },
-  },
+        initialSupply: "0"
+      }
+    }
+  }
 };
