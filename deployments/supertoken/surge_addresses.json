@@ -1,49 +1,24 @@
 {
-  "socket_ghst_testnet": {
+  "socket_ghst_test2_testnet": {
     "80002": {
       "SGHST": {
         "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0x596A75D94d1Bf0b63af9F4a67Ce5Eeb427EeDdcE",
+        "Vault": "0x096c22daD52B2406511267c6f51f2a0467DF7831",
         "connectors": {
           "631571": {
-            "FAST": "0xA32137bfb57d2b6A9Fd2956Ba4B54741a6D54b58"
+            "FAST": "0x3A493e2bd30B6b9Fa315817FAB9d262FE946bf2e"
           }
         }
       }
     },
     "631571": {
       "SGHST": {
-        "SuperToken": "0x0B08aCd19d96B5fAfb9dbDc4b935B58B7A50F16A",
-        "Controller": "0xA421Ed8a4E3cfbFbFd2F621b27bd3C27D71C8b97",
+        "SuperToken": "0xd6F3277a2EAb45c480E8aE871Df6423059b5ac3F",
+        "Controller": "0xE4d0A5C11342F796eE665AC3Cea271A2F1B6F023",
+        "UnwrapHook": "0x2dc4Eb0baA5804DeD56889947B92b2ae74f4119b",
         "connectors": {
           "80002": {
-            "FAST": "0x19d62CFdB02Db59758E477264c218CCa0F10c6B5"
-          }
-        },
-        "UnwrapHook": "0x7F8fB0743d4f9A82ea2541a2A4ee538ae863b218"
-      }
-    }
-  },
-  "socket_ghst_final_testnet": {
-    "80002": {
-      "SGHST": {
-        "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0xD77cADF287dD88906B6829BC2b0B129e9218B8A9",
-        "connectors": {
-          "631571": {
-            "FAST": "0xAf415761604cf7A67A67e2B8f6bBa9790Ac55b67"
-          }
-        }
-      }
-    },
-    "631571": {
-      "SGHST": {
-        "SuperToken": "0x36d043cE023FD64abCa1160126fd3345dd3935A8",
-        "Controller": "0x152Ab0b50b9704e898DadD3B24bb302F86F48B47",
-        "UnwrapHook": "0x8aB3A56092d5534b804fCBA2400e39D9fF97510d",
-        "connectors": {
-          "80002": {
-            "FAST": "0x64D03E24E2d3fB3b22bD4B573d5E9981632C3F8a"
+            "FAST": "0x65C9733e5077AECce8c5326314d5BcCcDcF5dfcd"
           }
         }
       }

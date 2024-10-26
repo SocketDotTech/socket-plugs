@@ -294,8 +294,6 @@ export const deployControllerChainContracts = async (
     if (isSuperToken()) {
       deployParams = await deploySuperToken(deployParams);
 
-      console.log("deploy params:", deployParams);
-
       let token = deployParams.addresses[TokenContracts.SuperToken];
 
       // if (deployParams.hookType == Hooks.UNWRAP_HOOK) {

@@ -1,0 +1,25 @@
+{
+  "80002": {
+    "SGHST": {
+      "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
+      "Vault": "0x096c22daD52B2406511267c6f51f2a0467DF7831",
+      "connectors": {
+        "631571": {
+          "FAST": "0x3A493e2bd30B6b9Fa315817FAB9d262FE946bf2e"
+        }
+      }
+    }
+  },
+  "631571": {
+    "SGHST": {
+      "SuperToken": "0xd6F3277a2EAb45c480E8aE871Df6423059b5ac3F",
+      "Controller": "0xE4d0A5C11342F796eE665AC3Cea271A2F1B6F023",
+      "UnwrapHook": "0x2dc4Eb0baA5804DeD56889947B92b2ae74f4119b",
+      "connectors": {
+        "80002": {
+          "FAST": "0x65C9733e5077AECce8c5326314d5BcCcDcF5dfcd"
+        }
+      }
+    }
+  }
+}
