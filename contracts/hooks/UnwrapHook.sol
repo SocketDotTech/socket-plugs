@@ -44,6 +44,7 @@ contract UnwrapHook is ReentrancyGuard, RescueBase, HookBase {
         SrcPreHookCallParams calldata params_
     )
         external
+        isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
         return (params_.transferInfo, bytes(""));
@@ -51,7 +52,7 @@ contract UnwrapHook is ReentrancyGuard, RescueBase, HookBase {
 
     function srcPostHookCall(
         SrcPostHookCallParams calldata params_
-    ) external returns (TransferInfo memory transferInfo) {
+    ) external isVaultOrController returns (TransferInfo memory transferInfo) {
         return params_.transferInfo;
     }
 
@@ -64,6 +65,7 @@ contract UnwrapHook is ReentrancyGuard, RescueBase, HookBase {
         DstPreHookCallParams calldata params_
     )
         external
+        isVaultOrController
         returns (bytes memory postHookData, TransferInfo memory transferInfo)
     {
         return (bytes(""), params_.transferInfo);
