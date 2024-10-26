@@ -6,6 +6,7 @@ import "../common/Errors.sol";
 import "../common/Constants.sol";
 import "../interfaces/IHook.sol";
 import "../utils/RescueBase.sol";
+import {IWrapERC20} from "../interfaces/IWrapERC20.sol";
 
 /**
  * @title Base contract for super token and vault
@@ -31,13 +32,15 @@ abstract contract HookBase is ReentrancyGuard, IHook, RescueBase {
         _grantRole(RESCUE_ROLE, owner_);
     }
 
-    // function dstPostHookCall(
-    //     DstPostHookCallParams calldata params_
-    // ) external isVaultOrController returns (CacheData memory cacheData) {
-    //     uint256 unwrapAmount = abi.decode(params_.postHookData, (uint256));
+    // this should be run in Geist/Polter
+    function dstPostHookCall(
+        DstPostHookCallParams calldata params_
+    ) external isVaultOrController returns (CacheData memory cacheData) {
+        // unwrap
+        IWrapERC20(socketGhstAddress).withdraw(params_.transferInfo.amount);
 
-    //     return CacheData();
-    // }
+        cacheData = CacheData(bytes(""), abi.encode(0));
+    }
 
     modifier isVaultOrController() {
         if (msg.sender != vaultOrController) revert NotAuthorized();
