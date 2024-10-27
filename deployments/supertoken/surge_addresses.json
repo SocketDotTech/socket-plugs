@@ -1,74 +1,24 @@
 {
-  "socket_ghst_test2_testnet": {
+  "socket_ghst_test_testnet": {
     "80002": {
       "SGHST": {
         "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0x096c22daD52B2406511267c6f51f2a0467DF7831",
+        "Vault": "0x1eD34c0C9b0f08Bb013CD16E4b75A77cf47cE919",
         "connectors": {
           "631571": {
-            "FAST": "0x3A493e2bd30B6b9Fa315817FAB9d262FE946bf2e"
+            "FAST": "0x978c0D945DcAa716fe24bb231eAeeA703e82C439"
           }
         }
       }
     },
     "631571": {
       "SGHST": {
-        "SuperToken": "0xd6F3277a2EAb45c480E8aE871Df6423059b5ac3F",
-        "Controller": "0xE4d0A5C11342F796eE665AC3Cea271A2F1B6F023",
-        "UnwrapHook": "0x2dc4Eb0baA5804DeD56889947B92b2ae74f4119b",
+        "SuperToken": "0x59C5b4d348F4D7b97643884c1486BfF69faB4597",
+        "Controller": "0x425096b13F41405653392438ad33cebB598bC174",
+        "UnwrapHook": "0x8602AA51da2a6769DEBea9bf1Bcd14737b617a37",
         "connectors": {
           "80002": {
-            "FAST": "0x65C9733e5077AECce8c5326314d5BcCcDcF5dfcd"
-          }
-        }
-      }
-    }
-  },
-  "socket_ghst_testnet": {
-    "80002": {
-      "SGHST": {
-        "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0x939FE77D4aF6108d2BDFf72cc4189C3C29252Ea2",
-        "connectors": {
-          "631571": {
-            "FAST": "0x48b7c506B67203bC42CB814D2b5dF1a62F5A7B6A"
-          }
-        }
-      }
-    },
-    "631571": {
-      "SGHST": {
-        "SuperToken": "0x7dBE412Cf3FD3AB63A3576896A29aF35097415d0",
-        "Controller": "0xa325DF55D165F77d727798B974Fee596dECd5064",
-        "UnwrapHook": "0x173692C693ea88910ce2d0eA39F0a3c28ED9Ab74",
-        "connectors": {
-          "80002": {
-            "FAST": "0xce6Ca0303134958fEd7C5e2170360F9d000AF3c3"
-          }
-        }
-      }
-    }
-  },
-  "socket_ghst_final_testnet": {
-    "80002": {
-      "SGHST": {
-        "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0xDF56Ba36f40536A919cb20295803321DCfCc1754",
-        "connectors": {
-          "631571": {
-            "FAST": "0x537a33E0991899DCB342ea4E4107Ef66880030aE"
-          }
-        }
-      }
-    },
-    "631571": {
-      "SGHST": {
-        "SuperToken": "0x94168FF45b0e2E3c8D3e21Ee38f55301E0372366",
-        "Controller": "0x855127292feea3e1487f88dE3ACd8038de13B178",
-        "UnwrapHook": "0xbC4aF5e624bCf7D989349b15961Fb701528759Db",
-        "connectors": {
-          "80002": {
-            "FAST": "0x6188D1F465f7F5BaE538E0f08fE77C18769B5995"
+            "FAST": "0xC8c8E45F56937F37c5BdDf38e1A321Cf5A3Ba911"
           }
         }
       }

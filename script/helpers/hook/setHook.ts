@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 
 export async function getHookAddress(chain: string): Promise<string> {
-  const address = "0x855127292feea3e1487f88dE3ACd8038de13B178";
+  const controllerAddress = "0x425096b13F41405653392438ad33cebB598bC174";
 
-  const hookAddress = "0xbC4aF5e624bCf7D989349b15961Fb701528759Db";
+  const hookAddress = "0x8602AA51da2a6769DEBea9bf1Bcd14737b617a37";
 
   const provider = new ethers.providers.JsonRpcProvider(
     process.env.POLTER_TESTNET_RPC
@@ -16,7 +16,11 @@ export async function getHookAddress(chain: string): Promise<string> {
     "function updateHook(address hook_, bool approve_) external",
   ];
 
-  const bridgeContract = new ethers.Contract(address, bridgeABI, signer);
+  const bridgeContract = new ethers.Contract(
+    controllerAddress,
+    bridgeABI,
+    signer
+  );
 
   try {
     const hookAddressBefore = await bridgeContract.hook__();

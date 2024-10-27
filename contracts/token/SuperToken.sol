@@ -70,10 +70,10 @@ contract SuperToken is ERC20, RescueBase {
     }
 
     //withdraws native GHST and burns the supertoken
-    function withdraw(uint256 amount_) external {
-        _burn(msg.sender, amount_);
-        msg.sender.safeTransferETH(amount_);
-        emit Withdrawal(msg.sender, amount_);
+    function withdraw(uint256 amount_, address to_) external {
+        _burn(to_, amount_);
+        to_.safeTransferETH(amount_);
+        emit Withdrawal(to_, amount_);
     }
 
     receive() external payable {

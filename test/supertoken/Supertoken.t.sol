@@ -91,7 +91,7 @@ contract SuperTokenTest is Test {
 
         uint256 initialBalance = user.balance;
         vm.prank(user);
-        superToken.withdraw(1 ether);
+        superToken.withdraw(1 ether, user);
 
         assertEq(superToken.balanceOf(user), 0);
         assertEq(user.balance, initialBalance + 1 ether);

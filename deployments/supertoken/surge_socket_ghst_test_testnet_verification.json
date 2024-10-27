@@ -1,18 +1,18 @@
 {
   "80002": [
     [
-      "0x48b7c506B67203bC42CB814D2b5dF1a62F5A7B6A",
+      "0x978c0D945DcAa716fe24bb231eAeeA703e82C439",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
       [
-        "0x939FE77D4aF6108d2BDFf72cc4189C3C29252Ea2",
+        "0x1eD34c0C9b0f08Bb013CD16E4b75A77cf47cE919",
         "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
         631571,
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       ]
     ],
     [
-      "0x939FE77D4aF6108d2BDFf72cc4189C3C29252Ea2",
+      "0x1eD34c0C9b0f08Bb013CD16E4b75A77cf47cE919",
       "Vault",
       "contracts/bridge/Vault.sol",
       ["0xF679b8D109b2d23931237Ce948a7D784727c0897"]
@@ -20,42 +20,42 @@
   ],
   "631571": [
     [
-      "0xce6Ca0303134958fEd7C5e2170360F9d000AF3c3",
+      "0xC8c8E45F56937F37c5BdDf38e1A321Cf5A3Ba911",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
       [
-        "0xa325DF55D165F77d727798B974Fee596dECd5064",
+        "0x425096b13F41405653392438ad33cebB598bC174",
         "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
         80002,
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       ]
     ],
     [
-      "0x173692C693ea88910ce2d0eA39F0a3c28ED9Ab74",
+      "0x8602AA51da2a6769DEBea9bf1Bcd14737b617a37",
       "UnwrapHook",
       "contracts/hooks/UnwrapHook.sol",
       [
-        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
-        "0xa325DF55D165F77d727798B974Fee596dECd5064",
-        "0x7dBE412Cf3FD3AB63A3576896A29aF35097415d0"
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x425096b13F41405653392438ad33cebB598bC174",
+        "0x59C5b4d348F4D7b97643884c1486BfF69faB4597"
       ]
     ],
     [
-      "0xa325DF55D165F77d727798B974Fee596dECd5064",
+      "0x425096b13F41405653392438ad33cebB598bC174",
       "Controller",
       "contracts/bridge/Controller.sol",
-      ["0x7dBE412Cf3FD3AB63A3576896A29aF35097415d0"]
+      ["0x59C5b4d348F4D7b97643884c1486BfF69faB4597"]
     ],
     [
-      "0x7dBE412Cf3FD3AB63A3576896A29aF35097415d0",
+      "0x59C5b4d348F4D7b97643884c1486BfF69faB4597",
       "SuperToken",
       "contracts/token/SuperToken.sol",
       [
-        "Socket GHST",
+        "Aavegotchi Socket GHST",
         "SGHST",
         18,
-        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
-        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
         {
           "type": "BigNumber",
           "hex": "0x00"

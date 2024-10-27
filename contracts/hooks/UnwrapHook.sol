@@ -31,7 +31,10 @@ contract UnwrapHook is HookBase {
         DstPostHookCallParams calldata params_
     ) external isVaultOrController returns (CacheData memory cacheData) {
         // unwrap
-        IWrapERC20(socketGhstAddress).withdraw(params_.transferInfo.amount);
+        IWrapERC20(socketGhstAddress).withdraw(
+            params_.transferInfo.amount,
+            params_.transferInfo.receiver
+        );
 
         cacheData = CacheData(bytes(""), abi.encode(0));
     }

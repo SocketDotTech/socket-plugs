@@ -21,6 +21,5 @@ export enum Project {
   MAGIC_MAINNET = "magic_mainnet",
   POLTER_TESTNET = "polter_testnet",
   AAVEGOTCHI_BRIDGE_TESTNET = "aavegotchi_bridge_testnet",
-  SOCKET_GHST_TESTNET = "socket_ghst_testnet",
-  SOCKET_GHST_FINAL_TESTNET = "socket_ghst_final_testnet",
+  SOCKET_GHST_TEST_TESTNET = "socket_ghst_test_testnet",
 }
