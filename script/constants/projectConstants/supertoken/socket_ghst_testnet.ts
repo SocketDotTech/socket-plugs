@@ -1,4 +1,3 @@
-
 import {
   ChainSlug,
   DeploymentMode,
@@ -14,7 +13,7 @@ export const pc: ProjectConstants = {
       vaultChains: [80002],
       controllerChains: [631571],
       hook: {
-        hookType: Hooks.UNWRAP_HOOK
+        hookType: Hooks.UNWRAP_HOOK,
       },
       superTokenInfo: {
         name: "Socket GHST",
@@ -22,8 +21,8 @@ export const pc: ProjectConstants = {
         decimals: 18,
         owner: "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
         initialSupplyOwner: "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
-        initialSupply: "0"
-      }
-    }
-  }
+        initialSupply: "0",
+      },
+    },
+  },
 };
