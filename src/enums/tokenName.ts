@@ -32,4 +32,5 @@ export const tokenName: { [key in Tokens]: string } = {
   [Tokens.stUSD]: "Staked USDA",
   [Tokens.stEUR]: "Staked EURA",
   [Tokens.SOL]: "Wrapped SOL",
+  [Tokens.SPX]: "SPX6900",
 };

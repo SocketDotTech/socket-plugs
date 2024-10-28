@@ -30,6 +30,7 @@ export const ExistingTokenAddresses: {
     [Tokens.rsENA]: "0x7e0209ab6fa3c7730603b68799bbe9327dab7e88",
     [Tokens.rsUSDe]: "0x890b6afc834c2a2cc6cb9b6627272ab4ecfd8271",
     [Tokens.SOL]: "0xd31a59c85ae9d8edefec411d448f90841571b89c",
+    [Tokens.SPX]: "0xE0f63A424a4439cBE457D80E4f4b51aD25b2c56C"
   },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDCE]: "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
@@ -62,6 +63,7 @@ export const ExistingTokenAddresses: {
     // [Tokens.sDAI]: "",
     // [Tokens.USDe]: "",
     // [Tokens.sUSDe]: "",
+    [Tokens.SPX]: "0x50dA645f148798F68EF2d7dB7C1CB22A6819bb2C",
     [Tokens.WSTETH]: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
     [Tokens.weETH]: "0x04c0599ae5a44757c0af6f9ec3b93da8976c150a",
     // [Tokens.wUSDM]: "",
@@ -112,7 +114,8 @@ export const ExistingTokenAddresses: {
     [Tokens.rsUSDe]: "0x2505De87C816ad0969F6B7f3ee2A39E336f802a2",
     [Tokens.stUSD]: "0x5705d0c6956bCcC6CF91B122EC36Ef0F741659b3",
     [Tokens.stEUR]: "0x57E090cE57D03152fa6dc4b45FA0382c19C2409D",
-    [Tokens.SOL]: "0x736F6c64C8e25dB3560db6cdB9CCaa35fCBE8a39"
+    [Tokens.SOL]: "0x736F6c64C8e25dB3560db6cdB9CCaa35fCBE8a39",
+    [Tokens.SPX]: "0x69006c45c3358359815d4dc55fa314Ab0e70776b"
   },
   [ChainSlug.POLYGON_MAINNET]: {
     [Tokens.USDCE]: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
