@@ -9,18 +9,17 @@ import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
 /**
  * @title UnwrapSupertoken
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
- * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
+ * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts. The contract is designed to be used as a wrapper for a native gas token and unwrap automatically once it arrives onto the destination chain.
  */
 contract UnwrapSuperToken is ERC20, RescueBase {
     using SafeTransferLib for address;
 
     event Deposit(address indexed from, uint256 amount);
     event Withdrawal(address indexed to, uint256 amount);
+    event WithdrawalFailed(address indexed to, uint256 amount);
 
     // for all controller access (mint, burn)
     bytes32 public constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
-
-    // bytes32 public constant RESCUE_ROLE = keccak256("RESCUE_ROLE");
 
     /**
      * @notice constructor for creating a new SuperToken.
@@ -43,13 +42,18 @@ contract UnwrapSuperToken is ERC20, RescueBase {
         _grantRole(RESCUE_ROLE, owner_);
     }
 
-    //Controller Functions
-
-    //burns the supertoken and and unlocks it on the parent chain chain
+    /// @notice Burns supertokens from a user's balance
+    /// @dev Only callable by addresses with CONTROLLER_ROLE
+    /// @param user_ Address to burn tokens from
+    /// @param amount_ Amount of tokens to burn
     function burn(
         address user_,
         uint256 amount_
     ) external onlyRole(CONTROLLER_ROLE) {
+        require(user_ != address(0), "Invalid user address");
+        require(amount_ > 0, "Amount must be greater than 0");
+        require(balanceOf[user_] >= amount_, "Insufficient balance");
+
         _burn(user_, amount_);
     }
 
@@ -58,22 +62,32 @@ contract UnwrapSuperToken is ERC20, RescueBase {
         address receiver_,
         uint256 amount_
     ) external onlyRole(CONTROLLER_ROLE) {
+        require(receiver_ != address(0), "Invalid receiver address");
+        require(amount_ > 0, "Amount must be greater than 0");
         _mint(receiver_, amount_);
     }
 
-    //Wrapping Functions
-
-    //deposits native GHST and mints the supertoken
+    /// @notice Deposits native GHST and mints the corresponding supertoken
+    /// @dev Mints supertokens 1:1 with deposited native GHST
+    /// @dev The deposited GHST is held by this contract as backing for the supertokens
     function deposit() public payable {
         _mint(msg.sender, msg.value);
         emit Deposit(msg.sender, msg.value);
     }
 
-    //withdraws native GHST and burns the supertoken
+    /// @notice Withdraws native GHST and burns the corresponding supertoken
+    /// @dev Burns supertokens 1:1 and transfers the backing native GHST to the receiver
+    /// @dev If contract has insufficient native GHST balance, emits WithdrawalFailed and returns
+    /// @param amount_ Amount of GHST to withdraw
+    /// @param to_ Address to receive the withdrawn GHST
     function withdraw(uint256 amount_, address to_) external {
+        require(to_ != address(0), "Invalid receiver address");
+        require(amount_ > 0, "Amount must be greater than 0");
+
         //perform a balance check to ensure the contract has enough to withdraw and not revert
         if (address(this).balance < amount_) {
-            //silently fail, so we don't break the bridging tx
+            //silently fail with an event, so we don't break the bridging tx
+            emit WithdrawalFailed(to_, amount_);
             return;
         } else {
             _burn(to_, amount_);
@@ -86,9 +100,3 @@ contract UnwrapSuperToken is ERC20, RescueBase {
         deposit();
     }
 }
-
-//So the flow is:
-//1. User locks their GHST on Polygon, which triggers the mint function on Geist, minting the supertoken version of GHST.
-//2. Next, we need to automatically unwrap the supertoken GHST into native GHST.
-//3. To do this, we call the withdraw function. This burns the supertoken and sends the native GHST back to the user.
-//4. But if there isn't enough native GHST in the contract, the withdraw will fail. So we need to deposit more native GHST to the contract.
