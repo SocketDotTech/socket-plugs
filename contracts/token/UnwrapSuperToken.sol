@@ -70,9 +70,11 @@ contract UnwrapSuperToken is ERC20, RescueBase {
     /// @notice Deposits native GHST and mints the corresponding supertoken
     /// @dev Mints supertokens 1:1 with deposited native GHST
     /// @dev The deposited GHST is held by this contract as backing for the supertokens
-    function deposit() public payable {
-        _mint(msg.sender, msg.value);
-        emit Deposit(msg.sender, msg.value);
+    function deposit(address to_) public payable {
+        require(to_ != address(0), "Invalid receiver address");
+        require(msg.value > 0, "Amount must be greater than 0");
+        _mint(to_, msg.value);
+        emit Deposit(to_, msg.value);
     }
 
     /// @notice Withdraws native GHST and burns the corresponding supertoken
@@ -97,6 +99,6 @@ contract UnwrapSuperToken is ERC20, RescueBase {
     }
 
     receive() external payable {
-        deposit();
+        deposit(msg.sender);
     }
 }

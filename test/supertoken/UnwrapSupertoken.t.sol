@@ -79,7 +79,7 @@ contract UnwrapSuperTokenTest is Test {
     function testDeposit() public {
         vm.deal(user, 1 ether);
         vm.prank(user);
-        superToken.deposit{value: 1 ether}();
+        superToken.deposit{value: 1 ether}(user);
         assertEq(superToken.balanceOf(user), 1 ether);
         assertEq(address(superToken).balance, 1 ether);
     }

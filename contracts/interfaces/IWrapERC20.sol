@@ -6,5 +6,9 @@ interface IWrapERC20 {
 
     function burn(address burner_, uint256 amount_) external;
 
+    function deposit(uint256 amount_, address to_) external;
+
     function withdraw(uint256 amount_, address to_) external;
+
+    function balanceOf(address user_) external view returns (uint256);
 }
