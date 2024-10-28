@@ -296,11 +296,9 @@ export const deployControllerChainContracts = async (
 
       let token = deployParams.addresses[TokenContracts.SuperToken];
 
-      // if (deployParams.hookType == Hooks.UNWRAP_HOOK) {
-      //   token = deployParams.addresses[SuperTokenContracts.UnwrapSuperToken];
-      // } else {
-
-      // }
+      //Use the UnwrapSuperToken for Unwrap Hook
+      if (deployParams.hookType == Hooks.UNWRAP_HOOK)
+        token = deployParams.addresses[SuperTokenContracts.UnwrapSuperToken];
 
       if (token) mintableToken = token;
       else throw new Error("SuperToken not found on chain");
@@ -464,10 +462,9 @@ export const deployVaultChainContracts = async (
 const deploySuperToken = async (deployParams: DeployParams) => {
   let contractName = SuperTokenContracts.SuperToken;
 
-  //todo: change this to UnwrapSuperToken later
-  if (deployParams.hookType === Hooks.UNWRAP_HOOK) {
-    contractName = SuperTokenContracts.SuperToken;
-  }
+  //Use the UnwrapSuperToken for Unwrap Hook
+  if (deployParams.hookType === Hooks.UNWRAP_HOOK)
+    contractName = SuperTokenContracts.UnwrapSuperToken;
 
   if (
     ExistingTokenAddresses[deployParams.currentChainSlug]?.[

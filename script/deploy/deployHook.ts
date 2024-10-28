@@ -110,16 +110,11 @@ export const deployHookContracts = async (
       useConnnectorPools, // useControllerPools
     ];
   } else if (hookType == Hooks.UNWRAP_HOOK) {
-    console.log("addresses:", deployParams.addresses);
-
     contractName = HookContracts.UnwrapHook;
-    // deployParams = await deployExecutionHelper(deployParams);
     args = [
       getOwner(),
       bridgeAddress,
-
-      //todo: change to UnwrapSuperToken later
-      deployParams.addresses[TokenContracts.SuperToken],
+      deployParams.addresses[TokenContracts.UnwrapSuperToken],
     ];
   }
 
