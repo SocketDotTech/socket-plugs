@@ -43,6 +43,7 @@ contract UnwrapHook is HookBase {
         SrcPreHookCallParams calldata params_
     )
         external
+        payable
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
@@ -64,12 +65,19 @@ contract UnwrapHook is HookBase {
                 params_.transferInfo.receiver.balance >= ethNeeded,
                 "Insufficient balance"
             );
+            require(msg.value >= ethNeeded, "Insufficient token amount");
 
             // Deposit native ETH to cover the difference
-            IWrapERC20(socketGhstAddress).deposit(
-                params_.transferInfo.amount,
+            IWrapERC20(socketGhstAddress).deposit{value: ethNeeded}(
                 params_.transferInfo.receiver
             );
+
+            // Refund excess amount if there's any
+            uint256 excessAmount = msg.value - ethNeeded;
+            if (excessAmount > 0) {
+                (bool success, ) = msg.sender.call{value: excessAmount}("");
+                require(success, "Failed to send refund");
+            }
         }
 
         return (params_.transferInfo, bytes(""));

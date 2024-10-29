@@ -112,9 +112,9 @@ abstract contract Base is ReentrancyGuard, IBridge, RescueBase {
             revert InsufficientMsgValue();
 
         if (address(hook__) != address(0)) {
-            (transferInfo, postHookData) = hook__.srcPreHookCall(
-                SrcPreHookCallParams(connector_, msg.sender, transferInfo_)
-            );
+            (transferInfo, postHookData) = hook__.srcPreHookCall{
+                value: msg.value
+            }(SrcPreHookCallParams(connector_, msg.sender, transferInfo_));
         } else {
             transferInfo = transferInfo_;
         }
