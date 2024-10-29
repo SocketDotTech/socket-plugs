@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 export async function getHookAddress(chain: string): Promise<string> {
-  const address = "0xA4b377a04B7591C5F96937890a3306cF949f41a0";
+  const address = "0x848d95fc52Ee5C7F145CB8A444d814F0183832e0";
 
   const provider = new ethers.providers.JsonRpcProvider(
     process.env.POLTER_TESTNET_RPC

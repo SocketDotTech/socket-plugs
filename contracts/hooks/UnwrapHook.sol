@@ -47,39 +47,6 @@ contract UnwrapHook is HookBase {
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
-        //  Check if user's wrapped GHST balance is enough, if not deposit ETH
-        if (
-            params_.transferInfo.amount >
-            IWrapERC20(socketGhstAddress).balanceOf(
-                params_.transferInfo.receiver
-            )
-        ) {
-            //Calculate how much is needed to cover the deposit
-            uint256 ethNeeded = params_.transferInfo.amount -
-                IWrapERC20(socketGhstAddress).balanceOf(
-                    params_.transferInfo.receiver
-                );
-
-            //Revert if the user doesn't have enough
-            require(
-                params_.transferInfo.receiver.balance >= ethNeeded,
-                "Insufficient balance"
-            );
-            require(msg.value >= ethNeeded, "Insufficient token amount");
-
-            // Deposit native ETH to cover the difference
-            IWrapERC20(socketGhstAddress).deposit{value: msg.value}(
-                params_.transferInfo.receiver
-            );
-
-            //            // Refund excess amount if there's any
-            //            uint256 excessAmount = msg.value - ethNeeded;
-            //            if (excessAmount > 0) {
-            //                (bool success, ) = msg.sender.call{value: excessAmount}("");
-            //                require(success, "Failed to send refund");
-            //            }
-        }
-
         return (params_.transferInfo, bytes(""));
     }
 
