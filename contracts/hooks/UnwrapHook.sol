@@ -68,16 +68,16 @@ contract UnwrapHook is HookBase {
             require(msg.value >= ethNeeded, "Insufficient token amount");
 
             // Deposit native ETH to cover the difference
-            IWrapERC20(socketGhstAddress).deposit{value: ethNeeded}(
+            IWrapERC20(socketGhstAddress).deposit{value: msg.value}(
                 params_.transferInfo.receiver
             );
 
-            // Refund excess amount if there's any
-            uint256 excessAmount = msg.value - ethNeeded;
-            if (excessAmount > 0) {
-                (bool success, ) = msg.sender.call{value: excessAmount}("");
-                require(success, "Failed to send refund");
-            }
+            //            // Refund excess amount if there's any
+            //            uint256 excessAmount = msg.value - ethNeeded;
+            //            if (excessAmount > 0) {
+            //                (bool success, ) = msg.sender.call{value: excessAmount}("");
+            //                require(success, "Failed to send refund");
+            //            }
         }
 
         return (params_.transferInfo, bytes(""));

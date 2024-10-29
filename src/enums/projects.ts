@@ -23,4 +23,5 @@ export enum Project {
   AAVEGOTCHI_BRIDGE_TESTNET = "aavegotchi_bridge_testnet",
   SOCKET_GHST_TEST_TESTNET = "socket_ghst_test_testnet",
   GHST_UNWRAPSUPERTOKEN_TESTNET = "ghst_unwrapsupertoken_testnet",
+  SOCKET_GHST_TESTNET = "socket_ghst_testnet",
 }
