@@ -40,10 +40,47 @@ contract UnwrapHook is HookBase {
         emit TreasuryUpdated(treasuryAddress);
     }
 
+    /**
+     * @notice Executes pre-hook call for destination underlyingAsset.
+     * @dev This function is used to execute a pre-hook call for the destination underlyingAsset before initiating a transfer.
+     * @param params_ Parameters for the pre-hook call.
+     */
+    function dstPreHookCall(
+        DstPreHookCallParams calldata params_
+    )
+        external
+        isVaultOrController
+        returns (bytes memory postHookData, TransferInfo memory transferInfo)
+    {
+        transferInfo.receiver = params_.transferInfo.receiver;
+
+        uint256 fee = params_.transferInfo.amount / 1000; // fee: 0.1%
+        transferInfo.amount = params_.transferInfo.amount - fee; // Deduct the fee
+        postHookData = abi.encode(fee);
+    }
+
     // this should be run in Geist/Polter
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) external isVaultOrController returns (CacheData memory cacheData) {
+        // Transfer the fee to the treasury address
+        uint256 fee = abi.decode(params_.postHookData, (uint256));
+        if (fee > 0) {
+            if (block.chainid == 63157 || block.chainid == 631571) {
+                // mint fees
+                IWrapERC20(ghstAddress).mint(treasuryAddress, fee);
+            } else {
+                // if (block.chainid == 137 || block.chainid == 80002)
+                // transfer fees
+                ERC20(ghstAddress).safeTransferFrom(
+                    msg.sender,
+                    treasuryAddress,
+                    fee
+                );
+            }
+        }
+
+        // unwrap
         if (block.chainid == 63157 || block.chainid == 631571) {
             // unwrap for Geist network
             IWrapERC20(ghstAddress).withdraw(
@@ -62,41 +99,13 @@ contract UnwrapHook is HookBase {
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
-        uint256 fee = params_.transferInfo.amount / 1000; // fee: 0.1%
-
-        // Transfer the fee to the treasury address
-        if (fee > 0) {
-            ERC20(ghstAddress).safeTransferFrom(
-                params_.transferInfo.receiver,
-                treasuryAddress,
-                fee
-            );
-        }
-
-        transferInfo = params_.transferInfo;
-        transferInfo.amount = params_.transferInfo.amount - fee; // Deduct the fee
-        postHookData = hex"";
+        return (params_.transferInfo, bytes(""));
     }
 
     function srcPostHookCall(
         SrcPostHookCallParams calldata params_
     ) external isVaultOrController returns (TransferInfo memory transferInfo) {
         return params_.transferInfo;
-    }
-
-    /**
-     * @notice Executes pre-hook call for destination underlyingAsset.
-     * @dev This function is used to execute a pre-hook call for the destination underlyingAsset before initiating a transfer.
-     * @param params_ Parameters for the pre-hook call.
-     */
-    function dstPreHookCall(
-        DstPreHookCallParams calldata params_
-    )
-        external
-        isVaultOrController
-        returns (bytes memory postHookData, TransferInfo memory transferInfo)
-    {
-        return (bytes(""), params_.transferInfo);
     }
 
     function preRetryHook(
