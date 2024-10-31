@@ -36,7 +36,6 @@ contract LimitExecutionHook is LimitPlugin, ConnectorPoolPlugin {
         SrcPreHookCallParams calldata params_
     )
         public
-        payable
         virtual
         isVaultOrController
         returns (TransferInfo memory, bytes memory)

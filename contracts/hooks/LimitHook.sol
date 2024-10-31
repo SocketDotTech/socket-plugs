@@ -26,7 +26,6 @@ contract LimitHook is LimitPlugin, ConnectorPoolPlugin {
         SrcPreHookCallParams memory params_
     )
         external
-        payable
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {

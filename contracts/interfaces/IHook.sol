@@ -14,7 +14,6 @@ interface IHook {
         SrcPreHookCallParams calldata params_
     )
         external
-        payable
         returns (TransferInfo memory transferInfo, bytes memory postHookData);
 
     function srcPostHookCall(

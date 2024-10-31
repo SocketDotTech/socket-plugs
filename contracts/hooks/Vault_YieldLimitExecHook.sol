@@ -80,13 +80,7 @@ contract Vault_YieldLimitExecHook is LimitExecutionHook {
      */
     function srcPreHookCall(
         SrcPreHookCallParams calldata params_
-    )
-        public
-        payable
-        override
-        notShutdown
-        returns (TransferInfo memory, bytes memory)
-    {
+    ) public override notShutdown returns (TransferInfo memory, bytes memory) {
         totalIdle += params_.transferInfo.amount;
         return super.srcPreHookCall(params_);
     }

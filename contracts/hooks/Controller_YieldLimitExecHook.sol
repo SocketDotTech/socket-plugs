@@ -60,7 +60,6 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         SrcPreHookCallParams calldata params_
     )
         public
-        payable
         override
         notShutdown
         returns (TransferInfo memory transferInfo, bytes memory postHookData)

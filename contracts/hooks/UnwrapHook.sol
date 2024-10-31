@@ -43,7 +43,6 @@ contract UnwrapHook is HookBase {
         SrcPreHookCallParams calldata params_
     )
         external
-        payable
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
