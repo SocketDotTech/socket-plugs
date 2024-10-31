@@ -443,7 +443,7 @@ export const deployVaultChainContracts = async (
       ? AddressZero
       : vault.address;
 
-    // deployParams = await deployHookContracts(deployParams, allAddresses, false);
+    deployParams = await deployHookContracts(deployParams, allAddresses, false);
     console.log(
       deployParams.currentChainSlug,
       " Vault Chain Contracts deployed! ✔"

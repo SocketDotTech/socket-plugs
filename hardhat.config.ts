@@ -43,13 +43,19 @@ function getRemappings() {
 }
 
 export enum CustomNetworks {
-  POLTER_DEVNET = "polter_devnet",
+  POLTER_TESTNET = "polter",
+  POLYGON_AMOY = "amoy",
 }
 
 export const CustomNetworksConfig = {
-  [CustomNetworks.POLTER_DEVNET]: {
+  [CustomNetworks.POLTER_TESTNET]: {
     chainId: 398274,
     url: process.env.POLTER_DEVNET_RPC || "none",
+    accounts: [`0x${privateKey}`],
+  },
+  [CustomNetworks.POLYGON_AMOY]: {
+    chainId: 80002,
+    url: process.env.POLYGON_AMOY_RPC || "none",
     accounts: [`0x${privateKey}`],
   },
 };
@@ -83,7 +89,8 @@ const liveNetworks = [
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
   HardhatChainName.SYNDR_SEPOLIA_L3,
-  CustomNetworks.POLTER_DEVNET,
+  CustomNetworks.POLTER_TESTNET,
+  CustomNetworks.POLYGON_AMOY,
 ];
 
 let hardhatNetworkDetails = {};
@@ -116,7 +123,7 @@ const config: HardhatUserConfig = {
       [HardhatChainName.REYA_CRONOS]: "none",
       [HardhatChainName.REYA]: "none",
       [HardhatChainName.AEVO]: "none",
-      [CustomNetworks.POLTER_DEVNET]: "none",
+      [CustomNetworks.POLTER_TESTNET]: "none",
     },
     // Custom chains for verification. These are only for verification to work. The hardhat etherscan plugin does not support these chains.
     customChains: [
@@ -195,11 +202,19 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: CustomNetworks.POLTER_DEVNET,
-        chainId: CustomNetworksConfig[CustomNetworks.POLTER_DEVNET].chainId,
+        network: CustomNetworks.POLTER_TESTNET,
+        chainId: CustomNetworksConfig[CustomNetworks.POLTER_TESTNET].chainId,
         urls: {
           apiURL: "https://polter-sepolia-explorer-be.devnet.alchemy.com/api",
           browserURL: "https://polter-sepolia-explorer.devnet.alchemy.com/",
+        },
+      },
+      {
+        network: CustomNetworks.POLYGON_AMOY,
+        chainId: CustomNetworksConfig[CustomNetworks.POLYGON_AMOY].chainId,
+        urls: {
+          apiURL: "https://polter-sepolia-explorer-be.devnet.alchemy.com/api",
+          browserURL: "https://amoy.polygonscan.com/",
         },
       },
     ],

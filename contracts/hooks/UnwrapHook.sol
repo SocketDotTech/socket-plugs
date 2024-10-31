@@ -5,6 +5,8 @@ import "../common/Errors.sol";
 import "../common/Constants.sol";
 import "./HookBase.sol";
 import {IWrapERC20} from "../interfaces/IWrapERC20.sol";
+import "solmate/tokens/ERC20.sol";
+import "solmate/utils/SafeTransferLib.sol";
 
 /**
  * @title Contract for super token and vault
@@ -13,7 +15,10 @@ import {IWrapERC20} from "../interfaces/IWrapERC20.sol";
  * to support any type of message bridge.
  */
 contract UnwrapHook is HookBase {
-    address public socketGhstAddress;
+    using SafeTransferLib for ERC20;
+
+    address public ghstAddress;
+    address public treasuryAddress;
 
     /**
      * @notice Constructor for creating a new SuperToken.
@@ -21,20 +26,24 @@ contract UnwrapHook is HookBase {
     constructor(
         address owner_,
         address controller_,
-        address socketGhstAddress_
+        address ghstAddress_,
+        address treasuryAddress_
     ) HookBase(owner_, controller_) {
-        socketGhstAddress = socketGhstAddress_;
+        ghstAddress = ghstAddress_;
+        treasuryAddress_ = treasuryAddress;
     }
 
     // this should be run in Geist/Polter
     function dstPostHookCall(
         DstPostHookCallParams calldata params_
     ) external isVaultOrController returns (CacheData memory cacheData) {
-        // unwrap
-        IWrapERC20(socketGhstAddress).withdraw(
-            params_.transferInfo.amount,
-            params_.transferInfo.receiver
-        );
+        if (block.chainid == 63157 || block.chainid == 631571) {
+            // unwrap for Geist network
+            IWrapERC20(ghstAddress).withdraw(
+                params_.transferInfo.amount,
+                params_.transferInfo.receiver
+            );
+        }
 
         cacheData = CacheData(bytes(""), abi.encode(0));
     }
@@ -46,7 +55,20 @@ contract UnwrapHook is HookBase {
         isVaultOrController
         returns (TransferInfo memory transferInfo, bytes memory postHookData)
     {
-        return (params_.transferInfo, bytes(""));
+        uint256 fee = params_.transferInfo.amount / 1000; // fee: 0.1%
+
+        // Transfer the fee to the treasury address
+        if (fee > 0) {
+            ERC20(ghstAddress).safeTransferFrom(
+                params_.transferInfo.receiver,
+                treasuryAddress,
+                fee
+            );
+        }
+
+        transferInfo = params_.transferInfo;
+        transferInfo.amount = params_.transferInfo.amount - fee; // Deduct the fee
+        postHookData = hex"";
     }
 
     function srcPostHookCall(

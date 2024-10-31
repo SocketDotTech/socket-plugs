@@ -1,74 +1,25 @@
 {
-  "socket_ghst_test_testnet": {
-    "80002": {
-      "SGHST": {
-        "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0x1eD34c0C9b0f08Bb013CD16E4b75A77cf47cE919",
-        "connectors": {
-          "631571": {
-            "FAST": "0x978c0D945DcAa716fe24bb231eAeeA703e82C439"
-          }
-        }
-      }
-    },
-    "631571": {
-      "SGHST": {
-        "SuperToken": "0x59C5b4d348F4D7b97643884c1486BfF69faB4597",
-        "Controller": "0x425096b13F41405653392438ad33cebB598bC174",
-        "UnwrapHook": "0x8602AA51da2a6769DEBea9bf1Bcd14737b617a37",
-        "connectors": {
-          "80002": {
-            "FAST": "0xC8c8E45F56937F37c5BdDf38e1A321Cf5A3Ba911"
-          }
-        }
-      }
-    }
-  },
-  "ghst_unwrapsupertoken_testnet": {
-    "80002": {
-      "SGHST": {
-        "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0x252e9438f70ECC17DfCC2373303fC6e5709d7F97",
-        "connectors": {
-          "631571": {
-            "FAST": "0xb7ef8752398476977B924Acf5ef015c6cE71bA12"
-          }
-        }
-      }
-    },
-    "631571": {
-      "SGHST": {
-        "UnwrapSuperToken": "0x7C98F4f7272ad2D6F95Db137fbB80C2eFb94aD39",
-        "Controller": "0x966539AD75843cA2f59f09A89B269236a7174046",
-        "UnwrapHook": "0x9054cA80bffeA161Fb6cD5c1F69d8DcE7f89bAef",
-        "connectors": {
-          "80002": {
-            "FAST": "0x35D8Ef4CF5EA943212d1Ca65A4EDfDb2D07E14EE"
-          }
-        }
-      }
-    }
-  },
   "socket_ghst_testnet": {
     "80002": {
       "SGHST": {
         "NonMintableToken": "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "Vault": "0x5c281776a76f358f64BB8Fe3E9D375B629003f99",
+        "Vault": "0x24be569085c3e4b6AeBa2dfB7555E51290AA4350",
+        "UnwrapHook": "0x2d25dB3BC421ea93d0A150D375E3E882cdcf60c5",
         "connectors": {
           "631571": {
-            "FAST": "0xbDc4521612f17Cd4dE9A37977A07Ec2aBCDef016"
+            "FAST": "0xC8838B87fD1b979D3982A2ffa7CBA3456cE1c27b"
           }
         }
       }
     },
     "631571": {
       "SGHST": {
-        "UnwrapSuperToken": "0x9647B3144c943C0ee817A2eAD08acf864B98034b",
-        "Controller": "0x848d95fc52Ee5C7F145CB8A444d814F0183832e0",
-        "UnwrapHook": "0xaCD22bD3306A24748f340DA8eF924012b0613387",
+        "UnwrapSuperToken": "0x33A5BBa7C07E6d30FC10e5Cb0847b925A7e7496F",
+        "Controller": "0x42e5E7c6fE23f01bD1388C1ac2Bc0417007C016b",
+        "UnwrapHook": "0xF616d065b25ae91aBFB0B4a1729c7dD73597C1C5",
         "connectors": {
           "80002": {
-            "FAST": "0xA8418aa189d35e531D87adcC3B4b6Ac2cd4Bd16c"
+            "FAST": "0xCc3fc1Ebc23C5Cb3674cA51f77eE58A9acaEcb25"
           }
         }
       }

@@ -1,5 +1,10 @@
 import { Contract } from "ethers";
-import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
+import {
+  getOwner,
+  getTreasury,
+  isSuperBridge,
+  isSuperToken,
+} from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import {
   Hooks,
@@ -114,7 +119,10 @@ export const deployHookContracts = async (
     args = [
       getOwner(),
       bridgeAddress,
-      deployParams.addresses[TokenContracts.UnwrapSuperToken],
+      deployParams.addresses[TokenContracts.UnwrapSuperToken]
+        ? deployParams.addresses[TokenContracts.UnwrapSuperToken]
+        : deployParams.addresses[TokenContracts.NonMintableToken],
+      getTreasury(),
     ];
   }
 

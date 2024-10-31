@@ -21,6 +21,12 @@ export const getOwnerSignerKey = () => {
   return process.env.OWNER_SIGNER_KEY;
 };
 
+export const getTreasury = () => {
+  if (!process.env.TREASURY_ADDRESS)
+    throw Error("Socket treasury address not present");
+  return process.env.TREASURY_ADDRESS;
+};
+
 let deploymentMode: DeploymentMode;
 // use prod as default if not mentioned
 export const getMode = () => {

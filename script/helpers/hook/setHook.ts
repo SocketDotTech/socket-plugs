@@ -1,13 +1,33 @@
 import { ethers } from "ethers";
+import { network } from "hardhat";
 
-export async function getHookAddress(chain: string): Promise<string> {
-  const controllerAddress = "0x848d95fc52Ee5C7F145CB8A444d814F0183832e0";
+export const main = async () => {
+  let controllerAddress = "";
+  let hookAddress = "";
+  let provider;
 
-  const hookAddress = "0xaCD22bD3306A24748f340DA8eF924012b0613387";
-
-  const provider = new ethers.providers.JsonRpcProvider(
-    process.env.POLTER_TESTNET_RPC
-  );
+  if (network.name === "polter") {
+    // polter-testnet
+    controllerAddress = "0x42e5E7c6fE23f01bD1388C1ac2Bc0417007C016b";
+    hookAddress = "0xF616d065b25ae91aBFB0B4a1729c7dD73597C1C5";
+    provider = new ethers.providers.JsonRpcProvider(
+      process.env.POLTER_TESTNET_RPC
+    );
+  } else if (network.name === "amoy") {
+    controllerAddress = "0x24be569085c3e4b6AeBa2dfB7555E51290AA4350";
+    hookAddress = "0x2d25dB3BC421ea93d0A150D375E3E882cdcf60c5";
+    provider = new ethers.providers.JsonRpcProvider(
+      process.env.POLYGON_AMOY_RPC
+    );
+  } else if (network.name === "matic") {
+    controllerAddress = "";
+    hookAddress = "";
+  } else if (network.name === "geist") {
+    controllerAddress = "";
+    hookAddress = "";
+  } else {
+    throw Error("No network settings for " + network.name);
+  }
 
   const signer = new ethers.Wallet(process.env.OWNER_SIGNER_KEY, provider);
 
@@ -27,7 +47,9 @@ export async function getHookAddress(chain: string): Promise<string> {
     console.log("hookAddressBefore", hookAddressBefore);
 
     console.log("updating hook");
-    const tx = await bridgeContract.updateHook(hookAddress, true);
+    const tx = await bridgeContract.updateHook(hookAddress, true, {
+      gasPrice: 30000000000,
+    });
     console.log("tx", tx.hash);
     await tx.wait();
 
@@ -39,6 +61,11 @@ export async function getHookAddress(chain: string): Promise<string> {
     console.error("Error fetching hook address:", error);
     throw error;
   }
-}
+};
 
-getHookAddress("631571");
+main()
+  .then(() => process.exit(0))
+  .catch((error: Error) => {
+    console.error(error);
+    process.exit(1);
+  });
