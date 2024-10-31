@@ -1,29 +1,29 @@
 {
   "80002": [
     [
-      "0xC8838B87fD1b979D3982A2ffa7CBA3456cE1c27b",
+      "0xb759fa3415f9Aa3F6A2aA9FbF8E8bF9c1E6b0f01",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
       [
-        "0x24be569085c3e4b6AeBa2dfB7555E51290AA4350",
+        "0x521920553b595C959d2d6399e27316c4eAd8844b",
         "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
         631571,
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       ]
     ],
     [
-      "0x2d25dB3BC421ea93d0A150D375E3E882cdcf60c5",
+      "0xca74C1fC80293E1e22888D0c2E940178eD6a7BcA",
       "UnwrapHook",
       "contracts/hooks/UnwrapHook.sol",
       [
         "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
-        "0x24be569085c3e4b6AeBa2dfB7555E51290AA4350",
+        "0x521920553b595C959d2d6399e27316c4eAd8844b",
         "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668"
+        "0x988a44f0ea2611B6a0f5ed73e1eC180Fb145CF21"
       ]
     ],
     [
-      "0x24be569085c3e4b6AeBa2dfB7555E51290AA4350",
+      "0x521920553b595C959d2d6399e27316c4eAd8844b",
       "Vault",
       "contracts/bridge/Vault.sol",
       ["0xF679b8D109b2d23931237Ce948a7D784727c0897"]
@@ -31,35 +31,35 @@
   ],
   "631571": [
     [
-      "0xCc3fc1Ebc23C5Cb3674cA51f77eE58A9acaEcb25",
+      "0x847108CDB225f4fFfc814b6b289EA95dC740ef57",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
       [
-        "0x42e5E7c6fE23f01bD1388C1ac2Bc0417007C016b",
+        "0x2d5e2EEb9aC0aFEAB64D5e54b639e6165de31379",
         "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
         80002,
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       ]
     ],
     [
-      "0xF616d065b25ae91aBFB0B4a1729c7dD73597C1C5",
+      "0x4B4a704EAb8632Fa83ee5ec3b84dC67Dd6eC00d4",
       "UnwrapHook",
       "contracts/hooks/UnwrapHook.sol",
       [
         "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668",
-        "0x42e5E7c6fE23f01bD1388C1ac2Bc0417007C016b",
-        "0x33A5BBa7C07E6d30FC10e5Cb0847b925A7e7496F",
-        "0xd38Df837a1EAd12ee16f8b8b7E5F58703f841668"
+        "0x2d5e2EEb9aC0aFEAB64D5e54b639e6165de31379",
+        "0x0C3E0a7e65A1DBd096a37526781CC38Aa7345598",
+        "0x988a44f0ea2611B6a0f5ed73e1eC180Fb145CF21"
       ]
     ],
     [
-      "0x42e5E7c6fE23f01bD1388C1ac2Bc0417007C016b",
+      "0x2d5e2EEb9aC0aFEAB64D5e54b639e6165de31379",
       "Controller",
       "contracts/bridge/Controller.sol",
-      ["0x33A5BBa7C07E6d30FC10e5Cb0847b925A7e7496F"]
+      ["0x0C3E0a7e65A1DBd096a37526781CC38Aa7345598"]
     ],
     [
-      "0x33A5BBa7C07E6d30FC10e5Cb0847b925A7e7496F",
+      "0x0C3E0a7e65A1DBd096a37526781CC38Aa7345598",
       "UnwrapSuperToken",
       "contracts/token/UnwrapSuperToken.sol",
       [

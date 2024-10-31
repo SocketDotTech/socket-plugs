@@ -10,17 +10,17 @@ export const main = async () => {
 
   if (network.name === "polter") {
     // polter-testnet
-    controllerAddress = "0x42e5E7c6fE23f01bD1388C1ac2Bc0417007C016b";
-    hookAddress = "0xF616d065b25ae91aBFB0B4a1729c7dD73597C1C5";
-    connector = "0xCc3fc1Ebc23C5Cb3674cA51f77eE58A9acaEcb25";
-    tokenAddress = "0x33A5BBa7C07E6d30FC10e5Cb0847b925A7e7496F";
+    controllerAddress = "0x2d5e2EEb9aC0aFEAB64D5e54b639e6165de31379";
+    hookAddress = "0x4B4a704EAb8632Fa83ee5ec3b84dC67Dd6eC00d4";
+    connector = "0x847108CDB225f4fFfc814b6b289EA95dC740ef57";
+    tokenAddress = "0x0C3E0a7e65A1DBd096a37526781CC38Aa7345598";
     provider = new ethers.providers.JsonRpcProvider(
       process.env.POLTER_TESTNET_RPC
     );
   } else if (network.name === "amoy") {
-    controllerAddress = "0x24be569085c3e4b6AeBa2dfB7555E51290AA4350";
-    hookAddress = "0x2d25dB3BC421ea93d0A150D375E3E882cdcf60c5";
-    connector = "0xC8838B87fD1b979D3982A2ffa7CBA3456cE1c27b";
+    controllerAddress = "0x521920553b595C959d2d6399e27316c4eAd8844b";
+    hookAddress = "0xca74C1fC80293E1e22888D0c2E940178eD6a7BcA";
+    connector = "0xb759fa3415f9Aa3F6A2aA9FbF8E8bF9c1E6b0f01";
     tokenAddress = "0xF679b8D109b2d23931237Ce948a7D784727c0897";
     provider = new ethers.providers.JsonRpcProvider(
       process.env.POLYGON_AMOY_RPC
@@ -53,7 +53,7 @@ export const main = async () => {
     signer
   );
 
-  const bridgeAmount = ethers.utils.parseEther("10");
+  const bridgeAmount = ethers.utils.parseEther("50");
   const feeAmount = bridgeAmount.div(1000);
   const gasLimit = 2000000;
 

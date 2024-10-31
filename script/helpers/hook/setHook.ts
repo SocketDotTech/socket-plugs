@@ -8,14 +8,14 @@ export const main = async () => {
 
   if (network.name === "polter") {
     // polter-testnet
-    controllerAddress = "0x42e5E7c6fE23f01bD1388C1ac2Bc0417007C016b";
-    hookAddress = "0xF616d065b25ae91aBFB0B4a1729c7dD73597C1C5";
+    controllerAddress = "0x2d5e2EEb9aC0aFEAB64D5e54b639e6165de31379";
+    hookAddress = "0x4B4a704EAb8632Fa83ee5ec3b84dC67Dd6eC00d4";
     provider = new ethers.providers.JsonRpcProvider(
       process.env.POLTER_TESTNET_RPC
     );
   } else if (network.name === "amoy") {
-    controllerAddress = "0x24be569085c3e4b6AeBa2dfB7555E51290AA4350";
-    hookAddress = "0x2d25dB3BC421ea93d0A150D375E3E882cdcf60c5";
+    controllerAddress = "0x521920553b595C959d2d6399e27316c4eAd8844b";
+    hookAddress = "0xca74C1fC80293E1e22888D0c2E940178eD6a7BcA";
     provider = new ethers.providers.JsonRpcProvider(
       process.env.POLYGON_AMOY_RPC
     );

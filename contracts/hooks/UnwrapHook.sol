@@ -20,6 +20,8 @@ contract UnwrapHook is HookBase {
     address public ghstAddress;
     address public treasuryAddress;
 
+    event TreasuryUpdated(address newTreasury);
+
     /**
      * @notice Constructor for creating a new SuperToken.
      */
@@ -30,7 +32,12 @@ contract UnwrapHook is HookBase {
         address treasuryAddress_
     ) HookBase(owner_, controller_) {
         ghstAddress = ghstAddress_;
-        treasuryAddress_ = treasuryAddress;
+        treasuryAddress = treasuryAddress_;
+    }
+
+    function updateTreasury(address newTreasury_) external onlyOwner {
+        treasuryAddress = newTreasury_;
+        emit TreasuryUpdated(treasuryAddress);
     }
 
     // this should be run in Geist/Polter
