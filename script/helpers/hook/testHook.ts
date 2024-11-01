@@ -1,36 +1,30 @@
 import { ethers, network } from "hardhat";
-import { getOverrides } from "../networks";
 
 export const main = async () => {
   let controllerAddress = "";
-  let hookAddress = "";
   let connector = "";
   let tokenAddress = "";
   let provider;
 
   if (network.name === "polter") {
     // polter-testnet
-    controllerAddress = "0x9091977076DD10A7721F4648fcE7E09371df7Bc5";
-    hookAddress = "0x46f6B69E132dB843b8bC01dAf19535b63835557e";
-    connector = "0xe24Edb991E307C3A4ef5833da2fE49C86D5b2F47";
-    tokenAddress = "0xA76ea667a448ECAC757665b7998c945Fac05fBDe";
+    controllerAddress = "0x49017f31dB018eAD84E67A382B5f3f796695aAc3";
+    connector = "0xC1044dFa349B6C7381eE4603660e974Bdab5dc40";
+    tokenAddress = "0xCef3AdFaE288d3304e42582a0786e0276181Acf2";
     provider = new ethers.providers.JsonRpcProvider(
       process.env.POLTER_TESTNET_RPC
     );
   } else if (network.name === "amoy") {
-    controllerAddress = "0xD079A4FCaE760a53D90C53621B60Be9a901639F4";
-    hookAddress = "0x5392EfA2B1Ddd61Bd0b2B1eadD04D654E5C5c715";
-    connector = "0xCB08705502C14c99B25607e6Cc7B11DD84E41589";
+    controllerAddress = "0x3aa86893F04dd7fbaa63Dacc8E6bd887521E3BaE";
+    connector = "0x092D6243ee5602D2b94d4Ba75c3bd7e220f740D2";
     tokenAddress = "0xF679b8D109b2d23931237Ce948a7D784727c0897";
     provider = new ethers.providers.JsonRpcProvider(
       process.env.POLYGON_AMOY_RPC
     );
   } else if (network.name === "matic") {
     controllerAddress = "";
-    hookAddress = "";
   } else if (network.name === "geist") {
     controllerAddress = "";
-    hookAddress = "";
   } else {
     throw Error("No network settings for " + network.name);
   }
@@ -54,7 +48,6 @@ export const main = async () => {
   );
 
   const bridgeAmount = ethers.utils.parseEther("50");
-  const feeAmount = bridgeAmount.div(1000);
   const gasLimit = 2000000;
 
   try {

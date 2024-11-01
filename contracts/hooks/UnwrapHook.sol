@@ -54,7 +54,10 @@ contract UnwrapHook is HookBase {
     {
         transferInfo.receiver = params_.transferInfo.receiver;
 
-        uint256 fee = params_.transferInfo.amount / 1000; // fee: 0.1%
+        uint256 fee;
+        if (block.chainid == 137 || block.chainid == 80002) {
+            fee = params_.transferInfo.amount / 1000; // fee: 0.1%
+        }
         transferInfo.amount = params_.transferInfo.amount - fee; // Deduct the fee
         postHookData = abi.encode(fee);
     }
@@ -66,18 +69,12 @@ contract UnwrapHook is HookBase {
         // Transfer the fee to the treasury address
         uint256 fee = abi.decode(params_.postHookData, (uint256));
         if (fee > 0) {
-            if (block.chainid == 63157 || block.chainid == 631571) {
-                // mint fees
-                IWrapERC20(ghstAddress).mint(treasuryAddress, fee);
-            } else {
-                // if (block.chainid == 137 || block.chainid == 80002)
-                // transfer fees
-                ERC20(ghstAddress).safeTransferFrom(
-                    msg.sender,
-                    treasuryAddress,
-                    fee
-                );
-            }
+            // transfer fees
+            ERC20(ghstAddress).safeTransferFrom(
+                msg.sender,
+                treasuryAddress,
+                fee
+            );
         }
 
         // unwrap
