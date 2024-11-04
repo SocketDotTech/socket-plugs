@@ -28,26 +28,52 @@
     }
   },
   "aavegotchi_bridge_testnet": {
-    "80002": {
+    "84532": {
       "GOTCHI": {
         "isAppChain": false,
-        "NonMintableToken": "0xC80DB01aeDAD5F6E3088c75F60E52f579Cf1D3Cb",
-        "Vault": "0x09011fcA980Df5d22E5ff2262051Bc28C430E11c",
+        "NonMintableToken": "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
+        "Vault": "0x110A646276961C2d8a54b951bbC8B169E0F573c4",
         "connectors": {
-          "398274": {
-            "FAST": "0x6f1978CF0D213eFBF4A173d499219AbeEa01e597"
+          "631571": {
+            "FAST": "0xd912F40C27E317db2334e210de892e9dc92816af"
           }
         }
       }
     },
-    "398274": {
+    "631571": {
       "GOTCHI": {
         "isAppChain": true,
-        "MintableToken": "0x6b54b36A54b068152f0f39FdA0Bf96e02176D95B",
-        "Controller": "0x38161F1a033D86aea6D222AEdE57702046414CA5",
+        "MintableToken": "0x1F0eb9099b9c398323dcf2F133dFdAD9dE7cF994",
+        "Controller": "0x5ABB7E28160f82A84e389aDcc9d8CE3F7a0C8D92",
         "connectors": {
-          "80002": {
-            "FAST": "0xCfDA1E919F0b9B9fAbb6863dBF662B7fa688D2fD"
+          "84532": {
+            "FAST": "0xE7af5160334aded39DD9826cBcBa0B51A1B184e9"
+          }
+        }
+      }
+    }
+  },
+  "aavegotchi_item_bridge_testnet": {
+    "84532": {
+      "GOTCHI_ITEM": {
+        "isAppChain": false,
+        "NonMintableToken": "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
+        "Vault": "0x130119B300049A80C20B2D3bfdFCfd021373E5e7",
+        "connectors": {
+          "631571": {
+            "FAST": "0xb8388b23222876FAC04b464fA0d6A064c67A14FC"
+          }
+        }
+      }
+    },
+    "631571": {
+      "GOTCHI_ITEM": {
+        "isAppChain": true,
+        "MintableToken": "0x1F0eb9099b9c398323dcf2F133dFdAD9dE7cF994",
+        "Controller": "0x10Cf0D5C1986a7Aa98aDb3bfa3529c1BBDa59FB9",
+        "connectors": {
+          "84532": {
+            "FAST": "0x27fA28c1f241E5dEA9AA583751E5D968a28FD9D5"
           }
         }
       }

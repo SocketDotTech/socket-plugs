@@ -9,7 +9,7 @@ import { NFTs, Tokens } from "../../../../src/enums";
 // For testnet deployments, ChainSlug enum may not have some chains, therefore some keys will look like {421614:{}} instead of {[ChainSlug.ARBITRUM_SEPOLIA]:{}}. This wont affect the functionality of the project.
 export const pc: ProjectConstants = {
   [DeploymentMode.SURGE]: {
-    [NFTs.GOTCHI]: {
+    [NFTs.GOTCHI_ITEM]: {
       vaultChains: [84532],
       controllerChains: [631571],
       tokenAddresses: {
