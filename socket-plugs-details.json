@@ -20,7 +20,9 @@
     "STIME": 18,
     "USDe": 6,
     "MAGIC": 18,
-    "SUSDE": 18
+    "SUSDE": 18,
+    "SDEUSD": 18,
+    "DEUSD": 18
   },
   "tokenAddresses": {
     "1": {
@@ -33,7 +35,9 @@
       "DAI": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
       "USDe": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
-      "SUSDE": "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497"
+      "SUSDE": "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497",
+      "SDEUSD": "0x5c5b196abe0d54485975d1ec29617d42d9198326",
+      "DEUSD": "0x15700b564ca08d9439c58ca5053166e8317aa138"
     },
     "10": {
       "USDC": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
@@ -111,7 +115,9 @@
       "WBTC": "0xfC5CC93d85861ac82d89fc2D3e56315540E9C8A7"
     },
     "1324967486": {
-      "SUSDE": "0x2339D41f410EA761F346a14c184385d15f7266c4"
+      "SUSDE": "0x2339D41f410EA761F346a14c184385d15f7266c4",
+      "DEUSD": "0x809B99df4DDd6fA90F2CF305E2cDC310C6AD3C2c",
+      "SDEUSD": "0x4D3fEB76ab1C7eF40388Cd7a2066edacE1a2237D"
     }
   },
   "tokenSymbols": {
@@ -135,7 +141,9 @@
     "STIME": "STIME",
     "USDe": "USDe",
     "MAGIC": "MAGIC",
-    "SUSDE": "SUSDE"
+    "SUSDE": "SUSDE",
+    "SDEUSD": "SDEUSD",
+    "DEUSD": "DEUSD"
   },
   "projects": [
     "aevo",
@@ -181,6 +189,8 @@
     "MOON",
     "USDe",
     "MAGIC",
-    "SUSDE"
+    "SUSDE",
+    "SDEUSD",
+    "DEUSD"
   ]
 }
