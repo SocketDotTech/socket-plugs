@@ -89,6 +89,7 @@ const liveNetworks = [
   HardhatChainName.REYA_CRONOS,
   HardhatChainName.REYA,
   HardhatChainName.SYNDR_SEPOLIA_L3,
+  HardhatChainName.GEIST,
   CustomNetworks.POLTER_TESTNET,
   CustomNetworks.POLYGON_AMOY,
 ];
@@ -123,6 +124,7 @@ const config: HardhatUserConfig = {
       [HardhatChainName.REYA_CRONOS]: "none",
       [HardhatChainName.REYA]: "none",
       [HardhatChainName.AEVO]: "none",
+      [HardhatChainName.GEIST]: "none",
       [CustomNetworks.POLTER_TESTNET]: "none",
     },
     // Custom chains for verification. These are only for verification to work. The hardhat etherscan plugin does not support these chains.
@@ -207,6 +209,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://polter-sepolia-explorer-be.devnet.alchemy.com/api",
           browserURL: "https://polter-sepolia-explorer.devnet.alchemy.com/",
+        },
+      },
+      {
+        network: HardhatChainName.GEIST,
+        chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.GEIST]],
+        urls: {
+          apiURL: "https://geist-mainnet.explorer.alchemy.com/api",
+          browserURL: "https://geist-mainnet.explorer.alchemy.com",
         },
       },
       {
