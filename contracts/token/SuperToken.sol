@@ -10,7 +10,7 @@ import "../interfaces/IHook.sol";
  * @notice An ERC20 contract which enables bridging a token to its sibling chains.
  * @dev This contract implements ISuperTokenOrVault to support message bridging through IMessageBridge compliant contracts.
  */
-contract SuperToken_old is ERC20, RescueBase {
+contract SuperToken is ERC20, RescueBase {
     // for all controller access (mint, burn)
     bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
 

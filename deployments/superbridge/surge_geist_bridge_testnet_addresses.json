@@ -1,0 +1,28 @@
+{
+  "80002": {
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582",
+      "Vault": "0x89165bCD984995FA5e5E0C23B1460bdc6102701B",
+      "LimitHook": "0x81b129DA3c4456534B140402956039146c85a378",
+      "connectors": {
+        "631571": {
+          "FAST": "0xD1b06A7D98Bcd581D9C61B43c7582BA080D1bfE7"
+        }
+      }
+    }
+  },
+  "631571": {
+    "USDC": {
+      "isAppChain": true,
+      "MintableToken": "0x6cF5c0342c98E9D344aFd44A8AE399DbF4E018fC",
+      "Controller": "0x0c8a0818B0816fB5E41073f8715Bae058E5e6C07",
+      "LimitHook": "0x8408ED5690C3C51369BE22ecb7E5eE28612145Dd",
+      "connectors": {
+        "80002": {
+          "FAST": "0xFA36f2B7b92227696123A194c36454EDD5450a39"
+        }
+      }
+    }
+  }
+}

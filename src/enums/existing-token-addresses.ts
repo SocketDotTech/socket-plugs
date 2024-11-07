@@ -65,9 +65,9 @@ export const ExistingTokenAddresses: {
     [Tokens.MAGIC]: "0x539bde0d7dbd336b79148aa742883198bbf60342",
     [Tokens.SUSDE]: "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2",
   },
-  80002: {
-    [Tokens.SGHST]: "0xF679b8D109b2d23931237Ce948a7D784727c0897",
-  },
+  // 80002: {
+  //   [Tokens.SGHST]: "0xF679b8D109b2d23931237Ce948a7D784727c0897",
+  // },
   [ChainSlug.ARBITRUM_SEPOLIA]: {
     [Tokens.USDC]: "0x8537307810fC40F4073A12a38554D4Ff78EfFf41",
     [Tokens.USDT]: "0x66DFb9987C36c4be232156e70B085f664367599A",
