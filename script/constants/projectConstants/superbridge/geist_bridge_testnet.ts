@@ -1,4 +1,3 @@
-
 import {
   ChainSlug,
   DeploymentMode,
@@ -15,7 +14,7 @@ export const pc: ProjectConstants = {
       controllerChains: [631571],
       tokenAddresses: {
         80002: "0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582",
-        631571: "0x6cF5c0342c98E9D344aFd44A8AE399DbF4E018fC"
+        631571: "0x6cF5c0342c98E9D344aFd44A8AE399DbF4E018fC",
       },
       hook: {
         hookType: Hooks.LIMIT_HOOK,
@@ -23,17 +22,17 @@ export const pc: ProjectConstants = {
           80002: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000",
-              receivingLimit: "100000"
-            }
+              receivingLimit: "100000",
+            },
           },
           631571: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000",
-              receivingLimit: "100000"
-            }
-          }
-        }
-      }
-    }
-  }
+              receivingLimit: "100000",
+            },
+          },
+        },
+      },
+    },
+  },
 };

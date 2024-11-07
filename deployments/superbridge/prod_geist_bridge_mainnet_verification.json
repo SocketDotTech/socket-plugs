@@ -25,9 +25,7 @@
       "0x2CFFb0B0361838A9889Db3F5Ac7984B23D4988E9",
       "Vault",
       "contracts/bridge/Vault.sol",
-      [
-        "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
-      ]
+      ["0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"]
     ]
   ],
   "8453": [
@@ -56,9 +54,7 @@
       "0x3C3a6c106A4BF3859be474c1ee5E3Df25e38f052",
       "Vault",
       "contracts/bridge/Vault.sol",
-      [
-        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
-      ]
+      ["0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"]
     ],
     [
       "0x88c7a119f0FF028e7582062Bf63C0e0C138F84F6",
@@ -74,9 +70,7 @@
       "0x2CFFb0B0361838A9889Db3F5Ac7984B23D4988E9",
       "Vault",
       "contracts/bridge/Vault.sol",
-      [
-        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
-      ]
+      ["0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"]
     ]
   ],
   "63157": [
@@ -138,9 +132,7 @@
       "0xfa17Cc60d20E973E6EC1731C9544B285F779fEb9",
       "Controller",
       "contracts/bridge/Controller.sol",
-      [
-        "0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"
-      ]
+      ["0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"]
     ],
     [
       "0x978c0D945DcAa716fe24bb231eAeeA703e82C439",
@@ -156,9 +148,7 @@
       "0x1eD34c0C9b0f08Bb013CD16E4b75A77cf47cE919",
       "Controller",
       "contracts/bridge/Controller.sol",
-      [
-        "0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"
-      ]
+      ["0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"]
     ]
   ]
 }
