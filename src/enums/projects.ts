@@ -24,4 +24,5 @@ export enum Project {
   GEIST_BRIDGE_TESTNET = "geist_bridge_testnet",
   GEIST_BRIDGE_MAINNET = "geist_bridge_mainnet",
   SOCKET_GHST_MAINNET = "socket_ghst_mainnet",
+  AAVEGOTCHI_ITEM_BRIDGE_TESTNET = "aavegotchi_item_bridge_testnet",
 }
