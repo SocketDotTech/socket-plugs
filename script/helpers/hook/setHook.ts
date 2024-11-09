@@ -22,8 +22,9 @@ export const main = async () => {
     controllerAddress = "";
     hookAddress = "";
   } else if (network.name === "geist") {
-    controllerAddress = "";
-    hookAddress = "";
+    controllerAddress = "0x8C1e6969Ca76Ca73a9B002fE8085F6A45B3679e5";
+    hookAddress = "0x0000000000000000000000000000000000000000";
+    provider = new ethers.providers.JsonRpcProvider(process.env.GEIST_RPC);
   } else {
     throw Error("No network settings for " + network.name);
   }
