@@ -1243,6 +1243,19 @@
         }
       }
     },
+    "8453": {
+      "USDC": {
+        "isAppChain": false,
+        "NonMintableToken": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "Vault": "0x3C3a6c106A4BF3859be474c1ee5E3Df25e38f052",
+        "LimitHook": "0xF66B88D03f284A21b9e1051de6cc8aEC5cac8893",
+        "connectors": {
+          "63157": {
+            "FAST": "0x3F791E8fbDEF7475f44e70f0eb4bEc89636aAdC8"
+          }
+        }
+      }
+    },
     "63157": {
       "USDC": {
         "isAppChain": true,

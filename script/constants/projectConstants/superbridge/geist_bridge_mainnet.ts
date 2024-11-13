@@ -10,7 +10,7 @@ import { NFTs, Tokens } from "../../../../src/enums";
 export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
-      vaultChains: [ChainSlug.POLYGON_MAINNET /*ChainSlug.BASE*/],
+      vaultChains: [ChainSlug.POLYGON_MAINNET, ChainSlug.BASE],
       controllerChains: [ChainSlug.GEIST],
       tokenAddresses: {
         [ChainSlug.GEIST]: "0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35",
