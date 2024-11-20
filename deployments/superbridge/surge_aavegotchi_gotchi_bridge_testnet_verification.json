@@ -15,10 +15,7 @@
       "0xEccF8B72c6A354532F27053e54A5b4b912D1e6D6",
       "NFTVault",
       "contracts/bridge/NFT/NFTVault.sol",
-      [
-        "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
-        "0x80ac58cd"
-      ]
+      ["0x87C969d083189927049f8fF3747703FB9f7a8AEd", "0x80ac58cd"]
     ]
   ],
   "631571": [
@@ -37,10 +34,7 @@
       "0x143B8D0e2b6d7791F571A68bf07da2253C0d52CB",
       "NFTController",
       "contracts/bridge/NFT/NFTController.sol",
-      [
-        "0xD66C6C61D5a535eD69E3769582895daec28a4651",
-        "0x80ac58cd"
-      ]
+      ["0xD66C6C61D5a535eD69E3769582895daec28a4651", "0x80ac58cd"]
     ]
   ]
 }
