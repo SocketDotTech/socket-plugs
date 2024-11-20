@@ -82,21 +82,36 @@ export const updateConnectorStatus = async (
 export const getBridgeContract = async (
   chain: ChainSlug,
   token: string,
-  addr: SBTokenAddresses | STTokenAddresses
+  addr: SBTokenAddresses | STTokenAddresses,
+  tokenType?: "ERC20" | "ERC721" | "ERC1155"
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
   let bridgeContract: Contract,
     bridgeAddress: string = "",
     bridgeContractName: string = "";
+
+  if (!tokenType) tokenType = "ERC20";
+
   if (isSuperBridge()) {
     if (isSBAppChain(chain, token)) {
       const a = addr as AppChainAddresses;
       bridgeAddress = a.Controller;
-      bridgeContractName = SuperBridgeContracts.Controller;
+
+      if (["ERC721", "ERC1155"].includes(tokenType)) {
+        bridgeContractName = SuperBridgeContracts.NFTController;
+      } else {
+        bridgeContractName = SuperBridgeContracts.Controller;
+      }
     } else {
       const a = addr as NonAppChainAddresses;
       bridgeAddress = a.Vault;
-      bridgeContractName = SuperBridgeContracts.Vault;
+
+      if (["ERC721", "ERC1155"].includes(tokenType)) {
+        console.log("use nft vault");
+        bridgeContractName = SuperBridgeContracts.NFTVault;
+      } else {
+        bridgeContractName = SuperBridgeContracts.Vault;
+      }
     }
   }
   if (isSuperToken()) {
@@ -124,12 +139,13 @@ export const getBridgeContract = async (
 export const getTokenContract = async (
   chain: ChainSlug,
   token: Tokens,
-  addr: SBTokenAddresses | STTokenAddresses
+  addr: SBTokenAddresses | STTokenAddresses,
+  tokenType?: "ERC20" | "ERC721" | "ERC1155"
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
   let tokenContract: Contract,
     tokenAddress: string = "",
-    tokenContractName: string = "ERC20";
+    tokenContractName: string = tokenType ? tokenType : "ERC20";
   if (isSuperBridge()) {
     if (isSBAppChain(chain, token)) {
       const a = addr as AppChainAddresses;

@@ -3,10 +3,10 @@
     "GOTCHI_ITEM": {
       "isAppChain": false,
       "NonMintableToken": "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
-      "Vault": "0x130119B300049A80C20B2D3bfdFCfd021373E5e7",
+      "Vault": "0x2709f098E8C641796B495bED28A34F9FEA858ac8",
       "connectors": {
         "631571": {
-          "FAST": "0xb8388b23222876FAC04b464fA0d6A064c67A14FC"
+          "FAST": "0xB2B948d421Ce7c0eC075a073682236269614D32d"
         }
       }
     }
@@ -14,11 +14,11 @@
   "631571": {
     "GOTCHI_ITEM": {
       "isAppChain": true,
-      "MintableToken": "0x1F0eb9099b9c398323dcf2F133dFdAD9dE7cF994",
-      "Controller": "0x10Cf0D5C1986a7Aa98aDb3bfa3529c1BBDa59FB9",
+      "MintableToken": "0x954B9F6DaB28F92c88192E2F52FDa5A6Df4A0334",
+      "Controller": "0x60d629c876E455eFdca83e2b4c85DfB9d4C3C58C",
       "connectors": {
         "84532": {
-          "FAST": "0x27fA28c1f241E5dEA9AA583751E5D968a28FD9D5"
+          "FAST": "0xc14Bc9857A27b428b3eB84cB561412a42C9B9798"
         }
       }
     }

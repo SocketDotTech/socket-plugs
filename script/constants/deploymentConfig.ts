@@ -54,6 +54,8 @@ export const getAddresses = (chainSlug: number, mode: DeploymentMode) => {
 };
 
 export const getChainName = (chainSlug: number) => {
+  if (chainSlug === 84532) return "BASE_SEPOLIA";
+
   let chainName =
     chainSlugReverseMap.get(String(chainSlug)) ?? chains[chainSlug].chainName;
   return chainName.toUpperCase().replace(/[\s-]/g, "_"); // convert to uppercase, replace space and - with _

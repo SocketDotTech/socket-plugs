@@ -56,7 +56,9 @@
     "project:edit": "npx ts-node script/script.ts edit",
     "project:addToken": "npx ts-node script/script.ts addToken",
     "project:addNFT": "npx ts-node script/script.ts addNFT",
-    "bridge": "npx hardhat run script/bridge/bridge.ts"
+    "bridge": "npx hardhat run script/bridge/bridge.ts",
+    "bridgeERC721": "npx hardhat run script/bridge/bridgeERC721.ts",
+    "bridgeERC1155": "npx hardhat run script/bridge/bridgeERC1155.ts"
   },
   "pre-commit": [
     "lint",
