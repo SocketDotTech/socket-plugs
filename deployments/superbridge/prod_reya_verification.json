@@ -397,6 +397,40 @@
   ],
   "10": [
     [
+      "0x52eE360b1Af2497C8eC88cC6B1122B88C245e493",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xCbEcd69ceFA64F55b72F8ac288FC5c452819B608",
+        "0x301bD265F0b3C16A58CbDb886Ad87842E3A1c0a4",
+        1324967486,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0xaF20363CD31420cdcDdaAf93603B678096EA2509",
+      "LimitExecutionHook",
+      "contracts/hooks/LimitExecutionHook.sol",
+      [
+        "0x5fD7D0d6b91CC4787Bcb86ca47e0Bd4ea0346d34",
+        "0xCbEcd69ceFA64F55b72F8ac288FC5c452819B608",
+        "0x922bf6Cba04524B6e330bc493673FFC87b9F7d24",
+        false
+      ]
+    ],
+    [
+      "0x922bf6Cba04524B6e330bc493673FFC87b9F7d24",
+      "ExecutionHelper",
+      "contracts/hooks/plugins/ExecutionHelper.sol",
+      ["0x5fD7D0d6b91CC4787Bcb86ca47e0Bd4ea0346d34"]
+    ],
+    [
+      "0xCbEcd69ceFA64F55b72F8ac288FC5c452819B608",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      ["0x0b2c639c533813f4aa9d7837caf62653d097ff85"]
+    ],
+    [
       "0x716206c6Ac501315f8b204e1E564b9e0cbC210d4",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -636,6 +670,40 @@
     ]
   ],
   "137": [
+    [
+      "0xFEcbA34051f138600AC163090233419EdCB1c6b9",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xBC31ec84bd7BC2c97B9413F6E473cE96Be153a25",
+        "0xc20687f8dc0ad51d01003013d1c5b02d10DED001",
+        1324967486,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x3Cba64eaF3528282c6AEFeF7323b18A510F9aE02",
+      "LimitExecutionHook",
+      "contracts/hooks/LimitExecutionHook.sol",
+      [
+        "0x5fD7D0d6b91CC4787Bcb86ca47e0Bd4ea0346d34",
+        "0xBC31ec84bd7BC2c97B9413F6E473cE96Be153a25",
+        "0x7ecD566def9eF10754A36F2d9217a260b8D781eB",
+        false
+      ]
+    ],
+    [
+      "0x7ecD566def9eF10754A36F2d9217a260b8D781eB",
+      "ExecutionHelper",
+      "contracts/hooks/plugins/ExecutionHelper.sol",
+      ["0x5fD7D0d6b91CC4787Bcb86ca47e0Bd4ea0346d34"]
+    ],
+    [
+      "0xBC31ec84bd7BC2c97B9413F6E473cE96Be153a25",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      ["0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"]
+    ],
     [
       "0xA042c2dFc6398bCfa86CF1E84945553254C1bB6c",
       "ConnectorPlug",
@@ -1017,6 +1085,40 @@
   ],
   "42161": [
     [
+      "0xb0d57301050710AF1145562b3386ff5eCFE9BE83",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x11B3a7E08Eb2FdEa2745e4CB64648b10B28524A8",
+        "0x37cc674582049b579571E2fFd890a4d99355f6Ba",
+        1324967486,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x8542813032035617bdd6E85cFDb57E8Ad98D3D2A",
+      "LimitExecutionHook",
+      "contracts/hooks/LimitExecutionHook.sol",
+      [
+        "0x5fD7D0d6b91CC4787Bcb86ca47e0Bd4ea0346d34",
+        "0x11B3a7E08Eb2FdEa2745e4CB64648b10B28524A8",
+        "0x34f86952285673e5D596146EC7DE440767743109",
+        false
+      ]
+    ],
+    [
+      "0x34f86952285673e5D596146EC7DE440767743109",
+      "ExecutionHelper",
+      "contracts/hooks/plugins/ExecutionHelper.sol",
+      ["0x5fD7D0d6b91CC4787Bcb86ca47e0Bd4ea0346d34"]
+    ],
+    [
+      "0x11B3a7E08Eb2FdEa2745e4CB64648b10B28524A8",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      ["0xaf88d065e77c8cC2239327C5EDb3A432268e5831"]
+    ],
+    [
       "0xf9715b5518396378596cBc70Bea7f8Cf4c10D9b2",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -1262,6 +1364,39 @@
     ]
   ],
   "1324967486": [
+    [
+      "0x321C2Bd69819a43C340b55db40F7c8Eb3334cDe0",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x1d43076909Ca139BFaC4EbB7194518bE3638fc76",
+        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+        10,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x2aF7a52C1fe0Ef66af0a65d32c6ab4112Db393ED",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x1d43076909Ca139BFaC4EbB7194518bE3638fc76",
+        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+        137,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x3F19417872BC9F5037Bc0D40cE7389D05Cf847Ad",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x1d43076909Ca139BFaC4EbB7194518bE3638fc76",
+        "0x565810cbfa3Cf1390963E5aFa2fB953795686339",
+        42161,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
     [
       "0x65ce0D9c5bbF43ee7A6011B3D077DD2FeA6b2726",
       "ConnectorPlug",

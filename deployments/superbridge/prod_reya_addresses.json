@@ -217,6 +217,18 @@
           "FAST": "0x716206c6Ac501315f8b204e1E564b9e0cbC210d4"
         }
       }
+    },
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+      "Vault": "0xCbEcd69ceFA64F55b72F8ac288FC5c452819B608",
+      "ExecutionHelper": "0x922bf6Cba04524B6e330bc493673FFC87b9F7d24",
+      "LimitExecutionHook": "0xaF20363CD31420cdcDdaAf93603B678096EA2509",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0x52eE360b1Af2497C8eC88cC6B1122B88C245e493"
+        }
+      }
     }
   },
   "137": {
@@ -277,6 +289,18 @@
       "connectors": {
         "1324967486": {
           "FAST": "0x44343AE5e9319b61c9DaD7876919eFdB03241b02"
+        }
+      }
+    },
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+      "Vault": "0xBC31ec84bd7BC2c97B9413F6E473cE96Be153a25",
+      "ExecutionHelper": "0x7ecD566def9eF10754A36F2d9217a260b8D781eB",
+      "LimitExecutionHook": "0x3Cba64eaF3528282c6AEFeF7323b18A510F9aE02",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0xFEcbA34051f138600AC163090233419EdCB1c6b9"
         }
       }
     }
@@ -427,6 +451,18 @@
           "FAST": "0xf9715b5518396378596cBc70Bea7f8Cf4c10D9b2"
         }
       }
+    },
+    "USDC": {
+      "isAppChain": false,
+      "NonMintableToken": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+      "Vault": "0x11B3a7E08Eb2FdEa2745e4CB64648b10B28524A8",
+      "ExecutionHelper": "0x34f86952285673e5D596146EC7DE440767743109",
+      "LimitExecutionHook": "0x8542813032035617bdd6E85cFDb57E8Ad98D3D2A",
+      "connectors": {
+        "1324967486": {
+          "FAST": "0xb0d57301050710AF1145562b3386ff5eCFE9BE83"
+        }
+      }
     }
   },
   "1324967486": {
@@ -458,8 +494,17 @@
         "1": {
           "FAST": "0x807B2e8724cDf346c87EEFF4E309bbFCb8681eC1"
         },
+        "10": {
+          "FAST": "0x321C2Bd69819a43C340b55db40F7c8Eb3334cDe0"
+        },
+        "137": {
+          "FAST": "0x2aF7a52C1fe0Ef66af0a65d32c6ab4112Db393ED"
+        },
         "8453": {
           "FAST": "0x3694Ab37011764fA64A648C2d5d6aC0E9cD5F98e"
+        },
+        "42161": {
+          "FAST": "0x3F19417872BC9F5037Bc0D40cE7389D05Cf847Ad"
         }
       }
     },
