@@ -26,5 +26,85 @@
         }
       }
     }
+  },
+  "aavegotchi_bridge_testnet": {
+    "84532": {
+      "GOTCHI": {
+        "isAppChain": false,
+        "NonMintableToken": "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
+        "Vault": "0x110A646276961C2d8a54b951bbC8B169E0F573c4",
+        "connectors": {
+          "631571": {
+            "FAST": "0xd912F40C27E317db2334e210de892e9dc92816af"
+          }
+        }
+      }
+    },
+    "631571": {
+      "GOTCHI": {
+        "isAppChain": true,
+        "MintableToken": "0x1F0eb9099b9c398323dcf2F133dFdAD9dE7cF994",
+        "Controller": "0x5ABB7E28160f82A84e389aDcc9d8CE3F7a0C8D92",
+        "connectors": {
+          "84532": {
+            "FAST": "0xE7af5160334aded39DD9826cBcBa0B51A1B184e9"
+          }
+        }
+      }
+    }
+  },
+  "aavegotchi_item_bridge_testnet": {
+    "84532": {
+      "GOTCHI_ITEM": {
+        "isAppChain": false,
+        "NonMintableToken": "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
+        "Vault": "0x130119B300049A80C20B2D3bfdFCfd021373E5e7",
+        "connectors": {
+          "631571": {
+            "FAST": "0xb8388b23222876FAC04b464fA0d6A064c67A14FC"
+          }
+        }
+      }
+    },
+    "631571": {
+      "GOTCHI_ITEM": {
+        "isAppChain": true,
+        "MintableToken": "0x1F0eb9099b9c398323dcf2F133dFdAD9dE7cF994",
+        "Controller": "0x10Cf0D5C1986a7Aa98aDb3bfa3529c1BBDa59FB9",
+        "connectors": {
+          "84532": {
+            "FAST": "0x27fA28c1f241E5dEA9AA583751E5D968a28FD9D5"
+          }
+        }
+      }
+    }
+  },
+  "geist_bridge_testnet": {
+    "80002": {
+      "USDC": {
+        "isAppChain": false,
+        "NonMintableToken": "0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582",
+        "Vault": "0x89165bCD984995FA5e5E0C23B1460bdc6102701B",
+        "LimitHook": "0x81b129DA3c4456534B140402956039146c85a378",
+        "connectors": {
+          "631571": {
+            "FAST": "0xD1b06A7D98Bcd581D9C61B43c7582BA080D1bfE7"
+          }
+        }
+      }
+    },
+    "631571": {
+      "USDC": {
+        "isAppChain": true,
+        "MintableToken": "0x6cF5c0342c98E9D344aFd44A8AE399DbF4E018fC",
+        "Controller": "0x0c8a0818B0816fB5E41073f8715Bae058E5e6C07",
+        "LimitHook": "0x8408ED5690C3C51369BE22ecb7E5eE28612145Dd",
+        "connectors": {
+          "80002": {
+            "FAST": "0xFA36f2B7b92227696123A194c36454EDD5450a39"
+          }
+        }
+      }
+    }
   }
 }

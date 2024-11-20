@@ -1,5 +1,5 @@
 import prompts from "prompts";
-import { DeploymentMode, Hooks, ProjectType } from "../../../src";
+import { DeploymentMode, Hooks, ProjectType, TokenType } from "../../../src";
 import {
   getChainName,
   getMainnetIds,
@@ -54,11 +54,34 @@ export const getProjectInfo = async () => {
           value: Hooks.LIMIT_EXECUTION_HOOK,
         },
         {
+          title: "Unwrap Hook",
+          value: Hooks.UNWRAP_HOOK,
+        },
+        {
           title: "No Hook",
           value: Hooks.NO_HOOK,
         },
       ],
       message: "Select Hook type (Recommended: Limit Hook)",
+    },
+    {
+      name: "tokenType",
+      type: "select",
+      choices: [
+        {
+          title: "ERC20",
+          value: TokenType.ERC20,
+        },
+        {
+          title: "ERC721",
+          value: TokenType.ERC721,
+        },
+        {
+          title: "ERC1155",
+          value: TokenType.ERC1155,
+        },
+      ],
+      message: "Select Token type",
     },
     {
       name: "isMainnet",

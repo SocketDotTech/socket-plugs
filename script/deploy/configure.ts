@@ -43,7 +43,7 @@ import { getAddresses } from "../constants";
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
 let projectName: string;
-let tokens: Tokens[];
+let tokens: string[];
 
 let socketSignerAddress: string;
 
@@ -102,6 +102,7 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             siblingSlugs,
             socketSigner
           );
+
           await updateConnectorStatus(
             chain,
             siblingSlugs,
@@ -124,9 +125,23 @@ export const configure = async (allAddresses: SBAddresses | STAddresses) => {
             );
           }
 
+          if (isSuperToken() && addr[TokenContracts.UnwrapSuperToken]) {
+            let superTokenContract = await getInstance(
+              TokenContracts.UnwrapSuperToken,
+              addr[TokenContracts.UnwrapSuperToken]
+            );
+            superTokenContract = superTokenContract.connect(socketSigner);
+
+            await setControllerRole(
+              chain,
+              superTokenContract,
+              bridgeContract.address
+            );
+          }
+
           await configureHooks(
             chain,
-            token,
+            token as Tokens,
             bridgeContract,
             socketSigner,
             siblingSlugs,
@@ -161,7 +176,7 @@ const connect = async (
   addr: SBTokenAddresses | STTokenAddresses,
   addresses: SBAddresses | STAddresses,
   chain: ChainSlug,
-  token: Tokens,
+  token: string,
   siblingSlugs: ChainSlug[],
   socketSigner: Wallet
 ) => {
@@ -227,6 +242,10 @@ const connect = async (
             localConnectorPlug
           )
         ).connect(socketSigner);
+
+        console.log("CONNECTOR CONTRACT", connectorContract.address);
+
+        console.log("siblingConnectorPlug", siblingConnectorPlug, switchboard);
 
         await execute(
           connectorContract,

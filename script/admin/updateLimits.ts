@@ -22,7 +22,7 @@ import {
 import { Tokens } from "../../src/enums";
 
 let pc: { [token: string]: TokenConstants } = {};
-let tokens: Tokens[];
+let tokens: string[];
 
 export const main = async () => {
   try {
@@ -75,7 +75,7 @@ export const main = async () => {
           ) {
             await updateLimitsAndPoolId(
               chain,
-              token,
+              token as Tokens,
               siblingSlugs,
               addr,
               connectors,

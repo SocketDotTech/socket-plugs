@@ -1,5 +1,10 @@
 import { Contract } from "ethers";
-import { getOwner, isSuperBridge, isSuperToken } from "../constants/config";
+import {
+  getOwner,
+  getTreasury,
+  isSuperBridge,
+  isSuperToken,
+} from "../constants/config";
 import { getOrDeploy } from "../helpers";
 import {
   Hooks,
@@ -10,6 +15,7 @@ import {
   STTokenAddresses,
   SBTokenAddresses,
   AppChainAddresses,
+  TokenContracts,
 } from "../../src";
 import { getBridgeContract } from "../helpers/common";
 import { getDryRun } from "../constants/config";
@@ -22,6 +28,7 @@ export const deployHookContracts = async (
   isControllerChain: boolean
 ) => {
   const hookType = deployParams.hookType;
+
   if (!hookType) return deployParams;
 
   let contractName: string = "";
@@ -106,6 +113,16 @@ export const deployHookContracts = async (
       bridgeAddress,
       deployParams.addresses[HookContracts.ExecutionHelper],
       useConnnectorPools, // useControllerPools
+    ];
+  } else if (hookType == Hooks.UNWRAP_HOOK) {
+    contractName = HookContracts.UnwrapHook;
+    args = [
+      getOwner(),
+      bridgeAddress,
+      deployParams.addresses[TokenContracts.UnwrapSuperToken]
+        ? deployParams.addresses[TokenContracts.UnwrapSuperToken]
+        : deployParams.addresses[TokenContracts.NonMintableToken],
+      getTreasury(),
     ];
   }
 

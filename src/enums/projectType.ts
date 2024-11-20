@@ -22,5 +22,10 @@ export const ProjectTypeMap: Record<Project, ProjectType> = {
   [Project.TIMESWAP_TEST_MAINNET]: ProjectType.SUPERTOKEN,
   [Project.TESTING_TESTNET]: ProjectType.SUPERTOKEN,
   [Project.MAGIC_MAINNET]: ProjectType.SUPERTOKEN,
-  [Project.POLTER_TESTNET]: ProjectType.SUPERBRIDGE,
+  [Project.AAVEGOTCHI_BRIDGE_TESTNET]: ProjectType.SUPERBRIDGE,
+  [Project.SOCKET_GHST_TESTNET]: ProjectType.SUPERTOKEN, //SGHST on Socket Testnet
+  [Project.GEIST_BRIDGE_TESTNET]: ProjectType.SUPERBRIDGE, //USDC on Polter Testnet
+  [Project.GEIST_BRIDGE_MAINNET]: ProjectType.SUPERBRIDGE, //USDC on Geist Mainnet
+  [Project.SOCKET_GHST_MAINNET]: ProjectType.SUPERTOKEN, //SGHST on Geist Mainnet
+  [Project.AAVEGOTCHI_ITEM_BRIDGE_TESTNET]: ProjectType.SUPERBRIDGE,
 };

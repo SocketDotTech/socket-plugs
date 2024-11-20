@@ -1,0 +1,26 @@
+{
+  "84532": {
+    "GOTCHI_ITEM": {
+      "isAppChain": false,
+      "NonMintableToken": "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
+      "Vault": "0x130119B300049A80C20B2D3bfdFCfd021373E5e7",
+      "connectors": {
+        "631571": {
+          "FAST": "0xb8388b23222876FAC04b464fA0d6A064c67A14FC"
+        }
+      }
+    }
+  },
+  "631571": {
+    "GOTCHI_ITEM": {
+      "isAppChain": true,
+      "MintableToken": "0x1F0eb9099b9c398323dcf2F133dFdAD9dE7cF994",
+      "Controller": "0x10Cf0D5C1986a7Aa98aDb3bfa3529c1BBDa59FB9",
+      "connectors": {
+        "84532": {
+          "FAST": "0x27fA28c1f241E5dEA9AA583751E5D968a28FD9D5"
+        }
+      }
+    }
+  }
+}

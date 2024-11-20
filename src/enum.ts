@@ -5,11 +5,13 @@ export enum Hooks {
   YIELD_LIMIT_EXECUTION_HOOK = "YIELD_LIMIT_EXECUTION_HOOK",
   // CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK = "CONTROLLER_YIELD_LIMIT_EXECUTION_HOOK",
   // VAULT_YIELD_LIMIT_EXECUTION_HOOK = "VAULT_YIELD_LIMIT_EXECUTION_HOOK",
+  UNWRAP_HOOK = "UNWRAP_HOOK",
 }
 
 export enum ProjectType {
   SUPERBRIDGE = "superbridge",
   SUPERTOKEN = "supertoken",
+  UNWRAP_SUPERTOKEN = "unwrap_supertoken",
 }
 
 export enum CommonContracts {
@@ -22,6 +24,7 @@ export enum TokenContracts {
   NonMintableToken = "NonMintableToken",
   MintableToken = "MintableToken",
   SuperToken = "SuperToken",
+  UnwrapSuperToken = "UnwrapSuperToken",
 }
 
 export enum SuperBridgeContracts {
@@ -32,6 +35,8 @@ export enum SuperBridgeContracts {
   FiatTokenV2_1_Controller = "FiatTokenV2_1_Controller",
   ExchangeRate = "ExchangeRate",
   ConnectorPlug = "ConnectorPlug",
+  NFTVault = "NFTVault",
+  NFTController = "NFTController",
 }
 
 export enum HookContracts {
@@ -40,8 +45,16 @@ export enum HookContracts {
   ControllerYieldLimitExecutionHook = "Controller_YieldLimitExecHook",
   VaultYieldLimitExecutionHook = "Vault_YieldLimitExecHook",
   ExecutionHelper = "ExecutionHelper",
+  UnwrapHook = "UnwrapHook",
 }
 export enum SuperTokenContracts {
   NonSuperToken = "NonSuperToken",
   SuperToken = "SuperToken",
+  UnwrapSuperToken = "UnwrapSuperToken",
+}
+
+export enum TokenType {
+  ERC20 = "ERC20",
+  ERC721 = "ERC721",
+  ERC1155 = "ERC1155",
 }

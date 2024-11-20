@@ -1,0 +1,78 @@
+{
+  "137": [
+    [
+      "0x21F842dAb0E1FF3D39E4E8db8510303c80327f61",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x2a9e7A2A9FeD4A83F59125cFf72761E467cEa419",
+        "0xc20687f8dc0ad51d01003013d1c5b02d10DED001",
+        63157,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0xA32137bfb57d2b6A9Fd2956Ba4B54741a6D54b58",
+      "UnwrapHook",
+      "contracts/hooks/UnwrapHook.sol",
+      [
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x2a9e7A2A9FeD4A83F59125cFf72761E467cEa419",
+        "0x385eeac5cb85a38a9a07a70c73e0a3271cfb54a7",
+        "0x988a44f0ea2611B6a0f5ed73e1eC180Fb145CF21"
+      ]
+    ],
+    [
+      "0x2a9e7A2A9FeD4A83F59125cFf72761E467cEa419",
+      "Vault",
+      "contracts/bridge/Vault.sol",
+      ["0x385eeac5cb85a38a9a07a70c73e0a3271cfb54a7"]
+    ]
+  ],
+  "63157": [
+    [
+      "0x3A6f7a681089aa737Bc726f5Add45324dE2D1600",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x8C1e6969Ca76Ca73a9B002fE8085F6A45B3679e5",
+        "0x34464194a4aCD38F42060D144BF3729F625Ff047",
+        137,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x5cE6A0a395178f18b93A49795b8EC452fA4d0F7d",
+      "UnwrapHook",
+      "contracts/hooks/UnwrapHook.sol",
+      [
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x8C1e6969Ca76Ca73a9B002fE8085F6A45B3679e5",
+        "0x78860E9be983caBCdA2C101cbc185B23Efd1F4Cc",
+        "0x988a44f0ea2611B6a0f5ed73e1eC180Fb145CF21"
+      ]
+    ],
+    [
+      "0x8C1e6969Ca76Ca73a9B002fE8085F6A45B3679e5",
+      "Controller",
+      "contracts/bridge/Controller.sol",
+      ["0x78860E9be983caBCdA2C101cbc185B23Efd1F4Cc"]
+    ],
+    [
+      "0x78860E9be983caBCdA2C101cbc185B23Efd1F4Cc",
+      "UnwrapSuperToken",
+      "contracts/token/UnwrapSuperToken.sol",
+      [
+        "Socket GHST",
+        "SGHST",
+        18,
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        {
+          "type": "BigNumber",
+          "hex": "0x00"
+        }
+      ]
+    ]
+  ]
+}

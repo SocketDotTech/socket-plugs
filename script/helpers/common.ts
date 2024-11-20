@@ -81,7 +81,7 @@ export const updateConnectorStatus = async (
 
 export const getBridgeContract = async (
   chain: ChainSlug,
-  token: Tokens,
+  token: string,
   addr: SBTokenAddresses | STTokenAddresses
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);
@@ -161,7 +161,7 @@ export const getTokenContract = async (
 
 export const getHookContract = async (
   chain: ChainSlug,
-  token: Tokens,
+  token: string,
   addr: SBTokenAddresses | STTokenAddresses
 ) => {
   const socketSigner = getSignerFromChainSlug(chain);

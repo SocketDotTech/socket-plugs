@@ -79,9 +79,9 @@ export const overrides: {
     gasPrice,
   },
   [ChainSlug.POLYGON_MAINNET]: {
-    // type: 1,
+    type: 1,
     // gasLimit: 1_000_000,
-    // gasPrice: 50_000_000_000,
+    gasPrice: 300_000_000_000,
   },
   [ChainSlug.BSC]: {
     // type: 1,
@@ -90,7 +90,7 @@ export const overrides: {
   },
   [ChainSlug.BASE]: {
     // type: 1,
-    // gasLimit: 5_000_000,
+    gasLimit: 5_000_000,
     // gasPrice,
   },
   [ChainSlug.REYA_CRONOS]: {
@@ -111,6 +111,14 @@ export const overrides: {
 };
 
 export const getOverrides = (chainSlug: ChainSlug): Overrides => {
+  if ((chainSlug as number) == 80002) {
+    return {
+      type: 1,
+      gasLimit,
+      gasPrice: 50000000000,
+    };
+  }
+
   // First check from the overrides object. Prod chains config should be here.
   if (overrides[chainSlug]) return overrides[chainSlug];
 

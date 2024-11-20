@@ -25,7 +25,7 @@ export enum ConnectorStatus {
 let projectType: ProjectType;
 let pc: { [token: string]: TokenConstants } = {};
 let projectName: string;
-let tokens: Tokens[];
+let tokens: string[];
 
 export const main = async () => {
   try {

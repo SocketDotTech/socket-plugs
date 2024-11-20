@@ -42,6 +42,7 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
     [Tokens.WETH]: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
     [Tokens.WBTC]: "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
+    [Tokens.SGHST]: "0x385eeac5cb85a38a9a07a70c73e0a3271cfb54a7",
   },
   [ChainSlug.BASE]: {
     [Tokens.USDC]: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",

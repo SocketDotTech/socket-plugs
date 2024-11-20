@@ -19,5 +19,10 @@ export enum Project {
   TIMESWAP_TEST_MAINNET = "timeswap_test_mainnet",
   TESTING_TESTNET = "testing_testnet",
   MAGIC_MAINNET = "magic_mainnet",
-  POLTER_TESTNET = "polter_testnet",
+  AAVEGOTCHI_BRIDGE_TESTNET = "aavegotchi_bridge_testnet",
+  SOCKET_GHST_TESTNET = "socket_ghst_testnet",
+  GEIST_BRIDGE_TESTNET = "geist_bridge_testnet",
+  GEIST_BRIDGE_MAINNET = "geist_bridge_mainnet",
+  SOCKET_GHST_MAINNET = "socket_ghst_mainnet",
+  AAVEGOTCHI_ITEM_BRIDGE_TESTNET = "aavegotchi_item_bridge_testnet",
 }
