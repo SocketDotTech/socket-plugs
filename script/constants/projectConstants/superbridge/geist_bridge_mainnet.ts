@@ -10,13 +10,14 @@ import { NFTs, Tokens } from "../../../../src/enums";
 export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
-      vaultChains: [ChainSlug.POLYGON_MAINNET, ChainSlug.BASE],
+      vaultChains: [ChainSlug.POLYGON_MAINNET /*, ChainSlug.BASE*/],
       controllerChains: [ChainSlug.GEIST],
+      isFiatTokenV2_1: true,
       tokenAddresses: {
         [ChainSlug.GEIST]: "0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35",
       },
       hook: {
-        hookType: Hooks.LIMIT_HOOK,
+        hookType: Hooks.NO_HOOK,
         limitsAndPoolId: {
           // [ChainSlug.MAINNET]: {
           //   [IntegrationTypes.fast]: {

@@ -2,7 +2,7 @@ import { ethers, network } from "hardhat";
 
 export const main = async () => {
   let controllerAddress = "";
-  let hookAddress = "";
+  let hookAddress = "0x0000000000000000000000000000000000000000";
   let provider;
 
   if (network.name === "polter") {
@@ -22,7 +22,7 @@ export const main = async () => {
     controllerAddress = "";
     hookAddress = "";
   } else if (network.name === "geist") {
-    controllerAddress = "0x8C1e6969Ca76Ca73a9B002fE8085F6A45B3679e5";
+    controllerAddress = "0xFDe33e454aA132dD1B37B4a6F813E3c54E96e8f8";
     hookAddress = "0x0000000000000000000000000000000000000000";
     provider = new ethers.providers.JsonRpcProvider(process.env.GEIST_RPC);
   } else {

@@ -1,6 +1,38 @@
 {
   "137": [
     [
+      "0xfcbD92486214dD5993E4bF3FF38a9AFC58E3bfe1",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x2CFFb0B0361838A9889Db3F5Ac7984B23D4988E9",
+        "0xc20687f8dc0ad51d01003013d1c5b02d10DED001",
+        63157,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0xb0e2796063935188e350F7256e06F803f1d28560",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x2CFFb0B0361838A9889Db3F5Ac7984B23D4988E9",
+        "0xc20687f8dc0ad51d01003013d1c5b02d10DED001",
+        63157,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0xB34e7290df1d8Aa278CEd9e059e5AB0D27E18DF1",
+      "LimitHook",
+      "contracts/hooks/LimitHook.sol",
+      [
+        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
+        "0x2CFFb0B0361838A9889Db3F5Ac7984B23D4988E9",
+        false
+      ]
+    ],
+    [
       "0x3C3a6c106A4BF3859be474c1ee5E3Df25e38f052",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
@@ -25,7 +57,9 @@
       "0x2CFFb0B0361838A9889Db3F5Ac7984B23D4988E9",
       "Vault",
       "contracts/bridge/Vault.sol",
-      ["0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"]
+      [
+        "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+      ]
     ]
   ],
   "8453": [
@@ -54,7 +88,9 @@
       "0x3C3a6c106A4BF3859be474c1ee5E3Df25e38f052",
       "Vault",
       "contracts/bridge/Vault.sol",
-      ["0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"]
+      [
+        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+      ]
     ],
     [
       "0x88c7a119f0FF028e7582062Bf63C0e0C138F84F6",
@@ -70,85 +106,49 @@
       "0x2CFFb0B0361838A9889Db3F5Ac7984B23D4988E9",
       "Vault",
       "contracts/bridge/Vault.sol",
-      ["0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"]
+      [
+        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+      ]
     ]
   ],
   "63157": [
     [
-      "0xb0e2796063935188e350F7256e06F803f1d28560",
+      "0x89f53F85Bf85c3c2Db2d0fA9C3C07aE27947D7Ed",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
       [
-        "0xfa17Cc60d20E973E6EC1731C9544B285F779fEb9",
-        "0x34464194a4aCD38F42060D144BF3729F625Ff047",
-        8453,
-        "0x0000000000000000000000000000000000000000000000000000000000000000"
-      ]
-    ],
-    [
-      "0xB34e7290df1d8Aa278CEd9e059e5AB0D27E18DF1",
-      "ConnectorPlug",
-      "contracts/ConnectorPlug.sol",
-      [
-        "0xfa17Cc60d20E973E6EC1731C9544B285F779fEb9",
-        "0x34464194a4aCD38F42060D144BF3729F625Ff047",
-        42161,
-        "0x0000000000000000000000000000000000000000000000000000000000000000"
-      ]
-    ],
-    [
-      "0x29667Da5ba50Dc99d80545D989e535AbA5742c9F",
-      "ConnectorPlug",
-      "contracts/ConnectorPlug.sol",
-      [
-        "0xfa17Cc60d20E973E6EC1731C9544B285F779fEb9",
+        "0x095D5f7c37C20A7f4f7313d6d99FC9C6E4511ce1",
         "0x34464194a4aCD38F42060D144BF3729F625Ff047",
         137,
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       ]
     ],
     [
-      "0xc9D1e8D5550c2f04738f75B321B4D8608f1dF20D",
+      "0x095D5f7c37C20A7f4f7313d6d99FC9C6E4511ce1",
+      "FiatTokenV2_1_Controller",
+      "contracts/bridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol",
+      [
+        "0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"
+      ]
+    ],
+    [
+      "0x68aAe7E2EA9eF95312f1619139C9274375b8eEda",
       "ConnectorPlug",
       "contracts/ConnectorPlug.sol",
       [
-        "0xfa17Cc60d20E973E6EC1731C9544B285F779fEb9",
+        "0xfb15eadB053D852da854AE3beC85D5dF8618aeF5",
         "0x34464194a4aCD38F42060D144BF3729F625Ff047",
-        1,
+        137,
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       ]
     ],
     [
-      "0xe324C65F28bC5d55De665394f2DFc9d06af564Ca",
-      "LimitHook",
-      "contracts/hooks/LimitHook.sol",
+      "0xfb15eadB053D852da854AE3beC85D5dF8618aeF5",
+      "FiatTokenV2_1_Controller",
+      "contracts/bridge/FiatTokenV2_1/FiatTokenV2_1_Controller.sol",
       [
-        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
-        "0xfa17Cc60d20E973E6EC1731C9544B285F779fEb9",
-        true
+        "0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"
       ]
-    ],
-    [
-      "0xfa17Cc60d20E973E6EC1731C9544B285F779fEb9",
-      "Controller",
-      "contracts/bridge/Controller.sol",
-      ["0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"]
-    ],
-    [
-      "0x978c0D945DcAa716fe24bb231eAeeA703e82C439",
-      "LimitHook",
-      "contracts/hooks/LimitHook.sol",
-      [
-        "0x3a2E7D1E98A4a051B0766f866237c73643fDF360",
-        "0x1eD34c0C9b0f08Bb013CD16E4b75A77cf47cE919",
-        true
-      ]
-    ],
-    [
-      "0x1eD34c0C9b0f08Bb013CD16E4b75A77cf47cE919",
-      "Controller",
-      "contracts/bridge/Controller.sol",
-      ["0xCFa0bC1ED6135166e9163211b4Ca566a0EE81e35"]
     ]
   ]
 }

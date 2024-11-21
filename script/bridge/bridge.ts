@@ -18,43 +18,43 @@ const gasLimit = 500_000;
 
 export const main = async () => {
   try {
-    const argv = await yargs
-      .option({
-        srcChain: {
-          description: "srcChainSlug",
-          type: "string",
-          demandOption: true,
-        },
-      })
-      .option({
-        dstChain: {
-          description: "dstChainSlug",
-          type: "string",
-          demandOption: true,
-        },
-      })
-      .option({
-        amount: {
-          description: "token amount to bridge (formatted value)",
-          type: "string",
-          demandOption: true,
-        },
-      })
-      .option({
-        token: {
-          description: "token",
-          type: "string",
-          demandOption: true,
-        },
-      }).argv;
+    // const argv = await yargs
+    //   .option({
+    //     srcChain: {
+    //       description: "srcChainSlug",
+    //       type: "string",
+    //       demandOption: true,
+    //     },
+    //   })
+    //   .option({
+    //     dstChain: {
+    //       description: "dstChainSlug",
+    //       type: "string",
+    //       demandOption: true,
+    //     },
+    //   })
+    //   .option({
+    //     amount: {
+    //       description: "token amount to bridge (formatted value)",
+    //       type: "string",
+    //       demandOption: true,
+    //     },
+    //   })
+    //   .option({
+    //     token: {
+    //       description: "token",
+    //       type: "string",
+    //       demandOption: true,
+    //     },
+    //   }).argv;
 
-    const srcChain = Number(argv.srcChain) as ChainSlug;
-    const dstChain = Number(argv.dstChain) as ChainSlug;
-    const amount = argv.amount;
-    const token = argv.token as Tokens;
+    const srcChain = 63157; //Number(argv.srcChain) as ChainSlug;
+    const dstChain = 137; // Number(argv.dstChain) as ChainSlug;
+    const amount = "2.2"; // argv.amount;
+    const token = "USDC"; //argv.token as Tokens;
 
-    if (!Object.values(Tokens).includes(token))
-      throw Error("token not allowed");
+    // if (!Object.values(Tokens).includes(token))
+    //   throw Error("token not allowed");
 
     const amountBN = utils.parseUnits(amount.toString(), tokenDecimals[token]);
 
@@ -73,18 +73,34 @@ export const main = async () => {
       token,
       srcAddresses
     );
+
+    console.log("bridgeContract", bridgeContract.address);
+
     const tokenContract = await getTokenContract(srcChain, token, srcAddresses);
+
+    console.log("tokenContract", tokenContract.address);
+
     const connectorAddr = srcAddresses.connectors?.[dstChain]?.FAST;
+
+    console.log("connectorAddr", connectorAddr);
 
     if (!connectorAddr) throw new Error("connector contract addresses missing");
 
     const socketSigner = getSignerFromChainSlug(srcChain);
 
     console.log("checking balance and approval...");
+
+    console.log("socketSigner", socketSigner.address);
+
     // approve
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
     );
+
+    console.log("balance", balance);
+
+    console.log("amountBN", amountBN);
+
     if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
     const currentApproval: BigNumber = await tokenContract.allowance(
