@@ -1,3 +1,4 @@
+
 import {
   ChainSlug,
   DeploymentMode,
@@ -13,12 +14,12 @@ export const pc: ProjectConstants = {
       vaultChains: [84532],
       controllerChains: [631571],
       tokenAddresses: {
-        84532: "0x87C969d083189927049f8fF3747703FB9f7a8AEd",
-        631571: "0xD66C6C61D5a535eD69E3769582895daec28a4651",
+        84532: "0xf81FFb9E2a72574d3C4Cf4E293D4Fec4A708F2B1",
+        631571: "0x226625C1B1174e7BaaE8cDC0432Db0e2ED83b7Ba"
       },
       hook: {
-        hookType: Hooks.NO_HOOK,
-      },
-    },
-  },
+        hookType: Hooks.NO_HOOK
+      }
+    }
+  }
 };

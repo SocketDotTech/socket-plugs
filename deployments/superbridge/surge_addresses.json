@@ -130,5 +130,31 @@
         }
       }
     }
+  },
+  "aavegotchi_gotchis_bridge_testnet": {
+    "84532": {
+      "GOTCHI": {
+        "isAppChain": false,
+        "NonMintableToken": "0xf81FFb9E2a72574d3C4Cf4E293D4Fec4A708F2B1",
+        "Vault": "0x92641fDD13A1B2099675fd1F3798fa0d9e6CDAfa",
+        "connectors": {
+          "631571": {
+            "FAST": "0x8Ca0b8D5a04F902171113A4Ac76a8f1F52FCDF6f"
+          }
+        }
+      }
+    },
+    "631571": {
+      "GOTCHI": {
+        "isAppChain": true,
+        "MintableToken": "0x226625C1B1174e7BaaE8cDC0432Db0e2ED83b7Ba",
+        "Controller": "0xde3c698E15806384C667b0478C1072867571f6cd",
+        "connectors": {
+          "84532": {
+            "FAST": "0x8Dc7AED7a2A2729D762e63BaDecCd7D50474020B"
+          }
+        }
+      }
+    }
   }
 }

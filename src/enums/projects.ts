@@ -20,6 +20,6 @@ export enum Project {
   TESTING_TESTNET = "testing_testnet",
   MAGIC_MAINNET = "magic_mainnet",
   POLTER_TESTNET = "polter_testnet",
-  AAVEGOTCHI_GOTCHI_BRIDGE_TESTNET = "aavegotchi_gotchi_bridge_testnet",
   AAVEGOTCHI_ITEMS_BRIDGE_TESTNET = "aavegotchi_items_bridge_testnet",
+  AAVEGOTCHI_GOTCHIS_BRIDGE_TESTNET = "aavegotchi_gotchis_bridge_testnet",
 }
