@@ -1,7 +1,7 @@
 import { BigNumber, utils } from "ethers";
+import { ethers } from "hardhat";
 
 import { ChainSlug } from "@socket.tech/dl-core";
-import yargs from "yargs";
 import {
   SBAddresses,
   SBTokenAddresses,
@@ -13,6 +13,7 @@ import { getProjectAddresses } from "../helpers";
 import { getBridgeContract, getTokenContract } from "../helpers/common";
 import { getOverrides, getSignerFromChainSlug } from "../helpers/networks";
 import { checkSendingLimit, getDLAPIBaseUrl } from "./utils";
+import { network } from "hardhat";
 
 const gasLimit = 500_000;
 
@@ -55,11 +56,17 @@ export const main = async () => {
     //     },
     //   }).argv;
 
-    const srcChain = 84532 as ChainSlug; //Number(argv.srcChain) as ChainSlug;
-    const dstChain = 631571 as ChainSlug; //Number(argv.dstChain) as ChainSlug;
+    const srcChain = 137 as ChainSlug; //Number(argv.srcChain) as ChainSlug;
+    const dstChain = 63157 as ChainSlug; //Number(argv.dstChain) as ChainSlug;
     const amount = 1;
     const token = "GOTCHI" as Tokens;
-    const tokenId = "511"; //argv.tokenId;
+    const tokenId = "6018"; //argv.tokenId;
+
+    console.log("network:", network.name);
+
+    if (network.name !== "hardhat") {
+      throw new Error("script can only be run on hardhat network");
+    }
 
     // if (!Object.values(Tokens).includes(token))
     //   throw Error("token not allowed");
@@ -99,15 +106,27 @@ export const main = async () => {
 
     if (!connectorAddr) throw new Error("connector contract addresses missing");
 
-    const socketSigner = getSignerFromChainSlug(srcChain);
+    let socketSigner;
+    if (network.name === "hardhat") {
+      socketSigner = await ethers.getImpersonatedSigner(
+        "0xC3c2e1Cf099Bc6e1fA94ce358562BCbD5cc59FE5"
+      );
+    } else {
+      socketSigner = getSignerFromChainSlug(srcChain);
+    }
 
-    console.log("checking balance and approval...");
+    console.log(
+      "checking balance and approval of account:",
+      socketSigner.address
+    );
     // approve
     const balance: BigNumber = await tokenContract.balanceOf(
       socketSigner.address
     );
 
     console.log("balance:", balance);
+
+    if (balance.eq(0)) throw new Error("Not enough balance");
 
     // if (balance.lt(amountBN)) throw new Error("Not enough balance");
 
@@ -139,6 +158,10 @@ export const main = async () => {
     // deposit
     console.log(`depositing ${amount} to ${dstChain} from ${srcChain}`);
     const fees = await bridgeContract.getMinFees(connectorAddr, gasLimit, 0);
+
+    console.log("fees:", fees);
+
+    return;
 
     // address receiver_,
     // address tokenOwner_,

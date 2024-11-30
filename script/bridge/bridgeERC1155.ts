@@ -55,11 +55,11 @@ export const main = async () => {
     //     },
     //   }).argv;
 
-    const srcChain = 84532 as ChainSlug; //Number(argv.srcChain) as ChainSlug;
-    const dstChain = 631571 as ChainSlug; //Number(argv.dstChain) as ChainSlug;
+    const srcChain = 63157 as ChainSlug; //Number(argv.srcChain) as ChainSlug;
+    const dstChain = 137 as ChainSlug; //Number(argv.dstChain) as ChainSlug;
     const amount = 1;
     const token = "GOTCHI_ITEM" as Tokens;
-    const tokenId = "151"; //argv.tokenId;
+    const tokenId = "228"; //argv.tokenId;
 
     // if (!Object.values(Tokens).includes(token))
     //   throw Error("token not allowed");
@@ -116,6 +116,9 @@ export const main = async () => {
       socketSigner.address,
       bridgeContract.address
     );
+
+    console.log("currentApproval:", currentApproval);
+
     if (!currentApproval) {
       const approveTx = await tokenContract.setApprovalForAll(
         bridgeContract.address,

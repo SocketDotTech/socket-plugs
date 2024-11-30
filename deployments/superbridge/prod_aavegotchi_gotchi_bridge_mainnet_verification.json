@@ -1,0 +1,46 @@
+{
+  "137": [
+    [
+      "0x8992e26290073183DA46aF2589ff3025be3CdF29",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0xF1D1d61EEDDa7a10b494aF7af87D932AC910f3C5",
+        "0xc20687f8dc0ad51d01003013d1c5b02d10DED001",
+        63157,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0xF1D1d61EEDDa7a10b494aF7af87D932AC910f3C5",
+      "NFTVault",
+      "contracts/bridge/NFT/NFTVault.sol",
+      [
+        "0x86935F11C86623deC8a25696E1C19a8659CbF95d",
+        "0x80ac58cd"
+      ]
+    ]
+  ],
+  "63157": [
+    [
+      "0x870cCEc2CB64270cEd3A4BE581Ddc87673882758",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x5964823256B9C8aC7Ba7Dd94807FDF4DFf728215",
+        "0x34464194a4aCD38F42060D144BF3729F625Ff047",
+        137,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x5964823256B9C8aC7Ba7Dd94807FDF4DFf728215",
+      "NFTController",
+      "contracts/bridge/NFT/NFTController.sol",
+      [
+        "0x6Acc828BbbC6874de40Ca20bfeA7Cd2a2DA8DA8c",
+        "0x80ac58cd"
+      ]
+    ]
+  ]
+}
