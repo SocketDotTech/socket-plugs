@@ -1,12 +1,14 @@
 import { ChainSlug } from "@socket.tech/dl-core";
-import { Tokens } from "../../../src/enums";
+import { NFTs, Tokens } from "../../../src/enums";
 import { buildEnvFile, updateProjectEnums } from "../configUtils";
 import { generateConstantsFile } from "../generateConstants";
 import { getChainsInfo } from "./chainInfo";
 import { getHookRelatedInfo } from "./hookInfo";
 import { getProjectInfo } from "./projectInfo";
 import { getProjectTokenListInfo } from "./tokenInfo";
-import { buildProjectConstants } from "./utils";
+import { buildNFTProjectConstants, buildProjectConstants } from "./utils";
+import { TokenType } from "../../../src";
+import { getProjectNFTInfo } from "./nftInfo";
 
 export type TokenRateLimits = Record<
   string,
@@ -37,11 +39,21 @@ export type TokenInfo = {
   };
 };
 
+export type NFTInfo = {
+  nft: NFTs;
+  nftAddresses?: {
+    [key in NFTs]?: {
+      [chainslug in ChainSlug]?: string;
+    };
+  };
+};
+
 export type ChainsInfo = {
   vaultChains: ChainSlug[];
   controllerChains: ChainSlug[];
 };
 export const tokenEnum = Tokens;
+export const nftEnum = NFTs;
 
 export const addProject = async () => {
   const projectConfig = await getProjectInfo();
@@ -50,6 +62,7 @@ export const addProject = async () => {
     projectType,
     hookType,
     owner,
+    tokenType,
     isLimitsRequired,
     chainOptions,
   } = projectConfig;
@@ -58,38 +71,64 @@ export const addProject = async () => {
   const { vaultChains, controllerChains } = chainsInfo;
   const allChains = [...chainsInfo.vaultChains, ...chainsInfo.controllerChains];
 
-  const tokenInfo: TokenInfo = await getProjectTokenListInfo(
-    projectType,
-    owner,
-    vaultChains,
-    controllerChains
-  );
-  const { tokenLimitInfo } = await getHookRelatedInfo(
-    projectType,
-    isLimitsRequired,
-    tokenInfo.tokens,
-    tokenInfo.superTokenInfoMap
-  );
-  await updateProjectEnums(projectConfig.projectName, projectType);
-  console.log(`✔  Updated Enums :Project`);
-  await buildEnvFile(
-    projectConfig.projectName,
-    projectConfig.projectType,
-    projectConfig.owner,
-    tokenInfo.tokens,
-    allChains
-  );
+  if (tokenType === TokenType.ERC20) {
+    const tokenInfo: TokenInfo = await getProjectTokenListInfo(
+      projectType,
+      owner,
+      vaultChains,
+      controllerChains
+    );
+    const { tokenLimitInfo } = await getHookRelatedInfo(
+      projectType,
+      isLimitsRequired,
+      tokenInfo.tokens,
+      tokenInfo.superTokenInfoMap
+    );
+    await updateProjectEnums(projectName, projectType);
+    console.log(`✔  Updated Enums :Project`);
+    await buildEnvFile(
+      projectName,
+      projectType,
+      owner,
+      tokenInfo.tokens,
+      new Array(tokenInfo.tokens.length).fill(tokenType),
+      allChains
+    );
 
-  const projectConstants = await buildProjectConstants(
-    tokenInfo,
-    chainsInfo,
-    hookType,
-    isLimitsRequired,
-    tokenLimitInfo,
-    allChains
-  );
-  generateConstantsFile(projectType, projectName, projectConstants);
+    const projectConstants = await buildProjectConstants(
+      tokenInfo,
+      chainsInfo,
+      hookType,
+      isLimitsRequired,
+      tokenLimitInfo,
+      allChains
+    );
+    generateConstantsFile(projectType, projectName, projectConstants);
+  } else {
+    // ERC721, 1155
+    const nftInfo: NFTInfo = await getProjectNFTInfo(
+      projectType,
+      vaultChains,
+      controllerChains
+    );
+    await updateProjectEnums(projectName, projectType);
+    console.log(`✔  Updated Enums :Project`);
+    await buildEnvFile(
+      projectName,
+      projectType,
+      owner,
+      [nftInfo.nft],
+      [tokenType],
+      allChains
+    );
 
+    const projectConstants = await buildNFTProjectConstants(
+      nftInfo,
+      chainsInfo,
+      hookType
+    );
+    generateConstantsFile(projectType, projectName, projectConstants);
+  }
   console.log(
     `✔ Setup done! You can run this script again to add new projects, add new tokens, or edit project`
   );

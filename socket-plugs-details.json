@@ -166,7 +166,8 @@
     "timeswap_test_mainnet",
     "testing_testnet",
     "magic_mainnet",
-    "polter_testnet"
+    "polter_testnet",
+    "aavegotchi_bridge_testnet"
   ],
   "tokens": [
     "USDC.e",

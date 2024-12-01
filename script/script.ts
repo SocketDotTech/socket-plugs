@@ -4,6 +4,7 @@ import { initDeploymentConfig } from "./constants";
 import { addProject } from "./setup/newProject/main";
 import { addNewToken } from "./setup/addNewToken";
 import { editProject } from "./setup/editProject";
+import { addNewNFT } from "./setup/addNewNFT";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -16,8 +17,11 @@ async function main() {
     case "edit":
       await editProject();
       break;
-    case "add_token":
+    case "addToken":
       await addNewToken();
+      break;
+    case "addNFT":
+      await addNewNFT();
       break;
     default:
       console.log("Unknown command");

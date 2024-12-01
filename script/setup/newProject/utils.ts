@@ -8,7 +8,13 @@ import {
 import { Tokens } from "../../../src/enums";
 import { getMode } from "../../constants";
 import { initialLimitsForSuperbridge } from "../common";
-import { ChainsInfo, SuperTokenInfo, TokenInfo, TokenRateLimits } from "./main";
+import {
+  ChainsInfo,
+  NFTInfo,
+  SuperTokenInfo,
+  TokenInfo,
+  TokenRateLimits,
+} from "./main";
 
 export const buildProjectConstants = async (
   tokenInfo: TokenInfo,
@@ -54,6 +60,28 @@ export const buildProjectConstants = async (
     }
   }
 
+  return JSON.parse(JSON.stringify(projectConstants)); // stringify and parse to remove undefined values
+};
+
+export const buildNFTProjectConstants = async (
+  nftInfo: NFTInfo,
+  chainsInfo: ChainsInfo,
+  hookType: Hooks
+) => {
+  const deploymentMode = getMode();
+  const projectConstants: ProjectConstants = {
+    [deploymentMode]: {},
+  };
+
+  const { nft, nftAddresses } = nftInfo;
+  projectConstants[deploymentMode][nft] = {
+    vaultChains: chainsInfo.vaultChains,
+    controllerChains: chainsInfo.controllerChains,
+    tokenAddresses: nftAddresses?.[nft],
+    hook: {
+      hookType,
+    },
+  };
   return JSON.parse(JSON.stringify(projectConstants)); // stringify and parse to remove undefined values
 };
 
