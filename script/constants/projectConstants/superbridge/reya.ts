@@ -11,7 +11,13 @@ export const pc: ProjectConstants = {
   [DeploymentMode.PROD]: {
     [Tokens.USDC]: {
       controllerChains: [ChainSlug.REYA],
-      vaultChains: [ChainSlug.MAINNET, ChainSlug.BASE],
+      vaultChains: [
+        ChainSlug.MAINNET,
+        ChainSlug.BASE,
+        ChainSlug.ARBITRUM,
+        ChainSlug.POLYGON_MAINNET,
+        ChainSlug.OPTIMISM,
+      ],
       hook: {
         hookType: Hooks.LIMIT_EXECUTION_HOOK,
         limitsAndPoolId: {
@@ -22,6 +28,24 @@ export const pc: ProjectConstants = {
             },
           },
           [ChainSlug.BASE]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.ARBITRUM]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.POLYGON_MAINNET]: {
+            [IntegrationTypes.fast]: {
+              sendingLimit: "100000000",
+              receivingLimit: "100000000",
+            },
+          },
+          [ChainSlug.OPTIMISM]: {
             [IntegrationTypes.fast]: {
               sendingLimit: "100000000",
               receivingLimit: "100000000",
