@@ -1,0 +1,7 @@
+export enum NFTs {
+  GOTCHI = "GOTCHI",
+  GOTCHI_ITEM = "GOTCHI_ITEM",
+  FORGE = "FORGE",
+  REALM = "REALM",
+  INSTALLATION = "INSTALLATION",
+}

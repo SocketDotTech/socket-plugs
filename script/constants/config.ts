@@ -1,11 +1,12 @@
 import { config as dotenvConfig } from "dotenv";
-dotenvConfig();
-
 import { DeploymentMode } from "@socket.tech/dl-core";
-import { Project, Tokens } from "../../src/enums";
-import { ProjectType } from "../../src";
+import { NFTs, Project, Tokens } from "../../src/enums";
+import { ProjectType, TokenType } from "../../src";
 import { ProjectTypeMap } from "../../src/enums/projectType";
 import { ProdTestnetProjects } from "../../src/enums/prodTestnetProjects";
+
+dotenvConfig();
+
 // import { Project, ProjectType, Tokens } from "../../src";
 
 export const getOwner = () => {
@@ -73,14 +74,22 @@ export const isSuperToken = () => getProjectType() === ProjectType.SUPERTOKEN;
 
 export const getTokens = () => {
   if (!process.env.TOKENS) throw new Error("TOKENS not mentioned");
-  let tokens = process.env.TOKENS.split(",").map(
-    (token) => token.trim() as Tokens
-  );
+  let tokens = process.env.TOKENS.split(",").map((token) => token.trim());
   tokens.forEach((token) => {
-    if (!Object.values(Tokens).includes(token as Tokens))
+    if (
+      !Object.values(Tokens).includes(token as Tokens) &&
+      !Object.values(NFTs).includes(token as NFTs)
+    )
       throw new Error("TOKENS are invalid");
   });
   return tokens;
+};
+
+export const getTokenTypes = () => {
+  if (!process.env.TOKEN_TYPES) throw new Error("TOKEN_TYPES not mentioned");
+  return process.env.TOKEN_TYPES.split(",").map(
+    (tokenType) => tokenType.trim() as TokenType
+  );
 };
 
 export const getDryRun = () => {
@@ -94,17 +103,20 @@ export const getConfigs = () => {
   let projectType = getProjectType();
   let projectName = getProjectName();
   let tokens = getTokens();
+  let tokenTypes = getTokenTypes();
   let mode = getMode();
   let socketOwner = getOwner();
-  return { projectType, projectName, tokens, mode, socketOwner };
+  return { projectType, projectName, tokens, tokenTypes, mode, socketOwner };
 };
 
 export const printConfigs = () => {
-  let { projectType, projectName, tokens, mode, socketOwner } = getConfigs();
+  let { projectType, projectName, tokens, tokenTypes, mode, socketOwner } =
+    getConfigs();
   console.log("========================================================");
   console.log("PROJECT", projectName);
   console.log("PROJECT_TYPE", projectType);
   console.log("TOKENS", tokens);
+  console.log("TOKEN_TYPES", tokenTypes);
   console.log("MODE", mode);
   console.log(
     `Make sure ${mode}_${projectName}_addresses.json and ${mode}_${projectName}_verification.json is cleared for given networks if redeploying!!`

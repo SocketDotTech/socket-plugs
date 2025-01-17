@@ -1,0 +1,40 @@
+{
+  "84532": [
+    [
+      "0xB2B948d421Ce7c0eC075a073682236269614D32d",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x2709f098E8C641796B495bED28A34F9FEA858ac8",
+        "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
+        631571,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x2709f098E8C641796B495bED28A34F9FEA858ac8",
+      "NFTVault",
+      "contracts/bridge/NFT/NFTVault.sol",
+      ["0x87C969d083189927049f8fF3747703FB9f7a8AEd", "0xd9b67a26"]
+    ]
+  ],
+  "631571": [
+    [
+      "0xc14Bc9857A27b428b3eB84cB561412a42C9B9798",
+      "ConnectorPlug",
+      "contracts/ConnectorPlug.sol",
+      [
+        "0x60d629c876E455eFdca83e2b4c85DfB9d4C3C58C",
+        "0x5C4186D343EeF952c9ED886E45F8243edf0A503F",
+        84532,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    ],
+    [
+      "0x60d629c876E455eFdca83e2b4c85DfB9d4C3C58C",
+      "NFTController",
+      "contracts/bridge/NFT/NFTController.sol",
+      ["0x954B9F6DaB28F92c88192E2F52FDa5A6Df4A0334", "0xd9b67a26"]
+    ]
+  ]
+}

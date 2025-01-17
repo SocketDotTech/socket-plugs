@@ -4,7 +4,7 @@ import {
   DeploymentMode,
   IntegrationTypes,
 } from "@socket.tech/dl-core";
-import { Project, Tokens } from "../../src/enums";
+import { NFTs, Project, Tokens } from "../../src/enums";
 import { Hooks } from "../../src";
 
 export const chainSlugReverseMap = createReverseEnumMap(ChainSlug);
@@ -25,12 +25,17 @@ function createReverseEnumMap(enumObj: any) {
   return reverseMap;
 }
 
-export const getEnumMaps = (tokensEnum: object = Tokens) => {
+export const getEnumMaps = (
+  tokensEnum: object = Tokens,
+  nftsEnum: object = NFTs
+) => {
   // tokens is calculating separately because it is updated during setupScript with new token
   const tokensMap = createReverseEnumMap(tokensEnum);
+  const nftsMap = createReverseEnumMap(nftsEnum);
   return {
     chainSlugMap: chainSlugReverseMap,
     tokensMap,
+    nftsMap,
     integrationTypesMap: integrationTypesreverseMap,
     deploymentModeMap: deploymentModeReverseMap,
     hookMap: hookReverseMap,

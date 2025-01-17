@@ -7,8 +7,9 @@ import {
   ProjectType,
   SuperBridgeContracts,
   SuperTokenContracts,
+  TokenType,
 } from "./enum";
-import { Project, Tokens } from "./enums";
+import { NFTs, Project, Tokens } from "./enums";
 import { S3ChainConfig } from "@socket.tech/dl-core";
 
 export type ProjectConstantsMap = {
@@ -17,7 +18,7 @@ export type ProjectConstantsMap = {
 
 export type ProjectConstants = {
   [key in DeploymentMode]?: {
-    [key in Tokens]?: TokenConstants;
+    [key in Tokens | NFTs]?: TokenConstants;
   };
 };
 
@@ -102,7 +103,7 @@ export type SBTokenAddresses = AppChainAddresses | NonAppChainAddresses;
 
 export type SBAddresses = {
   [chainSlug in ChainSlug]?: {
-    [token in Tokens]?: SBTokenAddresses;
+    [token in Tokens | NFTs]?: SBTokenAddresses;
   };
 };
 
@@ -122,7 +123,7 @@ export type STTokenAddresses =
 
 export type STAddresses = {
   [chainSlug in ChainSlug]?: {
-    [token in Tokens]?: STTokenAddresses;
+    [token in Tokens | NFTs]?: STTokenAddresses;
   };
 };
 
@@ -130,7 +131,8 @@ export interface DeployParams {
   addresses: SBTokenAddresses | STTokenAddresses;
   signer: Wallet;
   currentChainSlug: number;
-  currentToken: Tokens;
+  currentToken: string;
+  currentTokenType: TokenType;
   hookType?: Hooks;
   mergeInboundWithTokens: Tokens[];
   tc: TokenConstants;

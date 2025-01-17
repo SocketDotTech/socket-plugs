@@ -208,7 +208,7 @@ export const getSocket = (chain: ChainSlug, signer: Wallet): Contract => {
 export const storeTokenAddresses = async (
   addresses: SBTokenAddresses,
   chainSlug: ChainSlug,
-  tokenName: Tokens
+  tokenName: string
 ) => {
   if (getDryRun()) return;
 
