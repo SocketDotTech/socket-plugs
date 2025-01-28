@@ -161,3 +161,31 @@ Tests are run using the [Forge](https://github.com/foundry-rs/foundry/tree/maste
 ```bash
 forge test
 ```
+
+## Test Token Faucets
+
+Use these faucets to receive test tokens on Arbitrum Sepolia and Optimism Sepolia testnets. Each request will send you 1000 units of the requested tokens (adjusted for token decimals). These can be used on the demo projects deployed when adding a new chain.
+
+### Faucet Addresses
+- Arbitrum Sepolia: [0x406c77947d91f965f09b458c07a66a033c3efea4](https://sepolia.arbiscan.io/address/0x406c77947d91f965f09b458c07a66a033c3efea4)
+- Optimism Sepolia: [0xbebfcb5a41836490c6449ce755c8dc361c175aa3](https://sepolia-optimism.etherscan.io/address/0xbebfcb5a41836490c6449ce755c8dc361c175aa3)
+
+### How to Use
+
+You can request tokens using Foundry's `cast` command. Here's an example using Arbitrum Sepolia:
+
+```bash
+cast send 0x406c77947d91f965f09b458c07a66a033c3efea4 "getTokens(address,address[])" YOUR_ADDRESS "[TOKEN_ADDRESS]" --rpc-url https://sepolia-rollup.arbitrum.io/rpc --private-key $YOUR_PRIVATE_KEY
+```
+
+#### Example
+To get test USDC on Arbitrum Sepolia:
+```bash
+cast send 0x406c77947d91f965f09b458c07a66a033c3efea4 "getTokens(address,address[])" YOUR_ADDRESS "[0x8537307810fC40F4073A12a38554D4Ff78EfFf41]" --rpc-url https://sepolia-rollup.arbitrum.io/rpc --private-key $YOUR_PRIVATE_KEY
+```
+
+Replace:
+- `YOUR_ADDRESS` with your wallet address
+- `$YOUR_PRIVATE_KEY` with your private key environment variable
+
+For Optimism Sepolia, use the Optimism faucet address and RPC URL: `https://sepolia.optimism.io`
