@@ -84,6 +84,7 @@ const liveNetworks = [
   HardhatChainName.REYA,
   HardhatChainName.SYNDR_SEPOLIA_L3,
   CustomNetworks.POLTER_DEVNET,
+  HardhatChainName.B3,
 ];
 
 let hardhatNetworkDetails = {};
@@ -117,6 +118,7 @@ const config: HardhatUserConfig = {
       [HardhatChainName.REYA]: "none",
       [HardhatChainName.AEVO]: "none",
       [CustomNetworks.POLTER_DEVNET]: "none",
+      [HardhatChainName.B3]: "none",
     },
     // Custom chains for verification. These are only for verification to work. The hardhat etherscan plugin does not support these chains.
     customChains: [
@@ -200,6 +202,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://polter-sepolia-explorer-be.devnet.alchemy.com/api",
           browserURL: "https://polter-sepolia-explorer.devnet.alchemy.com/",
+        },
+      },
+      {
+        network: HardhatChainName.B3,
+        chainId: ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.B3]],
+        urls: {
+          apiURL: "https://explorer.b3.fun/api",
+          browserURL: "https://explorer.b3.fun/",
         },
       },
     ],
