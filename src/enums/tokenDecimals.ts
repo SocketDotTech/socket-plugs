@@ -24,4 +24,5 @@ export const tokenDecimals: { [key in Tokens]: number } = {
   [Tokens.SUSDE]: 18,
   [Tokens.SDEUSD]: 18,
   [Tokens.DEUSD]: 18,
+  [Tokens.B3]: 18,
 };

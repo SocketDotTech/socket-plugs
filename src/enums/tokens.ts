@@ -22,4 +22,5 @@ export enum Tokens {
   SUSDE = "SUSDE",
   SDEUSD = "SDEUSD",
   DEUSD = "DEUSD",
+  B3 = "B3",
 }

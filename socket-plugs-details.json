@@ -22,7 +22,8 @@
     "MAGIC": 18,
     "SUSDE": 18,
     "SDEUSD": 18,
-    "DEUSD": 18
+    "DEUSD": 18,
+    "B3": 18
   },
   "tokenAddresses": {
     "1": {
@@ -64,13 +65,17 @@
       "WETH": "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
       "WBTC": "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6"
     },
+    "8333": {
+      "B3": "0xB3B32F9f8827D4634fE7d973Fa1034Ec9fdDB3B3"
+    },
     "8453": {
       "USDC": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
       "WETH": "0x4200000000000000000000000000000000000006",
       "wstETH": "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
       "DAI": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
       "ETH": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-      "SUSDE": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2"
+      "SUSDE": "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2",
+      "B3": "0xB3B32F9f8827D4634fE7d973Fa1034Ec9fdDB3B3"
     },
     "42161": {
       "USDC": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
@@ -143,7 +148,8 @@
     "MAGIC": "MAGIC",
     "SUSDE": "SUSDE",
     "SDEUSD": "SDEUSD",
-    "DEUSD": "DEUSD"
+    "DEUSD": "DEUSD",
+    "B3": "B3"
   },
   "projects": [
     "aevo",
@@ -166,7 +172,8 @@
     "timeswap_test_mainnet",
     "testing_testnet",
     "magic_mainnet",
-    "polter_testnet"
+    "polter_testnet",
+    "b3_mainnet"
   ],
   "tokens": [
     "USDC.e",
@@ -191,6 +198,7 @@
     "MAGIC",
     "SUSDE",
     "SDEUSD",
-    "DEUSD"
+    "DEUSD",
+    "B3"
   ]
 }

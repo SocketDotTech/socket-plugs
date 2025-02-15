@@ -43,6 +43,9 @@ export const ExistingTokenAddresses: {
     [Tokens.WETH]: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
     [Tokens.WBTC]: "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
   },
+  [ChainSlug.B3]: {
+    [Tokens.B3]: "0xB3B32F9f8827D4634fE7d973Fa1034Ec9fdDB3B3",
+  },
   [ChainSlug.BASE]: {
     [Tokens.USDC]: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     [Tokens.WETH]: "0x4200000000000000000000000000000000000006",
@@ -50,6 +53,7 @@ export const ExistingTokenAddresses: {
     [Tokens.DAI]: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
     [Tokens.ETH]: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     [Tokens.SUSDE]: "0x211Cc4DD073734dA055fbF44a2b4667d5E5fE5d2",
+    [Tokens.B3]: "0xB3B32F9f8827D4634fE7d973Fa1034Ec9fdDB3B3",
   },
   [ChainSlug.ARBITRUM]: {
     [Tokens.USDC]: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",

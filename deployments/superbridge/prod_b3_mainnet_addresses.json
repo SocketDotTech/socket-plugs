@@ -1,0 +1,28 @@
+{
+  "8333": {
+    "B3": {
+      "isAppChain": true,
+      "MintableToken": "0xB3B32F9f8827D4634fE7d973Fa1034Ec9fdDB3B3",
+      "Controller": "0x6873ED2dda63e44C2F655Dd093ceb6DCA96e5Fc3",
+      "LimitHook": "0x4F1505f9615D94651FD3Ca5aD8910875E9aA2854",
+      "connectors": {
+        "8453": {
+          "FAST": "0xf5BDA9694F6f155348144faA6A1961D1a22C2Db4"
+        }
+      }
+    }
+  },
+  "8453": {
+    "B3": {
+      "isAppChain": false,
+      "NonMintableToken": "0xB3B32F9f8827D4634fE7d973Fa1034Ec9fdDB3B3",
+      "Vault": "0x5D6689B75A3019712A93aD866f119b66D664E198",
+      "LimitHook": "0x1a0dfde3FE4f15119bC750414A3457BF5E9E8C25",
+      "connectors": {
+        "8333": {
+          "FAST": "0x20bDD81FeA5A5e6a539Be17d2029204b16626624"
+        }
+      }
+    }
+  }
+}
