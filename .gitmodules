@@ -8,3 +8,6 @@
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "lib/socket-protocol"]
+	path = lib/socket-protocol
+	url = https://github.com/SocketDotTech/socket-protocol
