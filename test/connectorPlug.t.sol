@@ -1,141 +1,107 @@
-pragma solidity 0.8.13;
+pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-import "../contracts/common/Errors.sol";
-import "../contracts/ConnectorPlug.sol";
-import "../contracts/interfaces/ISocket.sol";
-import "forge-std/console.sol";
+import "../lib/socket-protocol/test/SetupTest.t.sol";
+import {ConnectorPlug, NotBridge} from "../contracts/ConnectorPlug.sol";
+import {Controller} from "../contracts/bridge/Controller.sol";
+import {MintableToken} from "./mocks/MintableToken.sol";
 
-contract TestVault is Test {
-    uint256 _c = 1000;
-    ConnectorPlug connectorPlug;
-    address immutable _admin = address(uint160(_c++));
-    address immutable _raju = address(uint160(_c++));
-    address immutable _bridge = address(uint160(_c++));
-    address immutable _socket = address(uint160(_c++));
-    uint32 immutable _siblingChainSlug = uint32(_c++);
-    bytes32 immutable _messageId = bytes32(_c++);
-    uint256 constant _fees = 0.001 ether;
+contract TestVault is MessageSwitchboardSetup {
+    address immutable _raju = address(uint160(c++));
     uint256 constant _amount = 1 ether;
-    uint256 constant _msgGasLimit = 200_000;
-    bytes32 immutable _transmissionParams = bytes32(_c++);
+
+    ConnectorPlug arbPlug;
+    MintableToken arbToken;
+    Controller arbController;
+
+    ConnectorPlug optPlug;
+    MintableToken optToken;
+    Controller optController;
 
     function setUp() external {
-        connectorPlug = new ConnectorPlug(
-            address(_bridge),
-            address(_socket),
-            _siblingChainSlug,
-            _transmissionParams
+        _deploy();
+
+        arbToken = new MintableToken("Moon", "MOON", 18);
+        arbController = new Controller(address(arbToken));
+        optToken = new MintableToken("Moon", "MOON", 18);
+        optController = new Controller(address(optToken));
+
+        arbPlug = new ConnectorPlug(
+            address(arbConfig.socket),
+            address(arbConfig.messageSwitchboard),
+            address(arbController),
+            optConfig.chainSlug
         );
+        optPlug = new ConnectorPlug(
+            address(optConfig.socket),
+            address(optConfig.messageSwitchboard),
+            address(optController),
+            arbConfig.chainSlug
+        );
+
+        bool[] memory statuses = new bool[](1);
+        statuses[0] = true;
+
+        address[] memory connectors = new address[](1);
+        connectors[0] = address(arbPlug);
+        arbController.updateConnectorStatus(connectors, statuses);
+        connectors[0] = address(optPlug);
+        optController.updateConnectorStatus(connectors, statuses);
+
+        arbPlug.registerSibling(optConfig.chainSlug, address(optPlug));
+        optPlug.registerSibling(arbConfig.chainSlug, address(arbPlug));
     }
 
     function testNotBridgeSender() public {
         bytes memory options = "";
         bytes memory payload = abi.encode(_raju, _amount);
+
         vm.prank(_raju);
         vm.expectRevert(NotBridge.selector);
-        connectorPlug.outbound(_msgGasLimit, payload, options);
+        arbPlug.outbound(msgSbGasLimit, payload, options);
     }
 
-    function testInvalidLengthOptions() public {
-        bytes memory options = abi.encode(
-            bytes32(uint256(1)),
-            bytes32(uint256(2))
-        );
-        bytes memory payload = abi.encode(_raju, _amount);
-        vm.prank(_bridge);
-        vm.expectRevert(InvalidOptionsLength.selector);
-        connectorPlug.outbound(_msgGasLimit, payload, options);
-    }
-
-    function testOutboundWithEmptyOptions() public {
-        // Setup
+    function testBridge1() public {
         bytes memory options = "";
-        bytes memory payload = abi.encode(_raju, _amount);
+        bytes memory payload = abi.encode(
+            _raju,
+            _amount,
+            bytes32(0),
+            new bytes(0)
+        );
 
-        // Test
-        vm.expectCall(
-            _socket,
-            abi.encodeCall(
-                ISocket.outbound,
-                (
-                    _siblingChainSlug,
-                    _msgGasLimit,
-                    bytes32(0),
-                    _transmissionParams,
+        (
+            uint40 payloadCounter,
+            DigestParams memory digestParams
+        ) = _getTriggerData(
+                arbPlug,
+                optPlug,
+                arbConfig,
+                optConfig,
+                abi.encodeWithSelector(
+                    ConnectorPlug.inbound.selector,
+                    optConfig.chainSlug,
                     payload
                 )
-            )
+            );
+
+        assertEq(optToken.balanceOf(_raju), 0);
+
+        hoax(address(arbController));
+        vm.expectEmit(true, true, true, true);
+        emit TriggerProcessed(
+            optConfig.chainSlug,
+            msgSbFees,
+            _createDigest(digestParams),
+            digestParams
+        );
+        arbPlug.outbound{value: msgSbFees}(msgSbGasLimit, payload, options);
+
+        _executeOnDestination(
+            digestParams,
+            digestParams.prevBatchDigestHash,
+            payloadCounter
         );
 
-        vm.mockCall(
-            _socket,
-            abi.encodeCall(
-                ISocket.outbound,
-                (
-                    _siblingChainSlug,
-                    _msgGasLimit,
-                    bytes32(0),
-                    _transmissionParams,
-                    payload
-                )
-            ),
-            abi.encode(_messageId)
-        );
-        vm.prank(_bridge);
-        bytes32 messageId = connectorPlug.outbound(
-            _msgGasLimit,
-            payload,
-            options
-        );
-
-        // Assert
-        assertEq(messageId, _messageId, "MessageId not matched");
-    }
-
-    function testOutboundWithOptions() public {
-        // Setup
-        bytes32 executionParams = bytes32(uint256(1));
-        bytes memory options = abi.encode(executionParams);
-        bytes memory payload = abi.encode(_raju, _amount);
-
-        // Test
-        vm.expectCall(
-            _socket,
-            abi.encodeCall(
-                ISocket.outbound,
-                (
-                    _siblingChainSlug,
-                    _msgGasLimit,
-                    executionParams,
-                    _transmissionParams,
-                    payload
-                )
-            )
-        );
-
-        vm.mockCall(
-            _socket,
-            abi.encodeCall(
-                ISocket.outbound,
-                (
-                    _siblingChainSlug,
-                    _msgGasLimit,
-                    executionParams,
-                    _transmissionParams,
-                    payload
-                )
-            ),
-            abi.encode(_messageId)
-        );
-        vm.prank(_bridge);
-        bytes32 messageId = connectorPlug.outbound(
-            _msgGasLimit,
-            payload,
-            options
-        );
-
-        // Assert
-        assertEq(messageId, _messageId, "MessageId not matched");
+        assertEq(optToken.balanceOf(_raju), _amount);
     }
 }

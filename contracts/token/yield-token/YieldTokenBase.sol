@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import "openzeppelin-contracts/contracts/security/ReentrancyGuard.sol";
+import "openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import "../../utils/RescueBase.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";

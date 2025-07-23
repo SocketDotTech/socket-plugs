@@ -1,4 +1,4 @@
-pragma solidity 0.8.13;
+pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 
@@ -87,7 +87,7 @@ contract Setup is Test {
 }
 
 contract TestController_YieldLimitExecHook is Setup {
-    function testUpdateLimitParams() external {
+    function testUpdateLimitParams() external view {
         LimitParams memory burnLimitParams = hook__.getSendingLimitParams(
             _connector
         );
