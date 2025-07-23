@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-pragma solidity 0.8.13;
+pragma solidity ^0.8.13;
 
 import "../../contracts/interfaces/IStrategy.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";

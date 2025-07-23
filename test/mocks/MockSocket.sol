@@ -1,4 +1,4 @@
-pragma solidity 0.8.13;
+pragma solidity ^0.8.13;
 
 import "../../contracts/interfaces/ISocket.sol";
 import "../../contracts/interfaces/IPlug.sol";
