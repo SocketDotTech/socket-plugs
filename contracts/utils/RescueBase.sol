@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+pragma solidity ^0.8.13;
 import {RescueFundsLib} from "../libraries/RescueFundsLib.sol";
 import {AccessControl} from "./AccessControl.sol";
 

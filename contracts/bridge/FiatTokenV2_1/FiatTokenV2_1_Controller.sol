@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.13;
+pragma solidity ^0.8.13;
 
 import {IFiatTokenV2_1_Mintable} from "./IFiatTokenV2_1_Mintable.sol";
 import "../Controller.sol";
