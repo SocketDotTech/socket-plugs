@@ -25,4 +25,5 @@ export const tokenSymbol: { [key in Tokens]: string } = {
   [Tokens.SDEUSD]: "SDEUSD",
   [Tokens.DEUSD]: "DEUSD",
   [Tokens.B3]: "B3",
+  [Tokens.MF_ONE]: "MF-ONE",
 };

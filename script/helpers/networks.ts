@@ -71,7 +71,7 @@ export const overrides: {
   [ChainSlug.MAINNET]: {
     type: 1,
     gasLimit: 4_000_000,
-    gasPrice: 40_000_000_000,
+    gasPrice: 6_000_000_000,
   },
   [ChainSlug.SX_NETWORK_TESTNET]: {
     // type: 1,
