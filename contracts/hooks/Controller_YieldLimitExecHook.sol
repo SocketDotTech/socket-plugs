@@ -174,7 +174,7 @@ contract Controller_YieldLimitExecHook is LimitExecutionHook {
         if (pendingUnderlying > 0) {
             // totalShares * consumedU / totalU
             uint256 consumedShares = (params_.transferInfo.amount *
-                pendingUnderlying) / depositUnderlying;
+                consumedUnderlying) / depositUnderlying;
 
             pendingShares = params_.transferInfo.amount - consumedShares;
 
