@@ -566,6 +566,59 @@ contract TestController_YieldLimitExecHook is Setup {
         assertEq(cacheData.identifierCache, bytes(""), "identifierCache sus");
     }
 
+    function testDstPostHookForDepositPartiallyPending() external {
+        // receiving limit is 100, so a 150 deposit splits 100 consumed / 50 pending
+        uint256 amount = 150;
+        address receiver = _raju;
+        bytes memory data = abi.encode((amount), bytes(""));
+
+        // dstPreHookCall redirects the mint to the hook when part of the
+        // deposit is pending; fund the hook so dstPostHookCall can release
+        // the consumed portion to the receiver
+        vm.prank(_raju);
+        yieldToken__.transfer(address(hook__), amount);
+
+        vm.startPrank(_controller);
+        (bytes memory postHookData, TransferInfo memory transferInfo) = hook__
+            .dstPreHookCall(
+                DstPreHookCallParams(
+                    _connector,
+                    bytes(""),
+                    TransferInfo(receiver, amount, data)
+                )
+            );
+
+        (uint256 consumedU, uint256 pendingU, , ) = abi.decode(
+            postHookData,
+            (uint256, uint256, uint256, address)
+        );
+        assertEq(consumedU, 100, "consumedUnderlying sus");
+        assertEq(pendingU, 50, "pendingUnderlying sus");
+        // shares are minted 1:1 with underlying in this setup
+        assertEq(transferInfo.amount, amount, "sharesToMint sus");
+        assertEq(transferInfo.receiver, address(hook__), "mint target sus");
+
+        CacheData memory cacheData = hook__.dstPostHookCall(
+            DstPostHookCallParams(
+                _connector,
+                messageId,
+                abi.encode(0),
+                postHookData,
+                transferInfo
+            )
+        );
+        vm.stopPrank();
+
+        // the retry cache must hold the PENDING shares (50), not the
+        // consumed ones, and the connector cache must grow by the same 50
+        (, uint256 pendingShares, , ) = abi.decode(
+            cacheData.identifierCache,
+            (address, uint256, address, bytes)
+        );
+        assertEq(pendingShares, 50, "pendingShares sus");
+        assertEq(cacheData.connectorCache, abi.encode(50), "connectorCache sus");
+    }
+
     // retry hooks
     function testRetryPreHookCaller() external {
         vm.startPrank(_raju);
