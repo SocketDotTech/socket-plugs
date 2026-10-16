@@ -106,6 +106,10 @@ export type SBAddresses = {
   };
 };
 
+// Backward-compatible aliases for services that consume Superbridge addresses.
+export type ProjectAddresses = SBAddresses;
+export type ChainAddresses = SBAddresses[ChainSlug];
+
 export interface STControllerChainAddresses extends CommonAddresses {
   [SuperTokenContracts.SuperToken]: string;
   [CommonContracts.Controller]: string;

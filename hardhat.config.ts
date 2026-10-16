@@ -123,6 +123,15 @@ const config: HardhatUserConfig = {
     // Custom chains for verification. These are only for verification to work. The hardhat etherscan plugin does not support these chains.
     customChains: [
       {
+        network: HardhatChainName.MAINNET,
+        chainId:
+          ChainSlugToId[hardhatChainNameToSlug[HardhatChainName.MAINNET]],
+        urls: {
+          apiURL: "https://api.etherscan.io/v2/api?chainid=1",
+          browserURL: "https://etherscan.io/",
+        },
+      },
+      {
         network: HardhatChainName.OPTIMISM_SEPOLIA,
         chainId:
           ChainSlugToId[
